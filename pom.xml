@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.3.4.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <groupId>no.nav.bidrag</groupId>
+  <artifactId>bidrag-arbeidsflyt</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <name>bidrag-arbeidsflyt</name>
+  <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
+
+  <properties>
+    <!-- dependencies -->
+    <avro.version>1.9.2</avro.version>
+    <bidrag-hendelse-schema.version>0.0.4</bidrag-hendelse-schema.version>
+    <kafka-avro-serializer.version>5.5.0</kafka-avro-serializer.version>
+
+    <!-- language & build -->
+    <build-helper-maven.version>3.1.0</build-helper-maven.version>
+    <java.version>15</java.version>
+    <kotlin.code.style>official</kotlin.code.style>
+    <kotlin.version>1.4.0</kotlin.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <dependencies>
+    <!-- nav -->
+    <dependency>
+      <artifactId>bidrag-hendelse-schema</artifactId>
+      <groupId>no.nav.bidrag.hendelse</groupId>
+      <version>${bidrag-hendelse-schema.version}</version>
+    </dependency>
+
+    <!-- spring & spring-boot -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-actuator</artifactId>
+    </dependency>
+
+    <!-- kafka -->
+    <dependency>
+      <artifactId>kafka-avro-serializer</artifactId>
+      <groupId>io.confluent</groupId>
+      <version>${kafka-avro-serializer.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>avro</artifactId>
+      <groupId>org.apache.avro</groupId>
+      <version>${avro.version}</version>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>
