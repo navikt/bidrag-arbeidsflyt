@@ -11,39 +11,23 @@ jobs:
 
   build:
     name: Build with maven and docker
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - uses: navikt/bidrag-docker/exists@v1
+      - uses: navikt/bidrag-docker/local-exists@v1
         id: dockerimage
         with:
-          image_name: bidrag-beregn-bidragsevne-rest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          image_id: ${{ env.IMAGE }}
       - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
+      - run: env
+      - run: sudo rm -rf *
       - uses: actions/checkout@v2
         if: env.NOT_FOUND == 'true'
-      - uses: actions/setup-java@v1.3.0
-        if: env.NOT_FOUND == 'true'
-        with:
-          java-version: '15'
-      - run: env
-      - uses: actions/cache@v1
-        if: env.NOT_FOUND == 'true'
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v4
-        if: env.NOT_FOUND == 'true'
-        with:
-          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/verify-dependencies@v1
         if: env.NOT_FOUND == 'true'
-      - run: mvn install -B -e
+        with:
+          maven_image: maven:3.6.3-openjdk-15
+      - run: docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-openjdk-15 mvn install -B -e
         if: env.NOT_FOUND == 'true'
       - name: Build and publish Docker image
         if: env.NOT_FOUND == 'true'
@@ -53,4 +37,3 @@ jobs:
           docker build --tag ${IMAGE} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
-
