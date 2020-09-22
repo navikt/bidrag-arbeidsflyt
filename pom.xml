@@ -21,7 +21,7 @@
     <!-- dependencies -->
     <avro.version>1.9.2</avro.version>
     <bidrag-hendelse-schema.version>0.0.4</bidrag-hendelse-schema.version>
-    <kafka-avro-serializer.version>5.5.0</kafka-avro-serializer.version>
+    <kafka-avro-serializer.version>5.5.1</kafka-avro-serializer.version>
 
     <!-- language & build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
