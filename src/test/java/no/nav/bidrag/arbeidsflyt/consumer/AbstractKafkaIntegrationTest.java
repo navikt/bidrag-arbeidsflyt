@@ -1,12 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
-import no.nav.bidrag.arbeidsflyt.BidragArbeidsflyt;
+import no.nav.bidrag.arbeidsflyt.BidragArbeidsflytLocal;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
 
-@SpringBootTest(classes = BidragArbeidsflyt.class)
+@SpringBootTest(classes = BidragArbeidsflytLocal.class)
 public abstract class AbstractKafkaIntegrationTest {
 
   static KafkaContainer kafkaContainer = new KafkaContainer();
