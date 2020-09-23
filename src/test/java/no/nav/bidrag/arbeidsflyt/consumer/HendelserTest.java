@@ -1,32 +1,61 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
-import static org.mockito.Mockito.verify;
-
-import no.nav.bidrag.arbeidsflyt.dto.RegistrerJournalpost;
-import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
-import no.nav.bidrag.hendelse.producer.dto.RegistrerJournalpostDto;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-@ExtendWith(MockitoExtension.class)
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.LongStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @DisplayName("Hendelser (arbeidsflyt test)")
-class HendelserTest {
+class HendelserTest extends AbstractKafkaIntegrationTest {
 
-  @InjectMocks
-  private Hendelser hendelser;
+    @Value("${kafka.topic}")
+    private String topicName;
 
-  @Mock
-  private JournalpostService journalpostServiceMock;
+    @Autowired
+    private KafkaProperties properties;
 
-  @Test
-  @DisplayName("skal prosessere registrering av journalpost")
-  void skalProsessereRegistreringAvJournalpost() {
-    hendelser.utfor(new RegistrerJournalpostDto("101", "007"));
+    @Test
+    void contextLoads() {
 
-    verify(journalpostServiceMock).registrerJournalpost(new RegistrerJournalpost("101", "007"));
-  }
+        final Consumer<String, String> consumer = createConsumer(topicName);
+        final ArrayList<String> actualValues = new ArrayList<>();
+        while (true) {
+            final ConsumerRecords<String, String> records = KafkaTestUtils.getRecords(consumer, 10000);
+            if (records.isEmpty()) {
+                break;
+            }
+            records.forEach(stringStringConsumerRecord -> actualValues.add(stringStringConsumerRecord.value()));
+        }
+
+        // fixture
+        final ArrayList<String> ours = new ArrayList<>();
+        LongStream.range(0, 10).forEach(i -> ours.add("kafka".toUpperCase() + i)
+        );
+
+        assertEquals(ours, actualValues);
+    }
+
+    private Consumer<String, String> createConsumer(final String topicName) {
+
+        final Consumer<String, String>
+                consumer =
+                new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties(), StringDeserializer::new,
+                        StringDeserializer::new).createConsumer();
+
+        consumer.subscribe(Collections.singletonList(topicName));
+        return consumer;
+    }
+
 }

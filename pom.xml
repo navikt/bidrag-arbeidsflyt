@@ -33,6 +33,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.12</version>
+    </dependency>
     <!-- nav -->
     <dependency>
       <artifactId>bidrag-hendelse-schema</artifactId>
@@ -64,6 +69,12 @@
       <artifactId>avro</artifactId>
       <groupId>org.apache.avro</groupId>
       <version>${avro.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <version>1.14.1</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- logging -->
