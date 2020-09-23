@@ -9,13 +9,13 @@ import org.testcontainers.containers.KafkaContainer;
 @SpringBootTest(classes = BidragArbeidsflyt.class)
 public abstract class AbstractKafkaIntegrationTest {
 
-    static KafkaContainer kafkaContainer = new KafkaContainer();
+  static KafkaContainer kafkaContainer = new KafkaContainer();
 
-    @DynamicPropertySource
-    static void kafkaProperties(DynamicPropertyRegistry registry) {
-        kafkaContainer.start();
-        registry.add("spring.kafka.properties.bootstrap.servers", kafkaContainer::getBootstrapServers);
-        registry.add("spring.kafka.consumer.properties.auto.offset.reset", () -> "earliest");
+  @DynamicPropertySource
+  static void kafkaProperties(DynamicPropertyRegistry registry) {
+    kafkaContainer.start();
+    registry.add("spring.kafka.properties.bootstrap.servers", kafkaContainer::getBootstrapServers);
+    registry.add("spring.kafka.consumer.properties.auto.offset.reset", () -> "earliest");
 
-    }
+  }
 }

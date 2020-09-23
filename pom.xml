@@ -22,6 +22,7 @@
     <avro.version>1.9.2</avro.version>
     <bidrag-hendelse-schema.version>0.0.4</bidrag-hendelse-schema.version>
     <kafka-avro-serializer.version>5.5.1</kafka-avro-serializer.version>
+    <testcontainers.kafka.version>1.14.1</testcontainers.kafka.version>
 
     <!-- language & build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
@@ -70,12 +71,6 @@
       <groupId>org.apache.avro</groupId>
       <version>${avro.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>kafka</artifactId>
-      <version>1.14.1</version>
-      <scope>test</scope>
-    </dependency>
 
     <!-- logging -->
     <dependency>
@@ -102,6 +97,12 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <version>${testcontainers.kafka.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

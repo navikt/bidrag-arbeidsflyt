@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JournalpostService {
-    public void registrerJournalpost(RegistrerJournalpost registrerJournalpost) {
-    }
+
+  public void registrerJournalpost(RegistrerJournalpost registrerJournalpost) {
+  }
 }

@@ -1,5 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.kafka;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import no.nav.bidrag.hendelse.producer.dto.RegistrerJournalpostDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class KafkaMeldingProducerTest {
@@ -43,7 +43,7 @@ public class KafkaMeldingProducerTest {
 
     // WHEN
     KafkaMeldingProducer producer = new KafkaMeldingProducer(kafkaTopic,
-            kafkaTemplateMock);
+        kafkaTemplateMock);
 
     // THEN
     assertNotNull(producer);
