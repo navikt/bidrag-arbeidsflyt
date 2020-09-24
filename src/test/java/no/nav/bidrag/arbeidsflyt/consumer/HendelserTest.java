@@ -1,58 +1,50 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.LongStream;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import no.nav.bidrag.arbeidsflyt.BidragArbeidsflyt;
+import no.nav.bidrag.arbeidsflyt.dto.RegistrerJournalpost;
+import no.nav.bidrag.arbeidsflyt.kafka.KafkaMeldingProducer;
+import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
+import no.nav.bidrag.arbeidsflyt.util.SpringBootEmbeddedKafka;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-@DisplayName("Hendelser (arbeidsflyt test)")
-class HendelserTest extends AbstractKafkaIntegrationTest {
+import java.util.concurrent.TimeUnit;
 
-  @Value("${kafka.topic}")
-  private String topicName;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
 
-  @Autowired
-  private KafkaProperties properties;
+@SpringBootTest(classes = {BidragArbeidsflyt.class})
+public class HendelserTest extends SpringBootEmbeddedKafka {
 
-  @Test
-  void contextLoads() {
+    @Autowired
+    private Hendelser hendelser;
 
-    final Consumer<String, String> consumer = createConsumer(topicName);
-    final ArrayList<String> actualValues = new ArrayList<>();
+    @Autowired
+    private KafkaMeldingProducer sender;
 
-    ConsumerRecords<String, String> records = null;
+    @MockBean
+    JournalpostService journalpostService;
 
-    while (records == null || !records.isEmpty()) {
-      records = KafkaTestUtils.getRecords(consumer, 10000);
-      records.forEach(stringStringConsumerRecord -> actualValues.add(stringStringConsumerRecord.value().trim()));
+    @Value("${kafkatest.topic}")
+    private String topic;
+
+    @Test
+    public void testReceive() throws Exception {
+        template.send(topic, "Sending with default template");
+
+        hendelser.getLatch().await(10000, TimeUnit.MILLISECONDS);
+        assertThat(hendelser.getLatch().getCount(), equalTo(0L));
     }
 
-    // fixture
-    final ArrayList<String> ours = new ArrayList<>();
-    LongStream.range(0, 10).forEach(i -> ours.add("kafka".toUpperCase() + i));
+    @Test
+    public void testSend() throws Exception {
+        sender.sendMelding(01,"007");
 
-    assertThat(actualValues).isEqualTo(ours);
-  }
-
-  private Consumer<String, String> createConsumer(final String topicName) {
-
-    final Consumer<String, String> consumer = new DefaultKafkaConsumerFactory<>(
-        properties.buildConsumerProperties(), StringDeserializer::new, StringDeserializer::new
-    ).createConsumer();
-
-    consumer.subscribe(Collections.singletonList(topicName));
-
-    return consumer;
-  }
+        hendelser.getLatch().await(10000, TimeUnit.MILLISECONDS);
+        verify(journalpostService).registrerJournalpost(new RegistrerJournalpost("01","007"));
+    }
 }
