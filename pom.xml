@@ -19,10 +19,7 @@
 
   <properties>
     <!-- dependencies -->
-    <avro.version>1.9.2</avro.version>
     <bidrag-hendelse-schema.version>0.0.4</bidrag-hendelse-schema.version>
-    <kafka-avro-serializer.version>5.5.1</kafka-avro-serializer.version>
-
     <!-- language & build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
     <java.version>15</java.version>
@@ -30,7 +27,6 @@
     <kotlin.version>1.4.0</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <spring-kafka.version>2.0.2.RELEASE</spring-kafka.version>
   </properties>
 
   <dependencies>
@@ -49,23 +45,10 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
-      <version>${spring-kafka.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-actuator</artifactId>
-    </dependency>
-
-    <!-- kafka -->
-    <dependency>
-      <artifactId>kafka-avro-serializer</artifactId>
-      <groupId>io.confluent</groupId>
-      <version>${kafka-avro-serializer.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>avro</artifactId>
-      <groupId>org.apache.avro</groupId>
-      <version>${avro.version}</version>
     </dependency>
 
     <!-- testing -->
@@ -83,8 +66,11 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka-test</artifactId>
-      <version>${spring-kafka.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
     </dependency>
   </dependencies>
 

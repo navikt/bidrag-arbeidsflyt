@@ -1,50 +1,38 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
 import no.nav.bidrag.arbeidsflyt.BidragArbeidsflyt;
-import no.nav.bidrag.arbeidsflyt.dto.RegistrerJournalpost;
-import no.nav.bidrag.arbeidsflyt.kafka.KafkaMeldingProducer;
+import no.nav.bidrag.arbeidsflyt.kafka.HendelserProducer;
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
-import no.nav.bidrag.arbeidsflyt.util.SpringBootEmbeddedKafka;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = {BidragArbeidsflyt.class})
-public class HendelserTest extends SpringBootEmbeddedKafka {
+@DirtiesContext
+@EmbeddedKafka(partitions = 1, bootstrapServersProperty = "spring.kafka.bootstrap-servers")
+public class HendelserTest {
 
     @Autowired
     private Hendelser hendelser;
 
     @Autowired
-    private KafkaMeldingProducer sender;
+    private HendelserProducer producer;
 
     @MockBean
-    JournalpostService journalpostService;
-
-    @Value("${kafkatest.topic}")
-    private String topic;
-
-    @Test
-    public void testReceive() throws Exception {
-        template.send(topic, "Sending with default template");
-
-        hendelser.getLatch().await(10000, TimeUnit.MILLISECONDS);
-        assertThat(hendelser.getLatch().getCount(), equalTo(0L));
-    }
+    private JournalpostService journalpostService;
 
     @Test
     public void testSend() throws Exception {
-        sender.sendMelding(01,"007");
-
-        hendelser.getLatch().await(10000, TimeUnit.MILLISECONDS);
-        verify(journalpostService).registrerJournalpost(new RegistrerJournalpost("01","007"));
+        producer.sendMelding(1, "007");
+        assertTrue(this.hendelser.getLatch().await(10, TimeUnit.SECONDS));
+        verify(journalpostService).registrerJournalpost("1", "007");
     }
 }

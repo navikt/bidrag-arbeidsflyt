@@ -1,8 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
-import no.nav.bidrag.arbeidsflyt.dto.RegistrerJournalpost;
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
-import no.nav.bidrag.hendelse.producer.dto.RegistrerJournalpostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,8 +15,7 @@ public class Hendelser {
 
   private final JournalpostService journalpostService;
 
-
-  private CountDownLatch latch = new CountDownLatch(1);
+  private final CountDownLatch latch = new CountDownLatch(1);
 
   public CountDownLatch getLatch() {
     return latch;
@@ -29,9 +26,9 @@ public class Hendelser {
   }
 
   @KafkaListener(topics = {"${kafka.topic}"})
-  public void utfor(RegistrerJournalpostDto registrerJournalpostDto) {
+  public void utfor(String melding) {
     LOGGER.info("prosesserer $registrerJournalpostDto");
-    journalpostService.registrerJournalpost(new RegistrerJournalpost(registrerJournalpostDto));
+    journalpostService.registrerJournalpost("1", "007");
     latch.countDown();
   }
 }
