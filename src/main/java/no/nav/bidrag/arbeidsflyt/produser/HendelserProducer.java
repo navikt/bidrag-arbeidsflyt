@@ -1,4 +1,4 @@
-package no.nav.bidrag.arbeidsflyt.kafka;
+package no.nav.bidrag.arbeidsflyt.produser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,8 @@ public class HendelserProducer {
   }
 
   public void sendMelding(int journalpostid, String saksnummer) {
+
+
     LOGGER.info(String.format("Publiserer melding paa topic med journalpostid %s og saksnummer %s.", journalpostid, saksnummer));
     this.kafkaTemplate.send(this.kafkaTopic, "JD: " + journalpostid + " s: " + saksnummer);
   }

@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
 import no.nav.bidrag.arbeidsflyt.BidragArbeidsflyt;
-import no.nav.bidrag.arbeidsflyt.kafka.HendelserProducer;
+import no.nav.bidrag.arbeidsflyt.produser.HendelserProducer;
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class HendelserTest {
     private JournalpostService journalpostService;
 
     @Test
-    public void testSend() throws Exception {
+    public void testAtDeterMuligAPublisereOgLytteTilMeldingOmRegistreringAvJournalpostIKafkaTopic() throws Exception {
         producer.sendMelding(1, "007");
         assertTrue(this.hendelser.getLatch().await(10, TimeUnit.SECONDS));
         verify(journalpostService).registrerJournalpost("1", "007");
