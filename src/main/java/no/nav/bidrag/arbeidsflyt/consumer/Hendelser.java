@@ -1,5 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import no.nav.bidrag.arbeidsflyt.mapper.RegistrerJournalpostMapper;
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ public class Hendelser {
   private static final Logger LOGGER = LoggerFactory.getLogger(Hendelser.class);
 
   private final JournalpostService journalpostService;
+  private final RegistrerJournalpostMapper registrerJournalpostMapper;
 
   private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -21,14 +24,15 @@ public class Hendelser {
     return latch;
   }
 
-    Hendelser(JournalpostService journalpostService) {
+  Hendelser(JournalpostService journalpostService, RegistrerJournalpostMapper registrerJournalpostMapper) {
+    this.registrerJournalpostMapper = registrerJournalpostMapper;
     this.journalpostService = journalpostService;
   }
 
   @KafkaListener(topics = {"${kafka.topic}"})
-  public void utfor(String melding) {
+  public void utfor(String melding) throws JsonProcessingException {
     LOGGER.info("prosesserer $registrerJournalpostDto");
-    journalpostService.registrerJournalpost("1", "007");
+    journalpostService.registrerJournalpost(registrerJournalpostMapper.map(melding));
     latch.countDown();
   }
 }

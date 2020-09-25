@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.consumer;
 
 import no.nav.bidrag.arbeidsflyt.BidragArbeidsflyt;
+import no.nav.bidrag.arbeidsflyt.dto.RegistrerJournalpost;
 import no.nav.bidrag.arbeidsflyt.produser.HendelserProducer;
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,11 @@ public class HendelserTest {
 
     @Test
     public void testAtDeterMuligAPublisereOgLytteTilMeldingOmRegistreringAvJournalpostIKafkaTopic() throws Exception {
-        producer.sendMelding(1, "007");
+        String jsonMeldingITopic = """
+                {"journalpostId":"1", "saksnummer":"007"}
+                """.stripIndent();
+        producer.sendMelding(jsonMeldingITopic);
         assertTrue(this.hendelser.getLatch().await(10, TimeUnit.SECONDS));
-        verify(journalpostService).registrerJournalpost("1", "007");
+        verify(journalpostService).registrerJournalpost(new RegistrerJournalpost("1", "007"));
     }
 }

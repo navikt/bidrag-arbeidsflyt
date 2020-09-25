@@ -1,5 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.dto;
 
+import java.util.Objects;
+
 public class RegistrerJournalpost {
 
     private String journalpostId;
@@ -35,5 +37,19 @@ public class RegistrerJournalpost {
                 "journalpostId='" + journalpostId + '\'' +
                 ", Saksnummer='" + Saksnummer + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RegistrerJournalpost that = (RegistrerJournalpost) o;
+        return Objects.equals(journalpostId, that.journalpostId) &&
+                Objects.equals(Saksnummer, that.Saksnummer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(journalpostId, Saksnummer);
     }
 }

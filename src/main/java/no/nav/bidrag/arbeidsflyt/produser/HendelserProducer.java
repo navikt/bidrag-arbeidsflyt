@@ -20,10 +20,7 @@ public class HendelserProducer {
     this.kafkaTemplate = kafkaTemplate;
   }
 
-  public void sendMelding(int journalpostid, String saksnummer) {
-
-
-    LOGGER.info(String.format("Publiserer melding paa topic med journalpostid %s og saksnummer %s.", journalpostid, saksnummer));
-    this.kafkaTemplate.send(this.kafkaTopic, "JD: " + journalpostid + " s: " + saksnummer);
+  public void sendMelding(String melding) {
+    this.kafkaTemplate.send(this.kafkaTopic, melding);
   }
 }
