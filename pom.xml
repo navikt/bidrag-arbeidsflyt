@@ -11,7 +11,7 @@
 
   <groupId>no.nav.bidrag</groupId>
   <artifactId>bidrag-arbeidsflyt</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
 
   <name>bidrag-arbeidsflyt</name>
   <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
