@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegistrerJournalpostMapper {
 
-    private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-    public RegistrerJournalpostMapper(ObjectMapper objectMapper) {
-        this.objectMapper = new ObjectMapper();
-    }
+  public RegistrerJournalpostMapper(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
-    public RegistrerJournalpost map(String registrerJournalpostAsJsonString) throws JsonProcessingException {
-        return objectMapper.readValue(registrerJournalpostAsJsonString, RegistrerJournalpost.class);
-    }
+  public RegistrerJournalpost map(String registrerJournalpostAsJsonString) throws JsonProcessingException {
+    return objectMapper.readValue(registrerJournalpostAsJsonString, RegistrerJournalpost.class);
+  }
 }

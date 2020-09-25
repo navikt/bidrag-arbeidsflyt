@@ -20,6 +20,7 @@
   <properties>
     <!-- dependencies -->
     <bidrag-hendelse-schema.version>0.0.4</bidrag-hendelse-schema.version>
+
     <!-- language & build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
     <java.version>15</java.version>

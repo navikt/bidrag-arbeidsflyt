@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class BidragArbeidsflyt {
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
+  }
 
-    public static void main(String... args) {
-        SpringApplication.run(BidragArbeidsflyt.class, args);
-    }
+  public static void main(String... args) {
+    SpringApplication.run(BidragArbeidsflyt.class, args);
+  }
 }
