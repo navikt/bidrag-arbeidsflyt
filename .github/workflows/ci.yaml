@@ -18,7 +18,7 @@ jobs:
         id: dockerimage
         with:
           image_id: ${{ env.IMAGE }}
-      - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
+      - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
       - run: env
       - run: sudo rm -rf *
       - uses: actions/checkout@v2
