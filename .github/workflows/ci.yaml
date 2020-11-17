@@ -38,11 +38,28 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy image to dev and set up kafka streams
+    if: github.ref != 'refs/heads/release'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - name: Deploy main to dev-gcp
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/nais/topic.yaml
+
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: deploy
 
     steps:
       - uses: actions/checkout@v2
