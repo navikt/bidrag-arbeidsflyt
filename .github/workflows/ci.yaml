@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - name: Deploy to dev-fss
+      - name: Deploy to dev-gcp
         if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -70,12 +70,12 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/main.json
-      - name: Deploy to dev-fss
+      - name: Deploy to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
+          CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/feature.json
 
