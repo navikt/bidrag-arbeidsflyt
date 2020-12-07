@@ -65,7 +65,6 @@
       <artifactId>spring-kafka</artifactId>
     </dependency>
 
-
     <!-- prometheus -->
     <dependency>
       <groupId>io.micrometer</groupId>
