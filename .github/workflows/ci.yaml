@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - name: Deploy to dev-gcp
+      - name: Deploy main brach to dev-gcp
         if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -70,7 +70,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/main.json
-      - name: Deploy to dev-gcp
+      - name: Deploy feature branch to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
