@@ -1,0 +1,10 @@
+{
+  "name": "bidrag-arbeidsflyt",
+  "ingresses": [
+    "https://bidrag-arbeidsflyt.dev.adeo.no",
+    "https://bidrag-arbeidsflyt.dev.intern.adeo.no"
+  ],
+  "env": {
+    "TOPIC_JOURNALPOST": "bidrag.journalpost"
+  }
+}

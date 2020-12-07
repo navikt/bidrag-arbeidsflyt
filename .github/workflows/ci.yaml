@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-java@v1
         if: env.NOT_FOUND == 'true'
         with:
-          java-version: '11'
+          java-version: '15'
       - run: env
       - uses: actions/cache@v1
         if: env.NOT_FOUND == 'true'
@@ -37,8 +37,6 @@ jobs:
             ${{ runner.os }}-maven-
       - uses: navikt/bidrag-maven/setup@v4
         if: env.NOT_FOUND == 'true'
-        with:
-          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/verify-dependencies@v1
@@ -54,11 +52,38 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
+  deploy_dev:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to dev
+    if: github.ref != 'refs/heads/release'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - name: Deploy main brach to dev-gcp
+        if: github.ref == 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/main.json
+      - name: Deploy feature branch to dev-gcp
+        if: github.ref != 'refs/heads/main'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/feature.json
+
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: deploy_dev
 
     steps:
       - uses: actions/checkout@v2
