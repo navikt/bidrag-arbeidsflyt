@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BidragArbeidsflytApplication {
+public class BidragArbeidsflyt {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BidragArbeidsflytApplication.class, args);
+		SpringApplication.run(BidragArbeidsflyt.class, args);
 	}
 
 }
