@@ -7,8 +7,6 @@ metadata:
     team: bidrag
 spec:
   image: {{ image }}
-  kafka:
-    pool: nav-dev
   liveness:
     path: /bidrag-arbeidsflyt/actuator/health
     initialDelay: 20
