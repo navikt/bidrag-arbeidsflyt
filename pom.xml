@@ -26,6 +26,17 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- vulnerable dependency overridden -->
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>9.0.40</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
