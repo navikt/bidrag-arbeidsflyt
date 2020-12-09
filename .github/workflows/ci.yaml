@@ -105,3 +105,44 @@ jobs:
           pattern: "pom.xml"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy_prod:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to prod
+    if: github.ref == 'refs/heads/release'
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: deploy/nais/nais-p.yaml
+          VAR: namespace=bidrag
+
+  tag_prod_deploy:
+    runs-on: ubuntu-latest
+    name: Tag latest deploy to prod
+    needs: deploy_prod
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: |
+          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo ::set-output name=tag::${TAG_VERSION}
+        id: release
+      - uses: navikt/bidrag-git/tag@v3
+        with:
+          tag_message: Releasing version ${{ steps.release.outputs.tag }}
+          tag: ${{ steps.release.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
