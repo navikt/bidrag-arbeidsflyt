@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService;
 import no.nav.bidrag.arbeidsflyt.service.HendelseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,10 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@DisplayName("JournalpostHendelseListener")
 class JournalpostHendelseListenerTest {
-
   private static final String HENDELSE_TEMPLATE = """
       {
         "journalpostId":"BID-%s",
@@ -27,32 +31,31 @@ class JournalpostHendelseListenerTest {
       }
       """.stripIndent().trim();
 
-  @Mock
-  private HendelseService hendelseServiceMock;
+  @Autowired
   private JournalpostHendelseListener journalpostHendelseListener;
 
-  @BeforeEach
-  void initTestClass() {
-    journalpostHendelseListener = new JournalpostHendelseListener(new ObjectMapper(), hendelseServiceMock);
-  }
+  @MockBean
+  private BehandleHendelseService behandleHendelseServiceMock;
 
   @Test
-  @DisplayName("skal behandle journalpost hendelse")
-  void skalBehandleJournalpostHendelse() {
+  @DisplayName("skal føre til mapping og behandling av journalpost hendelse")
+  void skalForeTilMappingOgBehandlingAvJournalpostHendelse() {
     journalpostHendelseListener.lesHendelse(String.format(HENDELSE_TEMPLATE, 1, "TEST_HENDELSE"));
 
-    verify(hendelseServiceMock).behandleHendelse(new JournalpostHendelse("BID-1", "TEST_HENDELSE"));
+    verify(behandleHendelseServiceMock).behandleHendelse(new JournalpostHendelse("BID-1", "TEST_HENDELSE"));
   }
 
   @Test
-  @DisplayName("skal ha sporingsdata på en hendelse")
-  void skalHaSporingsdataPaHendelse() {
+  @DisplayName("skal ha sporingsdata i meldingen")
+  void skalHaSporingsdataImeldingen() {
     journalpostHendelseListener.lesHendelse(String.format(HENDELSE_TEMPLATE, 2, "TEST_HENDELSE"));
 
     var argumentCaptor = ArgumentCaptor.forClass(JournalpostHendelse.class);
 
-    verify(hendelseServiceMock).behandleHendelse(argumentCaptor.capture());
+    verify(behandleHendelseServiceMock).behandleHendelse(argumentCaptor.capture());
 
     assertThat(argumentCaptor.getValue().getSporing()).isEqualTo(new Sporingsdata("xyz", "nå"));
   }
+
+
 }
