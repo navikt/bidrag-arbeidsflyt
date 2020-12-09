@@ -20,8 +20,8 @@
     <kotlin.version>1.4.21</kotlin.version>
 
     <!-- dependencies -->
+    <bidrag-commons.version>0.4.2</bidrag-commons.version>
     <logback-encoder.version>6.5</logback-encoder.version>
-    <mockk.version>1.10.13.jdk8</mockk.version>
 
     <!-- build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
@@ -41,6 +41,14 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- nav -->
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons</artifactId>
+      <version>${bidrag-commons.version}</version>
+    </dependency>
+
+    <!-- spring-boot -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -60,6 +68,10 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
 
     <!-- prometheus -->

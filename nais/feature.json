@@ -5,6 +5,7 @@
     "https://bidrag-arbeidsflyt-feature.dev.intern.adeo.no"
   ],
   "env": {
+    "OPPGAVE_URL": "https://oppgave-q1.intern.dev.adeo.no",
     "TOPIC_JOURNALPOST": "bidrag.journalpost-feature"
   }
 }

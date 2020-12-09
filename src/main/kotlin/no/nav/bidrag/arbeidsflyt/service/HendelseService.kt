@@ -1,16 +1,24 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
-@Service
-class HendelseService {
-    companion object {
-        private val LOGGER = LoggerFactory.getLogger(HendelseService::class.java)
-    }
+private val LOGGER = LoggerFactory.getLogger(HendelseService::class.java)
 
-    fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
-        LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
+@Service
+class HendelseService(
+    private val objectMapper: ObjectMapper,
+    private val behandeHendelseService: BehandleHendelseService
+) {
+    fun lesHendelse(hendelse: String) {
+        val journalpostHendelse = try {
+            objectMapper.readValue(hendelse, JournalpostHendelse::class.java)
+        } finally {
+            LOGGER.debug("Leser hendelse: {}", hendelse)
+        }
+
+        behandeHendelseService.behandleHendelse(journalpostHendelse)
     }
 }
