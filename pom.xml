@@ -116,7 +116,7 @@
 
   <build>
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/code</testSourceDirectory>
 
     <plugins>
       <plugin>
@@ -142,6 +142,24 @@
             <version>${kotlin.version}</version>
           </dependency>
         </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven.version}</version>
+        <executions>
+          <execution>
+            <id>remove-old-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>remove-project-artifact</goal>
+            </goals>
+            <configuration>
+              <removeAll>true</removeAll>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
