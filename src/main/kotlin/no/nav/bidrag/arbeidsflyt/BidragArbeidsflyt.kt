@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 
 const val LIVE = "live"
-const val TEST = "test"
 
 @SpringBootApplication
 @EnableAspectJAutoProxy

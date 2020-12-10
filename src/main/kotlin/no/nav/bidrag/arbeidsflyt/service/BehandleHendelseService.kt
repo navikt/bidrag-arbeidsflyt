@@ -7,8 +7,12 @@ import org.springframework.stereotype.Service
 private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
 
 @Service
-class BehandleHendelseService {
-    fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
+class DefaultBehandleHendelseService : BehandleHendelseService {
+    override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
     }
+}
+
+interface BehandleHendelseService {
+    fun behandleHendelse(journalpostHendelse: JournalpostHendelse)
 }

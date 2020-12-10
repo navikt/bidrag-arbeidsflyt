@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Aspect
 @Component
 class ExceptionLoggerAspect(private val exceptionLogger: ExceptionLogger) {
-    @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.journalpost.controller..*)", throwing = "exception")
+    @AfterThrowing(pointcut = "within (no.nav.bidrag.arbiedsflyt.hendelse..*)", throwing = "exception")
     fun logException(joinPoint: JoinPoint, exception: Exception?) {
         exceptionLogger.logException(exception, "${joinPoint.getSourceLocation().getWithinType()}")
     }
