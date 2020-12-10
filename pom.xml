@@ -16,7 +16,6 @@
   <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
 
   <properties>
-    <java.version>15</java.version>
     <kotlin.version>1.4.21</kotlin.version>
 
     <!-- dependencies -->
@@ -102,6 +101,12 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <!-- jackson -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-kotlin</artifactId>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -128,7 +133,7 @@
 
   <build>
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/code</testSourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
     <plugins>
       <plugin>
@@ -146,6 +151,7 @@
           <compilerPlugins>
             <plugin>spring</plugin>
           </compilerPlugins>
+          <jvmTarget>14</jvmTarget>
         </configuration>
         <dependencies>
           <dependency>

@@ -3,6 +3,8 @@ package no.nav.bidrag.arbeidsflyt
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.DefaultJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
+import no.nav.bidrag.arbeidsflyt.service.DefaultBehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.HendelseService
 import no.nav.bidrag.commons.ExceptionLogger
 import org.slf4j.LoggerFactory
