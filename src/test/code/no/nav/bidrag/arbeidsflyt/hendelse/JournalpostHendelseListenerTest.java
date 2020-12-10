@@ -56,6 +56,4 @@ class JournalpostHendelseListenerTest {
 
     assertThat(argumentCaptor.getValue().getSporing()).isEqualTo(new Sporingsdata("xyz", "nå"));
   }
-
-
 }
