@@ -10,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 
 @SpringBootTest
 @DisplayName("JournalpostHendelseListener")
-class JournalpostHendelseListenerTest {
+internal class JournalpostHendelseListenerTest {
 
     @Autowired
     private lateinit var journalpostHendelseListener: JournalpostHendelseListener

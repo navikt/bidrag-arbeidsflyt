@@ -1,9 +1,12 @@
 package no.nav.bidrag.arbeidsflyt
 
+import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.HendelseService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.client.RestTemplate
 
 @Configuration
 class NoKafkaConfiguration {
@@ -19,3 +22,10 @@ class NoKafkaConfiguration {
     }
 }
 
+@Configuration
+class BidragArbeidsflytTestBeanConfiguration {
+    @Bean
+    fun stubbedOppgaveConsumer(): OppgaveConsumer {
+        return DefaultOppgaveConsumer(RestTemplate())
+    }
+}

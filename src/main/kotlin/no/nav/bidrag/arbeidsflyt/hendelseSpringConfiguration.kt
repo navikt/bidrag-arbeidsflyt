@@ -1,26 +1,38 @@
 package no.nav.bidrag.arbeidsflyt
 
+import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.DefaultJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
-import no.nav.bidrag.arbeidsflyt.service.DefaultBehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.HendelseService
+import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
+import no.nav.bidrag.commons.web.CorrelationIdFilter
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtToken
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.Scope
+import org.springframework.http.HttpHeaders
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import org.springframework.web.client.RestTemplate
 import java.util.Optional
 
+const val ISSUER = "todo: for navdevice"
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 
 @Configuration
-@Profile(LIVE)
+@Profile(PROFILE_LIVE)
+@EnableJwtTokenValidation(ignore = ["springfox.documentation.swagger.web.ApiResourceController"])
 class HendelseConfiguration {
     @Bean
     fun journalpostHendelseListener(hendelseService: HendelseService): JournalpostHendelseListener = DefaultJournalpostHendelseListener(
@@ -34,16 +46,44 @@ class HendelseConfiguration {
             Optional.empty<Any>()
         }
     }
+
+    @Bean
+    fun oppgaveConsumer(restTemplate: RestTemplate, @Value("\${OPPGAVE_URL}") oppgaveUrl: String): OppgaveConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
+        return DefaultOppgaveConsumer(restTemplate)
+    }
+
+    @Bean
+    @Scope("prototype")
+    fun httpHeaderRestTemplate(oidcTokenManager: OidcTokenManager): HttpHeaderRestTemplate? {
+        val httpHeaderRestTemplate = HttpHeaderRestTemplate()
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
+        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION) { "Bearer " + oidcTokenManager.hentIdToken() }
+
+        return httpHeaderRestTemplate
+    }
+
+
+    @Bean
+    fun oidcTokenManager(tokenValidationContextHolder: TokenValidationContextHolder): OidcTokenManager? {
+        return object : OidcTokenManager {
+            override fun hentIdToken(): String {
+                return Optional.of(tokenValidationContextHolder.tokenValidationContext)
+                    .map { tokenValidationContext: TokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER) }
+                    .map { muligJwtToken: Optional<JwtToken?> -> muligJwtToken.get() }
+                    .map { jwtToken: JwtToken -> jwtToken.tokenAsString }
+                    .orElseThrow { IllegalStateException("Kunne ikke videresende Bearer token") }
+            }
+        }
+    }
+
+    interface OidcTokenManager {
+        fun hentIdToken(): String
+    }
 }
 
 @Configuration
 class ArbeidsflytConfiguration {
-    @Bean
-    fun oppgaveConsumer(): OppgaveConsumer {
-        val restTemplate = RestTemplate()
-        return OppgaveConsumer(restTemplate)
-    }
-
     @Bean
     fun ExceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
 }
