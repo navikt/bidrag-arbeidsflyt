@@ -1,6 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
-import no.nav.bidrag.arbeidsflyt.consumer.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 
 data class JournalpostHendelse(
     var journalpostId: String = "",
