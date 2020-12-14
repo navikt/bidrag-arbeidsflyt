@@ -48,6 +48,12 @@ class HendelseConfiguration {
     }
 
     @Bean
+    fun bidragDokumentConsumer(restTemplate: RestTemplate, @Value("\${BIDRAG_DOKUMENT_URL}") bidragDokumentUrl: String): OppgaveConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler(bidragDokumentUrl)
+        return DefaultOppgaveConsumer(restTemplate)
+    }
+
+    @Bean
     fun oppgaveConsumer(restTemplate: RestTemplate, @Value("\${OPPGAVE_URL}") oppgaveUrl: String): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
         return DefaultOppgaveConsumer(restTemplate)
@@ -58,7 +64,7 @@ class HendelseConfiguration {
     fun httpHeaderRestTemplate(oidcTokenManager: OidcTokenManager): HttpHeaderRestTemplate? {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
         httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
-        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION) { "Bearer " + oidcTokenManager.hentIdToken() }
+        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION) { "Bearer ${oidcTokenManager.hentIdToken()}" }
 
         return httpHeaderRestTemplate
     }

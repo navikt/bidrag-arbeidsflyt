@@ -1,5 +1,7 @@
 package no.nav.bidrag.arbeidsflyt
 
+import no.nav.bidrag.arbeidsflyt.consumer.BidragDokumentConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.DefaultBidragDokumentConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
@@ -24,6 +26,12 @@ class NoKafkaConfiguration {
 
 @Configuration
 class BidragArbeidsflytTestBeanConfiguration {
+
+    @Bean
+    fun stubbedBbidragDokumentConsumer(): BidragDokumentConsumer {
+        return DefaultBidragDokumentConsumer(RestTemplate())
+    }
+
     @Bean
     fun stubbedOppgaveConsumer(): OppgaveConsumer {
         return DefaultOppgaveConsumer(RestTemplate())

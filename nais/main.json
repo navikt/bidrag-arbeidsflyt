@@ -5,6 +5,7 @@
     "https://bidrag-arbeidsflyt.dev.intern.adeo.no"
   ],
   "env": {
+    "BIDRAG_DOKUMENT_URL": "https://bidrag-dokument.dev.adeo.no/bidrag-dokument",
     "TOPIC_JOURNALPOST": "bidrag.journalpost"
   }
 }
