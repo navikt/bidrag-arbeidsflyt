@@ -1,7 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.consumer.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelser
 import org.slf4j.LoggerFactory
@@ -22,15 +23,19 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
 
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
         val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
-        val fremtiden = CompletableFuture.supplyAsync { oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequests.first) }
-        val enAnnenFremtid = CompletableFuture.supplyAsync { oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequests.second) }
+        val fremtiden = CompletableFuture.supplyAsync { ferdigstillOppgaver(oppgaveSokRequests.first) }
+        val enAnnenFremtid = CompletableFuture.supplyAsync { ferdigstillOppgaver(oppgaveSokRequests.second) }
 
         CompletableFuture.allOf(fremtiden, enAnnenFremtid).get()
-
-        resultatAv(fremtiden.get()).leggTil(enAnnenFremtid.get())
     }
 
-    private fun resultatAv(resultat: OppgaveSokResponse?) = resultat ?: OppgaveSokResponse()
+    private fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
+        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
+
+        oppgaveSokResponse?.oppgaver?.forEach{
+            oppgaveConsumer.ferdigstillOppgaver(FerdigstillOppgaveRequest(it, oppgaveSokRequest.fagomrade, ""))
+        }
+    }
 }
 
 interface BehandleHendelseService {
