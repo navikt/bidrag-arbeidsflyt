@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.BidragDokumentConsumer
@@ -22,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 
 @SpringBootTest
+@Suppress("UNCHECKED_CAST")
 @DisplayName("BehandleHendelseService")
 internal class BehandleHendelseServiceTest {
 
