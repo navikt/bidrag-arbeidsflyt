@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.0</version>
+    <version>2.4.1</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
 
@@ -21,7 +21,6 @@
 
     <!-- dependencies -->
     <logback-encoder.version>6.5</logback-encoder.version>
-    <mockk.version>1.10.13.jdk8</mockk.version>
 
     <!-- build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
