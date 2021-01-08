@@ -18,6 +18,10 @@ class DefaultBidragDokumentConsumer(private val restTemplate: RestTemplate) : Bi
             path, HttpMethod.GET, null, JournalpostResponse::class.java
         )
 
+        if (exchange.body == null) {
+            LOGGER.warn("Ingen JournalpostDto, HttpStatus: ${exchange.statusCode}")
+        }
+
         return exchange.body?.journalpost
     }
 }
