@@ -8,10 +8,9 @@ metadata:
 spec:
   accessPolicy:
     outbound:
-      rules:
-        external:
-          - host: {{ env.BIDRAG_DOKUMENT_URL }}
-          - host: {{ env.OPPGAVE_URL }}
+      external:
+        - host: {{ env.BIDRAG_DOKUMENT_URL }}
+        - host: {{ env.OPPGAVE_URL }}
   image: {{ image }}
   kafka:
     pool: nav-dev
