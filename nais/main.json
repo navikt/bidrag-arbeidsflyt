@@ -6,6 +6,7 @@
   ],
   "env": {
     "BIDRAG_DOKUMENT_URL": "https://bidrag-dokument.dev.adeo.no/bidrag-dokument",
+    "OPPGAVE_URL": "https://oppgave-q0.intern.dev.adeo.no/api/v1/oppgaver",
     "TOPIC_JOURNALPOST": "bidrag.journalpost"
   }
 }
