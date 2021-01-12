@@ -8,9 +8,7 @@ metadata:
 spec:
   accessPolicy:
     outbound:
-      external:
-        - host: {{ env.BIDRAG_DOKUMENT_URL }}
-        - host: {{ env.OPPGAVE_URL }}
+      - {{ outbound-bidrag-dokument }}
   image: {{ image }}
   kafka:
     pool: nav-dev
@@ -39,7 +37,7 @@ spec:
     - {{url}}
   {{/each}}
   env:
-  {{#each env}}
-    - name: {{@key}}
-      value: "{{this}}"
-  {{/each}}
+    - name: BIDRAG_DOKUMENT_URL
+      value: https://{{ outbound-bidrag-dokument }}/bidrag-dokument
+    - name: TOPIC_JOURNALPOST
+      value: {{ kafka-topic-journalpost }}

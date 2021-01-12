@@ -71,7 +71,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/main.json
+          VARS: deploy/nais/main.yaml
       - name: Deploy feature branch to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
@@ -79,7 +79,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/feature.json
+          VARS: deploy/nais/feature.yaml
 
   bump_dev_version:
     runs-on: ubuntu-latest

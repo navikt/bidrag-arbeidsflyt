@@ -6,6 +6,9 @@ metadata:
   labels:
     team: bidrag
 spec:
+  accessPolicy:
+    outbound:
+      - bidrag-dokument.prod-fss-pub.nais.io
   image: {{ image }}
   kafka:
     pool: nav-prod
