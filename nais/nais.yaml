@@ -6,9 +6,6 @@ metadata:
   labels:
     team: bidrag
 spec:
-  accessPolicy:
-    outbound:
-      - {{ outbound-bidrag-dokument }}
   image: {{ image }}
   kafka:
     pool: nav-dev
