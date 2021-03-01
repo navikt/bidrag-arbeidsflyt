@@ -47,4 +47,27 @@ internal class JournalpostHendelseListenerTest {
             JournalpostHendelse("BID-2", "TEST_HENDELSE", Sporingsdata("xyz", "nå"))
         )
     }
+
+    @Test
+    fun `skal ha journalpost detaljer i meldingen`() {
+        journalpostHendelseListener.lesHendelse(
+            """
+            {
+              "journalpostId":"BID-3",
+              "hendelse":"AVVIK_TEST",
+              "sporing": {
+                "correlationId":"xyz",
+                "opprettet":"nå"
+              },
+              "detaljer": {
+                "enhetsnummer": "1001"
+              }
+            }
+            """.trimIndent()
+        )
+
+        verify(behandleHendelseServiceMock).behandleHendelse(
+            JournalpostHendelse("BID-3", "AVVIK_TEST", Sporingsdata("xyz", "nå"), mapOf("enhetsnummer" to "1001"))
+        )
+    }
 }

@@ -1,6 +1,5 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import no.nav.bidrag.arbeidsflyt.consumer.BidragDokumentConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -9,15 +8,13 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelser
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.lang.IllegalStateException
 import java.util.concurrent.CompletableFuture
 
 private val LOGGER = LoggerFactory.getLogger(DefaultBehandleHendelseService::class.java)
 
 @Service
-class DefaultBehandleHendelseService(
-    private val bidragDokumentConsumer: BidragDokumentConsumer,
-    private val oppgaveConsumer: OppgaveConsumer
-) : BehandleHendelseService {
+class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsumer) : BehandleHendelseService {
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
@@ -37,13 +34,14 @@ class DefaultBehandleHendelseService(
     private fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
 
-        oppgaveSokResponse?.oppgaver?.forEach { ferdigstillOppgave(it, oppgaveSokRequest) }
+        oppgaveSokResponse?.oppgaver?.forEach { ferdigstillOppgave(
+            it,
+            oppgaveSokRequest,
+            oppgaveSokRequest.enhetsnummer ?: throw IllegalStateException("Mangler hendelsedata: detaljer.enhetsnummer")
+        ) }
     }
 
-    private fun ferdigstillOppgave(oppgaveData: OppgaveData, oppgaveSokRequest: OppgaveSokRequest) {
-        val enhetsnummer = bidragDokumentConsumer.hentJournalpost(oppgaveSokRequest.journalpostId)?.journalforendeEnhet
-            ?: throw IllegalStateException("Fant ikke journalførende enhet for journalpost med id ${oppgaveSokRequest.journalpostId}")
-
+    private fun ferdigstillOppgave(oppgaveData: OppgaveData, oppgaveSokRequest: OppgaveSokRequest, enhetsnummer: String) {
         oppgaveConsumer.ferdigstillOppgaver(FerdigstillOppgaveRequest(oppgaveData, oppgaveSokRequest.fagomrade, enhetsnummer))
     }
 }

@@ -1,6 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String)
+data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, val enhetsnummer: String?)
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
 data class OppgaveData(
