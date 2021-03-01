@@ -6,6 +6,9 @@ metadata:
   labels:
     team: bidrag
 spec:
+  accessPolicy:
+    outbound:
+      - bidrag-dokument.prod-fss-pub.nais.io
   image: {{ image }}
   kafka:
     pool: nav-prod
@@ -32,5 +35,7 @@ spec:
   ingresses:
     - https://bidrag-arbeidsflyt.intern.adeo.no
   env:
+    - name: OPPGAVE_URL
+      value: https://oppgave.nais.adeo.no/api/v1/oppgaver
     - name: TOPIC_JOURNALPOST
       value: bidrag.journalpost

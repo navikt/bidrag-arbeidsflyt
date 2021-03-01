@@ -17,7 +17,7 @@ jobs:
       - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
-          image_name: bidrag-beregn-barnebidrag-rest
+          image_name: bidrag-arbeidsflyt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
@@ -37,6 +37,8 @@ jobs:
             ${{ runner.os }}-maven-
       - uses: navikt/bidrag-maven/setup@v4
         if: env.NOT_FOUND == 'true'
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/verify-dependencies@v1
@@ -69,7 +71,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/main.json
+          VARS: deploy/nais/main.yaml
       - name: Deploy feature branch to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
@@ -77,7 +79,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/feature.json
+          VARS: deploy/nais/feature.yaml
 
   bump_dev_version:
     runs-on: ubuntu-latest

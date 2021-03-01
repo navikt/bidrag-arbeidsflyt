@@ -16,11 +16,12 @@
   <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
 
   <properties>
-    <java.version>15</java.version>
     <kotlin.version>1.4.30</kotlin.version>
 
     <!-- dependencies -->
+    <bidrag-commons.version>0.5.3.2</bidrag-commons.version>
     <logback-encoder.version>6.6</logback-encoder.version>
+    <token-support.version>1.3.3</token-support.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -40,6 +41,19 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- nav -->
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons</artifactId>
+      <version>${bidrag-commons.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+
+    <!-- spring-boot -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -60,11 +74,23 @@
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
 
     <!-- prometheus -->
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
 
     <!-- logging -->
@@ -87,6 +113,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <!-- jackson -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-kotlin</artifactId>
     </dependency>
 
     <!-- test -->
@@ -133,6 +165,7 @@
           <compilerPlugins>
             <plugin>spring</plugin>
           </compilerPlugins>
+          <jvmTarget>14</jvmTarget>
         </configuration>
         <dependencies>
           <dependency>

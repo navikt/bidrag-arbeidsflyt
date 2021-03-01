@@ -34,7 +34,7 @@ spec:
     - {{url}}
   {{/each}}
   env:
-  {{#each env}}
-    - name: {{@key}}
-      value: "{{this}}"
-  {{/each}}
+    - name: BIDRAG_DOKUMENT_URL
+      value: https://{{ outbound-bidrag-dokument }}/bidrag-dokument
+    - name: TOPIC_JOURNALPOST
+      value: {{ kafka-topic-journalpost }}
