@@ -3,4 +3,4 @@ outbound-bidrag-dokument: bidrag-dokument.dev-fss-pub.nais.io
 kafka-topic-journalpost: bidrag.journalpost
 ingresses:
   - https://bidrag-arbeidsflyt.dev.adeo.no
-  - https://bidrag-arbeidsflyt.dev.intern.adeo.no
+  - https://bidrag-arbeidsflyt.dev.intern.nav.no
