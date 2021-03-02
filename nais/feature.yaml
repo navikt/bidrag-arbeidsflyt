@@ -3,4 +3,7 @@ outbound-bidrag-dokument: bidrag-dokument-feature.dev-fss-pub.nais.io
 kafka-topic-journalpost: bidrag.journalpost-feature
 ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.adeo.no
-  - https://bidrag-arbeidsflyt-feature.dev.intern.adeo.no
+  - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no
+env:
+  - name: OPPGAVE_URL
+    value: https://oppgave.nais.preprod.local/api/v1/oppgaver

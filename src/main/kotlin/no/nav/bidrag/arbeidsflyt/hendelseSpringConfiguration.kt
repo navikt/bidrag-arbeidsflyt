@@ -46,50 +46,26 @@ class HendelseConfiguration {
             Optional.empty<Any>()
         }
     }
+}
+
+@Configuration
+class ArbeidsflytConfiguration {
 
     @Bean
-    fun bidragDokumentConsumer(restTemplate: RestTemplate, @Value("\${BIDRAG_DOKUMENT_URL}") bidragDokumentUrl: String): OppgaveConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(bidragDokumentUrl)
-        return DefaultOppgaveConsumer(restTemplate)
-    }
-
-    @Bean
-    fun oppgaveConsumer(restTemplate: RestTemplate, @Value("\${OPPGAVE_URL}") oppgaveUrl: String): OppgaveConsumer {
+    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate, @Value("\${OPPGAVE_URL}") oppgaveUrl: String): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
         return DefaultOppgaveConsumer(restTemplate)
     }
 
     @Bean
     @Scope("prototype")
-    fun httpHeaderRestTemplate(oidcTokenManager: OidcTokenManager): HttpHeaderRestTemplate? {
+    fun httpHeaderRestTemplate(): HttpHeaderRestTemplate {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
         httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
-        httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION) { "Bearer ${oidcTokenManager.hentIdToken()}" }
 
         return httpHeaderRestTemplate
     }
 
-
-    @Bean
-    fun oidcTokenManager(tokenValidationContextHolder: TokenValidationContextHolder): OidcTokenManager? {
-        return object : OidcTokenManager {
-            override fun hentIdToken(): String {
-                return Optional.of(tokenValidationContextHolder.tokenValidationContext)
-                    .map { tokenValidationContext: TokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER) }
-                    .map { muligJwtToken: Optional<JwtToken?> -> muligJwtToken.get() }
-                    .map { jwtToken: JwtToken -> jwtToken.tokenAsString }
-                    .orElseThrow { IllegalStateException("Kunne ikke videresende Bearer token") }
-            }
-        }
-    }
-
-    interface OidcTokenManager {
-        fun hentIdToken(): String
-    }
-}
-
-@Configuration
-class ArbeidsflytConfiguration {
     @Bean
     fun ExceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
 }
