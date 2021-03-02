@@ -34,5 +34,9 @@ spec:
     - {{url}}
   {{/each}}
   env:
+  {{#each env}}
+    - name: {{this.name}}
+      value: "{{this.value}}"
+  {{/each}}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}

@@ -14,9 +14,8 @@ import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import java.lang.IllegalStateException
 
-@SpringBootTest
+@SpringBootTest(properties = ["OPPGAVE_URL=https://unit.test"])
 @DisplayName("ExceptionLoggerAspect")
 internal class ExceptionLoggerAspectTest {
     @Autowired

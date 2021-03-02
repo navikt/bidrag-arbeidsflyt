@@ -4,3 +4,6 @@ kafka-topic-journalpost: bidrag.journalpost
 ingresses:
   - https://bidrag-arbeidsflyt.dev.adeo.no
   - https://bidrag-arbeidsflyt.dev.intern.nav.no
+env:
+  - name: OPPGAVE_URL
+    value: https://oppgave.nais.preprod.local/api/v1/oppgaver
