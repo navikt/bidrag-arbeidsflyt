@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.aop
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.arbeidsflyt.model.CORRELATION_ID
 import no.nav.bidrag.commons.CorrelationId
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.After
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component
 @Aspect
 class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     companion object {
-        const val CORRELATION_ID = "correlationId"
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
