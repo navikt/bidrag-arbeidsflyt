@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 
 @SpringBootTest
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "NonAsciiCharacters")
 @DisplayName("BehandleHendelseService")
 internal class BehandleHendelseServiceTest {
 
@@ -28,8 +28,7 @@ internal class BehandleHendelseServiceTest {
     private lateinit var oppgaveConsumerMock: OppgaveConsumer
 
     @Test
-    @DisplayName("skal søke etter åpne oppgaver når hendelsen er JOURNALFOR_JOURNALPOST")
-    fun `skal soke etter apne oppgaver nar hendelsen er JOURNALFOR_JOURNALPOST`() {
+    fun `skal søke etter åpne oppgaver nar hendelsen er JOURNALFOR_JOURNALPOST`() {
         val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -40,8 +39,7 @@ internal class BehandleHendelseServiceTest {
     }
 
     @Test
-    @DisplayName("skal ferdigstille oppgaver som ble funnet av oppgavesøket")
-    fun `skal ferdigstille oppgaver som ble funnet av oppgavesoket`() {
+    fun `skal ferdigstille oppgaver som ble funnet av oppgavesøket`() {
         val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST", detaljer = mapOf("enhetsnummer" to "1001"))
 
         `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(
@@ -52,6 +50,13 @@ internal class BehandleHendelseServiceTest {
 
         // forventer at søk blir gjort for journalpostId med og uten prefix...
         verify(oppgaveConsumerMock, times(2)).ferdigstillOppgaver(anyFerdigstillOppgaveRequest())
+    }
+
+    @Test
+    fun `skal ikke feile når hendelsen er ukjent`() {
+        val journalpostHendelse = JournalpostHendelse(hendelse = "ikke støttet")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
     }
 
     private fun <T> anyOppgaveSokRequest(): T = any(OppgaveSokRequest::class.java) as T
