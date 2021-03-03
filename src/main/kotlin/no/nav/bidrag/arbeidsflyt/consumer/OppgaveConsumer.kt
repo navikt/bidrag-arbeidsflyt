@@ -18,14 +18,14 @@ interface OppgaveConsumer {
 class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
 
     override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse? {
-        val parametre = PARAMETERS
+        val parameters = PARAMETERS
             .replace("{id}", oppgaveSokRequest.journalpostId)
             .replace("{fagomrade}", oppgaveSokRequest.fagomrade)
 
-        LOGGER.info("søk opp åpne oppgaver på en journalpost: $parametre")
+        LOGGER.info("søk opp åpne oppgaver på en journalpost: $parameters")
 
         val oppgaveSokResponse = restTemplate.exchange(
-            parametre,
+            parameters,
             HttpMethod.GET,
             null,
             OppgaveSokResponse::class.java
