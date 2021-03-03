@@ -6,9 +6,6 @@ metadata:
   labels:
     team: bidrag
 spec:
-  accessPolicy:
-    outbound:
-      - bidrag-dokument.prod-fss-pub.nais.io
   image: {{ image }}
   kafka:
     pool: nav-prod
@@ -33,7 +30,7 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - https://bidrag-arbeidsflyt.intern.adeo.no
+    - https://bidrag-arbeidsflyt.intern.nav.no
   env:
     - name: OPPGAVE_URL
       value: https://oppgave.nais.adeo.no/api/v1/oppgaver
