@@ -9,9 +9,6 @@ import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.security.token.support.core.jwt.JwtToken
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -20,11 +17,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
-import org.springframework.http.HttpHeaders
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
-import org.springframework.web.client.RestTemplate
 import java.util.Optional
 
 const val ISSUER = "todo: for navdevice"
@@ -42,7 +37,13 @@ class HendelseConfiguration {
     @Bean
     fun hendelseErrorHandler(): KafkaListenerErrorHandler {
         return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            LOGGER.error("Message {} cause error: {} - {} - headers: {}", message.payload, e.javaClass.simpleName, e.message, message.headers)
+            val messagePayload: Any = try {
+                message.payload
+            } catch (re: RuntimeException) {
+                "Unable to read message payload"
+            }
+
+            LOGGER.error("Message {} cause error: {} - {} - headers: {}", messagePayload, e.javaClass.simpleName, e.message, message.headers)
             Optional.empty<Any>()
         }
     }
