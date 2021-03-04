@@ -1,6 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, val enhetsnummer: String?)
+import no.nav.bidrag.arbeidsflyt.model.Detalj
+import org.springframework.http.HttpEntity
+
+data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, private val enhetsnummer: String?) {
+    fun hentEnhetsnummer() = enhetsnummer ?: throw IllegalStateException("Mangler hendelsedata: detaljer.${Detalj.JP_ADM_ENHETSNUMMER}")
+}
+
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
 data class OppgaveData(
@@ -99,5 +105,6 @@ data class FerdigstillOppgaveRequest(
     }
 
     override fun toString() = oppgaveData.asJson()
-    fun hentOppgaveDataId() = oppgaveData.id
+    fun hentOppgaveDataIdSomContextPath() = "/${oppgaveData.id}"
+    fun somHttpEntity() = HttpEntity<Any>(this)
 }

@@ -4,24 +4,28 @@ import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
-internal const val PARAMETERS = "?tema={fagomrade}&journalpostId={id}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
+private const val PARAMETERS = "?tema={fagomrade}&journalpostId={id}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
 private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
+
+interface OppgaveConsumer {
+    fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse?
+    fun ferdigstillOppgaver(ferdigstillOppgaveRequest: FerdigstillOppgaveRequest)
+}
 
 class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
 
     override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse? {
-        val parametre = PARAMETERS
+        val parameters = PARAMETERS
             .replace("{id}", oppgaveSokRequest.journalpostId)
             .replace("{fagomrade}", oppgaveSokRequest.fagomrade)
 
-        LOGGER.info("søk opp åpne oppgaver på en journalpost: $parametre")
+        LOGGER.info("søk opp åpne oppgaver på en journalpost: $parameters")
 
         val oppgaveSokResponse = restTemplate.exchange(
-            parametre,
+            parameters,
             HttpMethod.GET,
             null,
             OppgaveSokResponse::class.java
@@ -33,20 +37,15 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
     }
 
     override fun ferdigstillOppgaver(ferdigstillOppgaveRequest: FerdigstillOppgaveRequest) {
-        LOGGER.info("Ferdigstiller en oppgave med id: ${ferdigstillOppgaveRequest.hentOppgaveDataId()}")
+        LOGGER.info("Ferdigstiller en oppgave med id: ${ferdigstillOppgaveRequest.hentOppgaveDataIdSomContextPath()}")
 
         val responseEntity = restTemplate.exchange(
-            "/" + ferdigstillOppgaveRequest.hentOppgaveDataId(),
+            ferdigstillOppgaveRequest.hentOppgaveDataIdSomContextPath(),
             HttpMethod.PUT,
-            HttpEntity<Any>(ferdigstillOppgaveRequest),
+            ferdigstillOppgaveRequest.somHttpEntity(),
             String::class.java
         )
 
         LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
     }
-}
-
-interface OppgaveConsumer {
-    fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse?
-    fun ferdigstillOppgaver(ferdigstillOppgaveRequest: FerdigstillOppgaveRequest)
 }

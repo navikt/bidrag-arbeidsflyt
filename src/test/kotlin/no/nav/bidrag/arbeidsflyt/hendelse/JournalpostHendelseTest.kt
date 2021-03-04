@@ -19,4 +19,12 @@ internal class JournalpostHendelseTest {
 
         assertThat(journalpostHendelse.hentFagomradeFraId()).isEqualTo("BID")
     }
+
+    @Test
+    @Suppress("NonAsciiCharacters")
+    fun `skal hente NO_SUPPORT når hendelse er ukjent`() {
+        val journalpostHendelse = JournalpostHendelse(hendelse = "ikke kjent hendelse")
+
+        assertThat(journalpostHendelse.hentHendelse()).isEqualTo(JournalpostHendelser.NO_SUPPORT)
+    }
 }
