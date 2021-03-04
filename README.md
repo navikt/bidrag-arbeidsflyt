@@ -1,6 +1,8 @@
 # bidrag-arbeidsflyt
 Mikrotjeneste for administrering av arbeidsflyt i bidrag
 
+[![continuous integration](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/ci.yaml/badge.svg)](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/ci.yaml)
+
 ### bygg og kjør applikasjon
 
 Dette er en spring-boot applikasjon og kan kjøres som ren java applikasjon, ved å
