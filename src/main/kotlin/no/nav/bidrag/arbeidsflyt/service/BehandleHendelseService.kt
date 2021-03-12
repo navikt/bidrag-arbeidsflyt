@@ -4,8 +4,8 @@ import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.Hendelse
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelser
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -23,9 +23,10 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
         when (journalpostHendelse.hentHendelse()) {
-            JournalpostHendelser.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
-            JournalpostHendelser.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
-            JournalpostHendelser.NO_SUPPORT -> LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
+            Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
+            Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilhorende(journalpostHendelse)
+            Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
+            Hendelse.NO_SUPPORT -> LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
         }
     }
 
@@ -34,6 +35,22 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
             LOGGER.info("Hendelsen ${journalpostHendelse.hendelse} er bytte til et internt fagområde")
         } else {
             ferdigstillOppgaver(journalpostHendelse)
+        }
+    }
+
+    private fun overforOppgaverTilhorende(journalpostHendelse: JournalpostHendelse) {
+        val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
+        val overforOppgaverA = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.first) }
+        val overforOppgaverB = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.first) }
+
+        CompletableFuture.allOf(overforOppgaverA, overforOppgaverB).get() // overfører oppgaver tilhørende journalpost (med og uten prefix)
+    }
+
+    private fun overforOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
+        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
+
+        oppgaveSokResponse.oppgaver.forEach {
+            println(it)
         }
     }
 
@@ -48,12 +65,12 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
     private fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
 
-        oppgaveSokResponse?.oppgaver?.forEach {
-            ferdigstillOppgave(it, oppgaveSokRequest)
+        oppgaveSokResponse.oppgaver.forEach {
+            ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, oppgaveSokRequest.hentEnhetsnummer())
         }
     }
 
-    private fun ferdigstillOppgave(oppgaveData: OppgaveData, oppgaveSokRequest: OppgaveSokRequest) {
-        oppgaveConsumer.ferdigstillOppgaver(FerdigstillOppgaveRequest(oppgaveData, oppgaveSokRequest.fagomrade, oppgaveSokRequest.hentEnhetsnummer()))
+    private fun ferdigstillOppgave(oppgaveData: OppgaveData, fagomrade: String, enhetsnummer: String) {
+        oppgaveConsumer.ferdigstillOppgaver(FerdigstillOppgaveRequest(oppgaveData, fagomrade, enhetsnummer))
     }
 }
