@@ -3,7 +3,8 @@ package no.nav.bidrag.arbeidsflyt.model
 // Detaljer (keys) i en JournalpostHendelse
 object Detalj {
     const val FAGOMRADE = "fagomrade"
-    const val JP_ADM_ENHETSNUMMER = "enhetsnummer"
+    const val ENHETSNUMMER = "enhetsnummer"
+    const val ENHETSNUMMER_GAMMELT = "gammelt-enhetsnummer"
 }
 
 // Detaljer (values) i en JournalpostHendelse

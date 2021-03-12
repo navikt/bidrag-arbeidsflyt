@@ -18,8 +18,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
 @SpringBootTest(properties = ["OPPGAVE_URL=https://unit.test"])
-@DisplayName("JournalpostHendelseListener")
-internal class JournalpostHendelseListenerEndeTilEndeTest {
+@DisplayName("JournalpostHendelseListener ved ferdigstilling av oppgaver \"ende til ende\"-test")
+internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
 
     @Autowired
     private lateinit var journalpostHendelseListener: JournalpostHendelseListener
@@ -41,7 +41,7 @@ internal class JournalpostHendelseListenerEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        `when`(httpHeaderRestTemplate.exchange(eq("/1"), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -62,7 +62,7 @@ internal class JournalpostHendelseListenerEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/1"), eq(HttpMethod.PUT), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PUT), any(), eq(String::class.java))
     }
 
     @Test
@@ -103,7 +103,7 @@ internal class JournalpostHendelseListenerEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        `when`(httpHeaderRestTemplate.exchange(eq("/6"), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -125,6 +125,6 @@ internal class JournalpostHendelseListenerEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/6"), eq(HttpMethod.PUT), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/6"), eq(HttpMethod.PUT), any(), eq(String::class.java))
     }
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 internal class JournalpostHendelseTest {
     @Test
-    fun `skal hente journalpostId som tall fra prefikset journalpostId`() {
+    fun `skal hente journalpostId fra prefikset journalpostId`() {
         val journalpostHendelse = JournalpostHendelse(journalpostId = "BID-101")
 
         assertThat(journalpostHendelse.hentIdUtenPrefix()).isEqualTo("101")
@@ -25,6 +25,6 @@ internal class JournalpostHendelseTest {
     fun `skal hente NO_SUPPORT når hendelse er ukjent`() {
         val journalpostHendelse = JournalpostHendelse(hendelse = "ikke kjent hendelse")
 
-        assertThat(journalpostHendelse.hentHendelse()).isEqualTo(JournalpostHendelser.NO_SUPPORT)
+        assertThat(journalpostHendelse.hentHendelse()).isEqualTo(Hendelse.NO_SUPPORT)
     }
 }

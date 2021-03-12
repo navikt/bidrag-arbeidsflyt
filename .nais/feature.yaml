@@ -6,4 +6,4 @@ ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no
 env:
   - name: OPPGAVE_URL
-    value: https://oppgave.nais.preprod.local/api/v1/oppgaver
+    value: https://oppgave-q2.dev.adeo.no/

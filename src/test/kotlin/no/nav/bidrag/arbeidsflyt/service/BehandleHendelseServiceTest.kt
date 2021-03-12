@@ -34,7 +34,9 @@ internal class BehandleHendelseServiceTest {
 
     @Test
     fun `skal søke etter åpne oppgaver når hendelsen er JOURNALFOR_JOURNALPOST`() {
-        val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST")
+        val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST", detaljer = mapOf("enhetsnummer" to "1234"))
+
+        `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -48,7 +50,7 @@ internal class BehandleHendelseServiceTest {
         val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST", detaljer = mapOf("enhetsnummer" to "1001"))
 
         `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(
-            OppgaveSokResponse(1, listOf(OppgaveData()) as MutableList<OppgaveData>)
+            OppgaveSokResponse(1, listOf(OppgaveData()))
         )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -79,8 +81,10 @@ internal class BehandleHendelseServiceTest {
     @Test
     fun `skal søke etter oppgaver å ferdigstille når AVVIK_ENDRE_FAGOMRADE er til fagområde annet enn BID eller FAR`() {
         val journalpostHendelse = JournalpostHendelse(
-            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE to "AAP")
+            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE to "AAP", Detalj.ENHETSNUMMER to "123")
         )
+
+        `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
