@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.aop
 
+import com.nhaarman.mockito_kotlin.whenever
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,7 +30,7 @@ internal class ExceptionLoggerAspectTest {
     @Test
     fun `skal logge exceptions fra service`() {
         val illegalStateException = IllegalStateException("Logg exception!")
-        `when`(behandleHendelseServiceMock.behandleHendelse(JournalpostHendelse("BID-101", "TEST_HENDELSE")))
+        whenever(behandleHendelseServiceMock.behandleHendelse(JournalpostHendelse("BID-101", "TEST_HENDELSE")))
             .thenThrow(illegalStateException)
 
         assertThatIllegalStateException().isThrownBy {

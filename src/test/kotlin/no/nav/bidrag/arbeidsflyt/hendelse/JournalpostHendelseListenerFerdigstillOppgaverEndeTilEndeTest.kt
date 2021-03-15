@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import com.nhaarman.mockito_kotlin.whenever
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
     fun `skal ferdigstille oppgave for hendelse JOURNALFOR_JOURNALPOST`() {
         // when/then søk etter oppgave
         @Suppress("UNCHECKED_CAST")
-        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
             .thenReturn(
                 ResponseEntity.ok(
                     OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1)))
@@ -41,7 +41,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -93,7 +93,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
     fun `skal ferdigstille oppgave for hendelse AVVIK_ENDRE_FAGOMRADE når fagområde som endres er eksternt`() {
         // when/then søk etter oppgave
         @Suppress("UNCHECKED_CAST")
-        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
             .thenReturn(
                 ResponseEntity.ok(
                     OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 6)))
@@ -103,7 +103,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        `when`(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )

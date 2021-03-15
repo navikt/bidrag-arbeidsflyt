@@ -1,6 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
-import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.EndreOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import org.slf4j.LoggerFactory
@@ -13,7 +13,7 @@ private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
-    fun ferdigstillOppgaver(ferdigstillOppgaveRequest: FerdigstillOppgaveRequest)
+    fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest)
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
@@ -37,14 +37,14 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
         return oppgaveSokResponse.body ?: OppgaveSokResponse(0)
     }
 
-    override fun ferdigstillOppgaver(ferdigstillOppgaveRequest: FerdigstillOppgaveRequest) {
-        val oppgaverPath = ferdigstillOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
+    override fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest) {
+        val oppgaverPath = endreOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Ferdigstiller en oppgave med id: $oppgaverPath")
 
         val responseEntity = restTemplate.exchange(
             oppgaverPath,
             HttpMethod.PUT,
-            ferdigstillOppgaveRequest.somHttpEntity(),
+            endreOppgaveRequest.somHttpEntity(),
             String::class.java
         )
 
