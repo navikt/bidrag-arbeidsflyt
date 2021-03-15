@@ -4,10 +4,10 @@ package no.nav.bidrag.arbeidsflyt.model
 object Detalj {
     const val FAGOMRADE = "fagomrade"
     const val ENHETSNUMMER = "enhetsnummer"
-    const val ENHETSNUMMER_GAMMELT = "gammelt-enhetsnummer"
+    const val ENHETSNUMMER_NYTT = "nytt-enhetsnummer"
 }
 
-// Detaljer (values) i en JournalpostHendelse
+// Verdier til Detaljer i en JournalpostHendelse
 object DetaljVerdi {
     const val FAGOMRADE_BIDRAG = "BID"
     const val FAGOMRADE_FARSKAP = "FAR"

@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import com.nhaarman.mockito_kotlin.whenever
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.any
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
@@ -36,7 +36,7 @@ internal class BehandleHendelseServiceTest {
     fun `skal søke etter åpne oppgaver når hendelsen er JOURNALFOR_JOURNALPOST`() {
         val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST", detaljer = mapOf("enhetsnummer" to "1234"))
 
-        `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
+        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -49,14 +49,14 @@ internal class BehandleHendelseServiceTest {
     fun `skal ferdigstille oppgaver som ble funnet av oppgavesøket`() {
         val journalpostHendelse = JournalpostHendelse("BID-1", "JOURNALFOR_JOURNALPOST", detaljer = mapOf("enhetsnummer" to "1001"))
 
-        `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(
+        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(
             OppgaveSokResponse(1, listOf(OppgaveData()))
         )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         // forventer at søk blir gjort for journalpostId med og uten prefix...
-        verify(oppgaveConsumerMock, times(2)).ferdigstillOppgaver(anyFerdigstillOppgaveRequest())
+        verify(oppgaveConsumerMock, times(2)).endreOppgave(anyFerdigstillOppgaveRequest())
     }
 
     @Test
@@ -84,7 +84,7 @@ internal class BehandleHendelseServiceTest {
             journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE to "AAP", Detalj.ENHETSNUMMER to "123")
         )
 
-        `when`(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
+        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
