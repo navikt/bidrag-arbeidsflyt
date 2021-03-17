@@ -6,6 +6,13 @@ metadata:
   labels:
     team: bidrag
 spec:
+  azure:
+    application:
+      enabled: true
+  accesspolicy:
+    outbound:
+      external:
+        - host: oppgave.prod-fss-pub.nais.io
   image: {{ image }}
   kafka:
     pool: nav-prod
