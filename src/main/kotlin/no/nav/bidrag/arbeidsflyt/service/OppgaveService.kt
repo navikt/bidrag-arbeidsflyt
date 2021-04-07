@@ -5,13 +5,15 @@ import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import org.springframework.stereotype.Service
 
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
-    internal fun overforOppgaver(oppgaveSokRequest: OppgaveSokRequest, nyJournalforendeEnhet: String) {
+    internal fun overforOppgaver(oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
+        val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
 
         oppgaveSokResponse.oppgaver.forEach { overforOppgave(OverforOppgaveRequest(it, nyJournalforendeEnhet)) }
     }
@@ -20,8 +22,9 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaveConsumer.endreOppgave(overforOppgaveRequest)
     }
 
-    internal fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest, journalforendeEnhet: String) {
+    internal fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
+        val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
 
         oppgaveSokResponse.oppgaver.forEach { ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, journalforendeEnhet) }
     }

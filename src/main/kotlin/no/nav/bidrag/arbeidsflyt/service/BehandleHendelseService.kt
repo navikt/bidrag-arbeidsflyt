@@ -37,14 +37,13 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
 
     private fun overforOppgaverTilAnnenEnhet(journalpostHendelse: JournalpostHendelse) {
         val fagomrade = journalpostHendelse.hentFagomradeFraId()
-        val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
 
         val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync {
-            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), nyJournalforendeEnhet)
+            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), journalpostHendelse)
         }
 
         val overforOppgaverUtenPrefixetId = CompletableFuture.supplyAsync {
-            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), nyJournalforendeEnhet)
+            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), journalpostHendelse)
         }
 
         CompletableFuture.allOf(overforOppgaverForPrefixetId, overforOppgaverUtenPrefixetId)
@@ -53,14 +52,13 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
 
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
         val fagomrade = journalpostHendelse.hentFagomradeFraId()
-        val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
 
         val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync {
-            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), journalforendeEnhet)
+            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), journalpostHendelse)
         }
 
         val ferdigstillOppgaverUtenPrefixetId = CompletableFuture.supplyAsync {
-            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), journalforendeEnhet)
+            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), journalpostHendelse)
         }
 
         CompletableFuture.allOf(ferdigstillOppgaverForPrefixetId, ferdigstillOppgaverUtenPrefixetId)

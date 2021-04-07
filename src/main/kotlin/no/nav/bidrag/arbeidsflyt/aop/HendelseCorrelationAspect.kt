@@ -1,6 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.aop
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.CORRELATION_ID
 import no.nav.bidrag.commons.CorrelationId
 import org.aspectj.lang.JoinPoint
@@ -34,6 +36,19 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
             }
         } catch (e: Exception) {
             LOGGER.error("Unable to parse '$hendelse': ${e.javaClass.simpleName}: ${e.message}")
+        }
+    }
+
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) and args(oppgaveSokRequest, journalpostHendelse)")
+    fun addCorrelationIdToThread(joinPoint: JoinPoint, oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
+        val correlationId = journalpostHendelse.sporing?.correlationId
+
+        if (correlationId != null) {
+            MDC.put(CORRELATION_ID, correlationId)
+        } else {
+            val unknown = "${oppgaveSokRequest.journalpostId}-${System.currentTimeMillis().toString(16)}"
+            LOGGER.warn("Unable to find correlation Id in $journalpostHendelse, using '$unknown'")
+            MDC.put(CORRELATION_ID, unknown)
         }
     }
 
