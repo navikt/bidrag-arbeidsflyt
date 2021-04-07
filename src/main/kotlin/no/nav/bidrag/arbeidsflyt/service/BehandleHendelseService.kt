@@ -1,10 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.Hendelse
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import org.slf4j.LoggerFactory
@@ -18,7 +14,7 @@ interface BehandleHendelseService {
 }
 
 @Service
-class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsumer) : BehandleHendelseService {
+class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService) : BehandleHendelseService {
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
@@ -40,44 +36,34 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
     }
 
     private fun overforOppgaverTilAnnenEnhet(journalpostHendelse: JournalpostHendelse) {
-        val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
-        val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.first) }
-        val overforOppgaverUtenPrefixetId = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.second) }
+        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
+
+        val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync {
+            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), nyJournalforendeEnhet)
+        }
+
+        val overforOppgaverUtenPrefixetId = CompletableFuture.supplyAsync {
+            oppgaveService.overforOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), nyJournalforendeEnhet)
+        }
 
         CompletableFuture.allOf(overforOppgaverForPrefixetId, overforOppgaverUtenPrefixetId)
             .get() // overfører oppgaver tilhørende journalpost (med og uten prefix)
     }
 
-    private fun overforOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
-        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
-
-        oppgaveSokResponse.oppgaver.forEach {
-            overforOppgave(OverforOppgaveRequest(it, oppgaveSokRequest.hentNyJournalforendeEnhet()))
-        }
-    }
-
-    private fun overforOppgave(overforOppgaveRequest: OverforOppgaveRequest) {
-        oppgaveConsumer.endreOppgave(overforOppgaveRequest)
-    }
-
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
-        val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync { ferdigstillOppgaver(oppgaveSokRequests.first) }
-        val ferdigstillOppgaverUtenPrefixetId = CompletableFuture.supplyAsync { ferdigstillOppgaver(oppgaveSokRequests.second) }
+        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
+
+        val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync {
+            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.journalpostId, fagomrade), journalforendeEnhet)
+        }
+
+        val ferdigstillOppgaverUtenPrefixetId = CompletableFuture.supplyAsync {
+            oppgaveService.ferdigstillOppgaver(OppgaveSokRequest(journalpostHendelse.hentJournalpostIdUtenPrefix(), fagomrade), journalforendeEnhet)
+        }
 
         CompletableFuture.allOf(ferdigstillOppgaverForPrefixetId, ferdigstillOppgaverUtenPrefixetId)
             .get() // ferdigstiller oppgaver tilhørende journalpost med og uten prefix på id
-    }
-
-    private fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest) {
-        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
-
-        oppgaveSokResponse.oppgaver.forEach {
-            ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, oppgaveSokRequest.hentEnhetsnummer())
-        }
-    }
-
-    private fun ferdigstillOppgave(oppgaveData: OppgaveData, fagomrade: String, enhetsnummer: String) {
-        oppgaveConsumer.endreOppgave(FerdigstillOppgaveRequest(oppgaveData, fagomrade, enhetsnummer))
     }
 }
