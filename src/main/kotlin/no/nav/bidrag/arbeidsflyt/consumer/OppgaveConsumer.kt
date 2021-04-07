@@ -39,7 +39,7 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
 
     override fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest) {
         val oppgaverPath = endreOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Ferdigstiller en oppgave med id: $oppgaverPath")
+        LOGGER.info("Endrer en oppgave med id: $oppgaverPath")
 
         val responseEntity = restTemplate.exchange(
             oppgaverPath,

@@ -49,8 +49,8 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
                 "correlationId": "abc"
               },
               "detaljer":{
-                "nytt-enhetsnummer":"1001",
-                "gammelt-enhetsnummer":"1010"
+                "nyttEnhetsnummer":"1001",
+                "gammeltEnhetsnummer":"1010"
               }
             }
             """.trimIndent()
@@ -88,8 +88,8 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
                 "correlationId": "abc"
               },
               "detaljer":{
-                "nytt-enhetsnummer":"1001",
-                "gammelt-enhetsnummer":"1010"
+                "nyttEnhetsnummer":"1001",
+                "gammeltEnhetsnummer":"1010"
               }
             }
             """.trimIndent()

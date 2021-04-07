@@ -4,7 +4,8 @@ package no.nav.bidrag.arbeidsflyt.model
 object Detalj {
     const val FAGOMRADE = "fagomrade"
     const val ENHETSNUMMER = "enhetsnummer"
-    const val ENHETSNUMMER_NYTT = "nytt-enhetsnummer"
+    const val ENHETSNUMMER_GAMMELT = "gammeltEnhetsnummer"
+    const val ENHETSNUMMER_NYTT = "nyttEnhetsnummer"
 }
 
 // Verdier til Detaljer i en JournalpostHendelse

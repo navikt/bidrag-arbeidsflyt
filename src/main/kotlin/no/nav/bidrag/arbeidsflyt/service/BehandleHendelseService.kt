@@ -42,7 +42,7 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
     private fun overforOppgaverTilAnnenEnhet(journalpostHendelse: JournalpostHendelse) {
         val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
         val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.first) }
-        val overforOppgaverUtenPrefixetId = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.first) }
+        val overforOppgaverUtenPrefixetId = CompletableFuture.supplyAsync { overforOppgaver(oppgaveSokRequests.second) }
 
         CompletableFuture.allOf(overforOppgaverForPrefixetId, overforOppgaverUtenPrefixetId)
             .get() // overfører oppgaver tilhørende journalpost (med og uten prefix)
