@@ -70,16 +70,16 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/main.yaml
+          RESOURCE: deploy/.nais/nais.yaml
+          VARS: deploy/.nais/main.yaml
       - name: Deploy feature branch to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/feature.yaml
+          RESOURCE: deploy/.nais/nais.yaml
+          VARS: deploy/.nais/feature.yaml
 
   bump_dev_version:
     runs-on: ubuntu-latest
@@ -122,7 +122,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: deploy/nais/nais-p.yaml
+          RESOURCE: deploy/.nais/nais-p.yaml
           VAR: namespace=bidrag
 
   tag_prod_deploy:

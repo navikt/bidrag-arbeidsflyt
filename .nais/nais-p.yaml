@@ -6,6 +6,13 @@ metadata:
   labels:
     team: bidrag
 spec:
+  azure:
+    application:
+      enabled: true
+  accesspolicy:
+    outbound:
+      external:
+        - host: oppgave.prod-fss-pub.nais.io
   image: {{ image }}
   kafka:
     pool: nav-prod
@@ -33,6 +40,6 @@ spec:
     - https://bidrag-arbeidsflyt.intern.nav.no
   env:
     - name: OPPGAVE_URL
-      value: https://oppgave.nais.adeo.no/api/v1/oppgaver
+      value: https://oppgave.nais.adeo.no/
     - name: TOPIC_JOURNALPOST
       value: bidrag.journalpost

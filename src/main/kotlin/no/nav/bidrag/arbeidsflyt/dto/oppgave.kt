@@ -3,8 +3,12 @@ package no.nav.bidrag.arbeidsflyt.dto
 import no.nav.bidrag.arbeidsflyt.model.Detalj
 import org.springframework.http.HttpEntity
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, private val enhetsnummer: String?) {
-    fun hentEnhetsnummer() = enhetsnummer ?: throw IllegalStateException("Mangler hendelsedata: detaljer.${Detalj.JP_ADM_ENHETSNUMMER}")
+data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, val detaljer: Map<String, String>) {
+    fun hentEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER] ?: hentGammeltEnhetsnummer()
+    fun hentNyttEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_NYTT] ?: doThrow("Mangler${Detalj.ENHETSNUMMER_NYTT} blant hendelsedata")
+    private fun hentGammeltEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_GAMMELT] ?: doThrow("Mangler (gammelt)enhetsnummer blant hendelsedata")
+
+    private fun doThrow(message: String): String = throw IllegalStateException(message)
 }
 
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
@@ -93,11 +97,32 @@ data class OppgaveData(
     }
 }
 
+sealed class EndreOppgaveRequest {
+    abstract protected fun hentOppgaveId(): Long?
+
+    abstract fun hentRequestType(): String
+    fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${hentOppgaveId()}".replace("//", "/")
+    fun somHttpEntity() = HttpEntity<Any>(this)
+}
+
+data class OverforOppgaveRequest(
+    private val oppgaveData: OppgaveData,
+    private val nyttEnhetsnummer: String
+) : EndreOppgaveRequest() {
+    init {
+        oppgaveData.tildeltEnhetsnr = nyttEnhetsnummer
+    }
+
+    override fun toString() = oppgaveData.asJson()
+    override fun hentOppgaveId() = oppgaveData.id
+    override fun hentRequestType() = "Overfører oppgave med id ${oppgaveData.id} til nytt enhetsnummer ${nyttEnhetsnummer}"
+}
+
 data class FerdigstillOppgaveRequest(
     private val oppgaveData: OppgaveData,
     private val tema: String,
     private val tildeltEnhetsnr: String
-) {
+) : EndreOppgaveRequest() {
     init {
         oppgaveData.tildeltEnhetsnr = tildeltEnhetsnr
         oppgaveData.status = "FERDIGSTILLT"
@@ -105,6 +130,6 @@ data class FerdigstillOppgaveRequest(
     }
 
     override fun toString() = oppgaveData.asJson()
-    fun hentOppgaveDataIdSomContextPath() = "/${oppgaveData.id}"
-    fun somHttpEntity() = HttpEntity<Any>(this)
+    override fun hentOppgaveId() = oppgaveData.id
+    override fun hentRequestType() = "Ferdigstiller oppgave med id ${oppgaveData.id}"
 }
