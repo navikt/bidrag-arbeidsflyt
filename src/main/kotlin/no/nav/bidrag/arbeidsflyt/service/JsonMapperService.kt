@@ -5,10 +5,10 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
-private val LOGGER = LoggerFactory.getLogger(HendelseService::class.java)
+private val LOGGER = LoggerFactory.getLogger(JsonMapperService::class.java)
 
 @Service
-class HendelseService(
+class JsonMapperService(
     private val objectMapper: ObjectMapper,
     private val behandeHendelseService: BehandleHendelseService
 ) {

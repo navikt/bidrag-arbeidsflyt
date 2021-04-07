@@ -18,7 +18,7 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.HendelseService.*(..)) and args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.*(..)) and args(hendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
         try {
             val jsonNode = objectMapper.readTree(hendelse)

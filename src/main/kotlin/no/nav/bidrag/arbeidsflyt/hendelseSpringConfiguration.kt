@@ -4,7 +4,7 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.DefaultJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.service.HendelseService
+import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
@@ -30,8 +30,8 @@ private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 @EnableJwtTokenValidation(ignore = ["springfox.documentation.swagger.web.ApiResourceController"])
 class HendelseConfiguration {
     @Bean
-    fun journalpostHendelseListener(hendelseService: HendelseService): JournalpostHendelseListener = DefaultJournalpostHendelseListener(
-        hendelseService
+    fun journalpostHendelseListener(jsonMapperService: JsonMapperService): JournalpostHendelseListener = DefaultJournalpostHendelseListener(
+        jsonMapperService
     )
 
     @Bean
