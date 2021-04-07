@@ -52,7 +52,7 @@ class DefaultBehandleHendelseService(private val oppgaveConsumer: OppgaveConsume
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
 
         oppgaveSokResponse.oppgaver.forEach {
-            overforOppgave(OverforOppgaveRequest(it, oppgaveSokRequest.hentNyttEnhetsnummer()))
+            overforOppgave(OverforOppgaveRequest(it, oppgaveSokRequest.hentNyJournalforendeEnhet()))
         }
     }
 

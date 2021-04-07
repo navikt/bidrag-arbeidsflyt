@@ -1,14 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
-import no.nav.bidrag.arbeidsflyt.model.Detalj
+import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import org.springframework.http.HttpEntity
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, val detaljer: Map<String, String>) {
-    fun hentEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER] ?: hentGammeltEnhetsnummer()
-    fun hentNyttEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_NYTT] ?: doThrow("Mangler${Detalj.ENHETSNUMMER_NYTT} blant hendelsedata")
-    private fun hentGammeltEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_GAMMELT] ?: doThrow("Mangler (gammelt)enhetsnummer blant hendelsedata")
-
-    private fun doThrow(message: String): String = throw IllegalStateException(message)
+data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String, val journalpostHendelse: JournalpostHendelse) {
+    fun hentEnhetsnummer() = journalpostHendelse.hentEnhetsnummer()
+    fun hentNyJournalforendeEnhet() = journalpostHendelse.journalforendeEnhet?.nyttEnhetsnummer
+        ?: throw IllegalStateException("Fant ikke ny journalførende enhet")
 }
 
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
