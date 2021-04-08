@@ -8,12 +8,21 @@ interface JournalpostHendelseListener {
     fun lesHendelse(hendelse: String)
 }
 
-class DefaultJournalpostHendelseListener(
+class KafkaJournalpostHendelseListener(
+    jsonMapperService: JsonMapperService, behandeHendelseService: BehandleHendelseService
+) : PojoJournalpostHendelseListener(jsonMapperService, behandeHendelseService) {
+
+    @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"], errorHandler = "hendelseErrorHandler")
+    override fun lesHendelse(hendelse: String) {
+        super.lesHendelse(hendelse)
+    }
+}
+
+open class PojoJournalpostHendelseListener(
     private val jsonMapperService: JsonMapperService,
     private val behandeHendelseService: BehandleHendelseService
 ) : JournalpostHendelseListener {
 
-    @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"], errorHandler = "hendelseErrorHandler")
     override fun lesHendelse(hendelse: String) {
         val journalpostHendelse = jsonMapperService.mapHendelse(hendelse)
         behandeHendelseService.behandleHendelse(journalpostHendelse)

@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.hendelse.DefaultJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
@@ -32,7 +32,7 @@ class HendelseConfiguration {
     @Bean
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
-    ): JournalpostHendelseListener = DefaultJournalpostHendelseListener(
+    ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
         jsonMapperService, behandleHendelseService
     )
 
