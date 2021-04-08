@@ -23,12 +23,11 @@ import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
 
-const val ISSUER = "todo: for navdevice"
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 
 @Configuration
 @Profile(PROFILE_LIVE)
-@EnableJwtTokenValidation(ignore = ["springfox.documentation.swagger.web.ApiResourceController"])
+@EnableJwtTokenValidation
 class HendelseConfiguration {
     @Bean
     fun journalpostHendelseListener(
