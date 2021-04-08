@@ -1,22 +1,28 @@
 package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-const val PROFILE_TEST = "test"
-
 @Configuration
 class NoKafkaConfiguration {
     @Bean
-    fun journalpostHendelseListener(jsonMapperService: JsonMapperService): JournalpostHendelseListener = StubbedJournalpostHendelseListener(
-        jsonMapperService
+    fun journalpostHendelseListener(
+        jsonMapperService: JsonMapperService,
+        behandleHendelseService: BehandleHendelseService
+    ): JournalpostHendelseListener = StubbedJournalpostHendelseListener(
+        jsonMapperService,
+        behandleHendelseService
     )
 
-    private class StubbedJournalpostHendelseListener(private val jsonMapperService: JsonMapperService) : JournalpostHendelseListener {
+    private class StubbedJournalpostHendelseListener(
+        private val jsonMapperService: JsonMapperService,
+        private val behandleHendelseService: BehandleHendelseService
+    ) : JournalpostHendelseListener {
         override fun lesHendelse(hendelse: String) {
-            jsonMapperService.lesHendelse(hendelse)
+            behandleHendelseService.behandleHendelse(jsonMapperService.mapHendelse(hendelse))
         }
     }
 }
