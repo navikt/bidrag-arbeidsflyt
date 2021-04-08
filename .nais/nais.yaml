@@ -9,7 +9,7 @@ spec:
   azure:
     application:
       enabled: true
-  accesspolicy:
+  accessPolicy:
     outbound:
       external:
         - host: oppgave.dev-fss-pub.nais.io
