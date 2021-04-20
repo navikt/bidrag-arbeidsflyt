@@ -53,7 +53,12 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     }
 
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")
-    fun clearCorrelationId(joinPoint: JoinPoint) {
+    fun clearCorrelationIdFromBehandleHendelseService(joinPoint: JoinPoint) {
+        MDC.clear()
+    }
+
+    @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..))")
+    fun clearCorrelationIdFromOppgaveService(joinPoint: JoinPoint) {
         MDC.clear()
     }
 }
