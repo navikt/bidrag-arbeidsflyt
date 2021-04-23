@@ -2,9 +2,10 @@ package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.hendelse.DefaultJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.service.HendelseService
+import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
+import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
@@ -22,16 +23,17 @@ import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
 
-const val ISSUER = "todo: for navdevice"
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 
 @Configuration
 @Profile(PROFILE_LIVE)
-@EnableJwtTokenValidation(ignore = ["springfox.documentation.swagger.web.ApiResourceController"])
+@EnableJwtTokenValidation
 class HendelseConfiguration {
     @Bean
-    fun journalpostHendelseListener(hendelseService: HendelseService): JournalpostHendelseListener = DefaultJournalpostHendelseListener(
-        hendelseService
+    fun journalpostHendelseListener(
+        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
+    ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
+        jsonMapperService, behandleHendelseService
     )
 
     @Bean

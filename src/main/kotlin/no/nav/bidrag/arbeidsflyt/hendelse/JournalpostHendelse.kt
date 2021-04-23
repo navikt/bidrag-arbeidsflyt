@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.model.Detalj.ENHETSNUMMER
+import no.nav.bidrag.arbeidsflyt.model.Detalj.ENHETSNUMMER_NYTT
 import no.nav.bidrag.arbeidsflyt.model.Detalj.FAGOMRADE
 import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_FARSKAP
@@ -9,24 +10,17 @@ data class JournalpostHendelse(
     var journalpostId: String = "",
     var hendelse: String = "",
     var sporing: Sporingsdata? = null,
-    var detaljer: Map<String, String> = emptyMap()
+    private var detaljer: Map<String, String> = emptyMap()
 ) {
-    fun hentHendelse(): Hendelse {
-        return Hendelse.values().find { it.name == hendelse } ?: Hendelse.NO_SUPPORT
-    }
+    fun hentHendelse() = Hendelse.values().find { it.name == hendelse } ?: Hendelse.NO_SUPPORT
 
+    internal fun hentEnhetsnummer() = detaljer[ENHETSNUMMER] ?: doThrow("Mangler $ENHETSNUMMER blant hendelsedata")
     internal fun erBytteTilInterntFagomrade() = detaljer[FAGOMRADE] == FAGOMRADE_BIDRAG || detaljer[FAGOMRADE] == FAGOMRADE_FARSKAP
-    internal fun hentIdUtenPrefix() = journalpostId.split('-')[1]
     internal fun hentFagomradeFraId() = journalpostId.split('-')[0]
-    internal fun hentOppgaveSokRequestsMedOgUtenPrefix(): Pair<OppgaveSokRequest, OppgaveSokRequest> {
-        val fagomradeFraId = hentFagomradeFraId()
-        val journalpostIdUtenPrefix = hentIdUtenPrefix()
+    internal fun hentJournalpostIdUtenPrefix() = journalpostId.split('-')[1]
+    internal fun hentNyttJournalforendeEnhetsnummer() = detaljer[ENHETSNUMMER_NYTT] ?: doThrow("Mangler $ENHETSNUMMER_NYTT blant hendelsedata")
 
-        return Pair(
-            OppgaveSokRequest(journalpostId, fagomradeFraId, detaljer),
-            OppgaveSokRequest(journalpostIdUtenPrefix, fagomradeFraId, detaljer)
-        )
-    }
+    private fun doThrow(message: String): String = throw IllegalStateException(message)
 }
 
 data class Sporingsdata(var correlationId: String? = null, var opprettet: String? = null)

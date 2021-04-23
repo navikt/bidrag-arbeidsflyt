@@ -12,7 +12,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: oppgave.dev-fss-pub.nais.io
+        - host: {{ oppgave-host }}
   image: {{ image }}
   kafka:
     pool: nav-dev
@@ -41,9 +41,7 @@ spec:
     - {{url}}
   {{/each}}
   env:
-  {{#each env}}
-    - name: {{this.name}}
-      value: "{{this.value}}"
-  {{/each}}
+    - name: OPPGAVE_URL
+      value: https://{{ oppgave-host }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}

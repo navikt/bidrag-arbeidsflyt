@@ -1,6 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.aop
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.CORRELATION_ID
 import no.nav.bidrag.commons.CorrelationId
 import org.aspectj.lang.JoinPoint
@@ -18,7 +20,7 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.HendelseService.*(..)) and args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.*(..)) and args(hendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
         try {
             val jsonNode = objectMapper.readTree(hendelse)
@@ -37,8 +39,26 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) and args(oppgaveSokRequest, journalpostHendelse)")
+    fun addCorrelationIdToThread(joinPoint: JoinPoint, oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
+        val correlationId = journalpostHendelse.sporing?.correlationId
+
+        if (correlationId != null) {
+            MDC.put(CORRELATION_ID, correlationId)
+        } else {
+            val unknown = "${oppgaveSokRequest.journalpostId}-${System.currentTimeMillis().toString(16)}"
+            LOGGER.warn("Unable to find correlation Id in $journalpostHendelse, using '$unknown'")
+            MDC.put(CORRELATION_ID, unknown)
+        }
+    }
+
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")
-    fun clearCorrelationId(joinPoint: JoinPoint) {
+    fun clearCorrelationIdFromBehandleHendelseService(joinPoint: JoinPoint) {
+        MDC.clear()
+    }
+
+    @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..))")
+    fun clearCorrelationIdFromOppgaveService(joinPoint: JoinPoint) {
         MDC.clear()
     }
 }

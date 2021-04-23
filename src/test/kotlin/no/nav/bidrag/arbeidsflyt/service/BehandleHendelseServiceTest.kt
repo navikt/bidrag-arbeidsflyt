@@ -40,9 +40,8 @@ internal class BehandleHendelseServiceTest {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        val oppgaveSokRequests = journalpostHendelse.hentOppgaveSokRequestsMedOgUtenPrefix()
-        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(oppgaveSokRequests.first)
-        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(oppgaveSokRequests.second)
+        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(OppgaveSokRequest("BID-1", "BID"))
+        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(OppgaveSokRequest("1", "BID"))
     }
 
     @Test
