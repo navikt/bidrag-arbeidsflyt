@@ -1,7 +1,9 @@
 name: bidrag-arbeidsflyt-feature
-outbound-bidrag-dokument: bidrag-dokument-feature.dev-fss-pub.nais.io
+azure:
+  outbound.oppgave: oppgave-q1.dev-fss-pub.nais.io
+kafka:
+  pool: nav-dev
 kafka-topic-journalpost: bidrag.journalpost-feature
-oppgave-host: oppgave-q1.dev-fss-pub.nais.io
 ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.adeo.no
   - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no

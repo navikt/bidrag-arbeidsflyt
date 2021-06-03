@@ -12,10 +12,10 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: {{ oppgave-host }}
+        - host: {{ azure.outbound.oppgave }}
   image: {{ image }}
   kafka:
-    pool: nav-dev
+    pool: {{ kafka.pool }}
   liveness:
     path: /bidrag-arbeidsflyt/actuator/health
     initialDelay: 20
@@ -42,6 +42,6 @@ spec:
   {{/each}}
   env:
     - name: OPPGAVE_URL
-      value: https://{{ oppgave-host }}
+      value: https://{{ azure.outbound.oppgave }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
