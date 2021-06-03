@@ -1,0 +1,8 @@
+name: bidrag-arbeidsflyt
+azure:
+  oppgave: oppgave.prod-fss-pub.nais.io
+kafka:
+  pool: nav-dev
+kafka-topic-journalpost: bidrag.journalpost
+ingresses:
+  - https://bidrag-arbeidsflyt.intern.nav.no
