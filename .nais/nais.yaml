@@ -12,7 +12,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: {{ azure.outbound.oppgave }}
+        - host: {{ azure.oppgave }}
   image: {{ image }}
   kafka:
     pool: {{ kafka.pool }}
@@ -42,6 +42,6 @@ spec:
   {{/each}}
   env:
     - name: OPPGAVE_URL
-      value: https://{{ azure.outbound.oppgave }}
+      value: https://{{ azure.oppgave }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}

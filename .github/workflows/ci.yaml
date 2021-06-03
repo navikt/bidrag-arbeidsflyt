@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - '**'
+      - '!release'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-arbeidsflyt:${{ github.sha }}
@@ -12,7 +13,6 @@ jobs:
   build:
     name: Build with maven and docker
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/release'
 
     steps:
       - uses: navikt/bidrag-docker/exists@v1
@@ -35,13 +35,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v4
+      - uses: navikt/bidrag-maven/setup@v7
         if: env.NOT_FOUND == 'true'
         with:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: navikt/bidrag-maven/verify-dependencies@v1
+      - uses: navikt/bidrag-maven/verify-dependencies@v7
         if: env.NOT_FOUND == 'true'
       - run: mvn install -B -e
         if: env.NOT_FOUND == 'true'
@@ -57,7 +57,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
-    if: github.ref != 'refs/heads/release'
     needs: build
 
     steps:
@@ -72,7 +71,7 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/main.yaml
-      - name: Deploy feature branch to dev-gcp
+      - name: Deploy feature to dev-gcp
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -81,7 +80,7 @@ jobs:
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/feature.yaml
 
-  bump_version:
+  bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
@@ -95,13 +94,12 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v4
       - run: mvn release:update-versions
       - run: |
           BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${BUMPED_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-git/commit@v3
+      - uses: navikt/bidrag-git/commit@v5
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
