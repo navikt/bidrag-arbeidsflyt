@@ -5,7 +5,7 @@ on:
       - release
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument:${{ github.sha }}
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-arbeidsflyt:${{ github.sha }}
 
 jobs:
   verify:
@@ -16,7 +16,7 @@ jobs:
       - run: git clone --depth 1 https://www.github.com/${{ github.repository }}
       - name: check if commit to build exists in main branch
         run: |
-          cd $( echo ${{ github.repository }} | sed 's;navikt/;;' ).git
+          cd $( echo ${{ github.repository }} | sed 's;navikt/;;' )
           git log | grep -c ${{ github.sha }}
 
   build:
