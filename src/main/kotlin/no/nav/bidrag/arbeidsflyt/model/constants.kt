@@ -14,5 +14,9 @@ object DetaljVerdi {
     const val FAGOMRADE_FARSKAP = "FAR"
 }
 
+object MiljoVariabler {
+    const val OPPGAVE_URL = "OPPGAVE_URL"
+}
+
 // sproringsdata fra hendelse json
 const val CORRELATION_ID = "correlationId"
