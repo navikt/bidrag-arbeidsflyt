@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest(properties = ["OPPGAVE_URL=na"])
+@SpringBootTest
 @DisplayName("HendelseCorrelationAspect")
 internal class HendelseCorrelationAspectTest {
 

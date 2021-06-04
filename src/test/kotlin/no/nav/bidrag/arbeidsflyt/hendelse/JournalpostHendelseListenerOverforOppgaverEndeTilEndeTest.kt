@@ -18,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
-@SpringBootTest(properties = ["OPPGAVE_URL=https://unit.test"])
+@SpringBootTest
 @DisplayName("JournalpostHendelseListener AVVIK_OVERFOR_TIL_ANNEN_ENHET \"ende til ende\"-test")
 internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
 

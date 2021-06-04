@@ -2,8 +2,9 @@ package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
@@ -12,7 +13,6 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,6 +22,15 @@ import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
+
+internal object Environment {
+    internal fun fetchEnv(name: String) = System.getenv()[name] ?: System.getProperty(name) ?: dummy()[name]
+
+    private fun dummy() = mapOf(
+        OPPGAVE_URL to "https://dummy.test"
+    )
+
+}
 
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 
@@ -55,10 +64,17 @@ class HendelseConfiguration {
 class ArbeidsflytConfiguration {
 
     @Bean
-    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate, @Value("\${OPPGAVE_URL}") oppgaveUrl: String): OppgaveConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
+    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate): OppgaveConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
         return DefaultOppgaveConsumer(restTemplate)
     }
+
+    @Bean
+    fun ExceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
+}
+
+@Configuration
+class RestTemplateConfiguration {
 
     @Bean
     @Scope("prototype")
@@ -68,7 +84,4 @@ class ArbeidsflytConfiguration {
 
         return httpHeaderRestTemplate
     }
-
-    @Bean
-    fun ExceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
 }
