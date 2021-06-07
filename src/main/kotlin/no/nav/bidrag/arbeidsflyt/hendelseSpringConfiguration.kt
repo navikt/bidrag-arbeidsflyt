@@ -11,6 +11,7 @@ import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -24,12 +25,11 @@ import org.springframework.messaging.Message
 import java.util.Optional
 
 internal object Environment {
-    internal fun fetchEnv(name: String) = System.getenv()[name] ?: System.getProperty(name) ?: dummy()[name]
-
-    private fun dummy() = mapOf(
+    val dummy = mapOf(
         OPPGAVE_URL to "https://dummy.test"
     )
 
+    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
 }
 
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
@@ -61,6 +61,8 @@ class HendelseConfiguration {
 }
 
 @Configuration
+@EnableJwtTokenValidation
+@EnableOAuth2Client(cacheEnabled = true)
 class ArbeidsflytConfiguration {
 
     @Bean
