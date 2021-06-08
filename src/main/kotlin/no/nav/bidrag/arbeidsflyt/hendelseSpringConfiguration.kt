@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
+import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
@@ -25,7 +26,7 @@ import org.springframework.messaging.Message
 import java.util.Optional
 
 internal object Environment {
-    val dummy = mapOf(
+    private val dummy = mapOf(
         OPPGAVE_URL to "https://dummy.test"
     )
 
@@ -40,6 +41,10 @@ private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 @Profile(PROFILE_LIVE)
 @EnableJwtTokenValidation
 class HendelseConfiguration {
+    companion object {
+        internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf())
+    }
+
     @Bean
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
@@ -60,6 +65,9 @@ class HendelseConfiguration {
             Optional.empty<Any>()
         }
     }
+
+    @Bean
+    fun hendelseFilter() = hendelseFilterForLiveProfile
 }
 
 @Configuration

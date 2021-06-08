@@ -5,7 +5,7 @@ import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import org.springframework.stereotype.Service
 
 @Service

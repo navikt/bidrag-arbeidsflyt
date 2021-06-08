@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import no.nav.bidrag.arbeidsflyt.hendelse.Hendelse
-import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.Hendelse
+import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -13,16 +13,22 @@ interface BehandleHendelseService {
 }
 
 @Service
-class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService) : BehandleHendelseService {
+class DefaultBehandleHendelseService(
+    private val oppgaveService: OppgaveService, private val hendelseFilter: HendelseFilter
+) : BehandleHendelseService {
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
-        when (journalpostHendelse.hentHendelse()) {
-            Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
-            Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
-            Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
-            Hendelse.NO_SUPPORT -> LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
+        if (hendelseFilter.kanUtfore(journalpostHendelse.hentHendelse())) {
+            when (journalpostHendelse.hentHendelse()) {
+                Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
+                Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
+                Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
+                Hendelse.NO_SUPPORT -> LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
+            }
+        } else {
+            LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse} i et produksjonsmiljø'")
         }
     }
 
@@ -63,4 +69,12 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
         CompletableFuture.allOf(ferdigstillOppgaverForPrefixetId, ferdigstillOppgaverUtenPrefixetId)
             .get() // ferdigstiller oppgaver tilhørende journalpost med og uten prefix på id
     }
+}
+
+interface HendelseFilter {
+    fun kanUtfore(hendelse: Hendelse): Boolean
+}
+
+open class DefaultHendelseFilter(private val stottedeHendelser: List<Hendelse> = emptyList()): HendelseFilter {
+    override fun kanUtfore(hendelse: Hendelse) = stottedeHendelser.contains(hendelse)
 }
