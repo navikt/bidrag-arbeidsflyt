@@ -29,7 +29,9 @@ internal object Environment {
         OPPGAVE_URL to "https://dummy.test"
     )
 
-    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
+    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name] ?: throw IllegalStateException(
+        "Unable to find $name as a system property or an environment variable"
+    )
 }
 
 private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)

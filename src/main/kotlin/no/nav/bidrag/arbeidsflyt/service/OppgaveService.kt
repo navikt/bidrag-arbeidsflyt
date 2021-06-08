@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
-    internal fun overforOppgaver(oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
+    internal fun overforOppgaver(journalpostId: String, fagomrade: String, journalpostHendelse: JournalpostHendelse) {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
         val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
 
@@ -22,7 +23,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaveConsumer.endreOppgave(overforOppgaveRequest)
     }
 
-    internal fun ferdigstillOppgaver(oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
+    internal fun ferdigstillOppgaver(journalpostId: String, fagomrade: String, journalpostHendelse: JournalpostHendelse) {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
         val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
 
