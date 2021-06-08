@@ -1,5 +1,5 @@
 # bidrag-arbeidsflyt
-Mikrotjeneste for administrering av arbeidsflyt i bidrag
+Mikrotjeneste for administrering av arbeidsflyt i bidrag. Dette er en applikasjon som reagerer på hendelser definert i [bidrag-kafka](https://github.com/navikt/bidrag-kafka)
 
 [![continuous integration](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/ci.yaml/badge.svg)](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/ci.yaml)
 [![test build on pull request](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/pr.yaml/badge.svg)](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/pr.yaml)
