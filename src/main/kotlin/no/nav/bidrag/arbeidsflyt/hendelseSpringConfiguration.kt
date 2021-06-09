@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.model.AOUTH2_JWT_REGISTRATION
+import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
@@ -35,7 +36,8 @@ import java.util.Optional
 
 internal object Environment {
     private val dummy = mapOf(
-        OPPGAVE_URL to "https://dummy.test"
+        OPPGAVE_URL to "https://dummy.test",
+        NAIS_APP_NAME to "bidrag-arbeidsflyt"
     )
 
     internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name] ?: throw IllegalStateException(

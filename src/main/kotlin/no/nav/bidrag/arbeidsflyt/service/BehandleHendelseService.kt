@@ -1,7 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import ch.qos.logback.core.util.OptionHelper.getEnv
+import no.nav.bidrag.arbeidsflyt.Environment.fetchEnv
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -18,17 +21,17 @@ class DefaultBehandleHendelseService(
 ) : BehandleHendelseService {
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
-        LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
-
         if (hendelseFilter.kanUtfore(journalpostHendelse.hentHendelse())) {
+            LOGGER.debug("Behandler journalpostHendelse: $journalpostHendelse")
+
             when (journalpostHendelse.hentHendelse()) {
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
-                Hendelse.NO_SUPPORT -> LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
+                Hendelse.NO_SUPPORT -> LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
             }
         } else {
-            LOGGER.warn("bidrag-arbeidsflyt støtter ikke hendelsen '${journalpostHendelse.hendelse} i et produksjonsmiljø'")
+            LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke hendelsen '${journalpostHendelse.hendelse}' i et nais cluster")
         }
     }
 
