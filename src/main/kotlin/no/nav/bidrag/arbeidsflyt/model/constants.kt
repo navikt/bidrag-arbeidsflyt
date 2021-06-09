@@ -18,5 +18,8 @@ object MiljoVariabler {
     const val OPPGAVE_URL = "OPPGAVE_URL"
 }
 
-// sproringsdata fra hendelse json
+// sporingsdata fra hendelse json
 const val CORRELATION_ID = "correlationId"
+
+// OAUTH2 JWT client registration
+const val AOUTH2_JWT_REGISTRATION = "bidrag-arbeidsflyt"

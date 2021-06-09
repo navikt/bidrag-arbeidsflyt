@@ -4,6 +4,7 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.model.AOUTH2_JWT_REGISTRATION
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
@@ -12,6 +13,9 @@ import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.security.token.support.client.core.ClientProperties
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
@@ -20,9 +24,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
+import org.springframework.http.HttpRequest
+import org.springframework.http.client.ClientHttpRequestExecution
+import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
+import org.springframework.web.client.RestTemplate
 import java.util.Optional
 
 internal object Environment {
@@ -76,9 +84,29 @@ class HendelseConfiguration {
 class ArbeidsflytConfiguration {
 
     @Bean
-    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate): OppgaveConsumer {
+    fun oppgaveConsumer(
+        restTemplate: RestTemplate,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): OppgaveConsumer {
+        val clientProperties: ClientProperties = Optional.ofNullable(clientConfigurationProperties.registration[AOUTH2_JWT_REGISTRATION])
+            .orElseThrow { IllegalStateException("could not find oauth2 client credentials config for bidrag-arbeidsflyt") }
+
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
+        restTemplate.interceptors.add(initBearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
+
         return DefaultOppgaveConsumer(restTemplate)
+    }
+
+    private fun initBearerTokenInterceptor(
+        clientProperties: ClientProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): ClientHttpRequestInterceptor {
+        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
+            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+            request.headers.setBearerAuth(response.accessToken)
+            execution.execute(request, body!!)
+        }
     }
 
     @Bean
