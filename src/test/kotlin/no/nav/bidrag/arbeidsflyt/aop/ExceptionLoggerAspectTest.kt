@@ -29,7 +29,7 @@ internal class ExceptionLoggerAspectTest {
 
     @Test
     fun `skal logge exceptions fra service`() {
-        whenever(oppgaveServiceMock.overforOppgaver(any(), any())).thenThrow(IllegalStateException("Logg exception!"))
+        whenever(oppgaveServiceMock.overforOppgaver(anyString(), anyString(), any())).thenThrow(IllegalStateException("Logg exception!"))
 
         assertThatExceptionOfType(ExecutionException::class.java).isThrownBy {
             journalpostHendelseListener.lesHendelse(
