@@ -15,6 +15,7 @@ object DetaljVerdi {
 }
 
 object MiljoVariabler {
+    const val NAIS_APP_NAME = "NAIS_APP_NAME"
     const val OPPGAVE_URL = "OPPGAVE_URL"
 }
 
