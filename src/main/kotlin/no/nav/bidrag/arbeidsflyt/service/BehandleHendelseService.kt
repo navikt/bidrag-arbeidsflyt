@@ -1,6 +1,5 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import ch.qos.logback.core.util.OptionHelper.getEnv
 import no.nav.bidrag.arbeidsflyt.Environment.fetchEnv
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
