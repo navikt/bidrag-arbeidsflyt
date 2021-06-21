@@ -21,13 +21,11 @@ class DefaultBehandleHendelseService(
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         if (hendelseFilter.kanUtfore(journalpostHendelse.hentHendelse())) {
-            LOGGER.debug("Behandler journalpostHendelse: $journalpostHendelse")
-
             when (journalpostHendelse.hentHendelse()) {
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
-                Hendelse.NO_SUPPORT -> LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke hendelsen '${journalpostHendelse.hendelse}'")
+                Hendelse.NO_SUPPORT -> LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke behandling av hendelsen '${journalpostHendelse.hendelse}'")
             }
         } else {
             LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke hendelsen '${journalpostHendelse.hendelse}' i et nais cluster")
