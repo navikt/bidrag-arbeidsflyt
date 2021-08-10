@@ -6,13 +6,16 @@ metadata:
   labels:
     team: bidrag
 spec:
+  accessPolicy:
+    inbound:
+      rules:
+        - application: {{ access.inbound-rule.bidrag-cucumber-cloud }}
+    outbound:
+      external:
+        - host: {{ access.outbound-external.oppgave }}
   azure:
     application:
       enabled: true
-  accessPolicy:
-    outbound:
-      external:
-        - host: {{ azure.oppgave }}
   image: {{ image }}
   kafka:
     pool: {{ kafka.pool }}
@@ -42,6 +45,6 @@ spec:
   {{/each}}
   env:
     - name: OPPGAVE_URL
-      value: https://{{ azure.oppgave }}
+      value: https://{{ access.outbound-external.oppgave }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
