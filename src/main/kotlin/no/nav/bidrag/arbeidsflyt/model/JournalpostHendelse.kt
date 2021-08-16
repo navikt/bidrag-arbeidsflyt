@@ -17,4 +17,4 @@ data class JournalpostHendelse(
     private fun doThrow(message: String): String = throw IllegalStateException(message)
 }
 
-data class Sporingsdata(var correlationId: String? = null, var opprettet: String? = null)
+data class Sporingsdata(val correlationId: String? = null, val opprettet: String? = null, val saksbehandlersNavn : String? = null)
