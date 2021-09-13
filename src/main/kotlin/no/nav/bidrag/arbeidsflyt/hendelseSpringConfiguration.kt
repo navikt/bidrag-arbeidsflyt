@@ -36,12 +36,13 @@ import java.util.Optional
 
 internal object Environment {
     private val dummy = mapOf(
-        OPPGAVE_URL to "https://dummy.test",
-        NAIS_APP_NAME to "bidrag-arbeidsflyt"
+            OPPGAVE_URL to "https://dummy.test",
+            NAIS_APP_NAME to "bidrag-arbeidsflyt"
     )
 
-    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name] ?: throw IllegalStateException(
-        "Unable to find $name as a system property or an environment variable"
+    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
+    ?: throw IllegalStateException(
+            "Unable to find $name as a system property or an environment variable"
     )
 }
 
@@ -57,9 +58,9 @@ class HendelseConfiguration {
 
     @Bean
     fun journalpostHendelseListener(
-        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
+            jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
-        jsonMapperService, behandleHendelseService
+            jsonMapperService, behandleHendelseService
     )
 
     @Bean
@@ -81,49 +82,14 @@ class HendelseConfiguration {
 }
 
 @Configuration
-@EnableJwtTokenValidation
-@EnableOAuth2Client(cacheEnabled = true)
 class ArbeidsflytConfiguration {
 
     @Bean
-    fun oppgaveConsumer(
-        restTemplate: RestTemplate,
-        clientConfigurationProperties: ClientConfigurationProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): OppgaveConsumer {
-        val clientProperties: ClientProperties = Optional.ofNullable(clientConfigurationProperties.registration[AOUTH2_JWT_REGISTRATION])
-            .orElseThrow { IllegalStateException("could not find oauth2 client credentials config for bidrag-arbeidsflyt") }
-
+    fun oppgaveConsumer(restTemplate: RestTemplate): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
-        restTemplate.interceptors.add(initBearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
-
         return DefaultOppgaveConsumer(restTemplate)
-    }
-
-    private fun initBearerTokenInterceptor(
-        clientProperties: ClientProperties,
-        oAuth2AccessTokenService: OAuth2AccessTokenService
-    ): ClientHttpRequestInterceptor {
-        return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-            val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
-            execution.execute(request, body!!)
-        }
     }
 
     @Bean
     fun ExceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
-}
-
-@Configuration
-class RestTemplateConfiguration {
-
-    @Bean
-    @Scope("prototype")
-    fun httpHeaderRestTemplate(): HttpHeaderRestTemplate {
-        val httpHeaderRestTemplate = HttpHeaderRestTemplate()
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
-
-        return httpHeaderRestTemplate
-    }
 }

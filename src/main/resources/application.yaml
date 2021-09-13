@@ -1,24 +1,28 @@
-azure:
-  app.tenant.id: 966ac572-f5b7-4bbe-aa88-c76419c0f851
-  openid.config.token.endpoint:  https://login.microsoftonline.com/${azure.app.tenant.id}/oauth2/v2.0/token
-
-no.nav.security.jwt:
-  client:
-    registration:
-      bidrag-arbeidsflyt:
-        token-endpoint-url: ${azure.openid.config.token.endpoint}
-        grant-type: client_credentials
-        scope: api://a1fd9dc1-2590-4e10-86a1-bc611c96dc17/.default
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-jwk: ${AZURE_APP_JWK}
-          client-auth-method: private_key_jwt
+AAD_ISSUER_URI: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851
 
 server:
   servlet:
     context-path: /bidrag-arbeidsflyt
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AAD_ISSUER_URI}/v2.0
+          accepted-audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
+      client:
+        registration:
+          bidrag-arbeidsflyt:
+            provider: aad
+            client-id: ${AZURE_APP_CLIENT_ID}
+            client-secret: ${AZURE_APP_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            scope: api://a1fd9dc1-2590-4e10-86a1-bc611c96dc17/.default
+        provider:
+          aad:
+            token-uri: ${AAD_ISSUER_URI}/oauth2/v2.0/token
+            jwk-set-uri: ${AAD_ISSUER_URI}/discovery/v2.0/keys
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
