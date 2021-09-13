@@ -56,6 +56,7 @@ class DefaultBehandleHendelseService(
     }
 
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
+        LOGGER.info("Hendelse ferdigstillOppgaver {}", journalpostHendelse.journalpostId)
         val fagomrade = journalpostHendelse.hentFagomradeFraId()
 
         val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync {

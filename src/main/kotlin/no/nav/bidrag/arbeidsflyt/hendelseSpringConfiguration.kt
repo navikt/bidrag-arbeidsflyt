@@ -4,40 +4,31 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.model.AOUTH2_JWT_REGISTRATION
+import no.nav.bidrag.arbeidsflyt.model.Hendelse
+import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.AZURE_APP_CLIENT_ID
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
-import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
-import no.nav.bidrag.commons.web.CorrelationIdFilter
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.security.token.support.client.core.ClientProperties
-import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
-import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import org.springframework.context.annotation.Scope
-import org.springframework.http.HttpRequest
-import org.springframework.http.client.ClientHttpRequestExecution
-import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import org.springframework.web.client.RestTemplate
-import java.util.Optional
+import java.util.*
 
 internal object Environment {
     private val dummy = mapOf(
             OPPGAVE_URL to "https://dummy.test",
-            NAIS_APP_NAME to "bidrag-arbeidsflyt"
+            NAIS_APP_NAME to "bidrag-arbeidsflyt",
+            AZURE_APP_CLIENT_ID to "????"
     )
 
     internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
@@ -53,7 +44,7 @@ private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
 @EnableJwtTokenValidation
 class HendelseConfiguration {
     companion object {
-        internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf())
+        internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf(Hendelse.JOURNALFOR_JOURNALPOST))
     }
 
     @Bean

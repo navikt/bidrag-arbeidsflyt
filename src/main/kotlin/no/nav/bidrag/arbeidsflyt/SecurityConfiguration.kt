@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt
 
+import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -33,7 +34,7 @@ class SecurityConfiguration: WebSecurityConfigurerAdapter() {
                 .csrf()
                 .disable()
                 .authorizeRequests()
-                .antMatchers("/unprotected/**")
+                .antMatchers("/actuator/**")
                 .permitAll()
                 .anyRequest()
                 .fullyAuthenticated()
@@ -57,7 +58,7 @@ class SecurityConfiguration: WebSecurityConfigurerAdapter() {
     fun restTemplate(authorizedClientManager: OAuth2AuthorizedClientManager): HttpHeaderRestTemplate? {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate();
         httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
-        httpHeaderRestTemplate.interceptors.add(bearerToken("bidrag-arbeidsflyt", authorizedClientManager))
+        httpHeaderRestTemplate.interceptors.add(bearerToken(Environment.fetchEnv(MiljoVariabler.AZURE_APP_CLIENT_ID), authorizedClientManager))
         return httpHeaderRestTemplate;
     }
 
