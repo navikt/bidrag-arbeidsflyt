@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.dto.EndreOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
@@ -16,7 +17,7 @@ interface OppgaveConsumer {
     fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest)
 }
 
-class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
+class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
 
     override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse {
         val parameters = PARAMETERS
@@ -40,7 +41,6 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
     override fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest) {
         val oppgaverPath = endreOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer en oppgave med id: $oppgaverPath")
-
         val responseEntity = restTemplate.exchange(
             oppgaverPath,
             HttpMethod.PUT,

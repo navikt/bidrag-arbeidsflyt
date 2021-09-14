@@ -57,7 +57,7 @@ class SecurityConfiguration: WebSecurityConfigurerAdapter() {
     @Scope("prototype")
     fun restTemplate(authorizedClientManager: OAuth2AuthorizedClientManager): HttpHeaderRestTemplate? {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate();
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { "Test Q1 Arbeidsflyt" }
         httpHeaderRestTemplate.interceptors.add(bearerToken("bidrag-arbeidsflyt", authorizedClientManager))
         return httpHeaderRestTemplate;
     }

@@ -12,6 +12,7 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.ExceptionLogger
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -76,7 +77,7 @@ class HendelseConfiguration {
 class ArbeidsflytConfiguration {
 
     @Bean
-    fun oppgaveConsumer(restTemplate: RestTemplate): OppgaveConsumer {
+    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
         return DefaultOppgaveConsumer(restTemplate)
     }
