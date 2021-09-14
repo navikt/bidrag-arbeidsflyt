@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component
 @Aspect
 class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     companion object {
+        @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 

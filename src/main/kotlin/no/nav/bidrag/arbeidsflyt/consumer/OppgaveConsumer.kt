@@ -9,7 +9,6 @@ import org.springframework.web.client.RestTemplate
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
-private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
@@ -17,6 +16,10 @@ interface OppgaveConsumer {
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
+    companion object {
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
+    }
 
     override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse {
         val parameters = PARAMETERS
