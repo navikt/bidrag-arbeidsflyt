@@ -16,7 +16,7 @@ object DetaljVerdi {
 
 object MiljoVariabler {
     const val NAIS_APP_NAME = "NAIS_APP_NAME"
-    const val AZURE_APP_CLIENT_ID = "AZURE_APP_CLIENT_ID"
+    const val AZURE_APP_CLIENT_ID = "AZURE_APP_CLIENT_SECRET"
     const val OPPGAVE_URL = "OPPGAVE_URL"
 }
 

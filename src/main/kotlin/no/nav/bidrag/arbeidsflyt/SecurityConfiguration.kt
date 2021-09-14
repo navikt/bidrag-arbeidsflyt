@@ -58,7 +58,7 @@ class SecurityConfiguration: WebSecurityConfigurerAdapter() {
     fun restTemplate(authorizedClientManager: OAuth2AuthorizedClientManager): HttpHeaderRestTemplate? {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate();
         httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
-        httpHeaderRestTemplate.interceptors.add(bearerToken(Environment.fetchEnv(MiljoVariabler.AZURE_APP_CLIENT_ID), authorizedClientManager))
+        httpHeaderRestTemplate.interceptors.add(bearerToken("bidrag-arbeidsflyt", authorizedClientManager))
         return httpHeaderRestTemplate;
     }
 
