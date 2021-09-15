@@ -73,7 +73,7 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("endret")
             )
@@ -97,7 +97,7 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
 
         verify(httpHeaderRestTemplateMock).exchange(
             eq("/api/v1/oppgaver/6"),
-            eq(HttpMethod.PUT),
+            eq(HttpMethod.PATCH),
             eq(OverforOppgaveRequest(OppgaveData(tildeltEnhetsnr = "1010", id = 6), "1001").somHttpEntity()),
             eq(String::class.java)
         )

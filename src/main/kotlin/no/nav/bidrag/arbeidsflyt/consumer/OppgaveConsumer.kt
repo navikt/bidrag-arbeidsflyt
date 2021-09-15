@@ -1,6 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
-import no.nav.bidrag.arbeidsflyt.dto.EndreOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import org.slf4j.LoggerFactory
@@ -12,7 +12,7 @@ private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskatego
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
-    fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest)
+    fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest)
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
@@ -40,14 +40,14 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
         return oppgaveSokResponse.body ?: OppgaveSokResponse(0)
     }
 
-    override fun endreOppgave(endreOppgaveRequest: EndreOppgaveRequest) {
-        val oppgaverPath = endreOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
+    override fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest) {
+        val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer en oppgave med id: $oppgaverPath")
 
         val responseEntity = restTemplate.exchange(
             oppgaverPath,
-            HttpMethod.PUT,
-            endreOppgaveRequest.somHttpEntity(),
+            HttpMethod.PATCH,
+            patchOppgaveRequest.somHttpEntity(),
             String::class.java
         )
 
