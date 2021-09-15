@@ -133,24 +133,8 @@ data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchO
         leggTilVerdierSomIkkeErOverlasta(oppgaveData)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as OverforOppgaveRequest
-
-        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
-
-        return result
-    }
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
 }
 
 data class FerdigstillOppgaveRequest(
@@ -167,28 +151,8 @@ data class FerdigstillOppgaveRequest(
         leggTilVerdierSomIkkeErOverlasta(oppgaveData)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as FerdigstillOppgaveRequest
-
-        if (tema != other.tema) return false
-        if (status != other.status) return false
-        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + tema.hashCode()
-        result = 31 * result + (status?.hashCode() ?: 0)
-        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
-
-        return result
-    }
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = super.hashCode()
 }
 
 enum class Prioritet {
