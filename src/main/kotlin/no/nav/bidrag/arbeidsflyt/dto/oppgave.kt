@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
+import no.nav.bidrag.arbeidsflyt.model.BIDRAG
 import org.springframework.http.HttpEntity
 
 data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String)
@@ -37,91 +38,159 @@ data class OppgaveData(
     var prioritet: String? = null,
     var status: String? = null,
     var metadata: Map<String, String>? = null
-) {
-    internal fun asJson() = """
-        {
-          "id": $id,
-          "tildeltEnhetsnr": "$tildeltEnhetsnr",
-          "endretAvEnhetsnr": "$endretAvEnhetsnr",
-          "opprettetAvEnhetsnr": "$opprettetAvEnhetsnr",
-          "journalpostId": "$journalpostId",
-          "journalpostkilde": "$journalpostkilde",
-          "behandlesAvApplikasjon": "$behandlesAvApplikasjon",
-          "saksreferanse": "$saksreferanse",
-          "bnr": "$bnr",
-          "samhandlernr": "$samhandlernr",
-          "aktoerId": "$aktoerId",
-          "orgnr": "$orgnr",
-          "tilordnetRessurs": "$tilordnetRessurs",
-          "beskrivelse": "$beskrivelse",
-          "temagruppe": "$temagruppe",
-          "tema": "$tema",
-          "behandlingstema": "$behandlingstema",
-          "oppgavetype": "$oppgavetype",
-          "behandlingstype": "$behandlingstype",
-          "versjon": $versjon,
-          "mappeId": $mappeId,
-          "fristFerdigstillelse": "$fristFerdigstillelse",
-          "aktivDato": "$aktivDato",
-          "opprettetTidspunkt": "$opprettetTidspunkt",
-          "opprettetAv": "$opprettetAv",
-          "endretAv": "$endretAv",
-          "ferdigstiltTidspunkt": "$ferdigstiltTidspunkt",
-          "endretTidspunkt": "$endretTidspunkt",
-          "prioritet": "$prioritet",
-          "status": "$status",
-          "metadata": ${hentMetadata()}
-        }
-        """.trimIndent()
+)
 
-    private fun hentMetadata(): String {
-        if (metadata == null || metadata!!.isEmpty()) {
-            return "{}"
+/**
+ * Påkrevde data for en oppgave som skal patches i oppgave api
+ */
+sealed class PatchOppgaveRequest {
+    var id: Long = -1
+    var aktoerId: String = "-1"
+    var endretAvEnhetsnr: String = "-1"
+    var oppgavetype: String? = null
+    var prioritet: String = Prioritet.HOY.name
+    open var status: String? = null
+    open var tema: String = BIDRAG
+    open var tildeltEnhetsnr: String? = null
+    var versjon: Int = -1
+
+    fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
+    fun somHttpEntity(): HttpEntity<*> {
+        return HttpEntity<PatchOppgaveRequest>(this)
+    }
+
+    protected fun leggTilVerdierSomIkkeErOverlasta(oppgaveData: OppgaveData) {
+        id = oppgaveData.id ?: -1
+        aktoerId = oppgaveData.aktoerId ?: "-1"
+        endretAvEnhetsnr = oppgaveData.endretAvEnhetsnr ?: "-1"
+        oppgavetype = oppgaveData.oppgavetype
+        prioritet = oppgaveData.prioritet ?: Prioritet.HOY.name
+        versjon = oppgaveData.versjon ?: -1
+
+        if (erIkke(FerdigstillOppgaveRequest::class.java)) {
+            status = oppgaveData.status
+            tema = oppgaveData.tema ?: BIDRAG
         }
 
-        val keyValues = StringBuilder()
+        if (erIkke(FerdigstillOppgaveRequest::class.java, OverforOppgaveRequest::class.java)) {
+            tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
+        }
+    }
 
-        metadata?.let { it.forEach { (key, value) -> keyValues.append(""""$key":"$value",""") } }
+    private fun erIkke(javaklasse: Class<*>, vararg andreKlasser: Class<*>): Boolean {
+        return this.javaClass != javaklasse && erHellerIkke(andreKlasser)
+    }
 
-        keyValues.deleteCharAt(keyValues.length - 1) // fjerner siste komma
+    private fun erHellerIkke(andreKlasser: Array<out Class<*>>): Boolean {
+        if (andreKlasser.isEmpty()) {
+            return true
+        }
 
-        return "{$keyValues}"
+        for (klasse in andreKlasser) {
+            if (klasse == this.javaClass) return false
+        }
+
+        return true
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PatchOppgaveRequest
+
+        if (id != other.id) return false
+        if (aktoerId != other.aktoerId) return false
+        if (endretAvEnhetsnr != other.endretAvEnhetsnr) return false
+        if (oppgavetype != other.oppgavetype) return false
+        if (prioritet != other.prioritet) return false
+        if (status != other.status) return false
+        if (tema != other.tema) return false
+        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
+        if (versjon != other.versjon) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + aktoerId.hashCode()
+        result = 31 * result + endretAvEnhetsnr.hashCode()
+        result = 31 * result + (oppgavetype?.hashCode() ?: 0)
+        result = 31 * result + prioritet.hashCode()
+        result = 31 * result + (status?.hashCode() ?: 0)
+        result = 31 * result + tema.hashCode()
+        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
+        result = 31 * result + versjon
+
+        return result
     }
 }
 
-sealed class EndreOppgaveRequest {
-    abstract protected fun hentOppgaveId(): Long?
+data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
-    abstract fun hentRequestType(): String
-    fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${hentOppgaveId()}".replace("//", "/")
-    fun somHttpEntity() = HttpEntity<Any>(this)
-}
-
-data class OverforOppgaveRequest(
-    private val oppgaveData: OppgaveData,
-    private val nyttEnhetsnummer: String
-) : EndreOppgaveRequest() {
-    init {
-        oppgaveData.tildeltEnhetsnr = nyttEnhetsnummer
+    constructor(oppgaveData: OppgaveData, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
+        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
     }
 
-    override fun toString() = oppgaveData.asJson()
-    override fun hentOppgaveId() = oppgaveData.id
-    override fun hentRequestType() = "Overfører oppgave med id ${oppgaveData.id} til nytt enhetsnummer ${nyttEnhetsnummer}"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as OverforOppgaveRequest
+
+        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
+
+        return result
+    }
 }
 
 data class FerdigstillOppgaveRequest(
-    private val oppgaveData: OppgaveData,
-    private val tema: String,
-    private val tildeltEnhetsnr: String
-) : EndreOppgaveRequest() {
-    init {
-        oppgaveData.tildeltEnhetsnr = tildeltEnhetsnr
-        oppgaveData.status = "FERDIGSTILLT"
-        oppgaveData.tema = tema
+    override var tema: String,
+    override var status: String?,
+    override var tildeltEnhetsnr: String?
+) : PatchOppgaveRequest() {
+
+    constructor(
+        oppgaveData: OppgaveData,
+        tema: String,
+        tildeltEnhetsnr: String?
+    ) : this(status = "FERDIGSTILLT", tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
+        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
     }
 
-    override fun toString() = oppgaveData.asJson()
-    override fun hentOppgaveId() = oppgaveData.id
-    override fun hentRequestType() = "Ferdigstiller oppgave med id ${oppgaveData.id}"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as FerdigstillOppgaveRequest
+
+        if (tema != other.tema) return false
+        if (status != other.status) return false
+        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + tema.hashCode()
+        result = 31 * result + (status?.hashCode() ?: 0)
+        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
+
+        return result
+    }
+}
+
+enum class Prioritet {
+    HOY, NORM, LAV
 }
