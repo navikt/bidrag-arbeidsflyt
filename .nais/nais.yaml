@@ -43,5 +43,7 @@ spec:
   env:
     - name: OPPGAVE_URL
       value: https://{{ azure.oppgave }}
+    - name: OPPGAVE_SCOPE
+      value: {{ azure.oppgave_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}

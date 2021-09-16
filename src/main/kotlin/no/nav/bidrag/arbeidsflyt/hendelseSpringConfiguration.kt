@@ -5,13 +5,14 @@ import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
-import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.AZURE_APP_CLIENT_ID
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.SecurityTokenService
 import no.nav.bidrag.commons.ExceptionLogger
+import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
@@ -19,17 +20,16 @@ import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.Scope
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
-import org.springframework.web.client.RestTemplate
 import java.util.*
 
 internal object Environment {
     private val dummy = mapOf(
             OPPGAVE_URL to "https://dummy.test",
-            NAIS_APP_NAME to "bidrag-arbeidsflyt",
-            AZURE_APP_CLIENT_ID to "????"
+            NAIS_APP_NAME to "bidrag-arbeidsflyt"
     )
 
     internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
@@ -77,8 +77,17 @@ class HendelseConfiguration {
 class ArbeidsflytConfiguration {
 
     @Bean
-    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate): OppgaveConsumer {
+    @Scope("prototype")
+    fun restTemplate(): HttpHeaderRestTemplate {
+        val httpHeaderRestTemplate = HttpHeaderRestTemplate();
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { "Test Q1 Arbeidsflyt" }
+        return httpHeaderRestTemplate;
+    }
+
+    @Bean
+    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
+        restTemplate.interceptors.add(securityTokenService.generateBearerToken("oppgave"))
         return DefaultOppgaveConsumer(restTemplate)
     }
 

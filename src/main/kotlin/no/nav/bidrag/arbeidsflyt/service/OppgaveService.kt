@@ -8,7 +8,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
 
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
@@ -29,7 +28,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
         val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
-        LOGGER.info("Oppgave ferdigstillOppgaver")
         oppgaveSokResponse.oppgaver.forEach { ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, journalforendeEnhet) }
     }
 
