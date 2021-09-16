@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 
-private val LOGGER = LoggerFactory.getLogger(DefaultBehandleHendelseService::class.java)
-
 interface BehandleHendelseService {
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse)
 }
@@ -18,6 +16,10 @@ interface BehandleHendelseService {
 class DefaultBehandleHendelseService(
     private val oppgaveService: OppgaveService, private val hendelseFilter: HendelseFilter
 ) : BehandleHendelseService {
+    companion object {
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger(DefaultBehandleHendelseService::class.java)
+    }
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         if (hendelseFilter.kanUtfore(journalpostHendelse.hentHendelse())) {
@@ -41,7 +43,7 @@ class DefaultBehandleHendelseService(
     }
 
     private fun overforOppgaverTilAnnenEnhet(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
 
         val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync {
             oppgaveService.overforOppgaver(journalpostHendelse.journalpostId, fagomrade, journalpostHendelse)
@@ -56,7 +58,7 @@ class DefaultBehandleHendelseService(
     }
 
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
 
         val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync {
             oppgaveService.ferdigstillOppgaver(journalpostHendelse.journalpostId, fagomrade, journalpostHendelse)
@@ -75,6 +77,6 @@ interface HendelseFilter {
     fun kanUtfore(hendelse: Hendelse): Boolean
 }
 
-open class DefaultHendelseFilter(private val stottedeHendelser: List<Hendelse> = emptyList()): HendelseFilter {
+open class DefaultHendelseFilter(private val stottedeHendelser: List<Hendelse> = emptyList()) : HendelseFilter {
     override fun kanUtfore(hendelse: Hendelse) = stottedeHendelser.contains(hendelse)
 }

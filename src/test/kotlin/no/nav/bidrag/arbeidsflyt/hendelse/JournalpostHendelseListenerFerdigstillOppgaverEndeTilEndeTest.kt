@@ -41,7 +41,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -62,7 +62,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PUT), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 
     @Test
@@ -103,7 +103,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -125,6 +125,6 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/6"), eq(HttpMethod.PUT), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/6"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 }

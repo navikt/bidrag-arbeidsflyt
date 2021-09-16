@@ -19,7 +19,7 @@ internal class JournalpostHendelseTest {
     fun `skal hente fagomrade fra prefikset journalpostId`() {
         val journalpostHendelse = JournalpostHendelse(journalpostId = "BID-101")
 
-        assertThat(journalpostHendelse.hentFagomradeFraId()).isEqualTo("BID")
+        assertThat(journalpostHendelse.hentFagomradeFraDetaljer()).isEqualTo("BID")
     }
 
     @Test

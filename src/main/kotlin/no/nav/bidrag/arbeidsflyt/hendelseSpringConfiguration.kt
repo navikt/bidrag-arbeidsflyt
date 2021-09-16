@@ -38,14 +38,15 @@ internal object Environment {
     )
 }
 
-private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
-
 @Configuration
 @Profile(PROFILE_LIVE)
 @EnableJwtTokenValidation
 class HendelseConfiguration {
     companion object {
         internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf(Hendelse.JOURNALFOR_JOURNALPOST))
+
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
     }
 
     @Bean
