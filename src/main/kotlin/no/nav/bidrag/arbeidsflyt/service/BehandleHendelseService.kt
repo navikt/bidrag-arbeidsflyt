@@ -43,7 +43,7 @@ class DefaultBehandleHendelseService(
     }
 
     private fun overforOppgaverTilAnnenEnhet(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
 
         val overforOppgaverForPrefixetId = CompletableFuture.supplyAsync {
             oppgaveService.overforOppgaver(journalpostHendelse.journalpostId, fagomrade, journalpostHendelse)
@@ -58,7 +58,7 @@ class DefaultBehandleHendelseService(
     }
 
     private fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentFagomradeFraId()
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
 
         val ferdigstillOppgaverForPrefixetId = CompletableFuture.supplyAsync {
             oppgaveService.ferdigstillOppgaver(journalpostHendelse.journalpostId, fagomrade, journalpostHendelse)

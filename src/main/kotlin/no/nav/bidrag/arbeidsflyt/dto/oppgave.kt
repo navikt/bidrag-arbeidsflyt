@@ -1,7 +1,9 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
-import no.nav.bidrag.arbeidsflyt.model.BIDRAG
+import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 
 data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String)
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
@@ -50,13 +52,16 @@ sealed class PatchOppgaveRequest {
     var oppgavetype: String? = null
     var prioritet: String = Prioritet.HOY.name
     open var status: String? = null
-    open var tema: String = BIDRAG
+    open var tema: String = FAGOMRADE_BIDRAG
     open var tildeltEnhetsnr: String? = null
     var versjon: Int = -1
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
     fun somHttpEntity(): HttpEntity<*> {
-        return HttpEntity<PatchOppgaveRequest>(this)
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        return HttpEntity<PatchOppgaveRequest>(this, headers)
     }
 
     protected fun leggTilVerdierSomIkkeErOverlasta(oppgaveData: OppgaveData) {
@@ -69,7 +74,7 @@ sealed class PatchOppgaveRequest {
 
         if (erIkke(FerdigstillOppgaveRequest::class.java)) {
             status = oppgaveData.status
-            tema = oppgaveData.tema ?: BIDRAG
+            tema = oppgaveData.tema ?: FAGOMRADE_BIDRAG
         }
 
         if (erIkke(FerdigstillOppgaveRequest::class.java, OverforOppgaveRequest::class.java)) {
@@ -156,5 +161,5 @@ data class FerdigstillOppgaveRequest(
 }
 
 enum class Prioritet {
-    HOY, NORM, LAV
+    HOY //, NORM, LAV
 }

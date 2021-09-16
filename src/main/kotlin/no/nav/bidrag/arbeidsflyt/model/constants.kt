@@ -1,7 +1,5 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-const val BIDRAG = "BID"
-
 // Detaljer (keys) i en JournalpostHendelse
 object Detalj {
     const val FAGOMRADE = "fagomrade"
@@ -12,7 +10,7 @@ object Detalj {
 
 // Verdier til Detaljer i en JournalpostHendelse
 object DetaljVerdi {
-    const val FAGOMRADE_BIDRAG = BIDRAG
+    const val FAGOMRADE_BIDRAG = "BID"
     const val FAGOMRADE_FARSKAP = "FAR"
 }
 

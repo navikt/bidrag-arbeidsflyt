@@ -40,14 +40,14 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) and args(oppgaveSokRequest, journalpostHendelse)")
-    fun addCorrelationIdToThread(joinPoint: JoinPoint, oppgaveSokRequest: OppgaveSokRequest, journalpostHendelse: JournalpostHendelse) {
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) and args(journalpostHendelse)")
+    fun addCorrelationIdToThread(joinPoint: JoinPoint, journalpostHendelse: JournalpostHendelse) {
         val correlationId = journalpostHendelse.sporing?.correlationId
 
         if (correlationId != null) {
             MDC.put(CORRELATION_ID, correlationId)
         } else {
-            val unknown = "${oppgaveSokRequest.journalpostId}-${System.currentTimeMillis().toString(16)}"
+            val unknown = "${journalpostHendelse.journalpostId}-${System.currentTimeMillis().toString(16)}"
             LOGGER.warn("Unable to find correlation Id in $journalpostHendelse, using '$unknown'")
             MDC.put(CORRELATION_ID, unknown)
         }
