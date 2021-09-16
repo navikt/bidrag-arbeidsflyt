@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.PROFILE_NO_KAFKA
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.reset
@@ -43,7 +42,6 @@ internal class DefaultBehandleHendelseServiceProfileNoKafkaTest {
     }
 
     @Test
-    @Disabled
     fun `skal ikke behandle JOURNALFOR_JOURNALPOST i live profile`() {
         behandleHendelseService.behandleHendelse(JournalpostHendelse(hendelse = Hendelse.JOURNALFOR_JOURNALPOST.name))
         verifyNoMoreInteractions(oppgaveServiceMock)

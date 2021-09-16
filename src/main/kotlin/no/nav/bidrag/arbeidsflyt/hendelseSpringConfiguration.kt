@@ -11,6 +11,7 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.DefaultHendelseFilter
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.SecurityTokenService
+import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -43,7 +44,7 @@ internal object Environment {
 @EnableJwtTokenValidation
 class HendelseConfiguration {
     companion object {
-        internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf(Hendelse.JOURNALFOR_JOURNALPOST))
+        internal val hendelseFilterForLiveProfile = DefaultHendelseFilter(listOf())
 
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
@@ -81,7 +82,7 @@ class ArbeidsflytConfiguration {
     @Scope("prototype")
     fun restTemplate(): HttpHeaderRestTemplate {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate();
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { "Test Q1 Arbeidsflyt" }
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
         return httpHeaderRestTemplate;
     }
 
