@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
@@ -15,7 +16,7 @@ interface OppgaveConsumer {
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest)
 }
 
-class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveConsumer {
+class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
@@ -43,7 +44,6 @@ class DefaultOppgaveConsumer(private val restTemplate: RestTemplate) : OppgaveCo
     override fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest) {
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer en oppgave med id: $oppgaverPath")
-
         val responseEntity = restTemplate.exchange(
             oppgaverPath,
             HttpMethod.PATCH,
