@@ -29,8 +29,8 @@ import java.util.*
 
 internal object Environment {
     private val dummy = mapOf(
-            OPPGAVE_URL to "https://dummy.test",
-            NAIS_APP_NAME to "bidrag-arbeidsflyt"
+        OPPGAVE_URL to "https://dummy.test",
+        NAIS_APP_NAME to "bidrag-arbeidsflyt"
     )
 
     internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
