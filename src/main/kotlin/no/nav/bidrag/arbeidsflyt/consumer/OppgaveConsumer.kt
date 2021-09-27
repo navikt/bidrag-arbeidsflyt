@@ -1,12 +1,11 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
-import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
-import org.springframework.web.client.RestTemplate
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
