@@ -49,5 +49,3 @@ spec:
       value: {{ kafka-topic-journalpost }}
     - name: ENABLE_EVENTS
       value: {{ enable.events }}
-    - name: JAVA_OPTS
-      value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005

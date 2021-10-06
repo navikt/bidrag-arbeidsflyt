@@ -57,6 +57,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
     override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest) {
         LOGGER.info("Oppretter oppgave for journalpost ${opprettOppgaveRequest.journalpostId}")
+
         val responseEntity = restTemplate.exchange(
             OPPGAVE_CONTEXT,
             HttpMethod.POST,

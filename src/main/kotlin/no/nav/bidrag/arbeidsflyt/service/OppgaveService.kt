@@ -38,7 +38,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     internal fun opprettOppgave(journalpostHendelse: JournalpostHendelse) {
         val oppgaveSokRequest = OpprettOppgaveRequest(
             journalpostId = journalpostHendelse.journalpostId,
-            aktoerId = journalpostHendelse.hentAktoerId()
+            aktoerId = journalpostHendelse.hentAktoerId(),
+            tema = journalpostHendelse.hentFagomradeFraDetaljer()
         )
         oppgaveConsumer.opprettOppgave(oppgaveSokRequest)
     }
