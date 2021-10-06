@@ -4,6 +4,8 @@ import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String)
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
@@ -42,6 +44,18 @@ data class OppgaveData(
     var metadata: Map<String, String>? = null
 )
 
+
+data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
+    var oppgavetype: String = "JFR"
+    var prioritet: String = "HOY"
+    var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    fun somHttpEntity(): HttpEntity<*> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+
+        return HttpEntity<OpprettOppgaveRequest>(this, headers)
+    }
+}
 /**
  * Påkrevde data for en oppgave som skal patches i oppgave api
  */

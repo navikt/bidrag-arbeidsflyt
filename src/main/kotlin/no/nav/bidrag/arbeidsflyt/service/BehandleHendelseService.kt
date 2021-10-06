@@ -28,6 +28,7 @@ class DefaultBehandleHendelseService(
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
+                Hendelse.OPPRETT_OPPGAVE -> opprettOppgave(journalpostHendelse)
                 else -> throw UnsupportedOperationException("Ukjent '${journalpostHendelse.hendelse}'! Sjekk miljøvariabler.")
             }
         } else {
@@ -71,5 +72,9 @@ class DefaultBehandleHendelseService(
 
         CompletableFuture.allOf(ferdigstillOppgaverForPrefixetId, ferdigstillOppgaverUtenPrefixetId)
             .get() // ferdigstiller oppgaver tilhørende journalpost med og uten prefix på id
+    }
+
+    private fun opprettOppgave(journalpostHendelse: JournalpostHendelse){
+        oppgaveService.opprettOppgave(journalpostHendelse);
     }
 }

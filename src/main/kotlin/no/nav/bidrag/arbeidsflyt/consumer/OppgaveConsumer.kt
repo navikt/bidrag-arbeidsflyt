@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
@@ -13,6 +14,7 @@ private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskatego
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest)
+    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest)
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
@@ -47,6 +49,18 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             oppgaverPath,
             HttpMethod.PATCH,
             patchOppgaveRequest.somHttpEntity(),
+            String::class.java
+        )
+
+        LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
+    }
+
+    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest) {
+        LOGGER.info("Oppretter oppgave for journalpost ${opprettOppgaveRequest.journalpostId}")
+        val responseEntity = restTemplate.exchange(
+            OPPGAVE_CONTEXT,
+            HttpMethod.POST,
+            opprettOppgaveRequest.somHttpEntity(),
             String::class.java
         )
 

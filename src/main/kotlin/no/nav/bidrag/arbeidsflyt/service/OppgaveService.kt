@@ -4,9 +4,9 @@ import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -33,5 +33,13 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
     private fun ferdigstillOppgave(oppgaveData: OppgaveData, fagomrade: String, enhetsnummer: String) {
         oppgaveConsumer.endreOppgave(FerdigstillOppgaveRequest(oppgaveData, fagomrade, enhetsnummer))
+    }
+
+    internal fun opprettOppgave(journalpostHendelse: JournalpostHendelse) {
+        val oppgaveSokRequest = OpprettOppgaveRequest(
+            journalpostId = journalpostHendelse.journalpostId,
+            aktoerId = journalpostHendelse.hentAktoerId()
+        )
+        oppgaveConsumer.opprettOppgave(oppgaveSokRequest)
     }
 }
