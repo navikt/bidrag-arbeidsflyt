@@ -6,7 +6,7 @@ data class JournalpostHendelse(
     var sporing: Sporingsdata? = null,
     private var detaljer: Map<String, String> = emptyMap()
 ) {
-    fun hentHendelse() = Hendelse.values().find { it.name == hendelse } ?: Hendelse.NO_SUPPORT
+    fun hentHendelse() = Hendelse.values().find { it.name == hendelse }
 
     internal fun hentEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER] ?: doThrow("Mangler ${Detalj.ENHETSNUMMER} blant hendelsedata")
     internal fun erBytteTilInterntFagomrade() = detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_BIDRAG || detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_FARSKAP

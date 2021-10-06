@@ -19,6 +19,10 @@ object MiljoVariabler {
     const val OPPGAVE_URL = "OPPGAVE_URL"
 }
 
+object Token {
+    const val OPPGAVE_CLIENT_REGISTRATION_ID = "oppgave"
+}
+
 // sporingsdata fra hendelse json
 const val CORRELATION_ID = "correlationId"
 
