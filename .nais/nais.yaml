@@ -47,3 +47,5 @@ spec:
       value: {{ azure.oppgave_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
+    - name: ENABLE_EVENTS
+      value: {{ enable.events }}

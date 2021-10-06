@@ -2,6 +2,8 @@ name: bidrag-arbeidsflyt
 azure:
   oppgave: oppgave.prod-fss-pub.nais.io
   oppgave_clientid: prod-fss.oppgavehandtering.oppgave
+enable:
+  events: NONE
 kafka:
   pool: nav-prod
 kafka-topic-journalpost: bidrag.journalpost

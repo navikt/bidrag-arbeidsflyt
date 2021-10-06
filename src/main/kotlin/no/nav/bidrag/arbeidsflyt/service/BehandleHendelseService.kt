@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.Environment.fetchEnv
+import no.nav.bidrag.arbeidsflyt.hendelse.HendelseFilter
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
@@ -22,15 +23,15 @@ class DefaultBehandleHendelseService(
     }
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
-        if (hendelseFilter.kanUtfore(journalpostHendelse.hentHendelse())) {
+        if (hendelseFilter.stottedeHendelser.contains(journalpostHendelse.hendelse)) {
             when (journalpostHendelse.hentHendelse()) {
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
-                Hendelse.NO_SUPPORT -> LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke behandling av hendelsen '${journalpostHendelse.hendelse}'")
+                else -> throw UnsupportedOperationException("Ukjent '${journalpostHendelse.hendelse}'! Sjekk miljøvariabler.")
             }
         } else {
-            LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} støtter ikke hendelsen '${journalpostHendelse.hendelse}' i et nais cluster")
+            LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} har ikke støtte for hendelsen '${journalpostHendelse.hendelse}'!")
         }
     }
 
@@ -71,12 +72,4 @@ class DefaultBehandleHendelseService(
         CompletableFuture.allOf(ferdigstillOppgaverForPrefixetId, ferdigstillOppgaverUtenPrefixetId)
             .get() // ferdigstiller oppgaver tilhørende journalpost med og uten prefix på id
     }
-}
-
-interface HendelseFilter {
-    fun kanUtfore(hendelse: Hendelse): Boolean
-}
-
-open class DefaultHendelseFilter(private val stottedeHendelser: List<Hendelse> = emptyList()) : HendelseFilter {
-    override fun kanUtfore(hendelse: Hendelse) = stottedeHendelser.contains(hendelse)
 }
