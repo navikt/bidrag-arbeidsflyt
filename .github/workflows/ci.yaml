@@ -80,11 +80,35 @@ jobs:
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/feature.yaml
 
+  run-tests-for-arbeidsflyt-opprett-oppgave:
+    runs-on: ubuntu-latest
+    name: "Run tests: arbeidsflyt-opprett-oppgave"
+    needs: deploy
+
+    env:
+      INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no"
+
+    steps:
+      - name: feature ingresses
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "INGRESS_OPPGAVE=https://oppgave-q1.dev-fss-pub.nais.io" >> $GITHUB_ENV
+          echo "INGRESS_CUCUMBER=https://bidrag-cucumber-cloud-feature.ekstern.dev.nav.no" >> $GITHUB_ENV
+      - run: |
+          curl -H "Content-Type: application/json" -i \
+               --request POST \
+               --data '{"tags":["@arbeidsflyt-opprett-oppgave"],"testUsername":"z992903","noContextPathForApps":["oppgave"],"ingressesForApps":[
+                   "${{ env.INGRESS_OPPGAVE }}@no-tag:oppgave"
+                 ]}' \
+               ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/2 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
-    needs: deploy
+    needs: run-tests-for-arbeidsflyt-opprett-oppgave
 
     steps:
       - uses: actions/checkout@v2

@@ -6,6 +6,7 @@ object Detalj {
     const val ENHETSNUMMER = "enhetsnummer"
     const val ENHETSNUMMER_GAMMELT = "gammeltEnhetsnummer"
     const val ENHETSNUMMER_NYTT = "nyttEnhetsnummer"
+    const val AKTOER_ID = "aktoerId"
 }
 
 // Verdier til Detaljer i en JournalpostHendelse
