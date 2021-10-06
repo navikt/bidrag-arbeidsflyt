@@ -47,7 +47,7 @@ data class OppgaveData(
 
 data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
     var oppgavetype: String = "JFR"
-    var prioritet: String = "HOY"
+    var prioritet: String = "NORM"
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
