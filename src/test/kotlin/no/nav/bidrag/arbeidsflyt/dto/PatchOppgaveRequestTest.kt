@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -40,5 +41,29 @@ internal class PatchOppgaveRequestTest {
             { assertThat(ferdigstillOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("1001")},
             { assertThat(overforOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("666")}
         )
+    }
+
+    @Test
+    fun `skal serialisere UpdateOppgaveWithJournalpostPrefixRequest`() {
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val updateOppgaveWithJournalpostPrefixRequest = UpdateOppgaveWithJournalpostPrefixRequest(opprinneligOppgave, "JOARK-test")
+        val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveWithJournalpostPrefixRequest)
+        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}")
+    }
+
+    @Test
+    fun `skal serialisere FerdigstillOppgaveRequest`() {
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave, "BID", "4806")
+        val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
+        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"tema\":\"BID\",\"status\":\"FERDIGSTILLT\",\"tildeltEnhetsnr\":\"4806\",\"id\":1,\"versjon\":2,\"prioritet\":\"HOY\"}")
+    }
+
+    @Test
+    fun `skal serialisere OverforOppgaveRequest`() {
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812")
+        val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
+        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"tildeltEnhetsnr\":\"4812\",\"id\":1,\"versjon\":2,\"prioritet\":\"HOY\",\"status\":\"AAPEN\",\"tema\":\"BID\"}")
     }
 }
