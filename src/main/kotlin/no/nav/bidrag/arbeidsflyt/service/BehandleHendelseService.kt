@@ -29,7 +29,7 @@ class DefaultBehandleHendelseService(
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
                 Hendelse.OPPRETT_OPPGAVE -> opprettOppgave(journalpostHendelse)
-                else -> throw UnsupportedOperationException("Ukjent '${journalpostHendelse.hendelse}'! Sjekk miljøvariabler.")
+                else -> throw UnsupportedOperationException("Ukjent '${journalpostHendelse.hendelse}'! Sjekk miljøvariabler og implementasjon.")
             }
         } else {
             LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} har ikke støtte for hendelsen '${journalpostHendelse.hendelse}'!")
@@ -40,6 +40,7 @@ class DefaultBehandleHendelseService(
         if (journalpostHendelse.erBytteTilInterntFagomrade()) {
             LOGGER.info("Hendelsen ${journalpostHendelse.hendelse} er bytte til et internt fagområde")
         } else {
+            LOGGER.info("${journalpostHendelse.hendelse} er bytte til eksternt fagområde: ${journalpostHendelse.hentFagomradeFraDetaljer()}")
             ferdigstillOppgaver(journalpostHendelse)
         }
     }
@@ -75,6 +76,6 @@ class DefaultBehandleHendelseService(
     }
 
     private fun opprettOppgave(journalpostHendelse: JournalpostHendelse){
-        oppgaveService.opprettOppgave(journalpostHendelse);
+        oppgaveService.opprettOppgave(journalpostHendelse)
     }
 }
