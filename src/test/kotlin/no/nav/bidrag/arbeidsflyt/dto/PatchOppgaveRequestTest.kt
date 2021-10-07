@@ -44,10 +44,10 @@ internal class PatchOppgaveRequestTest {
     }
 
     @Test
-    fun `skal serialisere UpdateOppgaveWithJournalpostPrefixRequest`() {
+    fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
         val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
-        val updateOppgaveWithJournalpostPrefixRequest = UpdateOppgaveWithJournalpostPrefixRequest(opprinneligOppgave, "JOARK-test")
-        val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveWithJournalpostPrefixRequest)
+        val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
+        val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
         assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}")
     }
 

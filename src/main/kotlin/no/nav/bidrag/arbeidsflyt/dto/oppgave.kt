@@ -84,11 +84,11 @@ sealed class PatchOppgaveRequest {
         id = oppgaveData.id ?: -1
         versjon = oppgaveData.versjon ?: -1
 
-        if (er(UpdateOppgaveWithJournalpostPrefixRequest::class.java)){
+        if (er(UpdateOppgaveAfterOpprettRequest::class.java)){
             return
         }
 
-        // TODO: Tor Egil: Er dette nødvendig? Det gjøres en PATCH kall til oppgave og da er det bare versjon og id som er obligatorisk å sende med.
+        // FIXME: Tor Egil: Er dette nødvendig? Det gjøres en PATCH kall til oppgave og da er det bare versjon og id som er obligatorisk å sende med.
         aktoerId = oppgaveData.aktoerId
         endretAvEnhetsnr = oppgaveData.endretAvEnhetsnr
         oppgavetype = oppgaveData.oppgavetype
@@ -158,8 +158,7 @@ sealed class PatchOppgaveRequest {
     }
 }
 
-data class UpdateOppgaveWithJournalpostPrefixRequest(var journalpostId: String) : PatchOppgaveRequest() {
-
+data class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
     constructor(oppgaveData: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
         leggTilVerdierSomIkkeErOverlasta(oppgaveData)
     }

@@ -6,7 +6,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveWithJournalpostPrefixRequest
+import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import org.springframework.stereotype.Service
 
@@ -44,6 +44,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         )
         // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
-        oppgaveConsumer.endreOppgave(UpdateOppgaveWithJournalpostPrefixRequest(oppgaveData, journalpostHendelse.journalpostId))
+        oppgaveConsumer.endreOppgave(UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId))
     }
 }

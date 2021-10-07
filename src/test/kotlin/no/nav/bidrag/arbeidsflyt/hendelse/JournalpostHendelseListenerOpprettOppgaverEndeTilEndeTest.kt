@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveWithJournalpostPrefixRequest
+import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -59,7 +59,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent().format(journalpostId, aktoerId)
         )
 
-        val patchOppgaveJournalpostIdRequest = UpdateOppgaveWithJournalpostPrefixRequest(oppgaveData, journalpostId)
+        val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostId)
         val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID")
         verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
         verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(patchOppgaveJournalpostIdRequest.somHttpEntity()), eq(String::class.java))
@@ -99,8 +99,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         )
 
         val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema)
-        val updateOppgaveWithJournalpostPrefixRequest = UpdateOppgaveWithJournalpostPrefixRequest(oppgaveData, journalpostId)
+        val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostId)
         verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
-        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(updateOppgaveWithJournalpostPrefixRequest.somHttpEntity()), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(updateOppgaveAfterOpprettRequest.somHttpEntity()), eq(String::class.java))
     }
 }
