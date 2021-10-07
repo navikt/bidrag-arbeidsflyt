@@ -146,6 +146,13 @@ sealed class PatchOppgaveRequest {
     }
 }
 
+data class PatchOppgaveJournalpostIdRequest(var journalpostId: String) : PatchOppgaveRequest() {
+
+    constructor(oppgaveData: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
+        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
+    }
+}
+
 data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
     constructor(oppgaveData: OppgaveData, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
