@@ -87,7 +87,7 @@ jobs:
 
     env:
       INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
-      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no"
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no
 
     steps:
       - name: feature ingresses
