@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
@@ -14,7 +15,7 @@ private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskatego
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest)
-    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest)
+    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
@@ -55,16 +56,17 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
     }
 
-    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest) {
+    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData {
         LOGGER.info("Oppretter oppgave for journalpost ${opprettOppgaveRequest.journalpostId}")
 
         val responseEntity = restTemplate.exchange(
             OPPGAVE_CONTEXT,
             HttpMethod.POST,
             opprettOppgaveRequest.somHttpEntity(),
-            String::class.java
+            OppgaveData::class.java
         )
 
         LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
+        return responseEntity.body ?: OppgaveData(-1);
     }
 }

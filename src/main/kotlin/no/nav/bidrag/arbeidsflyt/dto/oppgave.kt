@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -47,7 +48,7 @@ data class OppgaveData(
 
 data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
     var oppgavetype: String = "JFR"
-    var prioritet: String = "NORM"
+    var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
@@ -59,16 +60,17 @@ data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String
 /**
  * Påkrevde data for en oppgave som skal patches i oppgave api
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 sealed class PatchOppgaveRequest {
     var id: Long = -1
-    var aktoerId: String = "-1"
-    var endretAvEnhetsnr: String = "-1"
-    var oppgavetype: String? = null
-    var prioritet: String = Prioritet.HOY.name
-    open var status: String? = null
-    open var tema: String = FAGOMRADE_BIDRAG
-    open var tildeltEnhetsnr: String? = null
     var versjon: Int = -1
+    var aktoerId: String? = null
+    var endretAvEnhetsnr: String? = null
+    var oppgavetype: String? = null
+    var prioritet: String? = null
+    open var status: String? = null
+    open var tema: String? = null
+    open var tildeltEnhetsnr: String? = null
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
     fun somHttpEntity(): HttpEntity<*> {
@@ -80,11 +82,17 @@ sealed class PatchOppgaveRequest {
 
     protected fun leggTilVerdierSomIkkeErOverlasta(oppgaveData: OppgaveData) {
         id = oppgaveData.id ?: -1
-        aktoerId = oppgaveData.aktoerId ?: "-1"
-        endretAvEnhetsnr = oppgaveData.endretAvEnhetsnr ?: "-1"
+        versjon = oppgaveData.versjon ?: -1
+
+        if (er(UpdateOppgaveAfterOpprettRequest::class.java)){
+            return
+        }
+
+        // FIXME: Tor Egil: Er dette nødvendig? Det gjøres en PATCH kall til oppgave og da er det bare versjon og id som er obligatorisk å sende med.
+        aktoerId = oppgaveData.aktoerId
+        endretAvEnhetsnr = oppgaveData.endretAvEnhetsnr
         oppgavetype = oppgaveData.oppgavetype
         prioritet = oppgaveData.prioritet ?: Prioritet.HOY.name
-        versjon = oppgaveData.versjon ?: -1
 
         if (erIkke(FerdigstillOppgaveRequest::class.java)) {
             status = oppgaveData.status
@@ -94,6 +102,10 @@ sealed class PatchOppgaveRequest {
         if (erIkke(FerdigstillOppgaveRequest::class.java, OverforOppgaveRequest::class.java)) {
             tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
         }
+    }
+
+    private fun er(javaklasse: Class<*>, vararg andreKlasser: Class<*>): Boolean {
+        return this.javaClass == javaklasse && erHellerIkke(andreKlasser)
     }
 
     private fun erIkke(javaklasse: Class<*>, vararg andreKlasser: Class<*>): Boolean {
@@ -146,6 +158,12 @@ sealed class PatchOppgaveRequest {
     }
 }
 
+data class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
+    constructor(oppgaveData: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
+        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
+    }
+}
+
 data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
     constructor(oppgaveData: OppgaveData, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
@@ -157,7 +175,7 @@ data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchO
 }
 
 data class FerdigstillOppgaveRequest(
-    override var tema: String,
+    override var tema: String?,
     override var status: String?,
     override var tildeltEnhetsnr: String?
 ) : PatchOppgaveRequest() {

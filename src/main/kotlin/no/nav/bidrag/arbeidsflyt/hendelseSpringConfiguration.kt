@@ -21,10 +21,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
+
 
 internal object Environment {
     private val dummy = mapOf(
@@ -75,7 +77,7 @@ class ArbeidsflytConfiguration {
     @Bean
     @Scope("prototype")
     fun restTemplate(): HttpHeaderRestTemplate {
-        val httpHeaderRestTemplate = HttpHeaderRestTemplate()
+        val httpHeaderRestTemplate = HttpHeaderRestTemplate(HttpComponentsClientHttpRequestFactory())
         httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
         return httpHeaderRestTemplate
     }

@@ -21,7 +21,7 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.*(..)) and args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.*(..)) && args(hendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
         try {
             val jsonNode = objectMapper.readTree(hendelse)
@@ -40,16 +40,18 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) and args(journalpostHendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) && args(..,journalpostHendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, journalpostHendelse: JournalpostHendelse) {
-        val correlationId = journalpostHendelse.sporing?.correlationId
+        val correlationIdSporing = journalpostHendelse.sporing?.correlationId
 
-        if (correlationId != null) {
-            MDC.put(CORRELATION_ID, correlationId)
+        if (correlationIdSporing != null) {
+            val correlationId = CorrelationId.existing(correlationIdSporing)
+            MDC.put(CORRELATION_ID, correlationId.get())
         } else {
             val unknown = "${journalpostHendelse.journalpostId}-${System.currentTimeMillis().toString(16)}"
             LOGGER.warn("Unable to find correlation Id in $journalpostHendelse, using '$unknown'")
-            MDC.put(CORRELATION_ID, unknown)
+            val correlationId = CorrelationId.existing(unknown)
+            MDC.put(CORRELATION_ID, correlationId.get())
         }
     }
 
