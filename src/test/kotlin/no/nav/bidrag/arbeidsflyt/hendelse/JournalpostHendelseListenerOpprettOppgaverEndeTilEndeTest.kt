@@ -1,6 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveJournalpostIdRequest
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -29,11 +31,15 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     @Test
     @Suppress("NonAsciiCharacters")
     fun `skal opprette oppgave ved hendelse OPPRETT_OPPGAVE`() {
-
+        var oppgaveData = OppgaveData(id=1L, versjon = 1);
         // when/then søk etter oppgave
         @Suppress("UNCHECKED_CAST")
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java)))
-            .thenReturn(ResponseEntity.ok("Ok"))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(oppgaveData))
+
+        @Suppress("UNCHECKED_CAST")
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+            .thenReturn(ResponseEntity.ok("OK"))
 
         val journalpostId = "JOARK-2525"
         val aktoerId = "1234567890100"
@@ -53,18 +59,24 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent().format(journalpostId, aktoerId)
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID")
-        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(String::class.java))
+        val patchOppgaveJournalpostIdRequest = PatchOppgaveJournalpostIdRequest(oppgaveData, journalpostId)
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID")
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(patchOppgaveJournalpostIdRequest.somHttpEntity()), eq(String::class.java))
     }
 
     @Test
     @Suppress("NonAsciiCharacters")
     fun `skal opprette oppgaver med tema FAR ved hendelse OPPRETT_OPPGAVE`() {
-
+        var oppgaveData = OppgaveData(id=1L, versjon = 1);
         // when/then søk etter oppgave
         @Suppress("UNCHECKED_CAST")
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String::class.java)))
-            .thenReturn(ResponseEntity.ok("Ok"))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(oppgaveData))
+
+        @Suppress("UNCHECKED_CAST")
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+            .thenReturn(ResponseEntity.ok("OK"))
 
         val journalpostId = "JOARK-2525"
         val aktoerId = "1234567890100"
@@ -86,7 +98,9 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent().format(journalpostId, aktoerId, tema)
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, tema)
-        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(String::class.java))
+        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema)
+        val patchOppgaveJournalpostIdRequest = PatchOppgaveJournalpostIdRequest(oppgaveData, journalpostId)
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(patchOppgaveJournalpostIdRequest.somHttpEntity()), eq(String::class.java))
     }
 }
