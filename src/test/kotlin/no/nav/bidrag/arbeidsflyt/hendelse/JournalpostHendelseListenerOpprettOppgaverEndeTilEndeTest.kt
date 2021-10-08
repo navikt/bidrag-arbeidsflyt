@@ -6,8 +6,8 @@ import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -15,6 +15,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
@@ -63,6 +64,42 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID")
         verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
         verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.PATCH), eq(patchOppgaveJournalpostIdRequest.somHttpEntity()), eq(String::class.java))
+    }
+
+    @Test
+    @Suppress("NonAsciiCharacters")
+    fun `skal opprette oppgave ved hendelse OPPRETT_OPPGAVE uten journalpost prefix`() {
+        var oppgaveData = OppgaveData(id=1L, versjon = 1);
+        // when/then søk etter oppgave
+        @Suppress("UNCHECKED_CAST")
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(oppgaveData))
+
+        @Suppress("UNCHECKED_CAST")
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+            .thenReturn(ResponseEntity.ok("OK"))
+
+        val journalpostId = "2525"
+        val aktoerId = "1234567890100"
+        // kafka hendelse
+        journalpostHendelseListener.lesHendelse(
+            """
+            {
+              "journalpostId":"%s",
+              "hendelse":"OPPRETT_OPPGAVE",
+              "sporing": {
+                "correlationId": "abc"
+              },
+              "detaljer":{
+                "aktoerId": "%s"
+              }
+            }
+            """.trimIndent().format(journalpostId, aktoerId)
+        )
+
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID")
+        verify(httpHeaderRestTemplateMock, times(1)).exchange(anyString(), eq(HttpMethod.POST), eq(opprettOppgaveRequest.somHttpEntity()), eq(OppgaveData::class.java))
+        verify(httpHeaderRestTemplateMock, times(0)).exchange(anyString(), eq(HttpMethod.PATCH), any(HttpEntity::class.java), any(Class::class.java))
     }
 
     @Test

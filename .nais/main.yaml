@@ -2,7 +2,7 @@ name: bidrag-arbeidsflyt
 azure:
   oppgave: oppgave.dev-fss-pub.nais.io
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave
-enable-events: AVVIK_ENDRE_FAGOMRADE
+enable-events: OPPRETT_OPPGAVE,AVVIK_ENDRE_FAGOMRADE
 kafka:
   pool: nav-dev
 kafka-topic-journalpost: bidrag.journalpost
