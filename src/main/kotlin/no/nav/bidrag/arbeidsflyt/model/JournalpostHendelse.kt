@@ -11,7 +11,8 @@ data class JournalpostHendelse(
     internal fun hentEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER] ?: doThrow("Mangler ${Detalj.ENHETSNUMMER} blant hendelsedata")
     internal fun erBytteTilInterntFagomrade() = detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_BIDRAG || detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_FARSKAP
     internal fun hentFagomradeFraDetaljer() = detaljer[Detalj.FAGOMRADE] ?: DetaljVerdi.FAGOMRADE_BIDRAG
-    internal fun hentJournalpostIdUtenPrefix() = journalpostId.split('-')[1]
+    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
+    internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
     internal fun hentNyttJournalforendeEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_NYTT] ?: doThrow("Mangler ${Detalj.ENHETSNUMMER_NYTT} blant hendelsedata")
     internal fun hentAktoerId() = detaljer[Detalj.AKTOER_ID]
 

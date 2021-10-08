@@ -42,8 +42,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             aktoerId = journalpostHendelse.hentAktoerId(),
             tema = journalpostHendelse.hentFagomradeFraDetaljer()
         )
-        // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
-        oppgaveConsumer.endreOppgave(UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId))
+        // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
+        if (journalpostHendelse.harJournalpostIdPrefix()){
+            oppgaveConsumer.endreOppgave(UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId))
+        }
     }
 }
