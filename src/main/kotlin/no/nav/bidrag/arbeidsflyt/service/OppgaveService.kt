@@ -26,7 +26,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentGammeltFagomradeFraDetaljer()
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
         val journalpostId = journalpostHendelse.journalpostId
         val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)

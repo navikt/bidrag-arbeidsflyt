@@ -173,7 +173,7 @@ data class FerdigstillOppgaveRequest(
         oppgaveData: OppgaveData,
         tema: String,
         tildeltEnhetsnr: String?
-    ) : this(status = "FERDIGSTILLT", tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
+    ) : this(status = "FERDIGSTILT", tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
         leggTilObligatoriskeVerdier(oppgaveData)
     }
 

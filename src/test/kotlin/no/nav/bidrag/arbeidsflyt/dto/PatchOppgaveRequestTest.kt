@@ -34,18 +34,18 @@ internal class PatchOppgaveRequestTest {
         val overforOppgaveRequest = OverforOppgaveRequest(oppgaveData = opprinneligOppgave, "666")
 
         assertAll(
-            { assertThat(opprinneligOppgave.status).`as`("opprinnelig status").isEqualTo("AAPEN")},
-            { assertThat(opprinneligOppgave.tema).`as`("opprinnelig tema").isEqualTo(FAGOMRADE_BIDRAG)},
-            { assertThat(opprinneligOppgave.tildeltEnhetsnr).`as`("opprinnelig tildelt enhetsnummer").isEqualTo("007")},
-            { assertThat(ferdigstillOppgaveRequest.tema).`as`("ferdigstillt tema").isEqualTo("farskap")},
-            { assertThat(ferdigstillOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("1001")},
-            { assertThat(overforOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("666")}
+            { assertThat(opprinneligOppgave.status).`as`("opprinnelig status").isEqualTo("AAPEN") },
+            { assertThat(opprinneligOppgave.tema).`as`("opprinnelig tema").isEqualTo(FAGOMRADE_BIDRAG) },
+            { assertThat(opprinneligOppgave.tildeltEnhetsnr).`as`("opprinnelig tildelt enhetsnummer").isEqualTo("007") },
+            { assertThat(ferdigstillOppgaveRequest.tema).`as`("ferdigstillt tema").isEqualTo("farskap") },
+            { assertThat(ferdigstillOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("1001") },
+            { assertThat(overforOppgaveRequest.tildeltEnhetsnr).`as`("ferdigstillt enhetsnummer").isEqualTo("666") }
         )
     }
 
     @Test
     fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
-        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
         val expectedValue = "{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}"
@@ -54,13 +54,13 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere FerdigstillOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave, "BID", "4806")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
 
-        val expectedValue = "" +
-                "{\"tema\":\"BID\"," +
-                "\"status\":\"FERDIGSTILLT\"," +
+        val expectedValue = "{" +
+                "\"tema\":\"BID\"," +
+                "\"status\":\"FERDIGSTILT\"," +
                 "\"tildeltEnhetsnr\":\"4806\"," +
                 "\"id\":1," +
                 "\"versjon\":2" +
@@ -70,7 +70,7 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere OverforOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
+        val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
         val expectedValue = "" +
