@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
-    internal fun overforOppgaver(journalpostId: String, fagomrade: String, journalpostHendelse: JournalpostHendelse) {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
+    internal fun overforOppgaver(journalpostHendelse: JournalpostHendelse) {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId, journalpostHendelse.hentFagomradeFraDetaljer())
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
         val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
 
@@ -25,10 +25,13 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaveConsumer.endreOppgave(overforOppgaveRequest)
     }
 
-    internal fun ferdigstillOppgaver(journalpostId: String, fagomrade: String, journalpostHendelse: JournalpostHendelse) {
+    internal fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
+        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
+        val journalpostId = journalpostHendelse.journalpostId
         val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
         val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
         val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
+
         oppgaveSokResponse.oppgaver.forEach { ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, journalforendeEnhet) }
     }
 
@@ -42,9 +45,11 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             aktoerId = journalpostHendelse.hentAktoerId(),
             tema = journalpostHendelse.hentFagomradeFraDetaljer()
         )
+
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
+
         // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
-        if (journalpostHendelse.harJournalpostIdPrefix()){
+        if (journalpostHendelse.harJournalpostIdPrefix()) {
             oppgaveConsumer.endreOppgave(UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId))
         }
     }

@@ -1,8 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.aop
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.CORRELATION_ID
 import no.nav.bidrag.commons.CorrelationId
 import org.aspectj.lang.JoinPoint
@@ -40,28 +38,8 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..)) && args(..,journalpostHendelse)")
-    fun addCorrelationIdToThread(joinPoint: JoinPoint, journalpostHendelse: JournalpostHendelse) {
-        val correlationIdSporing = journalpostHendelse.sporing?.correlationId
-
-        if (correlationIdSporing != null) {
-            val correlationId = CorrelationId.existing(correlationIdSporing)
-            MDC.put(CORRELATION_ID, correlationId.get())
-        } else {
-            val unknown = "${journalpostHendelse.journalpostId}-${System.currentTimeMillis().toString(16)}"
-            LOGGER.warn("Unable to find correlation Id in $journalpostHendelse, using '$unknown'")
-            val correlationId = CorrelationId.existing(unknown)
-            MDC.put(CORRELATION_ID, correlationId.get())
-        }
-    }
-
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")
     fun clearCorrelationIdFromBehandleHendelseService(joinPoint: JoinPoint) {
-        MDC.clear()
-    }
-
-    @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.OppgaveService.*(..))")
-    fun clearCorrelationIdFromOppgaveService(joinPoint: JoinPoint) {
         MDC.clear()
     }
 }

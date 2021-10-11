@@ -32,18 +32,18 @@ internal class DefaultBehandleHendelseServiceTest {
     @Test
     fun `skal behandle AVVIK_OVERFOR_TIL_ANNEN_ENHET i test`() {
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-1", hendelse = Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET.name))
-        verify(oppgaveServiceMock, atLeastOnce()).overforOppgaver(anyString(), anyString(), anyOrNull())
+        verify(oppgaveServiceMock, atLeastOnce()).overforOppgaver(anyOrNull())
     }
 
     @Test
     fun `skal behandle AVVIK_ENDRE_FAGOMRADE i test`() {
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-1", hendelse = Hendelse.AVVIK_ENDRE_FAGOMRADE.name))
-        verify(oppgaveServiceMock, atLeastOnce()).ferdigstillOppgaver(anyString(), anyString(), anyOrNull())
+        verify(oppgaveServiceMock, atLeastOnce()).ferdigstillOppgaver(anyOrNull())
     }
 
     @Test
     fun `skal behandle JOURNALFOR_JOURNALPOST i test`() {
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-1", hendelse = Hendelse.JOURNALFOR_JOURNALPOST.name))
-        verify(oppgaveServiceMock, atLeastOnce()).ferdigstillOppgaver(anyString(), anyString(), anyOrNull())
+        verify(oppgaveServiceMock, atLeastOnce()).ferdigstillOppgaver(anyOrNull())
     }
 }

@@ -41,7 +41,6 @@ internal class BehandleHendelseServiceTest {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verify(oppgaveConsumerMock).finnOppgaverForJournalpost(OppgaveSokRequest("BID-1", "BID"))
-        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(OppgaveSokRequest("1", "BID"))
     }
 
     @Test
@@ -55,7 +54,7 @@ internal class BehandleHendelseServiceTest {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         // forventer at søk blir gjort for journalpostId med og uten prefix...
-        verify(oppgaveConsumerMock, times(2)).endreOppgave(anyFerdigstillOppgaveRequest())
+        verify(oppgaveConsumerMock).endreOppgave(anyFerdigstillOppgaveRequest())
     }
 
     @Test
@@ -88,7 +87,7 @@ internal class BehandleHendelseServiceTest {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         // forventer at søk blir gjort for journalpostId med og uten prefix...
-        verify(oppgaveConsumerMock, times(2)).finnOppgaverForJournalpost(anyOppgaveSokRequest())
+        verify(oppgaveConsumerMock).finnOppgaverForJournalpost(anyOppgaveSokRequest())
     }
 
     private fun <T> anyOppgaveSokRequest(): T = any(OppgaveSokRequest::class.java) as T

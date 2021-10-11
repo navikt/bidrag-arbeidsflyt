@@ -56,7 +56,7 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplateMock, times(2)).exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))
+        verify(httpHeaderRestTemplateMock).exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))
     }
 
     @Test
