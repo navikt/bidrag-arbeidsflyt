@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.bidrag.arbeidsflyt.model.DetaljVerdi.FAGOMRADE_BIDRAG
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -93,10 +92,10 @@ data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String
 sealed class PatchOppgaveRequest {
     var id: Long = -1
     var versjon: Int = -1
-    var aktoerId: String? = null
-    var endretAvEnhetsnr: String? = null
-    var oppgavetype: String? = null
-    var prioritet: String? = null
+    open var aktoerId: String? = null
+    open var endretAvEnhetsnr: String? = null
+    open var oppgavetype: String? = null
+    open var prioritet: String? = null
     open var status: String? = null
     open var tema: String? = null
     open var tildeltEnhetsnr: String? = null
@@ -109,48 +108,9 @@ sealed class PatchOppgaveRequest {
         return HttpEntity<PatchOppgaveRequest>(this, headers)
     }
 
-    protected fun leggTilVerdierSomIkkeErOverlasta(oppgaveData: OppgaveData) {
+    protected fun leggTilObligatoriskeVerdier(oppgaveData: OppgaveData) {
         id = oppgaveData.id ?: -1
         versjon = oppgaveData.versjon ?: -1
-
-        if (er(UpdateOppgaveAfterOpprettRequest::class.java)) {
-            return
-        }
-
-        // FIXME: Tor Egil: Er dette nødvendig? Det gjøres en PATCH kall til oppgave og da er det bare versjon og id som er obligatorisk å sende med.
-        aktoerId = oppgaveData.aktoerId
-        endretAvEnhetsnr = oppgaveData.endretAvEnhetsnr
-        oppgavetype = oppgaveData.oppgavetype
-        prioritet = oppgaveData.prioritet ?: Prioritet.HOY.name
-
-        if (erIkke(FerdigstillOppgaveRequest::class.java)) {
-            status = oppgaveData.status
-            tema = oppgaveData.tema ?: FAGOMRADE_BIDRAG
-        }
-
-        if (erIkke(FerdigstillOppgaveRequest::class.java, OverforOppgaveRequest::class.java)) {
-            tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
-        }
-    }
-
-    private fun er(javaklasse: Class<*>, vararg andreKlasser: Class<*>): Boolean {
-        return this.javaClass == javaklasse && erHellerIkke(andreKlasser)
-    }
-
-    private fun erIkke(javaklasse: Class<*>, vararg andreKlasser: Class<*>): Boolean {
-        return this.javaClass != javaklasse && erHellerIkke(andreKlasser)
-    }
-
-    private fun erHellerIkke(andreKlasser: Array<out Class<*>>): Boolean {
-        if (andreKlasser.isEmpty()) {
-            return true
-        }
-
-        for (klasse in andreKlasser) {
-            if (klasse == this.javaClass) return false
-        }
-
-        return true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -189,14 +149,14 @@ sealed class PatchOppgaveRequest {
 
 data class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
     constructor(oppgaveData: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
-        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
+        leggTilObligatoriskeVerdier(oppgaveData)
     }
 }
 
 data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
     constructor(oppgaveData: OppgaveData, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
-        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
+        leggTilObligatoriskeVerdier(oppgaveData)
     }
 
     override fun equals(other: Any?) = super.equals(other)
@@ -214,7 +174,7 @@ data class FerdigstillOppgaveRequest(
         tema: String,
         tildeltEnhetsnr: String?
     ) : this(status = "FERDIGSTILLT", tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
-        leggTilVerdierSomIkkeErOverlasta(oppgaveData)
+        leggTilObligatoriskeVerdier(oppgaveData)
     }
 
     override fun equals(other: Any?) = super.equals(other)

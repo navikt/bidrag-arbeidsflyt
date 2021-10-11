@@ -48,7 +48,8 @@ internal class PatchOppgaveRequestTest {
         val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
-        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}")
+        val expectedValue = "{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}"
+        assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
 
     @Test
@@ -56,7 +57,15 @@ internal class PatchOppgaveRequestTest {
         val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave, "BID", "4806")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
-        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"tema\":\"BID\",\"status\":\"FERDIGSTILLT\",\"tildeltEnhetsnr\":\"4806\",\"id\":1,\"versjon\":2,\"prioritet\":\"HOY\"}")
+
+        val expectedValue = "" +
+                "{\"tema\":\"BID\"," +
+                "\"status\":\"FERDIGSTILLT\"," +
+                "\"tildeltEnhetsnr\":\"4806\"," +
+                "\"id\":1," +
+                "\"versjon\":2" +
+            "}"
+        assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
 
     @Test
@@ -64,6 +73,11 @@ internal class PatchOppgaveRequestTest {
         val opprinneligOppgave = OppgaveData(status = "AAPEN", tema = FAGOMRADE_BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id=1)
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
-        assertThat(stringValue).`as`("Expected json string value").isEqualTo("{\"tildeltEnhetsnr\":\"4812\",\"id\":1,\"versjon\":2,\"prioritet\":\"HOY\",\"status\":\"AAPEN\",\"tema\":\"BID\"}")
+        val expectedValue = "" +
+                "{\"tildeltEnhetsnr\":\"4812\"," +
+                "\"id\":1," +
+                "\"versjon\":2" +
+                "}"
+        assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
 }
