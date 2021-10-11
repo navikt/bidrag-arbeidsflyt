@@ -4,6 +4,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.commons.ExceptionLogger
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -29,9 +30,9 @@ internal class ExceptionLoggerAspectTest {
 
     @Test
     fun `skal logge exceptions fra service`() {
-        whenever(oppgaveServiceMock.overforOppgaver(anyString(), anyString(), any())).thenThrow(IllegalStateException("Logg exception!"))
+        whenever(oppgaveServiceMock.overforOppgaver(any())).thenThrow(IllegalStateException("Logg exception!"))
 
-        assertThatExceptionOfType(ExecutionException::class.java).isThrownBy {
+        assertThatIllegalStateException().isThrownBy {
             journalpostHendelseListener.lesHendelse(
                 """{
                   "journalpostId":"BID-101",

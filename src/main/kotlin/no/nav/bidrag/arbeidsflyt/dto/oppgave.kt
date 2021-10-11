@@ -8,7 +8,33 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String)
+private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
+private const val PARAM_JOURNALPOST_ID_MED_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
+private const val PARAMS_MED_TEMA = "tema={fagomrade}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
+
+data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String) {
+    private fun harJournalpostIdPrefiks() = journalpostId.contains("-")
+    internal fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
+    private fun hentPrefiks() = journalpostId.split('-')[0]
+
+    fun hentParametre(): String {
+        val parametreMedTema = PARAMS_MED_TEMA
+            .replace("{fagomrade}", fagomrade)
+
+        if (harJournalpostIdPrefiks()) {
+            val prefix = hentPrefiks()
+            val idWithoutPrefix = hentJournalpostIdUtenPrefiks()
+
+            return "$parametreMedTema&${PARAM_JOURNALPOST_ID_MED_PREFIKS
+                .replace("{prefix}", prefix)
+                .replace("{id}", idWithoutPrefix)
+            }"
+        }
+
+        return "$parametreMedTema&${PARAM_JOURNALPOST_ID.replace("{id}", journalpostId)}"
+    }
+}
+
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
 data class OppgaveData(
@@ -46,10 +72,12 @@ data class OppgaveData(
 )
 
 
+@Suppress("unused") // used by jackson...
 data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
     var oppgavetype: String = "JFR"
     var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -57,6 +85,7 @@ data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String
         return HttpEntity<OpprettOppgaveRequest>(this, headers)
     }
 }
+
 /**
  * Påkrevde data for en oppgave som skal patches i oppgave api
  */
@@ -84,7 +113,7 @@ sealed class PatchOppgaveRequest {
         id = oppgaveData.id ?: -1
         versjon = oppgaveData.versjon ?: -1
 
-        if (er(UpdateOppgaveAfterOpprettRequest::class.java)){
+        if (er(UpdateOppgaveAfterOpprettRequest::class.java)) {
             return
         }
 

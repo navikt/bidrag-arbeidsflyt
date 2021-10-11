@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
-private const val PARAMETERS = "tema={fagomrade}&journalpostId={id}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
@@ -25,9 +24,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
     }
 
     override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse {
-        val parameters = PARAMETERS
-            .replace("{id}", oppgaveSokRequest.journalpostId)
-            .replace("{fagomrade}", oppgaveSokRequest.fagomrade)
+        val parameters = oppgaveSokRequest.hentParametre()
 
         LOGGER.info("søk opp åpne oppgaver på en journalpost: $parameters")
 
@@ -67,6 +64,6 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         )
 
         LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
-        return responseEntity.body ?: OppgaveData(-1);
+        return responseEntity.body ?: OppgaveData(-1)
     }
 }
