@@ -14,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.any
 import org.mockito.Mockito.never
-import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -68,7 +67,7 @@ internal class BehandleHendelseServiceTest {
     @ValueSource(strings = [DetaljVerdi.FAGOMRADE_BIDRAG, DetaljVerdi.FAGOMRADE_FARSKAP])
     fun `skal ikke søke etter oppgaver å ferdigstille når AVVIK_ENDRE_FAGOMRADE er til fagområde BID eller FAR`(fagomrade: String) {
         val journalpostHendelse = JournalpostHendelse(
-            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE to fagomrade)
+            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE_NYTT to fagomrade)
         )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -79,7 +78,7 @@ internal class BehandleHendelseServiceTest {
     @Test
     fun `skal søke etter oppgaver å ferdigstille når AVVIK_ENDRE_FAGOMRADE er til fagområde annet enn BID eller FAR`() {
         val journalpostHendelse = JournalpostHendelse(
-            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE to "AAP", Detalj.ENHETSNUMMER to "123")
+            journalpostId = "FAR-1", hendelse = "AVVIK_ENDRE_FAGOMRADE", detaljer = mapOf(Detalj.FAGOMRADE_NYTT to "AAP", Detalj.ENHETSNUMMER to "123")
         )
 
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(anyOppgaveSokRequest())).thenReturn(OppgaveSokResponse(0, emptyList()))

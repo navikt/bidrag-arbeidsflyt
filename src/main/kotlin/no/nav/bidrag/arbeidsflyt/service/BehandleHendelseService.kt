@@ -39,7 +39,7 @@ class DefaultBehandleHendelseService(
         if (journalpostHendelse.erBytteTilInterntFagomrade()) {
             LOGGER.info("Hendelsen ${journalpostHendelse.hendelse} er bytte til et internt fagområde")
         } else {
-            LOGGER.info("${journalpostHendelse.hendelse} er bytte til eksternt fagområde: ${journalpostHendelse.hentFagomradeFraDetaljer()}")
+            LOGGER.info("${journalpostHendelse.hendelse} er bytte til eksternt fagområde: ${journalpostHendelse.hentGammeltFagomradeFraDetaljer()}")
             ferdigstillOppgaver(journalpostHendelse)
         }
     }

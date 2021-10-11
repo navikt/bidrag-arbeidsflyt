@@ -9,8 +9,9 @@ data class JournalpostHendelse(
     fun hentHendelse() = Hendelse.values().find { it.name == hendelse }
 
     internal fun hentEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER] ?: doThrow("Mangler ${Detalj.ENHETSNUMMER} blant hendelsedata")
-    internal fun erBytteTilInterntFagomrade() = detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_BIDRAG || detaljer[Detalj.FAGOMRADE] == DetaljVerdi.FAGOMRADE_FARSKAP
-    internal fun hentFagomradeFraDetaljer() = detaljer[Detalj.FAGOMRADE] ?: DetaljVerdi.FAGOMRADE_BIDRAG
+    internal fun erBytteTilInterntFagomrade() = detaljer[Detalj.FAGOMRADE_NYTT] == DetaljVerdi.FAGOMRADE_BIDRAG || detaljer[Detalj.FAGOMRADE_NYTT] == DetaljVerdi.FAGOMRADE_FARSKAP
+    internal fun hentFagomradeFraDetaljer() = detaljer[Detalj.FAGOMRADE] ?: hentGammeltFagomradeFraDetaljer()
+    internal fun hentGammeltFagomradeFraDetaljer() = detaljer[Detalj.FAGOMRADE_GAMMELT] ?: DetaljVerdi.FAGOMRADE_BIDRAG
     internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
     internal fun hentNyttJournalforendeEnhetsnummer() = detaljer[Detalj.ENHETSNUMMER_NYTT] ?: doThrow("Mangler ${Detalj.ENHETSNUMMER_NYTT} blant hendelsedata")
