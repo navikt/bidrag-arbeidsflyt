@@ -23,6 +23,8 @@ class DefaultBehandleHendelseService(
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         if (hendelseFilter.stottedeHendelser.contains(journalpostHendelse.hendelse)) {
+            journalpostHendelse.sjekkDetaljerForHendelse()
+
             when (journalpostHendelse.hentHendelse()) {
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
