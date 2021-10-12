@@ -31,7 +31,7 @@ data class JournalpostHendelse(
 
     internal fun sjekkDetaljerForHendelse() {
         when (hentHendelse()) {
-            AVVIK_ENDRE_FAGOMRADE -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE_GAMMELT, Detalj.FAGOMRADE_NYTT)
+            AVVIK_ENDRE_FAGOMRADE -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE_GAMMELT, Detalj.FAGOMRADE_NYTT, Detalj.ENHETSNUMMER)
             AVVIK_OVERFOR_TIL_ANNEN_ENHET -> sjekkAtDetaljerPaHendelse(Detalj.ENHETSNUMMER_GAMMELT, Detalj.ENHETSNUMMER_NYTT, Detalj.FAGOMRADE)
             OPPRETT_OPPGAVE -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE)
             JOURNALFOR_JOURNALPOST -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE)
