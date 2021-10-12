@@ -79,13 +79,14 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
               },
               "detaljer":{
                 "enhetsnummer":"1001",
-                "fagomrade": "FAR"
+                "gammeltFagomrade": "BID",
+                "nyttFagomrade": "FAR"
               }
             }
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate, never()).exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplate, never()).exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 
     @Test

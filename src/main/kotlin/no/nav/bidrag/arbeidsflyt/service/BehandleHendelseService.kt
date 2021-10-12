@@ -23,6 +23,8 @@ class DefaultBehandleHendelseService(
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         if (hendelseFilter.stottedeHendelser.contains(journalpostHendelse.hendelse)) {
+            journalpostHendelse.sjekkDetaljerForHendelse()
+
             when (journalpostHendelse.hentHendelse()) {
                 Hendelse.AVVIK_ENDRE_FAGOMRADE -> ferdigstillOppgaverNarFagomradeIkkeErBidEllerFar(journalpostHendelse)
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
@@ -39,7 +41,7 @@ class DefaultBehandleHendelseService(
         if (journalpostHendelse.erBytteTilInterntFagomrade()) {
             LOGGER.info("Hendelsen ${journalpostHendelse.hendelse} er bytte til et internt fagområde")
         } else {
-            LOGGER.info("${journalpostHendelse.hendelse} er bytte til eksternt fagområde: ${journalpostHendelse.hentFagomradeFraDetaljer()}")
+            LOGGER.info("${journalpostHendelse.hendelse} er bytte til eksternt fagområde: ${journalpostHendelse.hentGammeltFagomradeFraDetaljer()}")
             ferdigstillOppgaver(journalpostHendelse)
         }
     }
