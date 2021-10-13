@@ -13,7 +13,7 @@ private const val PARAMS_MED_TEMA = "tema={fagomrade}&statuskategori=AAPEN&sorte
 
 data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String) {
     private fun harJournalpostIdPrefiks() = journalpostId.contains("-")
-    internal fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
+    private fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
     private fun hentPrefiks() = journalpostId.split('-')[0]
 
     fun hentParametre(): String {
@@ -69,7 +69,6 @@ data class OppgaveData(
     var status: String? = null,
     var metadata: Map<String, String>? = null
 )
-
 
 @Suppress("unused") // used by jackson...
 data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {

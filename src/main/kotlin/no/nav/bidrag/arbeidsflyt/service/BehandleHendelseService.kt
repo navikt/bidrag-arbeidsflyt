@@ -1,10 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import no.nav.bidrag.arbeidsflyt.Environment.fetchEnv
 import no.nav.bidrag.arbeidsflyt.hendelse.HendelseFilter
 import no.nav.bidrag.arbeidsflyt.model.Hendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -30,10 +28,10 @@ class DefaultBehandleHendelseService(
                 Hendelse.AVVIK_OVERFOR_TIL_ANNEN_ENHET -> overforOppgaverTilAnnenEnhet(journalpostHendelse)
                 Hendelse.JOURNALFOR_JOURNALPOST -> ferdigstillOppgaver(journalpostHendelse)
                 Hendelse.OPPRETT_OPPGAVE -> opprettOppgave(journalpostHendelse)
-                else -> throw UnsupportedOperationException("Ukjent '${journalpostHendelse.hendelse}'! Sjekk miljøvariabler og implementasjon.")
+                else -> throw UnsupportedOperationException("Hendelsen mangler implementasjon: ${journalpostHendelse.hendelse}!.")
             }
         } else {
-            LOGGER.warn("${fetchEnv(NAIS_APP_NAME)} har ikke støtte for hendelsen '${journalpostHendelse.hendelse}'!")
+            LOGGER.warn("Mangler støtte for hendelsen ${journalpostHendelse.hendelse}, støttede: ${hendelseFilter.stottedeHendelser}...")
         }
     }
 
