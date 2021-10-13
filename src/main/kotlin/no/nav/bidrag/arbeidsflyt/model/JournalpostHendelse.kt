@@ -31,15 +31,15 @@ data class JournalpostHendelse(
 
     internal fun sjekkDetaljerForHendelse() {
         when (hentHendelse()) {
-            AVVIK_ENDRE_FAGOMRADE -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE_GAMMELT, Detalj.FAGOMRADE_NYTT, Detalj.ENHETSNUMMER)
-            AVVIK_OVERFOR_TIL_ANNEN_ENHET -> sjekkAtDetaljerPaHendelse(Detalj.ENHETSNUMMER_GAMMELT, Detalj.ENHETSNUMMER_NYTT, Detalj.FAGOMRADE)
-            OPPRETT_OPPGAVE -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE)
-            JOURNALFOR_JOURNALPOST -> sjekkAtDetaljerPaHendelse(Detalj.FAGOMRADE)
-            null -> doThrow("Ugyldig hendelse $hendelse!")
+            AVVIK_ENDRE_FAGOMRADE -> sjekkAtDetaljerFinnesPaHendelse(Detalj.FAGOMRADE_GAMMELT, Detalj.FAGOMRADE_NYTT, Detalj.ENHETSNUMMER)
+            AVVIK_OVERFOR_TIL_ANNEN_ENHET -> sjekkAtDetaljerFinnesPaHendelse(Detalj.ENHETSNUMMER_GAMMELT, Detalj.ENHETSNUMMER_NYTT, Detalj.FAGOMRADE)
+            OPPRETT_OPPGAVE -> sjekkAtDetaljerFinnesPaHendelse(Detalj.FAGOMRADE)
+            JOURNALFOR_JOURNALPOST -> sjekkAtDetaljerFinnesPaHendelse(Detalj.FAGOMRADE)
+            null -> doThrow("Ugyldig hendelse: $hendelse!")
         }
     }
 
-    private fun sjekkAtDetaljerPaHendelse(vararg detaljer: String) {
+    private fun sjekkAtDetaljerFinnesPaHendelse(vararg detaljer: String) {
         detaljer.forEach {
             if (!detaljer.contains(it)) {
                 throw IllegalStateException("Mangler detalj '$it' på hendelse: $hendelse")
