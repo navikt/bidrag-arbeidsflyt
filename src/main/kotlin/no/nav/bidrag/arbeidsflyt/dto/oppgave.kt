@@ -86,7 +86,7 @@ data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String
     var oppgavetype: String = "JFR"
     var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
-    var ferdigstiltTidspunkt: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    var fristFerdigstillelse: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
     var opprettetAvEnhetsnr: String = "9999"
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()

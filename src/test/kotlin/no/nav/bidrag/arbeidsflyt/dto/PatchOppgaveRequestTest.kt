@@ -67,7 +67,7 @@ internal class PatchOppgaveRequestTest {
                 "\"oppgavetype\":\"JFR\"," +
                 "\"prioritet\":\"HOY\"," +
                 "\"aktivDato\":\"2021-10-15\"," +
-                "\"ferdigstiltTidspunkt\":\"${DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))}\"," +
+                "\"fristFerdigstillelse\":\"${DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))}\"," +
                 "\"opprettetAvEnhetsnr\":\"9999\"}" +
                 ""
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
