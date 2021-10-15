@@ -68,7 +68,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         )
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID")
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -105,6 +105,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         val journalpostId = "2525"
         val journalpostIdMedPrefix = "BID-$journalpostId"
         val aktoerId = "1234567890100"
+        val enhetsNummer = "4806"
         // kafka hendelse
         journalpostHendelseListener.lesHendelse(
             """
@@ -120,7 +121,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID")
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -166,7 +167,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema)
+        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema, enhetsNummer)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
 
         verify(httpHeaderRestTemplateMock, times(1)).exchange(

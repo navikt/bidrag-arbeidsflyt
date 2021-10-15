@@ -54,4 +54,22 @@ internal class PatchOppgaveRequestTest {
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
+
+    @Test
+    fun `skal serialisere OpprettOppgaveRequest`() {
+        val opprettOppgaveRequest = OpprettOppgaveRequest("1234", "123213","BID", "4812")
+        val stringValue = jacksonObjectMapper().writer().writeValueAsString(opprettOppgaveRequest)
+        val expectedValue = "" +
+                "{\"journalpostId\":\"1234\"," +
+                "\"aktoerId\":\"123213\"," +
+                "\"tema\":\"BID\"," +
+                "\"tildeltEnhetsnr\":\"4812\"," +
+                "\"oppgavetype\":\"JFR\"," +
+                "\"prioritet\":\"HOY\"," +
+                "\"aktivDato\":\"2021-10-15\"," +
+                "\"ferdigstiltTidspunkt\":\"${DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))}\"," +
+                "\"opprettetAvEnhetsnr\":\"9999\"}" +
+                ""
+        assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
+    }
 }

@@ -82,11 +82,12 @@ data class OppgaveData(
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
+data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID", var tildeltEnhetsnr: String) {
     var oppgavetype: String = "JFR"
     var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
-
+    var ferdigstiltTidspunkt: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    var opprettetAvEnhetsnr: String = "9999"
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
