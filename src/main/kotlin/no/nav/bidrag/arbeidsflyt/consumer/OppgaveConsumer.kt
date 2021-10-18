@@ -36,14 +36,32 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             OppgaveSokResponse::class.java
         )
 
-        LOGGER.info("Response: ${oppgaveSokResponseEntity.statusCode}, ${oppgaveSokResponseEntity.body}")
+        LOGGER.info("Response: ${oppgaveSokResponseEntity.statusCode}, ${initStringOf(oppgaveSokResponseEntity.body)}")
 
         return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
     }
 
+    private fun initStringOf(oppgaveSokResponse: OppgaveSokResponse?): String {
+        if (oppgaveSokResponse != null) {
+            return "OppgaveSokResponse(antallTreff=${oppgaveSokResponse.antallTreffTotalt},oppgaver=[${initStringOf(oppgaveSokResponse.oppgaver)}]"
+        }
+
+        return "no body, antall treff = 0"
+    }
+
+    private fun initStringOf(oppgaver: List<OppgaveData>): String {
+        val oppgaveBuilder = StringBuilder("")
+        oppgaver.forEach {
+            oppgaveBuilder.append(
+                "(id=${it.id},journalpostId=${it.journalpostId},tema=${it.tema},aktoerId=${it.aktoerId},oppgavetype=${it.oppgavetype})\n")
+        }
+
+        return oppgaveBuilder.toString()
+    }
+
     override fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest) {
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Endrer en oppgave med id: $oppgaverPath")
+        LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
 
         val responseEntity = restTemplate.exchange(
             oppgaverPath,
