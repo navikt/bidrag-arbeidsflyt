@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.NAIS_APP_NAME
 import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.model.Token
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
@@ -15,7 +14,6 @@ import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
-import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,11 +25,9 @@ import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
 
-
 internal object Environment {
     private val dummy = mapOf(
         OPPGAVE_URL to "https://dummy.test",
-        NAIS_APP_NAME to "bidrag-arbeidsflyt"
     )
 
     internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
@@ -40,15 +36,12 @@ internal object Environment {
     )
 }
 
+private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
+
 @Configuration
 @Profile(PROFILE_LIVE)
 @EnableJwtTokenValidation
 class HendelseConfiguration {
-    companion object {
-        @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
-    }
-
     @Bean
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
@@ -57,15 +50,15 @@ class HendelseConfiguration {
     )
 
     @Bean
-    fun hendelseErrorHandler(): KafkaListenerErrorHandler {
+    fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
         return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            val messagePayload: Any = try {
+            try {
                 message.payload
-            } catch (re: RuntimeException) {
-                "Unable to read message payload"
+            } catch (t: Throwable) {
+                exceptionLogger.logException(t, KAFKA_LISTENER_ERROR_HANDLER)
             }
 
-            LOGGER.error("Message {} cause error: {} - {} - headers: {}", messagePayload, e.javaClass.simpleName, e.message, message.headers)
+            exceptionLogger.logException(e, KAFKA_LISTENER_ERROR_HANDLER)
             Optional.empty<Any>()
         }
     }

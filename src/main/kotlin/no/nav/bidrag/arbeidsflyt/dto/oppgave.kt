@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -8,30 +9,29 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
-private const val PARAM_JOURNALPOST_ID_MED_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
-private const val PARAMS_MED_TEMA = "tema={fagomrade}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=10"
+private const val PARAMS_100_APNE_OPPGAVER = "tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
 
-data class OppgaveSokRequest(val journalpostId: String, val fagomrade: String) {
-    private fun harJournalpostIdPrefiks() = journalpostId.contains("-")
-    private fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
-    private fun hentPrefiks() = journalpostId.split('-')[0]
+data class OppgaveSokRequest(val journalpostId: String) {
 
     fun hentParametre(): String {
-        val parametreMedTema = PARAMS_MED_TEMA
-            .replace("{fagomrade}", fagomrade)
-
         if (harJournalpostIdPrefiks()) {
             val prefix = hentPrefiks()
             val idWithoutPrefix = hentJournalpostIdUtenPrefiks()
 
-            return "$parametreMedTema&${PARAM_JOURNALPOST_ID_MED_PREFIKS
-                .replace("{prefix}", prefix)
-                .replace("{id}", idWithoutPrefix)
+            return "$PARAMS_100_APNE_OPPGAVER&${
+                PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
+                    .replace("{prefix}", prefix)
+                    .replace("{id}", idWithoutPrefix)
             }"
         }
 
-        return "$parametreMedTema&${PARAM_JOURNALPOST_ID.replace("{id}", journalpostId)}"
+        return "$PARAMS_100_APNE_OPPGAVER&${PARAM_JOURNALPOST_ID.replace("{id}", journalpostId)}"
     }
+
+    private fun harJournalpostIdPrefiks() = journalpostId.contains("-")
+    private fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
+    private fun hentPrefiks() = journalpostId.split('-')[0]
 }
 
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
@@ -68,7 +68,16 @@ data class OppgaveData(
     var prioritet: String? = null,
     var status: String? = null,
     var metadata: Map<String, String>? = null
-)
+) {
+    fun somOppgaveForHendelse() = OppgaveDataForHendelse(
+        id = id ?: -1,
+        versjon = versjon ?: -1,
+        aktorId = aktoerId,
+        oppgavetype = oppgavetype,
+        tema = tema,
+        tildeltEnhetsnr = tildeltEnhetsnr
+    )
+}
 
 @Suppress("unused") // used by jackson...
 data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
@@ -107,9 +116,9 @@ sealed class PatchOppgaveRequest {
         return HttpEntity<PatchOppgaveRequest>(this, headers)
     }
 
-    protected fun leggTilObligatoriskeVerdier(oppgaveData: OppgaveData) {
-        id = oppgaveData.id ?: -1
-        versjon = oppgaveData.versjon ?: -1
+    protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveDataForHendelse) {
+        id = oppgaveDataForHendelse.id
+        versjon = oppgaveDataForHendelse.versjon
     }
 
     override fun equals(other: Any?): Boolean {
@@ -144,40 +153,42 @@ sealed class PatchOppgaveRequest {
 
         return result
     }
+
+    override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
+
+    private fun fieldsWithValues(): String {
+        return StringBuilder("")
+            .append(fieldToString("aktorId", aktoerId))
+            .append(fieldToString("endretAvEnhetsnr", endretAvEnhetsnr))
+            .append(fieldToString("oppgavetype", oppgavetype))
+            .append(fieldToString("prioritet", prioritet))
+            .append(fieldToString("status", status))
+            .append(fieldToString("tema", tema))
+            .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
+            .toString()
+    }
+
+    private fun fieldToString(fieldName: String, value: String?) = if (value != null) ",$fieldName=$value" else ""
 }
 
-data class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
-    constructor(oppgaveData: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
-        leggTilObligatoriskeVerdier(oppgaveData)
+class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
 
-data class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
+class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
-    constructor(oppgaveData: OppgaveData, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
-        leggTilObligatoriskeVerdier(oppgaveData)
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
-
-    override fun equals(other: Any?) = super.equals(other)
-    override fun hashCode() = super.hashCode()
 }
 
-data class FerdigstillOppgaveRequest(
-    override var tema: String?,
-    override var status: String?,
-    override var tildeltEnhetsnr: String?
-) : PatchOppgaveRequest() {
+class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequest() {
 
-    constructor(
-        oppgaveData: OppgaveData,
-        tema: String,
-        tildeltEnhetsnr: String?
-    ) : this(status = "FERDIGSTILT", tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
-        leggTilObligatoriskeVerdier(oppgaveData)
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse) : this(status = "FERDIGSTILT") {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
-
-    override fun equals(other: Any?) = super.equals(other)
-    override fun hashCode() = super.hashCode()
 }
 
 enum class Prioritet {
