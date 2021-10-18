@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.model.MiljoVariabler.OPPGAVE_URL
 import no.nav.bidrag.arbeidsflyt.model.Token
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
@@ -14,6 +13,7 @@ import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,17 +24,6 @@ import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.messaging.Message
 import java.util.Optional
-
-internal object Environment {
-    private val dummy = mapOf(
-        OPPGAVE_URL to "https://dummy.test",
-    )
-
-    internal fun fetchEnv(name: String) = System.getProperty(name) ?: System.getenv()[name] ?: dummy[name]
-    ?: throw IllegalStateException(
-        "Unable to find $name as a system property or an environment variable"
-    )
-}
 
 private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 
@@ -76,8 +65,11 @@ class ArbeidsflytConfiguration {
     }
 
     @Bean
-    fun oppgaveConsumer(restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService): OppgaveConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(Environment.fetchEnv(OPPGAVE_URL))
+    fun oppgaveConsumer(
+        @Value("\${OPPGAVE_URL}") oppgaveUrl: String,
+        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService,
+    ): OppgaveConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
         restTemplate.interceptors.add(securityTokenService.generateBearerToken(Token.OPPGAVE_CLIENT_REGISTRATION_ID))
         return DefaultOppgaveConsumer(restTemplate)
     }

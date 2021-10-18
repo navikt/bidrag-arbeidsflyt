@@ -1,0 +1,29 @@
+OPPGAVE_URL: http://localhost:${wiremock.server.port}/oppgave
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:${mock-oauth2-server.port}/azure
+      client:
+        registration:
+          oppgave:
+            provider: aad
+            client-id: someid
+            client-secret: secret
+            authorization-grant-type: client_credentials
+            scope: api://scope/.default
+        provider:
+          aad:
+            token-uri: http://localhost:${mock-oauth2-server.port}/azure/token
+            jwk-set-uri: http://localhost:${mock-oauth2-server.port}/azure/jwks
+spring.kafka:
+  properties:
+    schema:
+      registry.url: http://unused-dummy-url
+      security.protocol: PLAINTEXT
+  consumer:
+    group-id: test
+    auto-offset-reset: earliest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
