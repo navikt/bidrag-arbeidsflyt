@@ -12,18 +12,4 @@ internal class JournalpostHendelseTest {
 
         assertThat(journalpostHendelse.hentJournalpostIdUtenPrefix()).isEqualTo("101")
     }
-
-    @Test
-    fun `skal hente fagområde fra prefikset journalpostId`() {
-        val journalpostHendelse = JournalpostHendelse(journalpostId = "BID-101")
-
-        assertThat(journalpostHendelse.hentGammeltFagomradeFraDetaljer()).isEqualTo("BID")
-    }
-
-    @Test
-    fun `skal hente null når hendelse er ukjent`() {
-        val journalpostHendelse = JournalpostHendelse(hendelse = "ikke kjent hendelse")
-
-        assertThat(journalpostHendelse.hentHendelse()).isNull()
-    }
 }

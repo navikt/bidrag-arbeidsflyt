@@ -2,48 +2,42 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import org.springframework.stereotype.Service
 
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
-    internal fun overforOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId, journalpostHendelse.hentFagomradeFraDetaljer())
-        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
-        val nyJournalforendeEnhet = journalpostHendelse.hentNyttJournalforendeEnhetsnummer()
+    internal fun finnOppgaverForJournalpost(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId)
 
-        oppgaveSokResponse.oppgaver.forEach { overforOppgave(OverforOppgaveRequest(it, nyJournalforendeEnhet)) }
+        return OppgaverForHendelse(
+            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
+                .map { OppgaveDataForHendelse(it) }
+        )
     }
 
-    private fun overforOppgave(overforOppgaveRequest: OverforOppgaveRequest) {
-        oppgaveConsumer.endreOppgave(overforOppgaveRequest)
+    internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
+        oppgaverForHendelse.dataForHendelse.forEach { oppgaveConsumer.endreOppgave(OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")) }
     }
 
-    internal fun ferdigstillOppgaver(journalpostHendelse: JournalpostHendelse) {
-        val fagomrade = journalpostHendelse.hentFagomradeFraDetaljer()
-        val journalpostId = journalpostHendelse.journalpostId
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, fagomrade)
-        val oppgaveSokResponse = oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest)
-        val journalforendeEnhet = journalpostHendelse.hentEnhetsnummer()
-
-        oppgaveSokResponse.oppgaver.forEach { ferdigstillOppgave(it, oppgaveSokRequest.fagomrade, journalforendeEnhet) }
-    }
-
-    private fun ferdigstillOppgave(oppgaveData: OppgaveData, fagomrade: String, enhetsnummer: String) {
-        oppgaveConsumer.endreOppgave(FerdigstillOppgaveRequest(oppgaveData, fagomrade, enhetsnummer))
+    internal fun ferdigstillOppgaver(oppgaverForJournalpost: OppgaverForHendelse) {
+        oppgaverForJournalpost.dataForHendelse.forEach {
+            oppgaveConsumer.endreOppgave(FerdigstillOppgaveRequest(it))
+        }
     }
 
     internal fun opprettOppgave(journalpostHendelse: JournalpostHendelse) {
         val opprettOppgaveRequest = OpprettOppgaveRequest(
             journalpostId = journalpostHendelse.hentJournalpostIdUtenPrefix(),
-            aktoerId = journalpostHendelse.hentAktoerId(),
-            tema = journalpostHendelse.hentFagomradeFraDetaljer()
+            aktoerId = journalpostHendelse.aktorId,
+            tema = journalpostHendelse.fagomrade
         )
 
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)

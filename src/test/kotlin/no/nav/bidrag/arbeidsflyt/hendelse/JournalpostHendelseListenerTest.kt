@@ -24,12 +24,11 @@ internal class JournalpostHendelseListenerTest {
     fun `skal mappe og behandle JournalpostHendelse`() {
         journalpostHendelseListener.lesHendelse(
             """{
-              "journalpostId":"BID-1",
-              "hendelse":"TEST_HENDELSE"
+              "journalpostId":"BID-1"
             }""".trimIndent()
         )
 
-        verify(behandleHendelseServiceMock).behandleHendelse(JournalpostHendelse("BID-1", "TEST_HENDELSE"))
+        verify(behandleHendelseServiceMock).behandleHendelse(JournalpostHendelse(journalpostId = "BID-1"))
     }
 
     @Test
@@ -37,39 +36,23 @@ internal class JournalpostHendelseListenerTest {
         journalpostHendelseListener.lesHendelse(
             """{
               "journalpostId":"BID-2",
-              "hendelse":"TEST_HENDELSE",
               "sporing": {
                 "correlationId":"xyz",
-                "opprettet":"nå"
+                "brukerident":"jb",
+                "saksbehandlersNavn":"Jon Blund"
               }
             }""".trimIndent()
         )
 
         verify(behandleHendelseServiceMock).behandleHendelse(
-            JournalpostHendelse("BID-2", "TEST_HENDELSE", Sporingsdata("xyz", "nå"))
-        )
-    }
-
-    @Test
-    fun `skal ha journalpost detaljer i meldingen`() {
-        journalpostHendelseListener.lesHendelse(
-            """
-            {
-              "journalpostId":"BID-3",
-              "hendelse":"AVVIK_TEST",
-              "sporing": {
-                "correlationId":"xyz",
-                "opprettet":"nå"
-              },
-              "detaljer": {
-                "enhetsnummer": "1001"
-              }
-            }
-            """.trimIndent()
-        )
-
-        verify(behandleHendelseServiceMock).behandleHendelse(
-            JournalpostHendelse("BID-3", "AVVIK_TEST", Sporingsdata("xyz", "nå"), mapOf("enhetsnummer" to "1001"))
+            JournalpostHendelse(
+                journalpostId = "BID-2",
+                sporing = Sporingsdata(
+                    correlationId = "xyz",
+                    brukerident = "jb",
+                    saksbehandlersNavn = "Jon Blund"
+                )
+            )
         )
     }
 }

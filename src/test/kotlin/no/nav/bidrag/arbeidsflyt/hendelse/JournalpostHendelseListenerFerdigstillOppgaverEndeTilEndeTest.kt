@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -25,23 +26,17 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
     private lateinit var journalpostHendelseListener: JournalpostHendelseListener
 
     @MockBean
-    private lateinit var httpHeaderRestTemplate: HttpHeaderRestTemplate
+    private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
     @Test
-    fun `skal ferdigstille oppgave for hendelse JOURNALFOR_JOURNALPOST`() {
+    fun `skal ferdigstille oppgave når fagomrade endres til et eksternt`() {
         // when/then søk etter oppgave
-        @Suppress("UNCHECKED_CAST")
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
-            .thenReturn(
-                ResponseEntity.ok(
-                    OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1)))
-                )
-            ).thenReturn(
-                ResponseEntity.noContent().build()
-            )
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG))))
+        )
 
         // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(
                 ResponseEntity.ok("bullseye")
             )
@@ -51,81 +46,38 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """
             {
               "journalpostId":"BID-1",
-              "hendelse":"JOURNALFOR_JOURNALPOST",
+              "fagomrade":"EKSTERNT",
               "sporing": {
                 "correlationId": "xyz"
-              },
-              "detaljer":{
-                "enhetsnummer":"1001"
               }
             }
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 
     @Test
     @Suppress("NonAsciiCharacters")
-    fun `skal ikke ferdigstille oppgave for hendelse AVVIK_ENDRE_FAGOMRADE når fagområde som endres er internt`() {
-        // kafka hendelse
-        journalpostHendelseListener.lesHendelse(
-            """
-            {
-              "journalpostId":"BID-2",
-              "hendelse":"AVVIK_ENDRE_FAGOMRADE",
-              "sporing": {
-                "correlationId": "abc"
-              },
-              "detaljer":{
-                "enhetsnummer":"1001",
-                "gammeltFagomrade": "BID",
-                "nyttFagomrade": "FAR"
-              }
-            }
-            """.trimIndent()
-        )
-
-        verify(httpHeaderRestTemplate, never()).exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java))
-    }
-
-    @Test
-    @Suppress("NonAsciiCharacters")
-    fun `skal ferdigstille oppgave for hendelse AVVIK_ENDRE_FAGOMRADE når fagområde som endres er eksternt`() {
+    fun `skal ikke ferdigstille oppgave når fagområde som endres er internt`() {
         // when/then søk etter oppgave
-        @Suppress("UNCHECKED_CAST")
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java)))
-            .thenReturn(
-                ResponseEntity.ok(
-                    OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 6)))
-                )
-            ).thenReturn(
-                ResponseEntity.noContent().build()
-            )
-
-        // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplate.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
-            .thenReturn(
-                ResponseEntity.ok("bullseye")
-            )
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG))))
+        )
 
         // kafka hendelse
         journalpostHendelseListener.lesHendelse(
             """
             {
               "journalpostId":"BID-2",
-              "hendelse":"AVVIK_ENDRE_FAGOMRADE",
+              "fagomrade": "FAR",
               "sporing": {
                 "correlationId": "abc"
-              },
-              "detaljer":{
-                "enhetsnummer":"1001",
-                "fagomrade": "PEN"
               }
             }
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplate).exchange(eq("/api/v1/oppgaver/6"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock, never()).exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 }

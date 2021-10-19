@@ -1,25 +1,14 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-// Detaljer (keys) i en JournalpostHendelse
-object Detalj {
-    const val FAGOMRADE = "fagomrade"
-    const val FAGOMRADE_GAMMELT = "gammeltFagomrade"
-    const val FAGOMRADE_NYTT = "nyttFagomrade"
-    const val ENHETSNUMMER = "enhetsnummer"
-    const val ENHETSNUMMER_GAMMELT = "gammeltEnhetsnummer"
-    const val ENHETSNUMMER_NYTT = "nyttEnhetsnummer"
-    const val AKTOER_ID = "aktoerId"
+// Fagområder på en journalpost
+object Fagomrade {
+    const val BIDRAG = "BID"
+    const val FARSKAP = "FAR"
 }
 
-// Verdier til Detaljer i en JournalpostHendelse
-object DetaljVerdi {
-    const val FAGOMRADE_BIDRAG = "BID"
-    const val FAGOMRADE_FARSKAP = "FAR"
-}
-
-object MiljoVariabler {
-    const val NAIS_APP_NAME = "NAIS_APP_NAME"
-    const val OPPGAVE_URL = "OPPGAVE_URL"
+// Journalstatus som er viktig for en JournalpostHendelse
+object Journalstatus {
+    const val MOTTATT = "M"
 }
 
 object Token {
