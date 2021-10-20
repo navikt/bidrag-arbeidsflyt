@@ -182,6 +182,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs:
       - run-tests-for-endre-fagomrade
+      - run-tests-for-journalforing
       - run-tests-for-opprett-oppgave
       - run-tests-for-overfor-enhet
 
