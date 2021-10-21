@@ -3,8 +3,10 @@ package no.nav.bidrag.arbeidsflyt.dto
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.format.DateTimeFormatter
 
 internal class PatchOppgaveRequestTest {
 
@@ -59,17 +61,13 @@ internal class PatchOppgaveRequestTest {
     fun `skal serialisere OpprettOppgaveRequest`() {
         val opprettOppgaveRequest = OpprettOppgaveRequest("1234", "123213","BID", "4812")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(opprettOppgaveRequest)
-        val expectedValue = "" +
-                "{\"journalpostId\":\"1234\"," +
-                "\"aktoerId\":\"123213\"," +
-                "\"tema\":\"BID\"," +
-                "\"tildeltEnhetsnr\":\"4812\"," +
-                "\"oppgavetype\":\"JFR\"," +
-                "\"prioritet\":\"HOY\"," +
-                "\"aktivDato\":\"2021-10-15\"," +
-                "\"fristFerdigstillelse\":\"${DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))}\"," +
-                "\"opprettetAvEnhetsnr\":\"9999\"}" +
-                ""
-        assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
+
+        assertThat(stringValue).`as`("Expected json string value")
+            .containsPattern("\"opprettetAvEnhetsnr\":\"9999\"")
+            .containsPattern("\"prioritet\":\"HOY\"")
+            .containsPattern("\"oppgavetype\":\"JFR\"")
+            .containsPattern("\"tema\":\"BID\"")
+            .containsPattern("\"aktoerId\":\"123213\"")
+            .containsPattern("\"journalpostId\":\"1234\"")
     }
 }
