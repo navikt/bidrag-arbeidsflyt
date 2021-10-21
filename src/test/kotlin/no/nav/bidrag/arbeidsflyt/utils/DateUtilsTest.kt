@@ -6,13 +6,16 @@ import java.time.LocalDate
 
 internal class DateUtilsTest {
 
-    var SATURDAY = "2021-10-16"
-    var SUNDAY = "2021-10-17"
-    var MONDAY = "2021-10-18"
-    var TUESDAY = "2021-10-19"
-    var DAY_BEFORE_EASTER = "2021-03-31"
-    var WORKDAY_AFTER_EASTER = "2021-04-06"
-    var NORWEGIAN_HOLIDAY = "2021-05-17"
+    companion object {
+        private const val SATURDAY = "2021-10-16"
+        private const val SUNDAY = "2021-10-17"
+        private const val MONDAY = "2021-10-18"
+        private const val TUESDAY = "2021-10-19"
+        private const val DAY_BEFORE_EASTER = "2021-03-31"
+        private const val WORKDAY_AFTER_EASTER = "2021-04-06"
+        private const val NORWEGIAN_HOLIDAY = "2021-05-17"
+    }
+
 
     @Test
     fun `should return next workday from saturday`(){
