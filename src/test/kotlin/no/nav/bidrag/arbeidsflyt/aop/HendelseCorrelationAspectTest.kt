@@ -28,12 +28,21 @@ internal class HendelseCorrelationAspectTest {
 
     @Test
     fun `skal spore CorrelationId fra JournalpostHendelse`() {
-        stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*"))
-            .willReturn(aResponse().withHeader(HttpHeaders.CONTENT_TYPE, "application/json").withStatus(wiremock.org.apache.http.HttpStatus.SC_OK)
-                .withBody("{\n" +
-                        "    \"antallTreffTotalt\": 0,\n" +
-                        "    \"oppgaver\": []\n" +
-                        "}")));
+        val oppgaveSokResponse = """{
+            "antallTreffTotalt": 0,
+            "oppgaver": []
+        }
+        """.trimIndent()
+
+        stubFor(
+            get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
+                aResponse()
+                    .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                    .withStatus(wiremock.org.apache.http.HttpStatus.SC_OK)
+                    .withBody(oppgaveSokResponse)
+            )
+        )
+
         val hendelse = """{
           "journalpostId":"BID-101",
           "sporing": {
