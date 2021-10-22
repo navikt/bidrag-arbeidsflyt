@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -82,11 +83,12 @@ data class OppgaveData(
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID") {
+data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID", var tildeltEnhetsnr: String? = "4833") {
     var oppgavetype: String = "JFR"
     var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
-
+    var fristFerdigstillelse: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    var opprettetAvEnhetsnr: String = "9999"
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -109,6 +111,7 @@ sealed class PatchOppgaveRequest {
     open var status: String? = null
     open var tema: String? = null
     open var tildeltEnhetsnr: String? = null
+    open var tilordnetRessurs: String? = null
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
     fun somHttpEntity(): HttpEntity<*> {
@@ -180,7 +183,7 @@ class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgave
 }
 
 class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
-
+    override var tilordnetRessurs: String? = ""
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }

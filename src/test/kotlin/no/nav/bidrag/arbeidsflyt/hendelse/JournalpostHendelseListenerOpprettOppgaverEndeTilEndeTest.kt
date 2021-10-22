@@ -35,7 +35,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     @Test
     fun `skal opprette oppgave når journalposten er mottatt og det finnes en aktor på hendelsen`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
-
+        val enhetsNummer = "4806"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -60,6 +60,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade": "BID",
+              "enhet": "${enhetsNummer}",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -68,7 +69,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         )
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID")
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -105,6 +106,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         val journalpostId = "2525"
         val journalpostIdMedPrefix = "BID-$journalpostId"
         val aktoerId = "1234567890100"
+        val enhetsNummer = "4806"
         // kafka hendelse
         journalpostHendelseListener.lesHendelse(
             """
@@ -113,6 +115,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade": "BID",
+              "enhet": "$enhetsNummer",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -120,7 +123,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID")
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -133,7 +136,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     @Test
     fun `skal opprette oppgaver med tema FAR`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
-
+        val enhetsNummer = "4806"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -159,6 +162,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade":"$tema",
+              "enhet": "$enhetsNummer",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -166,7 +170,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema)
+        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema, enhetsNummer)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
 
         verify(httpHeaderRestTemplateMock, times(1)).exchange(

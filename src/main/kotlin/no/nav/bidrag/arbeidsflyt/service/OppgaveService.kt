@@ -37,7 +37,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         val opprettOppgaveRequest = OpprettOppgaveRequest(
             journalpostId = journalpostHendelse.hentJournalpostIdUtenPrefix(),
             aktoerId = journalpostHendelse.aktorId,
-            tema = journalpostHendelse.fagomrade
+            tema = journalpostHendelse.fagomrade,
+            tildeltEnhetsnr = journalpostHendelse.enhet
         )
 
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)

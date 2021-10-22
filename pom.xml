@@ -159,6 +159,16 @@
       <artifactId>jackson-module-kotlin</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>de.jollyday</groupId>
+      <artifactId>jollyday</artifactId>
+      <version>0.5.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
