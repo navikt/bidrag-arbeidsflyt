@@ -51,7 +51,8 @@ internal class PatchOppgaveRequestTest {
         val expectedValue = "" +
                 "{\"tildeltEnhetsnr\":\"4812\"," +
                 "\"id\":1," +
-                "\"versjon\":2" +
+                "\"versjon\":2," +
+                "\"tilordnetRessurs\":\"\"" +
                  "}"
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
