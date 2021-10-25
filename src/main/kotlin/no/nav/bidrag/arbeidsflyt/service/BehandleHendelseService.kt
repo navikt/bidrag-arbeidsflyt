@@ -16,6 +16,8 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
     }
 
     override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
+        LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
+
         val oppgaverForJournalpost = oppgaveService.finnOppgaverForJournalpost(journalpostHendelse)
 
         if (journalpostHendelse.erEksterntFagomrade) {
