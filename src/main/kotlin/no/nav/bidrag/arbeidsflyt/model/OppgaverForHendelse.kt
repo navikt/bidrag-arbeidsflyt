@@ -1,7 +1,5 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-private const val JOURNALFORINGSOPPGAVE = "JFR"
-
 data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>) {
 
     fun erEndringAvTildeltEnhetsnummer(journalpostHendelse: JournalpostHendelse): Boolean {
