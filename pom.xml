@@ -5,7 +5,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.5.6</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>no.nav.bidrag</groupId>
@@ -162,7 +162,7 @@
     <dependency>
       <groupId>de.jollyday</groupId>
       <artifactId>jollyday</artifactId>
-      <version>0.5.8</version>
+      <version>0.5.10</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jaxb</groupId>
