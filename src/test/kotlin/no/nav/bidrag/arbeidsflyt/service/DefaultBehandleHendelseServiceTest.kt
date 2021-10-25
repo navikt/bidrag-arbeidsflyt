@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.model.JOURNALFORINGSOPPGAVE
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import org.junit.jupiter.api.BeforeEach
@@ -54,7 +55,7 @@ internal class DefaultBehandleHendelseServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["AAREG", "ANNET_ENN_BID/FAR"])
-    fun `skal ferdigstille oppgaver når det er endring til internt fagområde`(fagomrade: String) {
+    fun `skal ferdigstille oppgaver når det er endring til eksternt fagområde`(fagomrade: String) {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
@@ -111,5 +112,15 @@ internal class DefaultBehandleHendelseServiceTest {
                 nyttEnhetsnummer = nyttEnhetsnummer
             )
         )
+    }
+
+    @Test
+    fun `skal ikke ferdigstille journalføringsoppgave når journalstatus er null`() {
+        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+            OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))
+        )
+
+        behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", journalstatus = null))
+        verify(oppgaveConsumerMock, never()).endreOppgave(any())
     }
 }

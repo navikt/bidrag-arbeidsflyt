@@ -35,7 +35,7 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
             oppgaveService.opprettOppgave(journalpostHendelse)
         }
 
-        if (journalpostHendelse.erIkkeMottattStatus && oppgaverForJournalpost.harJournalforingsoppgaver()) {
+        if (journalpostHendelse.erJournalstatusEndretTilIkkeMottatt() && oppgaverForJournalpost.harJournalforingsoppgaver()) {
             LOGGER.info("En journalført journalpost skal ikke ha journalføringsoppgaver. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
             oppgaveService.ferdigstillOppgaver(oppgaverForJournalpost)
         }

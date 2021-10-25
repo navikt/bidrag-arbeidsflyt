@@ -15,8 +15,7 @@ object Token {
     const val OPPGAVE_CLIENT_REGISTRATION_ID = "oppgave"
 }
 
-// sporingsdata fra hendelse json
+// misc const
 const val CORRELATION_ID = "correlationId"
-
-// OAUTH2 JWT client registration
+const val JOURNALFORINGSOPPGAVE = "JFR"
 const val AOUTH2_JWT_REGISTRATION = "bidrag-arbeidsflyt"
