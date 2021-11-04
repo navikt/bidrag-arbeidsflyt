@@ -189,6 +189,12 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
     }
 }
 
+class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveRequest() {
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+    }
+}
+
 class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequest() {
 
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse) : this(status = "FERDIGSTILT") {

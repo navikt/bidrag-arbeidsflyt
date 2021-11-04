@@ -22,6 +22,7 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
         OppdaterOppgaver(journalpostHendelse, oppgaveService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
+            .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
     }

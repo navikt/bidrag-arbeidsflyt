@@ -12,15 +12,17 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
         return false
     }
 
-    fun harIkkeJournalforingsoppgaveForAktor(journalpostHendelse: JournalpostHendelse): Boolean {
-        if (journalpostHendelse.aktorId != null) {
-            return dataForHendelse.isEmpty() || dataForHendelse.stream()
-                .filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
-                .filter { it.aktorId == journalpostHendelse.aktorId }
-                .findAny().isEmpty
-        }
+    fun erEndringAvAktoerId(journalpostHendelse: JournalpostHendelse): Boolean {
+        return dataForHendelse.stream()
+            .filter { journalpostHendelse.aktorId != it.aktorId }
+            .findAny().isPresent
+    }
 
-        return false
+    fun harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse: JournalpostHendelse): Boolean {
+        return dataForHendelse.isEmpty() || dataForHendelse.stream()
+            .filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
+            .filter { it.journalpostId == journalpostHendelse.journalpostId}
+            .findAny().isEmpty
     }
 
     fun harJournalforingsoppgaver() = dataForHendelse

@@ -43,10 +43,22 @@ class OppdaterOppgaver(
         return this
     }
 
+    fun oppdaterOppgaveMedAktoerId(): OppdaterOppgaver {
+        finnOppgaverForHendelse()
+
+        if (oppgaverForHendelse.erEndringAvAktoerId(journalpostHendelse)) {
+            LOGGER.info("Oppdaterer aktørid for oppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
+            oppgaveService.oppdaterOppgaver(oppgaverForHendelse, journalpostHendelse)
+            finnOppdaterteOppgaverForHendelse = true
+        }
+
+        return this
+    }
+
     fun opprettJournalforingsoppgave(): OppdaterOppgaver {
         finnOppgaverForHendelse()
 
-        if (journalpostHendelse.erMottaksregistrertMedAktor && oppgaverForHendelse.harIkkeJournalforingsoppgaveForAktor(journalpostHendelse)) {
+        if (journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse)) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
             oppgaveService.opprettOppgave(journalpostHendelse)

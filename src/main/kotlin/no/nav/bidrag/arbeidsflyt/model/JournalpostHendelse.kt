@@ -11,10 +11,11 @@ data class JournalpostHendelse(
     private val erMottattStatus = Journalstatus.MOTTATT == journalstatus
 
     internal val erEksterntFagomrade = fagomrade != null && (fagomrade != Fagomrade.BIDRAG && fagomrade != Fagomrade.FARSKAP)
-    internal val erMottaksregistrertMedAktor = erMottattStatus && aktorId != null
+    internal val erMottaksregistrert = erMottattStatus
 
     internal fun erJournalstatusEndretTilIkkeMottatt() = journalstatus != null && !erMottattStatus
     internal fun harEnhet() = enhet != null
+    internal fun harAktorId() = aktorId != null
     internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
