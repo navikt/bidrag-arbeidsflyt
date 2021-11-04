@@ -3,28 +3,21 @@ package no.nav.bidrag.arbeidsflyt.model
 data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>) {
 
     fun erEndringAvTildeltEnhetsnummer(journalpostHendelse: JournalpostHendelse): Boolean {
-        if (journalpostHendelse.harEnhet()) {
-            return dataForHendelse.stream()
-                .filter { journalpostHendelse.enhet != it.tildeltEnhetsnr }
-                .findAny().isPresent
-        }
-
-        return false
+        return journalpostHendelse.harEnhet() && dataForHendelse.stream()
+            .filter { journalpostHendelse.enhet != it.tildeltEnhetsnr }
+            .findAny().isPresent
     }
 
     fun erEndringAvAktoerId(journalpostHendelse: JournalpostHendelse): Boolean {
-        if (journalpostHendelse.harAktorId()) {
-            return dataForHendelse.stream()
-                .filter { journalpostHendelse.aktorId != it.aktorId }
-                .findAny().isPresent
-        }
-        return false;
+        return journalpostHendelse.harAktorId() && dataForHendelse.stream()
+            .filter { journalpostHendelse.aktorId != it.aktorId }
+            .findAny().isPresent
     }
 
     fun harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse: JournalpostHendelse): Boolean {
         return dataForHendelse.isEmpty() || dataForHendelse.stream()
             .filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
-            .filter { it.journalpostId == journalpostHendelse.journalpostId}
+            .filter { it.journalpostId == journalpostHendelse.journalpostId }
             .findAny().isEmpty
     }
 
