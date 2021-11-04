@@ -13,9 +13,12 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
     }
 
     fun erEndringAvAktoerId(journalpostHendelse: JournalpostHendelse): Boolean {
-        return dataForHendelse.stream()
-            .filter { journalpostHendelse.aktorId != it.aktorId }
-            .findAny().isPresent
+        if (journalpostHendelse.harAktorId()) {
+            return dataForHendelse.stream()
+                .filter { journalpostHendelse.aktorId != it.aktorId }
+                .findAny().isPresent
+        }
+        return false;
     }
 
     fun harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse: JournalpostHendelse): Boolean {

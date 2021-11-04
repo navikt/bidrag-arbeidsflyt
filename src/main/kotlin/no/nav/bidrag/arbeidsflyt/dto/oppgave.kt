@@ -190,7 +190,7 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
 }
 
 class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveRequest() {
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, aktoerId: String?) : this(aktoerId) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
