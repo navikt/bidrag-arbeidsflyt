@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
-    internal fun finnOppgaverForJournalpost(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
+    internal fun finnOppgaverForHendelse(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
         val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId)
 
         return OppgaverForHendelse(
