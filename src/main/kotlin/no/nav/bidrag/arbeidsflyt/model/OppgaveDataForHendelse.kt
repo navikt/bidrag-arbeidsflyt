@@ -7,6 +7,7 @@ data class OppgaveDataForHendelse(
     val versjon: Int,
 
     val aktorId: String? = null,
+    val journalpostId: String? = null,
     val oppgavetype: String? = null,
     val tema: String? = null,
     val tildeltEnhetsnr: String? = null
@@ -17,6 +18,7 @@ data class OppgaveDataForHendelse(
         tema = oppgaveData.tema,
         aktorId = oppgaveData.aktoerId,
         oppgavetype = oppgaveData.oppgavetype,
-        tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
+        tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr,
+        journalpostId = oppgaveData.journalpostId
     )
 }

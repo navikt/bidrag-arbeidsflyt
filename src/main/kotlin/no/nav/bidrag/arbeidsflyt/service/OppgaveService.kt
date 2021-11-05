@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
@@ -21,6 +22,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
                 .map { OppgaveDataForHendelse(it) }
         )
+    }
+
+    internal fun oppdaterOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
+        oppgaverForHendelse.dataForHendelse.forEach { oppgaveConsumer.endreOppgave(OppdaterOppgaveRequest(it, journalpostHendelse.aktorId)) }
     }
 
     internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
