@@ -15,6 +15,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.reset
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -50,7 +52,7 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = journalpostId, fagomrade = fagomrade))
-        verify(oppgaveConsumerMock, never()).endreOppgave(any())
+        verify(oppgaveConsumerMock, never()).endreOppgave(endretAvEnhetsnummer = anyOrNull(), patchOppgaveRequest = any())
     }
 
     @ParameterizedTest
@@ -83,7 +85,7 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", enhet = "1001"))
-        verify(oppgaveConsumerMock, never()).endreOppgave(any())
+        verify(oppgaveConsumerMock, never()).endreOppgave(patchOppgaveRequest = any(), endretAvEnhetsnummer = anyOrNull())
     }
 
     @Test
@@ -107,10 +109,13 @@ internal class DefaultBehandleHendelseServiceTest {
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = journalpostId, enhet = nyttEnhetsnummer))
 
         verify(oppgaveConsumerMock).endreOppgave(
-            OverforOppgaveRequest(
-                oppgaveDataForHendelse = OppgaveDataForHendelse(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
-                nyttEnhetsnummer = nyttEnhetsnummer
-            )
+            patchOppgaveRequest = eq(
+                OverforOppgaveRequest(
+                    oppgaveDataForHendelse = OppgaveDataForHendelse(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
+                    nyttEnhetsnummer = nyttEnhetsnummer
+                )
+            ),
+            endretAvEnhetsnummer = anyOrNull()
         )
     }
 
@@ -121,6 +126,6 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", journalstatus = null))
-        verify(oppgaveConsumerMock, never()).endreOppgave(any())
+        verify(oppgaveConsumerMock, never()).endreOppgave(endretAvEnhetsnummer = anyOrNull(), patchOppgaveRequest = any())
     }
 }
