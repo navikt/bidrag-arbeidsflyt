@@ -18,7 +18,6 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
@@ -70,6 +69,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
         val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
+        patchOppgaveJournalpostIdRequest.endretAvEnhetsnr = enhetsNummer
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -172,6 +172,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
 
         val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema, enhetsNummer)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
+        updateOppgaveAfterOpprettRequest.endretAvEnhetsnr = enhetsNummer
 
         verify(httpHeaderRestTemplateMock, times(1)).exchange(
             anyString(),

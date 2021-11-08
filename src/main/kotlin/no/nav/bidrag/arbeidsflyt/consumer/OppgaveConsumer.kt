@@ -14,7 +14,7 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
-    fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest)
+    fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest, endretAvEnhetsnummer: String? = null)
     fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse
 }
 
@@ -49,7 +49,9 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         return "no body, antall treff = 0"
     }
 
-    override fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest) {
+    override fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest, endretAvEnhetsnummer: String?) {
+        patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
+
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
 

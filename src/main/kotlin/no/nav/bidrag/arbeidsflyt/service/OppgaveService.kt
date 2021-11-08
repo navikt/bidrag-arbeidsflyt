@@ -25,16 +25,29 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun oppdaterOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
-        oppgaverForHendelse.dataForHendelse.forEach { oppgaveConsumer.endreOppgave(OppdaterOppgaveRequest(it, journalpostHendelse.aktorId)) }
+        oppgaverForHendelse.dataForHendelse.forEach {
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
+                patchOppgaveRequest = OppdaterOppgaveRequest(it, journalpostHendelse.aktorId)
+            )
+        }
     }
 
     internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
-        oppgaverForHendelse.dataForHendelse.forEach { oppgaveConsumer.endreOppgave(OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")) }
+        oppgaverForHendelse.dataForHendelse.forEach {
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
+                patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")
+            )
+        }
     }
 
-    internal fun ferdigstillOppgaver(oppgaverForJournalpost: OppgaverForHendelse) {
-        oppgaverForJournalpost.dataForHendelse.forEach {
-            oppgaveConsumer.endreOppgave(FerdigstillOppgaveRequest(it))
+    internal fun ferdigstillOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
+        oppgaverForHendelse.dataForHendelse.forEach {
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = endretAvEnhetsnummer,
+                patchOppgaveRequest = FerdigstillOppgaveRequest(it)
+            )
         }
     }
 
@@ -50,7 +63,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
         // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
         if (journalpostHendelse.harJournalpostIdPrefix()) {
-            oppgaveConsumer.endreOppgave(UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId))
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
+                patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId)
+            )
         }
     }
 }

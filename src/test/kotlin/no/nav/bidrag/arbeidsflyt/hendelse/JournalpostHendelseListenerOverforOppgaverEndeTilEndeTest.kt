@@ -50,16 +50,25 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
               "journalpostId":"BID-666",
               "enhet":"1010",
               "sporing": {
-                "correlationId": "abc"
+                "correlationId": "abc",
+                "enhetsnummer": "1234"
               }
             }
             """.trimIndent()
         )
 
+        val overforOppgaveRequest = OverforOppgaveRequest(
+            OppgaveDataForHendelse(
+                OppgaveData(tildeltEnhetsnr = "1010", id = 6)
+            ), "1010"
+        )
+
+        overforOppgaveRequest.endretAvEnhetsnr = "1234"
+
         verify(httpHeaderRestTemplateMock).exchange(
             eq("/api/v1/oppgaver/6"),
             eq(HttpMethod.PATCH),
-            eq(OverforOppgaveRequest(OppgaveDataForHendelse(OppgaveData(tildeltEnhetsnr = "1010", id = 6)), "1010").somHttpEntity()),
+            eq(overforOppgaveRequest.somHttpEntity()),
             eq(String::class.java)
         )
     }
