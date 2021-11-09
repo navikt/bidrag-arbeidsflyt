@@ -17,6 +17,7 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
     fun harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse: JournalpostHendelse): Boolean {
         return dataForHendelse.isEmpty() || dataForHendelse.stream()
             .filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
+            .filter { it.journalpostId == journalpostHendelse.hentJournalpostIdUtenPrefix() }
             .filter { it.journalpostId == journalpostHendelse.journalpostId }
             .findAny().isEmpty
     }
