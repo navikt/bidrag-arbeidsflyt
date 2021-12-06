@@ -24,7 +24,7 @@ open class PojoJournalpostHendelseListener(
 ) : JournalpostHendelseListener {
 
     override fun lesHendelse(hendelse: String) {
-        val journalpostHendelse = jsonMapperService.mapHendelse(hendelse)
+        val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(hendelse)
         behandeHendelseService.behandleHendelse(journalpostHendelse)
     }
 }

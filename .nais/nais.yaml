@@ -40,9 +40,13 @@ spec:
   {{#each ingresses as |url|}}
     - {{url}}
   {{/each}}
+  envFrom:
+    - secret: srvbdarbeidsflyt-password
   env:
     - name: OPPGAVE_URL
       value: https://{{ azure.oppgave }}
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: {{ kafka.bootstrap_servers }}
     - name: OPPGAVE_SCOPE
       value: {{ azure.oppgave_clientid }}
     - name: TOPIC_JOURNALPOST

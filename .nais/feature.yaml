@@ -4,6 +4,7 @@ azure:
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave-q1
 kafka:
   pool: nav-dev
+  bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 kafka-topic-journalpost: bidrag.journalpost-feature
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-preprod
 ingresses:
