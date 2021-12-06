@@ -4,6 +4,8 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.hendelse.KafkaOppgaveHendelseListener
+import no.nav.bidrag.arbeidsflyt.hendelse.OppgaveHendelseListener
 import no.nav.bidrag.arbeidsflyt.model.Token
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
@@ -31,6 +33,11 @@ private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 @Profile(PROFILE_LIVE)
 @EnableJwtTokenValidation
 class HendelseConfiguration {
+    @Bean
+    fun oppgaveHendelseListener(
+        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
+    ): OppgaveHendelseListener = KafkaOppgaveHendelseListener()
+
     @Bean
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService

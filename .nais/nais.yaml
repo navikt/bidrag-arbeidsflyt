@@ -47,3 +47,5 @@ spec:
       value: {{ azure.oppgave_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
+    - name: TOPIC_OPPGAVE_ENDRET
+      value: {{ kafka-topic-oppgave-endret }}
