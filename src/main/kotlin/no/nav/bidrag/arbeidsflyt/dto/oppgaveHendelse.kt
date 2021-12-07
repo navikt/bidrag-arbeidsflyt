@@ -1,8 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import java.time.LocalDate
 import java.util.Optional
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,8 +19,6 @@ data class OppgaveEndretHendelse(
     val statuskategori: String? = null,
     val endretAv: String? = null,
     val opprettetAv: String? = null,
-    val opprettetTidspunkt: LocalDate? = null,
-    val aktivDato: LocalDate? = null,
     val behandlesAvApplikasjon: String? = null,
     val ident: Ident? = null,
     val metadata: Map<String, String>? = null
