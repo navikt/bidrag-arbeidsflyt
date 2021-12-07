@@ -25,6 +25,11 @@ spring:
           aad:
             token-uri: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
             jwk-set-uri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+---
+spring:
+  config:
+    activate:
+      on-profile: live
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -41,3 +46,4 @@ spring:
       consumer:
         key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+

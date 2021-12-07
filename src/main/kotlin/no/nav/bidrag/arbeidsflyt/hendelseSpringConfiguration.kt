@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
+import org.springframework.core.env.Environment
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -44,7 +45,7 @@ import java.util.Optional
 private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 
 @Configuration
-@Profile(PROFILE_LIVE)
+@Profile(value = arrayOf(PROFILE_KAFKA_TEST, PROFILE_LIVE))
 @EnableJwtTokenValidation
 class HendelseConfiguration {
     companion object {
@@ -100,7 +101,8 @@ class HendelseConfiguration {
                         @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
                         @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
                         @Value("\${SERVICE_USER_USERNAME}") username: String,
-                        @Value("\${SERVICE_USER_PASSWORD}") password: String): ConsumerFactory<Long, String> {
+                        @Value("\${SERVICE_USER_PASSWORD}") password: String,
+                        environment: Environment): ConsumerFactory<Long, String> {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
@@ -109,12 +111,14 @@ class HendelseConfiguration {
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
         props["spring.deserializer.value.delegate.class"] = StringDeserializer::class.java
-        props[SaslConfigs.SASL_JAAS_CONFIG] =
-            "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
-        props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
-        props[SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
-        props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = trustStorePath
-        props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = trustStorePassword
+        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)){
+            props[SaslConfigs.SASL_JAAS_CONFIG] =
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
+            props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
+            props[SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
+            props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = trustStorePath
+            props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = trustStorePassword
+        }
         return DefaultKafkaConsumerFactory(props)
     }
 }

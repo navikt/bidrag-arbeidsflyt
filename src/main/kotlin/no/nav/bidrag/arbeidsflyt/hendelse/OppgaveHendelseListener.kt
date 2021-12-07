@@ -28,7 +28,11 @@ open class PojoOppgaveEndretHendelseListener(
     override fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveEndretHendelse(consumerRecord.value())
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
-            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, tema ${oppgaveEndretHendelse.tema} og status ${oppgaveEndretHendelse.status} - data: $oppgaveEndretHendelse")
+            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
+                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
+                    "tema ${oppgaveEndretHendelse.tema}, " +
+                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
+                    "og status ${oppgaveEndretHendelse.status}")
         }
     }
 }

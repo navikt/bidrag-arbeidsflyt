@@ -19,7 +19,7 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.*(..)) && args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapJournalpostHendelse(..)) && args(hendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
         try {
             val jsonNode = objectMapper.readTree(hendelse)
@@ -36,6 +36,11 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         } catch (e: Exception) {
             LOGGER.error("Unable to parse '$hendelse': ${e.javaClass.simpleName}: ${e.message}")
         }
+    }
+
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveEndretHendelse(..)) && args(hendelse)")
+    fun addCorrelationIdFromOppgaveHendelseToThread(joinPoint: JoinPoint, hendelse: String) {
+        MDC.put(CORRELATION_ID, "oppgave-${System.currentTimeMillis().toString(16)}")
     }
 
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")
