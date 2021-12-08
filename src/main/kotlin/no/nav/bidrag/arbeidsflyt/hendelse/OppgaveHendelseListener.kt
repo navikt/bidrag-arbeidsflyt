@@ -9,7 +9,9 @@ interface OppgaveHendelseListener {
     fun lesHendelse(consumerRecord: ConsumerRecord<String, String>)
 }
 
-class KafkaOppgaveHendelseListener(jsonMapperService: JsonMapperService): PojoOppgaveEndretHendelseListener(jsonMapperService) {
+class KafkaOppgaveHendelseListener(jsonMapperService: JsonMapperService): PojoOppgaveEndretHendelseListener(
+    jsonMapperService
+) {
 
     @KafkaListener(containerFactory="oppgaveEndretKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"], errorHandler = "hendelseErrorHandler")
     override fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
@@ -18,7 +20,7 @@ class KafkaOppgaveHendelseListener(jsonMapperService: JsonMapperService): PojoOp
 }
 
 open class PojoOppgaveEndretHendelseListener(
-    private val jsonMapperService: JsonMapperService,
+    private val jsonMapperService: JsonMapperService
 ) : OppgaveHendelseListener {
     companion object {
         @JvmStatic
@@ -27,6 +29,7 @@ open class PojoOppgaveEndretHendelseListener(
 
     override fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveEndretHendelse(consumerRecord.value())
+
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
             LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +

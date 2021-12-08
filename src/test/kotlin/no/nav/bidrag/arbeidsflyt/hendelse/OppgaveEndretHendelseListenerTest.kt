@@ -1,10 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.PROFILE_KAFKA_TEST
+import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
@@ -14,21 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
-import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.util.Collections
 
 
 @SpringBootTest
-@ActiveProfiles(value = arrayOf(PROFILE_KAFKA_TEST, "test"))
-@DirtiesContext
-@EnableKafka
+@ActiveProfiles(value = arrayOf(PROFILE_KAFKA_TEST, PROFILE_TEST))
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
 @DisplayName("OppgaveEndretHendelseListenerTest")

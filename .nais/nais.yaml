@@ -41,7 +41,7 @@ spec:
     - {{url}}
   {{/each}}
   envFrom:
-    - secret: srvbdarbeidsflyt-password
+    - secret: bidrag-arbeidsflyt-secrets
   env:
     - name: OPPGAVE_URL
       value: https://{{ azure.oppgave }}

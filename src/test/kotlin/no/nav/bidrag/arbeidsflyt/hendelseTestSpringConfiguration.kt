@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 
+const val PROFILE_TEST = "test"
+
 @Configuration
-@Profile("!$PROFILE_KAFKA_TEST")
-class NoKafkaConfiguration {
+class TestConfiguration {
     @Bean
+    @Profile("!$PROFILE_KAFKA_TEST")
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService,
         behandleHendelseService: BehandleHendelseService

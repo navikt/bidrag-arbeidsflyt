@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import java.util.Optional
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveEndretHendelse(
@@ -45,18 +44,4 @@ data class OppgaveEndretHendelse(
     fun erStatusFerdigstilt(): Boolean = status == Status.FERDIGSTILT
     fun erStatusAapnet(): Boolean = status == Status.AAPNET
     fun erStatusOpprettet(): Boolean = status == Status.OPPRETTET
-
-    fun harAktoerID(): Boolean {
-        return ident != null && "AKTOERID".equals(ident.identType, ignoreCase = true) && ident.verdi != null
-    }
-
-    fun hentAktoerID(): String? {
-        return Optional.ofNullable(ident)
-            .map(Ident::verdi)
-            .orElseThrow { NoSuchElementException("Finner ikke aktørID") }
-    }
-
-    fun harSammeVersjon(versjon: Int): Boolean {
-        return this.versjon == versjon
-    }
 }

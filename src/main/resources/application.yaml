@@ -2,6 +2,12 @@ server:
   servlet:
     context-path: /bidrag-arbeidsflyt
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer

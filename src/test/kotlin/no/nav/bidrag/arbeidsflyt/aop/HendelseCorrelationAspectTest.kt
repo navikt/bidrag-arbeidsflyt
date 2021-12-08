@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -20,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 @DisplayName("HendelseCorrelationAspect")
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
-@ActiveProfiles("test")
+@ActiveProfiles(PROFILE_TEST)
 internal class HendelseCorrelationAspectTest {
 
     @Autowired

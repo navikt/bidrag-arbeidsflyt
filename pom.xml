@@ -46,6 +46,11 @@
         <version>2.7.2</version>
       </dependency>
       <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>1.2.7</version>
+      </dependency>
+      <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpg-jdk15on</artifactId>
         <version>1.61</version>
