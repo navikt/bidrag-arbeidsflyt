@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 
 const val PROFILE_LIVE = "live"
+const val PROFILE_KAFKA_TEST = "kafka_test"
 
 @SpringBootApplication
 @EnableAspectJAutoProxy

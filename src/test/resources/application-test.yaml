@@ -1,4 +1,15 @@
-OPPGAVE_URL: http://localhost:${wiremock.server.port}/oppgave
+DEFAULT_PORT: 1232
+
+OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
+TOPIC_OPPGAVE_ENDRET: topic_oppgave_endret
+TOPIC_JOURNALPOST: topic_journalpost
+KAFKA_BROKERS: PLAINTEXT://localhost:9092
+KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+SRV_BD_ARBEIDSFLYT_PASSWORD: test
+NAV_TRUSTSTORE_PATH: test
+NAV_TRUSTSTORE_PASSWORD: test
+KAFKA_GROUP_ID: test
+
 spring:
   security:
     oauth2:
@@ -18,12 +29,8 @@ spring:
             token-uri: http://localhost:${mock-oauth2-server.port}/azure/token
             jwk-set-uri: http://localhost:${mock-oauth2-server.port}/azure/jwks
 spring.kafka:
-  properties:
-    schema:
-      registry.url: http://unused-dummy-url
-      security.protocol: PLAINTEXT
   consumer:
-    group-id: test
     auto-offset-reset: earliest
     key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+

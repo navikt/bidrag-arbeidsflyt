@@ -2,6 +2,16 @@ server:
   servlet:
     context-path: /bidrag-arbeidsflyt
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+
+SERVICE_USER_USERNAME: srvBdArbeidsflyt
+SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
+KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
+
 spring:
   security:
     oauth2:
@@ -21,6 +31,11 @@ spring:
           aad:
             token-uri: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
             jwk-set-uri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+---
+spring:
+  config:
+    activate:
+      on-profile: live
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -37,3 +52,4 @@ spring:
       consumer:
         key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
