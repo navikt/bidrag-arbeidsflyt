@@ -16,7 +16,7 @@
   <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
 
   <properties>
-    <kotlin.version>1.5.31</kotlin.version>
+    <kotlin.version>1.6.0</kotlin.version>
 
     <!-- dependencies -->
     <bidrag-commons.version>0.5.19</bidrag-commons.version>
