@@ -1,6 +1,5 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import org.springframework.context.annotation.Lazy
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -12,7 +11,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.stereotype.Service
 
 @Service
-class SecurityTokenService(@Lazy val authorizedClientManager: OAuth2AuthorizedClientManager) {
+class SecurityTokenService(val authorizedClientManager: OAuth2AuthorizedClientManager) {
 
     private val ANONYMOUS_AUTHENTICATION: Authentication = AnonymousAuthenticationToken(
         "anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")
