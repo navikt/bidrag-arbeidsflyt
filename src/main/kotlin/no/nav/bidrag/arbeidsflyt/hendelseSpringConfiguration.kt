@@ -89,7 +89,7 @@ class HendelseConfiguration {
 
         //Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->
-            container.containerProperties.authorizationExceptionRetryInterval = Duration.ofSeconds(10L)
+            container.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
         }
 
         return factory;
