@@ -31,11 +31,11 @@ open class PojoOppgaveEndretHendelseListener(
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveEndretHendelse(consumerRecord.value())
 
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
-            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
-                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
-                    "tema ${oppgaveEndretHendelse.tema}, " +
-                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
-                    "og status ${oppgaveEndretHendelse.status}")
+//            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
+//                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
+//                    "tema ${oppgaveEndretHendelse.tema}, " +
+//                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
+//                    "og status ${oppgaveEndretHendelse.status}")
         }
     }
 }
