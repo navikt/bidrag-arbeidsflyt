@@ -33,7 +33,8 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
     fun `skal ferdigstille oppgave når fagomrade endres til et eksternt`() {
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
-            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG, oppgavetype = JOURNALFORINGSOPPGAVE))))
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG, oppgavetype = "BEH_SAK"),
+                OppgaveData(id = 2, tema = Fagomrade.BIDRAG, oppgavetype = JOURNALFORINGSOPPGAVE))))
         )
 
         // when/then ferdigstill oppgave
@@ -55,7 +56,8 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplateMock).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock).exchange(eq("/api/v1/oppgaver/2"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock, never()).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
     }
 
     @Test
