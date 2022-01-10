@@ -23,4 +23,6 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
 
     fun harJournalforingsoppgaver() = dataForHendelse
         .find { it.oppgavetype == JOURNALFORINGSOPPGAVE } != null
+
+    fun hentJournalforingsOppgaver() = dataForHendelse.filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 }

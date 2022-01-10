@@ -10,10 +10,15 @@ import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
+    companion object {
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
+    }
 
     internal fun finnOppgaverForHendelse(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
         val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId)
@@ -42,8 +47,9 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun ferdigstillOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
-        oppgaverForHendelse.dataForHendelse.forEach {
+    internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
+        oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
+            LOGGER.info("Ferdigstiller oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
                 patchOppgaveRequest = FerdigstillOppgaveRequest(it)

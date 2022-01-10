@@ -24,7 +24,7 @@ class OppdaterOppgaver(
         if (journalpostHendelse.erEksterntFagomrade) {
             LOGGER.info("Endring til eksternt fagområde av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
-            oppgaveService.ferdigstillOppgaver(
+            oppgaveService.ferdigstillJournalforingsOppgaver(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 oppgaverForHendelse = oppgaverForHendelse
             )
@@ -77,7 +77,7 @@ class OppdaterOppgaver(
 
         if (journalpostHendelse.erJournalstatusEndretTilIkkeMottatt() && oppgaverForHendelse.harJournalforingsoppgaver()) {
             LOGGER.info("En journalført journalpost skal ikke ha journalføringsoppgaver. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
-            oppgaveService.ferdigstillOppgaver(
+            oppgaveService.ferdigstillJournalforingsOppgaver(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 oppgaverForHendelse = oppgaverForHendelse
             )
