@@ -42,8 +42,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun ferdigstillOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
-        oppgaverForHendelse.dataForHendelse.forEach {
+    internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
+        oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
                 patchOppgaveRequest = FerdigstillOppgaveRequest(it)
