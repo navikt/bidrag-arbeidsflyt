@@ -61,7 +61,7 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(OppgaveData(id = 1, tema = fagomrade, versjon = 1))
+                oppgaver = listOf(OppgaveData(id = 1, tema = fagomrade, versjon = 1, oppgavetype = JOURNALFORINGSOPPGAVE))
             )
         )
 

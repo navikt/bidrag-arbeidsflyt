@@ -49,7 +49,7 @@ internal class OppdaterOppgaverTest {
                 anyOrNull(),
                 eq(OppgaveSokResponse::class.java)
             )
-        ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData()))))
+        ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
 
         oppdaterOppgaver = OppdaterOppgaver(
             journalpostHendelse = journalpostHendelse,

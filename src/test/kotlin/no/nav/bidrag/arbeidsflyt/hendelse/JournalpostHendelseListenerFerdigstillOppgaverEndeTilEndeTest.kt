@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
+import no.nav.bidrag.arbeidsflyt.model.JOURNALFORINGSOPPGAVE
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -32,7 +33,7 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
     fun `skal ferdigstille oppgave når fagomrade endres til et eksternt`() {
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
-            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG))))
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, tema = Fagomrade.BIDRAG, oppgavetype = JOURNALFORINGSOPPGAVE))))
         )
 
         // when/then ferdigstill oppgave
