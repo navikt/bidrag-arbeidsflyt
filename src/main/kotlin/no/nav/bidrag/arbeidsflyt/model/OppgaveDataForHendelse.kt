@@ -6,6 +6,7 @@ data class OppgaveDataForHendelse(
     val id: Long,
     val versjon: Int,
 
+    val bnr: String? = null,
     val aktorId: String? = null,
     val journalpostId: String? = null,
     val oppgavetype: String? = null,
@@ -16,6 +17,7 @@ data class OppgaveDataForHendelse(
         id = oppgaveData.id ?: -1,
         versjon = oppgaveData.versjon ?: -1,
         tema = oppgaveData.tema,
+        bnr = oppgaveData.bnr,
         aktorId = oppgaveData.aktoerId,
         oppgavetype = oppgaveData.oppgavetype,
         tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr,
