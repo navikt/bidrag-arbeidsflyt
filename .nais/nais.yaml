@@ -53,3 +53,8 @@ spec:
       value: {{ kafka-topic-journalpost }}
     - name: TOPIC_OPPGAVE_ENDRET
       value: {{ kafka-topic-oppgave-endret }}
+    - name: TOPIC_OPPGAVE_OPPRETTET
+      value: {{ kafka-topic-oppgave-opprettet }}
+    - name: FEATURE_ENABLED
+      value: {{ feature-toggle }}
+

@@ -29,7 +29,7 @@ import java.util.Collections
 @AutoConfigureWireMock(port = 0)
 @DisplayName("OppgaveEndretHendelseListenerTest")
 @EmbeddedKafka(partitions = 1, brokerProperties = arrayOf("listeners=PLAINTEXT://localhost:9092", "port=9092"))
-internal class OppgaveEndretHendelseListenerTest {
+internal class OppgaveHendelseListenerTest {
 
     @Autowired
     var embeddedKafkaBroker: EmbeddedKafkaBroker? = null

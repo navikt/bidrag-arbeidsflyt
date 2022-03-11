@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class OppgaveEndretHendelse(
+data class OppgaveHendelse(
     val id: Long? = null,
     val tildeltEnhetsnr: String? = null,
     val journalpostId: String? = null,
