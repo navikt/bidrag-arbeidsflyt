@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
-// Only used when running locally for testing servives
+// Only enabled when application is started locally
 @RestController
 @Unprotected
 @Profile("local")
 class HendelseController(var behandleHendelseService: BehandleHendelseService) {
 
+    // Simulate kafka message on journalpost hendelse
     @PostMapping("/journalpost")
     fun simulateJournalpostHendelse(@RequestBody journalpostHendelse: JournalpostHendelse){
         CorrelationId.existing("test fra bidrag")
