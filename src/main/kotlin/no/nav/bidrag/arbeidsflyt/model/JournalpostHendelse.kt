@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.model
 
 data class JournalpostHendelse(
     var journalpostId: String = "na",
+    var bnr: String? = null,
     var aktorId: String? = null,
     var fagomrade: String? = null,
     var enhet: String? = null,
@@ -16,8 +17,10 @@ data class JournalpostHendelse(
     internal fun erJournalstatusEndretTilIkkeMottatt() = journalstatus != null && !erMottattStatus
     internal fun harEnhet() = enhet != null
     internal fun harAktorId() = aktorId != null
+    internal fun harBnr() = bnr != null
     internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
+    internal fun harJournalpostIdBIDPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("BID")
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
 }

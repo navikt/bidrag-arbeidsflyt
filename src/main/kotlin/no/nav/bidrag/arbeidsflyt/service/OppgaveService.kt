@@ -68,7 +68,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
 
         // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
-        if (journalpostHendelse.harJournalpostIdPrefix()) {
+        if (journalpostHendelse.harJournalpostIdBIDPrefix()) {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId)

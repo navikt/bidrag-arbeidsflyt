@@ -27,7 +27,11 @@ data class OppgaveSokRequest(val journalpostId: String) {
             }"
         }
 
-        return "$PARAMS_100_APNE_OPPGAVER&${PARAM_JOURNALPOST_ID.replace("{id}", journalpostId)}"
+        return "$PARAMS_100_APNE_OPPGAVER&${
+            PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
+                .replace("{prefix}", "BID")
+                .replace("{id}", journalpostId)
+        }"
     }
 
     private fun harJournalpostIdPrefiks() = journalpostId.contains("-")

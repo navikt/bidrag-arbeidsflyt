@@ -14,15 +14,12 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
             .findAny().isPresent
     }
 
-    fun harIkkeJournalforingsoppgaveForJournalpost(journalpostHendelse: JournalpostHendelse): Boolean {
-        return dataForHendelse.isEmpty() || dataForHendelse.stream()
-            .filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
-            .filter { it.journalpostId == journalpostHendelse.hentJournalpostIdUtenPrefix() || it.journalpostId == journalpostHendelse.journalpostId }
-            .findAny().isEmpty
+    fun harIkkeJournalforingsoppgave(): Boolean {
+        return !harJournalforingsoppgaver()
     }
 
-    fun harJournalforingsoppgaver() = dataForHendelse
-        .find { it.oppgavetype == JOURNALFORINGSOPPGAVE } != null
+    fun harJournalforingsoppgaver() = dataForHendelse.isNotEmpty() && dataForHendelse
+        .stream().anyMatch{ it.oppgavetype == JOURNALFORINGSOPPGAVE }
 
     fun hentJournalforingsOppgaver() = dataForHendelse.filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 }

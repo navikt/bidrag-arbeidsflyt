@@ -14,6 +14,7 @@ import org.mockito.Mockito.any
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.never
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -32,7 +33,62 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
     @Test
-    fun `skal opprette oppgave når journalposten er mottatt og det finnes en aktor på hendelsen`() {
+    fun `skal opprette oppgave når Bidrag journalposten er mottatt og det finnes en aktor på hendelsen`() {
+        val oppgaveData = OppgaveData(id = 1L, versjon = 1)
+        val enhetsNummer = "4806"
+        // when/then søk etter oppgave
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
+        ).thenReturn(
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(oppgaveData))) // neste søk gir oppgave for patch av jpId
+        )
+
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+            .thenReturn(ResponseEntity.ok("OK"))
+
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(oppgaveData))
+
+        val journalpostId = "BID-2525"
+        val aktoerId = "1234567890100"
+
+        // kafka hendelse
+        journalpostHendelseListener.lesHendelse(
+            """
+            {
+              "journalpostId":"$journalpostId",
+              "aktorId": "$aktoerId",
+              "journalstatus": "${Journalstatus.MOTTATT}",
+              "fagomrade": "BID",
+              "enhet": "${enhetsNummer}",
+              "sporing": {
+                "correlationId": "abc"
+              }
+            }
+            """.trimIndent()
+        )
+
+        val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
+        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
+        patchOppgaveJournalpostIdRequest.endretAvEnhetsnr = enhetsNummer
+
+        verify(httpHeaderRestTemplateMock).exchange(
+            anyString(),
+            eq(HttpMethod.POST),
+            eq(opprettOppgaveRequest.somHttpEntity()),
+            eq(OppgaveData::class.java)
+        )
+
+        verify(httpHeaderRestTemplateMock).exchange(
+            anyString(),
+            eq(HttpMethod.PATCH),
+            eq(patchOppgaveJournalpostIdRequest.somHttpEntity()),
+            eq(String::class.java)
+        )
+    }
+
+    @Test
+    fun `skal opprette oppgave når Joark journalposten er mottatt og det finnes en aktor på hendelsen`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
         val enhetsNummer = "4806"
         // when/then søk etter oppgave
@@ -78,7 +134,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             eq(OppgaveData::class.java)
         )
 
-        verify(httpHeaderRestTemplateMock).exchange(
+        verify(httpHeaderRestTemplateMock, never()).exchange(
             anyString(),
             eq(HttpMethod.PATCH),
             eq(patchOppgaveJournalpostIdRequest.somHttpEntity()),
@@ -181,7 +237,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             eq(OppgaveData::class.java)
         )
 
-        verify(httpHeaderRestTemplateMock, times(1)).exchange(
+        verify(httpHeaderRestTemplateMock, never()).exchange(
             anyString(),
             eq(HttpMethod.PATCH),
             eq(updateOppgaveAfterOpprettRequest.somHttpEntity()),
