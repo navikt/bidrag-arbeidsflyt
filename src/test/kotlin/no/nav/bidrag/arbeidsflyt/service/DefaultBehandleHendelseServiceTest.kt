@@ -52,7 +52,7 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = journalpostId, fagomrade = fagomrade))
-        verify(oppgaveConsumerMock, never()).endreOppgave(endretAvEnhetsnummer = anyOrNull(), patchOppgaveRequest = any())
+        verify(oppgaveConsumerMock, never()).endreOppgave(anyOrNull(), anyOrNull())
     }
 
     @ParameterizedTest
@@ -126,6 +126,6 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", journalstatus = null))
-        verify(oppgaveConsumerMock, never()).endreOppgave(endretAvEnhetsnummer = anyOrNull(), patchOppgaveRequest = any())
+        verify(oppgaveConsumerMock, never()).endreOppgave(anyOrNull(), any())
     }
 }

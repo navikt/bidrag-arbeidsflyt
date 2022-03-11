@@ -12,25 +12,6 @@ SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${AZURE_OPENID_CONFIG_ISSUER}
-          accepted-audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
-      client:
-        registration:
-          oppgave:
-            provider: aad
-            client-id: ${AZURE_APP_CLIENT_ID}
-            client-secret: ${AZURE_APP_CLIENT_SECRET}
-            authorization-grant-type: client_credentials
-            scope: api://${OPPGAVE_SCOPE}/.default
-        provider:
-          aad:
-            token-uri: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
-            jwk-set-uri: ${AZURE_OPENID_CONFIG_JWKS_URI}
 ---
 spring:
   config:
@@ -53,3 +34,18 @@ spring:
         key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+no.nav.security.jwt:
+  client:
+    registration:
+      oppgave:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${OPPGAVE_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+  issuer:
+    aad:
+      discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}

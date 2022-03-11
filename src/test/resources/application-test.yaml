@@ -10,24 +10,19 @@ NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 KAFKA_GROUP_ID: test
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:${mock-oauth2-server.port}/azure
-      client:
-        registration:
-          oppgave:
-            provider: aad
-            client-id: someid
-            client-secret: secret
-            authorization-grant-type: client_credentials
-            scope: api://scope/.default
-        provider:
-          aad:
-            token-uri: http://localhost:${mock-oauth2-server.port}/azure/token
-            jwk-set-uri: http://localhost:${mock-oauth2-server.port}/azure/jwks
+AZURE_ISSUER_URL: http://localhost:${mock-oauth2-server.port:1234}/aad
+
+no.nav.security.jwt:
+  client:
+    registration:
+      oppgave:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
 spring.kafka:
   consumer:
     auto-offset-reset: earliest

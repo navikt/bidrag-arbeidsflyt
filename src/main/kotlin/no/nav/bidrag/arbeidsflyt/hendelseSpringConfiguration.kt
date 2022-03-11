@@ -6,15 +6,17 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaOppgaveHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.OppgaveHendelseListener
-import no.nav.bidrag.arbeidsflyt.model.Token
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
-import no.nav.bidrag.arbeidsflyt.service.SecurityTokenService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
+import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
+import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
+import no.nav.security.token.support.client.core.ClientProperties
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SaslConfigs
@@ -31,6 +33,9 @@ import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.core.env.Environment
+import org.springframework.http.HttpRequest
+import org.springframework.http.client.ClientHttpRequestExecution
+import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -42,11 +47,11 @@ import org.springframework.messaging.Message
 import java.time.Duration
 import java.util.Optional
 
+
 private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 
 @Configuration
-@Profile(value = arrayOf(PROFILE_KAFKA_TEST, PROFILE_LIVE))
-@EnableJwtTokenValidation
+@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
 class HendelseConfiguration {
     companion object {
         @JvmStatic
@@ -124,6 +129,7 @@ class HendelseConfiguration {
 }
 
 @Configuration
+@EnableSecurityConfiguration
 class ArbeidsflytConfiguration {
 
     @Bean
@@ -137,10 +143,10 @@ class ArbeidsflytConfiguration {
     @Bean
     fun oppgaveConsumer(
         @Value("\${OPPGAVE_URL}") oppgaveUrl: String,
-        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService,
+        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
     ): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
-        restTemplate.interceptors.add(securityTokenService.generateBearerToken(Token.OPPGAVE_CLIENT_REGISTRATION_ID))
+        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("oppgave"))
         return DefaultOppgaveConsumer(restTemplate)
     }
 
