@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.KafkaOppgaveHendelseListenerImpl
 import no.nav.bidrag.arbeidsflyt.hendelse.OppgaveHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
@@ -53,7 +54,7 @@ class HendelseConfiguration {
     }
     @Bean
     @DependsOn("oppgaveEndretKafkaListenerContainerFactory")
-    fun oppgaveHendelseListener(jsonMapperService: JsonMapperService): OppgaveHendelseListener = KafkaOppgaveHendelseListenerImpl(jsonMapperService)
+    fun oppgaveHendelseListener(jsonMapperService: JsonMapperService, featureToggle: FeatureToggle): OppgaveHendelseListener = KafkaOppgaveHendelseListenerImpl(jsonMapperService, featureToggle)
 
     @Bean
     fun journalpostHendelseListener(

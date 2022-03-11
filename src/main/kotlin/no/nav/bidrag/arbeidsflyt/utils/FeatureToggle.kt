@@ -10,7 +10,7 @@ class FeatureToggle {
         KAFKA_OPPGAVE
     }
 
-    @Value("\${FEATURE_ENABLED}")
+    @Value("\${FEATURE_ENABLED:}")
     private val featureEnabled: String? = null
 
     fun isFeatureEnabled(feature: Feature): Boolean {

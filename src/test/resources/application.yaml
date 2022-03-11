@@ -1,6 +1,7 @@
 OPPGAVE_URL: http://dummy.test
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: passord
+FEATURE_TOGGLE: NONE
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 no.nav.security.jwt:
   client:
