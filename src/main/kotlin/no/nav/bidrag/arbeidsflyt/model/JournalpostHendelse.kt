@@ -18,8 +18,8 @@ data class JournalpostHendelse(
     internal fun harEnhet() = enhet != null
     internal fun harAktorId() = aktorId != null
     internal fun harBnr() = bnr != null
-    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
-    internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
+    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdBIDPrefix()) journalpostId.split('-')[1] else journalpostId
+    internal fun harJournalpostIdBIDPrefix() = journalpostId.contains("-") && journalpostId.startsWith("BID")
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
 }
