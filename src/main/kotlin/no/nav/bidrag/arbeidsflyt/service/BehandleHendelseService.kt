@@ -34,6 +34,7 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
         if (existing.isPresent){
             val journalpost = existing.get()
             journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
+            journalpostRepository.save(journalpost)
         } else {
             journalpostRepository.save(Journalpost(
                 journalpostId = journalpostHendelse.journalpostId,

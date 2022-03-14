@@ -48,7 +48,10 @@ class BehandleOppgaveHendelseService(
     }
 
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
-        oppgaveRepository.findById(oppgaveHendelse.id!!).ifPresent { it.oppdaterOppgaveFraHendelse(oppgaveHendelse) }
+        oppgaveRepository.findById(oppgaveHendelse.id!!).ifPresent {
+            it.oppdaterOppgaveFraHendelse(oppgaveHendelse)
+            oppgaveRepository.save(it)
+         }
     }
 
     fun opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse: OppgaveHendelse){
