@@ -61,7 +61,8 @@ spec:
     sqlInstances:
       - name: {{ dbname }}
         type: POSTGRES_12
+        cascadingDelete: true
         databases:
-          - name: {{ dbname }}
+          - name: bidrag-arbeidsflyt-db
             envVarPrefix: DB
 
