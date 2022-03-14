@@ -9,7 +9,9 @@ kafka-topic-journalpost: bidrag.journalpost
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-dev-syntetisk
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-dev-syntetisk
 feature-toggle: NONE
-dbname: bidrag-arbeidsflyt-dev
+database:
+  dbname: bidrag-arbeidsflyt-dev
+  autoResize: true
 ingresses:
   - https://bidrag-arbeidsflyt.dev.adeo.no
   - https://bidrag-arbeidsflyt.dev.intern.nav.no

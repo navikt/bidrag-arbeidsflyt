@@ -59,9 +59,9 @@ spec:
       value: {{ feature-toggle }}
   gcp:
     sqlInstances:
-      - name: {{ dbname }}
-        type: POSTGRES_12
-        cascadingDelete: true
+      - name: {{ database.dbname }}
+        type: POSTGRES_14
+        diskAutoresize: {{ database.autoResize }}
         databases:
           - name: bidrag-arbeidsflyt-db
             envVarPrefix: DB
