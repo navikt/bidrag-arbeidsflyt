@@ -57,4 +57,11 @@ spec:
       value: {{ kafka-topic-oppgave-opprettet }}
     - name: FEATURE_ENABLED
       value: {{ feature-toggle }}
+  gcp:
+    sqlInstances:
+      - name: {{ dbname }}
+        type: POSTGRES_12
+        databases:
+          - name: {{ dbname }}
+            envVarPrefix: DB
 

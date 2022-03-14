@@ -9,5 +9,6 @@ kafka-topic-journalpost: bidrag.journalpost
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-prod
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-prod
 feature-toggle: NONE
+dbname: bidrag-arbeidsflyt-prod
 ingresses:
   - https://bidrag-arbeidsflyt.intern.nav.no
