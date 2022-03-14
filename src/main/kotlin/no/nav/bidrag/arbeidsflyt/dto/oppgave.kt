@@ -209,3 +209,11 @@ class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequ
 enum class Prioritet {
     HOY //, NORM, LAV
 }
+
+enum class OppgaveStatus {
+    FERDIGSTILT,
+    AAPNET,
+    OPPRETTET,
+    FEILREGISTRERT,
+    UNDER_BEHANDLING
+}

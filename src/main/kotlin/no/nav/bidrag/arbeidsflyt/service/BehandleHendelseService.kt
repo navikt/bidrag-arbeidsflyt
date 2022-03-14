@@ -2,21 +2,21 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
+import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-
-interface BehandleHendelseService {
-    fun behandleHendelse(journalpostHendelse: JournalpostHendelse)
-}
+import javax.transaction.Transactional
 
 @Service
-class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService) : BehandleHendelseService {
+class BehandleHendelseService(private val oppgaveService: OppgaveService, private val journalpostRepository: JournalpostRepository) {
     companion object {
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(DefaultBehandleHendelseService::class.java)
+        private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
     }
 
-    override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
+    @Transactional
+    fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
         OppdaterOppgaver(journalpostHendelse, oppgaveService)
@@ -25,5 +25,20 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
+
+        lagreJournalpost(journalpostHendelse)
+    }
+
+    fun lagreJournalpost(journalpostHendelse: JournalpostHendelse){
+        val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
+        if (existing.isPresent){
+            val journalpost = existing.get()
+            journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
+        } else {
+            journalpostRepository.save(Journalpost(
+                journalpostId = journalpostHendelse.journalpostId,
+                status = journalpostHendelse.journalstatus
+            ))
+        }
     }
 }

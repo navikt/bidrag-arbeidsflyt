@@ -24,11 +24,11 @@ import java.util.Collections
 
 
 @SpringBootTest
-@ActiveProfiles(value = arrayOf(PROFILE_KAFKA_TEST, PROFILE_TEST))
+@ActiveProfiles(value = [PROFILE_KAFKA_TEST, PROFILE_TEST])
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
 @DisplayName("OppgaveEndretHendelseListenerTest")
-@EmbeddedKafka(partitions = 1, brokerProperties = arrayOf("listeners=PLAINTEXT://localhost:9092", "port=9092"))
+@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9092", "port=9092"])
 internal class OppgaveHendelseListenerTest {
 
     @Autowired

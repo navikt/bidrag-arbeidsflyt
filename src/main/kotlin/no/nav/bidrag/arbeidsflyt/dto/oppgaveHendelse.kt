@@ -14,7 +14,7 @@ data class OppgaveHendelse(
     val oppgavetype: String? = null,
     val behandlingstype: String? = null,
     val versjon: Int? = null,
-    val status: Status? = null,
+    val status: OppgaveStatus? = null,
     val statuskategori: String? = null,
     val endretAv: String? = null,
     val opprettetAv: String? = null,
@@ -22,14 +22,6 @@ data class OppgaveHendelse(
     val ident: Ident? = null,
     val metadata: Map<String, String>? = null
 ){
-
-    enum class Status {
-        FERDIGSTILT,
-        AAPNET,
-        OPPRETTET,
-        FEILREGISTRERT,
-        UNDER_BEHANDLING
-    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Ident(
@@ -41,7 +33,7 @@ data class OppgaveHendelse(
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
     fun erStatusKategoriAapnet(): Boolean = statuskategori == "AAPNET"
-    fun erStatusFerdigstilt(): Boolean = status == Status.FERDIGSTILT
-    fun erStatusAapnet(): Boolean = status == Status.AAPNET
-    fun erStatusOpprettet(): Boolean = status == Status.OPPRETTET
+    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
+    fun erStatusAapnet(): Boolean = status == OppgaveStatus.AAPNET
+    fun erStatusOpprettet(): Boolean = status == OppgaveStatus.OPPRETTET
 }

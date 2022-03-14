@@ -1,0 +1,1 @@
+CREATE INDEX idx_journalpost_id ON journalpost(journalpostId);

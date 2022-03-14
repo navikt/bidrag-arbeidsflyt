@@ -2,6 +2,7 @@ OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
 KAFKA_BOOTSTRAP_SERVERS: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 TOPIC_JOURNALPOST: bidrag.journalpost-feature
 TOPIC_OPPGAVE_ENDRET: aapen-oppgave-endret-v1-preprod
+TOPIC_OPPGAVE_OPPRETTET: topic_oppgave_endret
 OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
 
 AZURE_APP_CLIENT_SECRET: changme

@@ -14,3 +14,10 @@ no.nav.security.jwt:
           client-id: 123
           client-secret: 123
           client-auth-method: client_secret_basic
+
+spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop

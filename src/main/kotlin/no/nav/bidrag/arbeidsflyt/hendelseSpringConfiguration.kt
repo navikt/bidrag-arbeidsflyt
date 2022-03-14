@@ -4,11 +4,8 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.hendelse.KafkaOppgaveHendelseListenerImpl
-import no.nav.bidrag.arbeidsflyt.hendelse.OppgaveHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
-import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
@@ -22,12 +19,10 @@ import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.core.env.Environment
@@ -52,9 +47,6 @@ class HendelseConfiguration {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
     }
-    @Bean
-    @DependsOn("oppgaveEndretKafkaListenerContainerFactory")
-    fun oppgaveHendelseListener(jsonMapperService: JsonMapperService, featureToggle: FeatureToggle): OppgaveHendelseListener = KafkaOppgaveHendelseListenerImpl(jsonMapperService, featureToggle)
 
     @Bean
     fun journalpostHendelseListener(
@@ -78,10 +70,9 @@ class HendelseConfiguration {
     }
 
     @Bean
-    @Qualifier("oppgaveEndretKafkaListenerContainerFactory")
-    fun oppgaveEndretKafkaListenerContainerFactory(oppgaveEndretConsumerFactory: ConsumerFactory<Long, String>): ConcurrentKafkaListenerContainerFactory<Long, String> {
+    fun oppgaveKafkaListenerContainerFactory(oppgaveConsumerFactory: ConsumerFactory<Long, String>): ConcurrentKafkaListenerContainerFactory<Long, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
-        factory.consumerFactory = oppgaveEndretConsumerFactory
+        factory.consumerFactory = oppgaveConsumerFactory
 
         factory.setErrorHandler { thrownException, data ->
             LOGGER.error("There was a problem during processing of the record from oppgave-endret kafka consumer.")
@@ -96,7 +87,7 @@ class HendelseConfiguration {
     }
 
     @Bean
-    fun oppgaveEndretConsumerFactory(@Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
+    fun oppgaveConsumerFactory(@Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
                         @Value("\${KAFKA_GROUP_ID}") groupId: String,
                         @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
                         @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,

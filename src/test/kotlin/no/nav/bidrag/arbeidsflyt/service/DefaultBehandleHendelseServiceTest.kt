@@ -29,7 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 internal class DefaultBehandleHendelseServiceTest {
 
     @Autowired
-    private lateinit var behandleHendelseService: DefaultBehandleHendelseService
+    private lateinit var behandleHendelseService: BehandleHendelseService
 
     @MockBean
     private lateinit var oppgaveConsumerMock: OppgaveConsumer

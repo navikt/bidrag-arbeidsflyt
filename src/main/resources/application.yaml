@@ -14,9 +14,16 @@ KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 
 ---
 spring:
-  config:
-    activate:
-      on-profile: live
+  config.activate.on-profile: live
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration
+  jpa:
+    hibernate.connection.provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+    database: postgresql
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:

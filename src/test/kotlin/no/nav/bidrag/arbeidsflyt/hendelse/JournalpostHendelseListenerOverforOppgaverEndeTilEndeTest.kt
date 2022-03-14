@@ -7,18 +7,23 @@ import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.junit4.SpringRunner
 
 @SpringBootTest
+@TestPropertySource(locations = ["classpath:application.yaml"])
 @DisplayName("JournalpostHendelseListener overfør oppgaver \"ende til ende\"-test")
 internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
 
