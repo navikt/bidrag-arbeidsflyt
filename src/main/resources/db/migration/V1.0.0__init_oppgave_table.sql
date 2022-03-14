@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS oppgave (
     oppgavetype varchar(10) NOT NULL,
     opprettet_timestamp timestamp DEFAULT now() NOT NULL,
     CONSTRAINT oppgave_pkey PRIMARY KEY (oppgave_id)
-)
+);
 
 GRANT ALL PRIVILEGES ON TABLE public.oppgave TO cloudsqliamuser;
