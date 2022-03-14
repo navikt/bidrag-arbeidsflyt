@@ -13,7 +13,7 @@ data class Journalpost (
     @Column(name = "id")
     var id: Int = 0,
 
-    @Column(name = "journalpostId")
+    @Column(name = "journalpostid")
     var journalpostId: String,
 
     @Column(name = "status")

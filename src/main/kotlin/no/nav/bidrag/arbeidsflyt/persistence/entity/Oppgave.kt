@@ -13,7 +13,7 @@ data class Oppgave (
     @Column(name = "oppgave_id")
     var oppgaveId: Long,
 
-    @Column(name = "journalpostId")
+    @Column(name = "journalpostid")
     var journalpostId: String?,
 
     @Column(name = "status")
