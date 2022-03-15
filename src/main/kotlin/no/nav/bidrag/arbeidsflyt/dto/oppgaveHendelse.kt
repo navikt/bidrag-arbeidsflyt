@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
     val id: Long? = null,
+    val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
     val journalpostId: String? = null,
     val tilordnetRessurs: String? = null,
@@ -36,4 +37,9 @@ data class OppgaveHendelse(
     fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
     fun erStatusAapnet(): Boolean = status == OppgaveStatus.AAPNET
     fun erStatusOpprettet(): Boolean = status == OppgaveStatus.OPPRETTET
+
+    internal fun hasJournalpostId() = journalpostId != null
+    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix() && hasJournalpostId()) journalpostId!!.split('-')[1] else journalpostId
+    internal fun harJournalpostIdPrefix() = hasJournalpostId() && journalpostId!!.contains("-")
+    internal fun harJournalpostIdBIDPrefix() = hasJournalpostId() && harJournalpostIdPrefix() && journalpostId!!.startsWith("BID")
 }

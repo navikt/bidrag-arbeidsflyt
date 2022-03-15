@@ -26,6 +26,7 @@ data class Oppgave (
     var oppgavetype: String?
 ) {
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
+    fun harJournalpostId(): Boolean = journalpostId != null
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         status = oppgaveHendelse.status?.name
         journalpostId = oppgaveHendelse.journalpostId

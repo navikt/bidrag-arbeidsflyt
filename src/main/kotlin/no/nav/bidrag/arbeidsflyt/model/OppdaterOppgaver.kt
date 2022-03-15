@@ -65,7 +65,7 @@ class OppdaterOppgaver(
         if (journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
-            oppgaveService.opprettOppgave(journalpostHendelse)
+            oppgaveService.opprettJournalforingOppgave(journalpostHendelse)
             finnOppdaterteOppgaverForHendelse = true
         }
 

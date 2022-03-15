@@ -87,7 +87,14 @@ data class OppgaveData(
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID", var tildeltEnhetsnr: String? = "4833") {
+data class OpprettOppgaveRequest(
+    var journalpostId: String,
+    var aktoerId: String? = null,
+    var tema: String? = "BID",
+    var tildeltEnhetsnr: String? = "4833",
+    var bnr: String? = null,
+    var beskrivelse: String? = null
+) {
     var oppgavetype: String = "JFR"
     var prioritet: String = Prioritet.HOY.name
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))

@@ -62,8 +62,8 @@ class BehandleOppgaveHendelseService(
         }
 
         if (oppgaveHendelse.erStatusFerdigstilt() && journalpost.get().erStatusMottatt()){
-            // Opprett ny oppgave
             LOGGER.info("Oppgave ${oppgaveHendelse.id} ble lukket når tilhørende journalpost ${oppgaveHendelse.journalpostId} fortsatt har status MOTTATT. Oppretter ny oppgave")
+            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
         }
     }
 
@@ -74,27 +74,10 @@ class BehandleOppgaveHendelseService(
             behandleOpprettOppgave(oppgaveHendelse)
             return
         }
-        if (!oppgaveHendelse.erJournalforingOppgave() && existingOppgave.get().erJournalforingOppgave()){
+        if (oppgaveHendelse.hasJournalpostId() && !oppgaveHendelse.erJournalforingOppgave() && existingOppgave.get().erJournalforingOppgave()){
             LOGGER.info("Oppgavetype på oppgave ${oppgaveHendelse.id} ble endret fra Journalføring (JFR) til ${oppgaveHendelse.oppgavetype}. Oppretter ny oppgave med type JFR.")
+            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
             return
         }
-    }
-
-    fun saveJournalpost(journalpost: Journalpost){
-        journalpostRepository.save(journalpost)
-    }
-
-    fun findJournalpostByJournalpostId(journalpostId: String){
-        journalpostRepository.findByJournalpostIdContaining(journalpostId)
-    }
-
-    fun saveOppgave(oppgave: Oppgave){
-        oppgaveRepository.save(oppgave)
-    }
-    fun findOppgaveByJournalpostId(journalpostId: String): Oppgave?{
-        return oppgaveRepository.findByJournalpostIdContaining(journalpostId).orElse(null)
-    }
-    fun findOppgaveById(oppgaveId: Long): Oppgave{
-        return oppgaveRepository.findById(oppgaveId).orElse(null)
     }
 }
