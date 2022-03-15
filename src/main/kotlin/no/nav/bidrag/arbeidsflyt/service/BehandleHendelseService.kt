@@ -19,6 +19,8 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
+        lagreJournalpost(journalpostHendelse)
+
         OppdaterOppgaver(journalpostHendelse, oppgaveService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
@@ -26,20 +28,24 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
 
-        lagreJournalpost(journalpostHendelse)
     }
 
     fun lagreJournalpost(journalpostHendelse: JournalpostHendelse){
-        val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
-        if (existing.isPresent){
-            val journalpost = existing.get()
-            journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
-            journalpostRepository.save(journalpost)
-        } else {
-            journalpostRepository.save(Journalpost(
-                journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.hentJournalpostIdUtenPrefix() else journalpostHendelse.journalpostId,
-                status = journalpostHendelse.journalstatus
-            ))
+        try {
+            val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
+            if (existing.isPresent){
+                val journalpost = existing.get()
+                journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
+                journalpostRepository.save(journalpost)
+            } else {
+                journalpostRepository.save(Journalpost(
+                    journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.hentJournalpostIdUtenPrefix() else journalpostHendelse.journalpostId,
+                    status = journalpostHendelse.journalstatus
+                ))
+            }
+        } catch (e: Exception){
+            LOGGER.error("Det skjedde en feil ved lagring av journalpost ${journalpostHendelse.journalpostId} fra hendelse", e)
         }
+
     }
 }

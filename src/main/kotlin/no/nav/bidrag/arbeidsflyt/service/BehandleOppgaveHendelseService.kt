@@ -55,6 +55,11 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse: OppgaveHendelse){
+        if (oppgaveHendelse.journalpostId == null){
+            LOGGER.warn("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
+            return
+        }
+
         val journalpost = journalpostRepository.findByJournalpostIdContaining(oppgaveHendelse.journalpostId!!)
         if (!journalpost.isPresent){
             LOGGER.warn("Fant ingen tilhørende journalpost for oppgave ${oppgaveHendelse.id} med journalpostid ${oppgaveHendelse.journalpostId}. Stopper videre behandling.")
