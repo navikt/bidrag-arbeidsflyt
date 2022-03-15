@@ -15,9 +15,9 @@ AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
 DB_HOST: 127.0.0.1
 DB_PORT: 5432
 DB_DATABASE: bidrag-arbeidsflyt-db
-DB_PASSWORD: ya29.A0ARrdaM8NWMMAGbSzKjkngLrdpxQI_xafWXnPixRyOigJLqXO7L4ThTWBznXqWSQX-rORr8wSRhA6AHBHuapnZsd8E6RsNNptlisHBe_nWnJo7IEil0awJg9ZZslkkQDyTX4SD5wGRvLOcVnQ700yrgUd23ptJ2ywggeObg
-DB_URL: postgres://ugur.alpay.cenar@nav.no@127.0.0.1:5432/bidrag-arbeidsflyt-db
-DB_USERNAME: ugur.alpay.cenar@nav.no
+DB_PASSWORD: changme
+DB_URL: postgres://changeme@127.0.0.1:5432/bidrag-arbeidsflyt-db
+DB_USERNAME: changeme
 
 no.nav.security.jwt:
   client:
