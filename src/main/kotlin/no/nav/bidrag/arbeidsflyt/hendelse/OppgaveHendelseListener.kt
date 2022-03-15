@@ -53,9 +53,8 @@ open class OppgaveEndretHendelseListenerImpl(
 
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
-            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
+            LOGGER.info("Oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
-                    "ident ${oppgaveEndretHendelse.ident}, " +
                     "tema ${oppgaveEndretHendelse.tema}, " +
                     "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
                     "og status ${oppgaveEndretHendelse.status}")
@@ -67,9 +66,8 @@ open class OppgaveEndretHendelseListenerImpl(
 
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
-            LOGGER.info("Mottatt oppgave oppprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
+            LOGGER.info("Oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
-                    "ident ${oppgaveOpprettetHendelse.ident}, " +
                     "tema ${oppgaveOpprettetHendelse.tema}, " +
                     "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
                     "og status ${oppgaveOpprettetHendelse.status}")

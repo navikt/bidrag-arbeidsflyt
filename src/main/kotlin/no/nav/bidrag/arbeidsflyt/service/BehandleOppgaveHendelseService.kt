@@ -1,10 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
+import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
@@ -13,7 +13,8 @@ import javax.transaction.Transactional
 class BehandleOppgaveHendelseService(
     var oppgaveRepository: OppgaveRepository,
     var journalpostRepository: JournalpostRepository,
-    var oppgaveService: OppgaveService
+    var oppgaveService: OppgaveService,
+    var featureToggle: FeatureToggle
 ) {
 
     companion object {
@@ -68,7 +69,7 @@ class BehandleOppgaveHendelseService(
 
         if (oppgaveHendelse.erStatusFerdigstilt() && journalpost.get().erStatusMottatt()){
             LOGGER.info("Oppgave ${oppgaveHendelse.id} ble lukket når tilhørende journalpost ${oppgaveHendelse.journalpostId} fortsatt har status MOTTATT. Oppretter ny oppgave")
-            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
+            opprettJournalforingOppgave(oppgaveHendelse)
         }
     }
 
@@ -81,8 +82,17 @@ class BehandleOppgaveHendelseService(
         }
         if (oppgaveHendelse.hasJournalpostId() && !oppgaveHendelse.erJournalforingOppgave() && existingOppgave.get().erJournalforingOppgave()){
             LOGGER.info("Oppgavetype på oppgave ${oppgaveHendelse.id} ble endret fra Journalføring (JFR) til ${oppgaveHendelse.oppgavetype}. Oppretter ny oppgave med type JFR.")
-            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
+            opprettJournalforingOppgave(oppgaveHendelse)
             return
         }
+    }
+
+    fun opprettJournalforingOppgave(oppgaveHendelse: OppgaveHendelse){
+        if (featureToggle.isFeatureEnabled(FeatureToggle.Feature.OPPRETT_OPPGAVE)){
+            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
+        } else {
+            LOGGER.info("Feature ${FeatureToggle.Feature.OPPRETT_OPPGAVE} er ikke skrudd på. Oppretter ikke oppgave")
+        }
+
     }
 }

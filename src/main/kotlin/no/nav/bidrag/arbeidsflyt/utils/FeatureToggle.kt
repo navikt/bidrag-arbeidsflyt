@@ -7,7 +7,9 @@ import java.util.Optional
 @Component
 class FeatureToggle {
     enum class Feature {
-        KAFKA_OPPGAVE
+        KAFKA_OPPGAVE,
+        LAGRE_JOURNALPOST,
+        OPPRETT_OPPGAVE
     }
 
     @Value("\${FEATURE_ENABLED:}")

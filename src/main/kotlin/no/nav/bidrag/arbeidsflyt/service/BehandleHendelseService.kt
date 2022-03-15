@@ -4,12 +4,13 @@ import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
+import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
-class BehandleHendelseService(private val oppgaveService: OppgaveService, private val journalpostRepository: JournalpostRepository) {
+class BehandleHendelseService(private val oppgaveService: OppgaveService, private val journalpostRepository: JournalpostRepository, private val featureToggle: FeatureToggle) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
@@ -31,7 +32,11 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
     }
 
     fun lagreJournalpost(journalpostHendelse: JournalpostHendelse){
+        if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
+            return
+        }
         try {
+            LOGGER.info("Lagrer journalpost ${journalpostHendelse.journalpostId} fra hendelse")
             val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
             if (existing.isPresent){
                 val journalpost = existing.get()
