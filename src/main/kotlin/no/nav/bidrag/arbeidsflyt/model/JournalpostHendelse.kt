@@ -21,6 +21,7 @@ data class JournalpostHendelse(
     internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
     internal fun harJournalpostIdBIDPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("BID")
+    internal fun harJournalpostIdJOARKPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("JOARK")
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
 }

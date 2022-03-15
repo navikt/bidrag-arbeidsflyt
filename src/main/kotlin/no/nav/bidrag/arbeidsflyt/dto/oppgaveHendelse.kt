@@ -1,14 +1,19 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
     val id: Long? = null,
     val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
+    val opprettetAvEnhetsnr: String? = null,
     val journalpostId: String? = null,
     val tilordnetRessurs: String? = null,
+    val saksreferanse: String? = null,
+    val beskrivelse: String? = null,
     val temagruppe: String? = null,
     val tema: String? = null,
     val behandlingstema: String? = null,
@@ -21,7 +26,12 @@ data class OppgaveHendelse(
     val opprettetAv: String? = null,
     val behandlesAvApplikasjon: String? = null,
     val ident: Ident? = null,
-    val metadata: Map<String, String>? = null
+    val metadata: Map<String, String>? = null,
+    val fristFerdigstillelse: LocalDate? = null,
+    val aktivDato: LocalDate? = null,
+    val opprettetTidspunkt: LocalDateTime? = null,
+    val ferdigstiltTidspunkt: LocalDateTime? = null,
+    val endretTidspunkt: LocalDateTime? = null
 ){
 
     @JsonIgnoreProperties(ignoreUnknown = true)

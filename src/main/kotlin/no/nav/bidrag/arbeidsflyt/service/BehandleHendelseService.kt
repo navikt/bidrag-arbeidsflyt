@@ -37,7 +37,7 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             journalpostRepository.save(journalpost)
         } else {
             journalpostRepository.save(Journalpost(
-                journalpostId = journalpostHendelse.journalpostId,
+                journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.hentJournalpostIdUtenPrefix() else journalpostHendelse.journalpostId,
                 status = journalpostHendelse.journalstatus
             ))
         }
