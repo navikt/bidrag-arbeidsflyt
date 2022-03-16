@@ -3,7 +3,10 @@ CREATE TABLE IF NOT EXISTS journalpost (
     journalpost_id varchar(30) NOT NULL,
     status varchar(20) NOT NULL,
     opprettet_timestamp timestamp DEFAULT now() NOT NULL,
+    endret_timestamp timestamp DEFAULT now() NOT NULL,
     CONSTRAINT journalpost_pkey PRIMARY KEY (id)
 );
+
+CREATE TRIGGER update_journalpost_endret BEFORE UPDATE ON journalpost FOR EACH ROW EXECUTE PROCEDURE update_endret_timestamp();
 
 GRANT ALL PRIVILEGES ON TABLE public.journalpost TO cloudsqliamuser;

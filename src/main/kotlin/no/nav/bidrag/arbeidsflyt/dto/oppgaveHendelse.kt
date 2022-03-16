@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
@@ -29,9 +29,9 @@ data class OppgaveHendelse(
     val metadata: Map<String, String>? = null,
     val fristFerdigstillelse: LocalDate? = null,
     val aktivDato: LocalDate? = null,
-    val opprettetTidspunkt: LocalDateTime? = null,
-    val ferdigstiltTidspunkt: LocalDateTime? = null,
-    val endretTidspunkt: LocalDateTime? = null
+    val opprettetTidspunkt: ZonedDateTime? = null,
+    val ferdigstiltTidspunkt: ZonedDateTime? = null,
+    val endretTidspunkt: ZonedDateTime? = null
 ){
 
     @JsonIgnoreProperties(ignoreUnknown = true)
