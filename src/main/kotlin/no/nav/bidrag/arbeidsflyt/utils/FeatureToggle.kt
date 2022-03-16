@@ -16,6 +16,6 @@ class FeatureToggle {
     private val featureEnabled: String? = null
 
     fun isFeatureEnabled(feature: Feature): Boolean {
-        return Optional.ofNullable(featureEnabled).orElse("").matches(feature.name.toRegex())
+        return Optional.ofNullable(featureEnabled).orElse("").contains(feature.name.toRegex())
     }
 }
