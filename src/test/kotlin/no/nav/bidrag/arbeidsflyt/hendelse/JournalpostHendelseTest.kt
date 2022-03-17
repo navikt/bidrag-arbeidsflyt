@@ -10,6 +10,6 @@ internal class JournalpostHendelseTest {
     fun `skal hente journalpostId fra prefikset journalpostId`() {
         val journalpostHendelse = JournalpostHendelse(journalpostId = "BID-101")
 
-        assertThat(journalpostHendelse.hentJournalpostIdUtenPrefix()).isEqualTo("101")
+        assertThat(journalpostHendelse.journalpostIdUtenPrefix).isEqualTo("101")
     }
 }

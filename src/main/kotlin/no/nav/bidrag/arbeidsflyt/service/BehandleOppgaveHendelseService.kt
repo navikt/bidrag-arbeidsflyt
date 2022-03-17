@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
@@ -38,14 +39,14 @@ class BehandleOppgaveHendelseService(
 
     @Transactional
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
+        oppdaterOppgaveFraHendelse(oppgaveHendelse)
 
-        if (oppgaveHendelse.erJournalforingOppgave()){
+        if (oppgaveHendelse.erJournalforingOppgave){
             opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse)
         } else {
             opprettNyOppgaveHvisOppgavetypeEndretFraJournalforingTilNoeAnnet(oppgaveHendelse)
         }
 
-        oppdaterOppgaveFraHendelse(oppgaveHendelse)
     }
 
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
@@ -80,7 +81,7 @@ class BehandleOppgaveHendelseService(
             behandleOpprettOppgave(oppgaveHendelse)
             return
         }
-        if (oppgaveHendelse.hasJournalpostId() && !oppgaveHendelse.erJournalforingOppgave() && existingOppgave.get().erJournalforingOppgave()){
+        if (oppgaveHendelse.hasJournalpostId && !oppgaveHendelse.erJournalforingOppgave && existingOppgave.get().erJournalforingOppgave()){
             LOGGER.info("Oppgavetype på oppgave ${oppgaveHendelse.id} ble endret fra Journalføring (JFR) til ${oppgaveHendelse.oppgavetype}. Oppretter ny oppgave med type JFR.")
             opprettJournalforingOppgave(oppgaveHendelse)
             return
@@ -89,7 +90,7 @@ class BehandleOppgaveHendelseService(
 
     fun opprettJournalforingOppgave(oppgaveHendelse: OppgaveHendelse){
         if (featureToggle.isFeatureEnabled(FeatureToggle.Feature.OPPRETT_OPPGAVE)){
-            oppgaveService.opprettJournalforingOppgave(oppgaveHendelse)
+            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse))
         } else {
             LOGGER.info("Feature ${FeatureToggle.Feature.OPPRETT_OPPGAVE} er ikke skrudd på. Oppretter ikke oppgave")
         }

@@ -42,14 +42,10 @@ data class OppgaveHendelse(
     )
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
-    fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
-    fun erStatusKategoriAapnet(): Boolean = statuskategori == "AAPNET"
     fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
-    fun erStatusAapnet(): Boolean = status == OppgaveStatus.AAPNET
-    fun erStatusOpprettet(): Boolean = status == OppgaveStatus.OPPRETTET
 
-    internal fun hasJournalpostId() = journalpostId != null
-    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix() && hasJournalpostId()) journalpostId!!.split('-')[1] else journalpostId
-    internal fun harJournalpostIdPrefix() = hasJournalpostId() && journalpostId!!.contains("-")
-    internal fun harJournalpostIdBIDPrefix() = hasJournalpostId() && harJournalpostIdPrefix() && journalpostId!!.startsWith("BID")
+    internal val erJournalforingOppgave get() = oppgavetype == "JFR"
+    internal val hasJournalpostId get() = journalpostId != null
+    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
+    internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
 }

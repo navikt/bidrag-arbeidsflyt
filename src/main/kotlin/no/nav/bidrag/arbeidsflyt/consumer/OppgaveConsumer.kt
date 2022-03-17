@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
-import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -15,7 +15,7 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest, endretAvEnhetsnummer: String? = null)
-    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse
+    fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
@@ -65,13 +65,13 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         LOGGER.info("Response: ${responseEntity.statusCode}, ${responseEntity.body}")
     }
 
-    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse {
-        LOGGER.info("Oppretter oppgave for journalpost ${opprettOppgaveRequest.journalpostId}")
+    override fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse {
+        LOGGER.info("Oppretter oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}")
 
         val responseEntity = restTemplate.exchange(
             OPPGAVE_CONTEXT,
             HttpMethod.POST,
-            opprettOppgaveRequest.somHttpEntity(),
+            opprettJournalforingsOppgaveRequest.somHttpEntity(),
             OppgaveData::class.java
         )
 

@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -65,7 +66,7 @@ class OppdaterOppgaver(
         if (journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
-            oppgaveService.opprettJournalforingOppgave(journalpostHendelse)
+            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(journalpostHendelse))
             finnOppdaterteOppgaverForHendelse = true
         }
 

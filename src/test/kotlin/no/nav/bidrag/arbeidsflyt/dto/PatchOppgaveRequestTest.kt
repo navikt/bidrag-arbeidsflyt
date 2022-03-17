@@ -3,10 +3,8 @@ package no.nav.bidrag.arbeidsflyt.dto
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
-import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.format.DateTimeFormatter
 
 internal class PatchOppgaveRequestTest {
 
@@ -60,7 +58,7 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere OpprettOppgaveRequest`() {
-        val opprettOppgaveRequest = OpprettOppgaveRequest("1234", "123213","BID", "4812")
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest("1234", "123213","BID", "4812")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(opprettOppgaveRequest)
 
         assertThat(stringValue).`as`("Expected json string value")

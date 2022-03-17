@@ -7,7 +7,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BehandleHendelseService(private val oppgaveService: OppgaveService, private val journalpostRepository: JournalpostRepository, private val featureToggle: FeatureToggle) {
@@ -29,6 +29,8 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
 
+
+
     }
 
     fun lagreJournalpost(journalpostHendelse: JournalpostHendelse){
@@ -41,11 +43,17 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             if (existing.isPresent){
                 val journalpost = existing.get()
                 journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
+                journalpost.enhet = journalpostHendelse.enhet ?: journalpost.enhet
+                journalpost.tema = journalpostHendelse.fagomrade ?: journalpost.tema
+                journalpost.gjelderId = journalpostHendelse.aktorId ?: journalpost.gjelderId
                 journalpostRepository.save(journalpost)
             } else {
                 journalpostRepository.save(Journalpost(
-                    journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.hentJournalpostIdUtenPrefix() else journalpostHendelse.journalpostId,
-                    status = journalpostHendelse.journalstatus
+                    journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId,
+                    status = journalpostHendelse.journalstatus,
+                    tema = journalpostHendelse.fagomrade,
+                    enhet = journalpostHendelse.enhet,
+                    gjelderId = journalpostHendelse.aktorId
                 ))
             }
         } catch (e: Exception){

@@ -32,7 +32,10 @@ class TestDataGenerator {
     fun  createJournalpost(journalpostId: String, status: String? = "M"): Journalpost {
         return Journalpost(
             journalpostId = journalpostId,
-            status = status
+            status = status,
+            enhet = "4833",
+            gjelderId = "",
+            tema = "BID"
         )
     }
 

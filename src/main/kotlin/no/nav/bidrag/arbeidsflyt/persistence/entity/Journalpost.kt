@@ -5,6 +5,7 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.OneToOne
 
 @Entity
 data class Journalpost (
@@ -17,7 +18,16 @@ data class Journalpost (
     var journalpostId: String,
 
     @Column(name = "status")
-    var status: String?
+    var status: String?,
+
+    @Column(name = "enhet")
+    var enhet: String?,
+
+    @Column(name = "tema")
+    var tema: String?,
+
+    @Column(name = "gjelder_id")
+    var gjelderId: String?
 ) {
     fun erStatusMottatt() = status == "M"
 }

@@ -13,12 +13,12 @@ data class JournalpostHendelse(
 
     internal val erEksterntFagomrade get() = fagomrade != null && (fagomrade != Fagomrade.BIDRAG && fagomrade != Fagomrade.FARSKAP)
     internal val erMottaksregistrert get() = erMottattStatus
+    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
 
     internal fun erJournalstatusEndretTilIkkeMottatt() = journalstatus != null && !erMottattStatus
     internal fun harEnhet() = enhet != null
     internal fun harAktorId() = aktorId != null
     internal fun harBnr() = bnr != null
-    internal fun hentJournalpostIdUtenPrefix() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
     internal fun harJournalpostIdBIDPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("BID")
     internal fun harJournalpostIdJOARKPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("JOARK")

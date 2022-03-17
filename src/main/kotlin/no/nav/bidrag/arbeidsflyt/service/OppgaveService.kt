@@ -3,9 +3,8 @@ package no.nav.bidrag.arbeidsflyt.service
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
@@ -58,44 +57,13 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun opprettJournalforingOppgave(journalpostHendelse: JournalpostHendelse) {
-        val opprettOppgaveRequest = OpprettOppgaveRequest(
-            journalpostId = journalpostHendelse.hentJournalpostIdUtenPrefix(),
-            aktoerId = journalpostHendelse.aktorId,
-            tema = journalpostHendelse.fagomrade,
-            tildeltEnhetsnr = journalpostHendelse.enhet
-        )
-
-        val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
+    internal fun opprettJournalforingOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest) {
+        val oppgaveData = oppgaveConsumer.opprettOppgave(opprettJournalforingsOppgaveRequest)
 
         // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
-        if (journalpostHendelse.harJournalpostIdBIDPrefix()) {
+        if (opprettJournalforingsOppgaveRequest.harJournalpostIdMedBIDPrefix()) {
             oppgaveConsumer.endreOppgave(
-                endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, journalpostHendelse.journalpostId)
-            )
-        }
-    }
-
-    internal fun opprettJournalforingOppgave(oppgaveHendelse: OppgaveHendelse) {
-        val aktorId = if (oppgaveHendelse.ident?.identType == "AKTOERID") oppgaveHendelse.ident.verdi else null
-        val bnr = if (oppgaveHendelse.ident?.identType == "BNR") oppgaveHendelse.ident.verdi else null
-        val opprettOppgaveRequest = OpprettOppgaveRequest(
-            journalpostId = oppgaveHendelse.hentJournalpostIdUtenPrefix()!!,
-            aktoerId = aktorId,
-            bnr = bnr,
-            tema = oppgaveHendelse.tema,
-            tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr,
-            beskrivelse = "Automatisk gjenopprettet oppgave"
-        )
-
-        val oppgaveData = oppgaveConsumer.opprettOppgave(opprettOppgaveRequest)
-
-        // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
-        if (oppgaveHendelse.harJournalpostIdBIDPrefix()) {
-            oppgaveConsumer.endreOppgave(
-                endretAvEnhetsnummer = oppgaveHendelse.endretAvEnhetsnr,
-                patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, oppgaveHendelse.journalpostId!!)
+                patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, opprettJournalforingsOppgaveRequest.hentJournalpostIdMedBIDPrefix())
             )
         }
     }
