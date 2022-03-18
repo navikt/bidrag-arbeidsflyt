@@ -38,7 +38,7 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveEndretHendelse(..)) && args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveHendelse(..)) && args(hendelse)")
     fun addCorrelationIdFromOppgaveHendelseToThread(joinPoint: JoinPoint, hendelse: String) {
         MDC.put(CORRELATION_ID, "oppgave-${System.currentTimeMillis().toString(16)}")
     }
