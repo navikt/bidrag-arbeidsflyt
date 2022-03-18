@@ -19,19 +19,10 @@ spring:
       on-profile: live
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      security.protocol: SSL
-      ssl:
-        keystore:
-          type: PKCS12
-          location: ${KAFKA_KEYSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
-        truststore:
-          location: ${KAFKA_TRUSTSTORE_PATH}
-          password: ${KAFKA_CREDSTORE_PASSWORD}
-        endpoint.identification.algorithm:
-      consumer:
-        enableAutoCommit: false
+    consumer:
+      enableAutoCommit: false
+    listener:
+      ackMode: RECORD
 
 no.nav.security.jwt:
   client:
