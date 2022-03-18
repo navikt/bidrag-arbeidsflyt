@@ -14,6 +14,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.LongDeserializer
@@ -60,19 +61,26 @@ class HendelseConfiguration {
     @Bean
     fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
         return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            val key = message.headers[KafkaHeaders.MESSAGE_KEY]
+            val key = message.headers[KafkaHeaders.RECEIVED_MESSAGE_KEY]
             val offset = message.headers[KafkaHeaders.OFFSET]
-            val groupId = message.headers[KafkaHeaders.GROUP_ID]
-            LOGGER.error("Kafka melding med nøkkel $key og gruppeId $groupId feilet på offset $offset med feilmelding ${e.message} ${message.headers}", e)
+            val topic = message.headers[KafkaHeaders.RECEIVED_TOPIC]
+            LOGGER.error("Kafka melding med nøkkel $key og topic $topic feilet på offset $offset med feilmelding ${e.message} ${message.headers}", e)
         }
     }
 
     @Bean
-    fun journalpostKafkaListenerContainerFactory(kafkaAivenConsumer: ConsumerFactory<Any, Any>): ConcurrentKafkaListenerContainerFactory<String, String> {
+    fun defaultErrorHandler(): DefaultErrorHandler? {
+        return DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
+            LOGGER.error("Retry handle", ex)
+        }, FixedBackOff(100, 10))
+    }
+
+    @Bean
+    fun journalpostKafkaListenerContainerFactory(kafkaAivenConsumer: ConsumerFactory<Any, Any>, defaultErrorHandler: DefaultErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
         factory.consumerFactory = kafkaAivenConsumer
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        factory.setCommonErrorHandler(DefaultErrorHandler(FixedBackOff(10, 100)))
+        factory.setCommonErrorHandler(defaultErrorHandler)
         return factory
     }
 
@@ -82,11 +90,11 @@ class HendelseConfiguration {
     }
 
     @Bean
-    fun oppgaveKafkaListenerContainerFactory(oppgaveConsumerFactory: ConsumerFactory<Long, String>): ConcurrentKafkaListenerContainerFactory<Long, String> {
+    fun oppgaveKafkaListenerContainerFactory(oppgaveConsumerFactory: ConsumerFactory<Long, String>, defaultErrorHandler: DefaultErrorHandler): ConcurrentKafkaListenerContainerFactory<Long, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
         factory.consumerFactory = oppgaveConsumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        factory.setCommonErrorHandler(DefaultErrorHandler(ExponentialBackOff()))
+        factory.setCommonErrorHandler(defaultErrorHandler)
         //Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->
             container.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
