@@ -37,28 +37,26 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
         if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
             return
         }
-        try {
-            LOGGER.info("Lagrer journalpost ${journalpostHendelse.journalpostId} fra hendelse")
-            val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
-            if (existing.isPresent){
-                val journalpost = existing.get()
-                journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
-                journalpost.enhet = journalpostHendelse.enhet ?: journalpost.enhet
-                journalpost.tema = journalpostHendelse.fagomrade ?: journalpost.tema
-                journalpost.gjelderId = journalpostHendelse.aktorId ?: journalpost.gjelderId
-                journalpostRepository.save(journalpost)
-            } else {
-                journalpostRepository.save(Journalpost(
-                    journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId,
-                    status = journalpostHendelse.journalstatus,
-                    tema = journalpostHendelse.fagomrade,
-                    enhet = journalpostHendelse.enhet,
-                    gjelderId = journalpostHendelse.aktorId
-                ))
-            }
-        } catch (e: Exception){
-            LOGGER.error("Det skjedde en feil ved lagring av journalpost ${journalpostHendelse.journalpostId} fra hendelse", e)
+
+        LOGGER.info("Lagrer journalpost ${journalpostHendelse.journalpostId} fra hendelse")
+        val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
+        if (existing.isPresent){
+            val journalpost = existing.get()
+            journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
+            journalpost.enhet = journalpostHendelse.enhet ?: journalpost.enhet
+            journalpost.tema = journalpostHendelse.fagomrade ?: journalpost.tema
+            journalpost.gjelderId = journalpostHendelse.aktorId ?: journalpost.gjelderId
+            journalpostRepository.save(journalpost)
+        } else {
+            journalpostRepository.save(Journalpost(
+                journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId,
+                status = journalpostHendelse.journalstatus,
+                tema = journalpostHendelse.fagomrade,
+                enhet = journalpostHendelse.enhet,
+                gjelderId = journalpostHendelse.aktorId
+            ))
         }
+
 
     }
 }

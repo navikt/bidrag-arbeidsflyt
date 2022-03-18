@@ -30,15 +30,9 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
-import org.springframework.kafka.listener.KafkaListenerErrorHandler
-import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-import org.springframework.messaging.Message
 import java.time.Duration
-import java.util.Optional
 
-
-private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
@@ -54,20 +48,6 @@ class HendelseConfiguration {
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
         jsonMapperService, behandleHendelseService
     )
-
-    @Bean
-    fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
-        return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            try {
-                message.payload
-            } catch (t: Throwable) {
-                exceptionLogger.logException(t, KAFKA_LISTENER_ERROR_HANDLER)
-            }
-
-            exceptionLogger.logException(e, KAFKA_LISTENER_ERROR_HANDLER)
-            Optional.empty<Any>()
-        }
-    }
 
     @Bean
     fun oppgaveKafkaListenerContainerFactory(oppgaveConsumerFactory: ConsumerFactory<Long, String>): ConcurrentKafkaListenerContainerFactory<Long, String> {
@@ -97,8 +77,7 @@ class HendelseConfiguration {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
-        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
-        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = true
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
