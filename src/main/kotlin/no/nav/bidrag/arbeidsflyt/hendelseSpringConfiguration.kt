@@ -73,7 +73,6 @@ class HendelseConfiguration {
         factory.consumerFactory = kafkaAivenConsumer
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
         factory.setCommonErrorHandler(DefaultErrorHandler(FixedBackOff(10, 100)))
-
         return factory
     }
 
