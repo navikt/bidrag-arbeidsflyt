@@ -16,6 +16,7 @@ import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
@@ -35,9 +36,11 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.listener.KafkaListenerErrorHandler
 import org.springframework.kafka.listener.ListenerExecutionFailedException
+import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.messaging.Message
 import org.springframework.util.backoff.ExponentialBackOff
+import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 import java.util.Optional
 
@@ -62,14 +65,10 @@ class HendelseConfiguration {
     @Bean
     fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
         return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            try {
-                message.payload
-            } catch (t: Throwable) {
-                exceptionLogger.logException(t, KAFKA_LISTENER_ERROR_HANDLER)
-            }
-
-            exceptionLogger.logException(e, KAFKA_LISTENER_ERROR_HANDLER)
-            Optional.empty<Any>()
+            val key = message.headers[KafkaHeaders.MESSAGE_KEY]
+            val offset = message.headers[KafkaHeaders.OFFSET]
+            val groupId = message.headers[KafkaHeaders.GROUP_ID]
+            LOGGER.error("Kafka melding med nøkkel $key og gruppeId $groupId feilet på offset $offset med feilmelding ${e.message}", e)
         }
     }
 
@@ -78,7 +77,8 @@ class HendelseConfiguration {
         val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
         factory.consumerFactory = kafkaAivenConsumer
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        factory.setCommonErrorHandler(DefaultErrorHandler(ExponentialBackOff()))
+        factory.setCommonErrorHandler(DefaultErrorHandler(FixedBackOff(10, 100)))
+
         return factory
     }
 
@@ -93,11 +93,6 @@ class HendelseConfiguration {
         factory.consumerFactory = oppgaveConsumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
         factory.setCommonErrorHandler(DefaultErrorHandler(ExponentialBackOff()))
-
-        factory.setErrorHandler { thrownException, data ->
-            LOGGER.error("There was a problem during processing of the record from oppgave-endret kafka consumer.")
-        }
-
         //Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->
             container.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
