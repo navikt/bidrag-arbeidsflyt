@@ -70,7 +70,6 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
         val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
-        patchOppgaveJournalpostIdRequest.endretAvEnhetsnr = enhetsNummer
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
