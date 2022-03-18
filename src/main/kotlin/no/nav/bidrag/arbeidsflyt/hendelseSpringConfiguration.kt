@@ -63,7 +63,7 @@ class HendelseConfiguration {
             val key = message.headers[KafkaHeaders.MESSAGE_KEY]
             val offset = message.headers[KafkaHeaders.OFFSET]
             val groupId = message.headers[KafkaHeaders.GROUP_ID]
-            LOGGER.error("Kafka melding med nøkkel $key og gruppeId $groupId feilet på offset $offset med feilmelding ${e.message}", e)
+            LOGGER.error("Kafka melding med nøkkel $key og gruppeId $groupId feilet på offset $offset med feilmelding ${e.message} ${message.headers}", e)
         }
     }
 
