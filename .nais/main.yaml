@@ -7,6 +7,8 @@ kafka:
   bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 kafka-topic-journalpost: bidrag.journalpost
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-dev-syntetisk
+kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-dev-syntetisk
+feature-toggle: NONE
 ingresses:
   - https://bidrag-arbeidsflyt.dev.adeo.no
   - https://bidrag-arbeidsflyt.dev.intern.nav.no

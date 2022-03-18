@@ -2,6 +2,7 @@ OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
 KAFKA_BOOTSTRAP_SERVERS: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 TOPIC_JOURNALPOST: bidrag.journalpost-feature
 TOPIC_OPPGAVE_ENDRET: aapen-oppgave-endret-v1-preprod
+TOPIC_OPPGAVE_OPPRETTET: topic_oppgave_endret
 OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
 
 AZURE_APP_CLIENT_SECRET: changme
@@ -10,3 +11,22 @@ AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f
 AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
 AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
+
+DB_HOST: 127.0.0.1
+DB_PORT: 5432
+DB_DATABASE: bidrag-arbeidsflyt-db
+DB_PASSWORD: changme
+DB_URL: postgres://changeme@127.0.0.1:5432/bidrag-arbeidsflyt-db
+DB_USERNAME: changeme
+
+no.nav.security.jwt:
+  client:
+    registration:
+      oppgave:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${OPPGAVE_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
