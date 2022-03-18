@@ -39,7 +39,6 @@ import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.messaging.Message
-import org.springframework.util.backoff.ExponentialBackOff
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
@@ -71,22 +70,8 @@ class HendelseConfiguration {
     @Bean
     fun defaultErrorHandler(): DefaultErrorHandler? {
         return DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
-            LOGGER.error("Retry handle", ex)
+            LOGGER.error("RETRY ##################################################", ex)
         }, FixedBackOff(100, 10))
-    }
-
-    @Bean
-    fun journalpostKafkaListenerContainerFactory(kafkaAivenConsumer: ConsumerFactory<Any, Any>, defaultErrorHandler: DefaultErrorHandler): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.consumerFactory = kafkaAivenConsumer
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        factory.setCommonErrorHandler(defaultErrorHandler)
-        return factory
-    }
-
-    @Bean
-    fun kafkaAivenConsumer(kafkaProperties: KafkaProperties): DefaultKafkaConsumerFactory<Any, Any>{
-        return DefaultKafkaConsumerFactory<Any, Any>(kafkaProperties.buildConsumerProperties())
     }
 
     @Bean
