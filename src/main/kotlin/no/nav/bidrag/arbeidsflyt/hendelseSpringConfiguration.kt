@@ -20,6 +20,7 @@ import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,9 +31,18 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.ContainerProperties
+import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.kafka.listener.KafkaListenerErrorHandler
+import org.springframework.kafka.listener.ListenerExecutionFailedException
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+import org.springframework.messaging.Message
+import org.springframework.util.backoff.ExponentialBackOff
 import java.time.Duration
+import java.util.Optional
 
+
+private const val KAFKA_LISTENER_ERROR_HANDLER = "KafkaListenerErrorHandler"
 
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
@@ -50,9 +60,39 @@ class HendelseConfiguration {
     )
 
     @Bean
+    fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
+        return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
+            try {
+                message.payload
+            } catch (t: Throwable) {
+                exceptionLogger.logException(t, KAFKA_LISTENER_ERROR_HANDLER)
+            }
+
+            exceptionLogger.logException(e, KAFKA_LISTENER_ERROR_HANDLER)
+            Optional.empty<Any>()
+        }
+    }
+
+    @Bean
+    fun journalpostKafkaListenerContainerFactory(kafkaAivenConsumer: ConsumerFactory<Any, Any>): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.consumerFactory = kafkaAivenConsumer
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
+        factory.setCommonErrorHandler(DefaultErrorHandler(ExponentialBackOff()))
+        return factory
+    }
+
+    @Bean
+    fun kafkaAivenConsumer(kafkaProperties: KafkaProperties): DefaultKafkaConsumerFactory<Any, Any>{
+        return DefaultKafkaConsumerFactory<Any, Any>(kafkaProperties.buildConsumerProperties())
+    }
+
+    @Bean
     fun oppgaveKafkaListenerContainerFactory(oppgaveConsumerFactory: ConsumerFactory<Long, String>): ConcurrentKafkaListenerContainerFactory<Long, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
         factory.consumerFactory = oppgaveConsumerFactory
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
+        factory.setCommonErrorHandler(DefaultErrorHandler(ExponentialBackOff()))
 
         factory.setErrorHandler { thrownException, data ->
             LOGGER.error("There was a problem during processing of the record from oppgave-endret kafka consumer.")
@@ -77,7 +117,7 @@ class HendelseConfiguration {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
-        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = true
+        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java

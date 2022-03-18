@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.transaction.annotation.Transactional
 
 interface JournalpostHendelseListener {
     fun lesHendelse(hendelse: String)
