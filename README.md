@@ -28,3 +28,28 @@ eller<br>
 deretter<br>
 `docker build -t bidrag-arbeidsflyt .`<br>
 `docker run -p bidrag-arbeidsflyt`
+
+
+### Lokal utvikling
+
+#### Kjør lokalt med kafka
+Start kafka lokalt i en docker container med følgende kommando på root mappen
+````bash
+docker-compose up -d
+````
+Start opp applikasjon ved å kjøre BidragArbeidsflytLocal.kt under test/kotlin mappen.
+Når du starter applikasjon må følgende miljøvariabler settes
+```bash
+-DAZURE_APP_CLIENT_SECRET=<secret>
+-DAZURE_APP_CLIENT_ID=<secret>
+```
+Bruk `kcat` til å sende meldinger til kafka topic. Feks
+
+````bash
+kcat -b localhost:9092 -t bidrag-journalpost -P -K:
+````
+og lim inn eks:
+```bash
+BID-2121212121:{"journalpostId":"BID-2121212121","aktorId":"2889800801806","fagomrade":"BID","enhet":"4806","journalstatus":"J","sporing":{"brukerident":"z992903","correlationId":"17f9db643c5-cuke"}}
+```
+og deretter trykk Ctrl+D. Da vil meldingen bli sendt til topic bidrag-journalpost

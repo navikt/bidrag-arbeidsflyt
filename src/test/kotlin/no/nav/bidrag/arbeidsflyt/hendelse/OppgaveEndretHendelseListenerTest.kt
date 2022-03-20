@@ -28,7 +28,7 @@ import java.util.Collections
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
 @DisplayName("OppgaveEndretHendelseListenerTest")
-@EmbeddedKafka(partitions = 1, brokerProperties = arrayOf("listeners=PLAINTEXT://localhost:9092", "port=9092"))
+@EmbeddedKafka(partitions = 1, brokerProperties = arrayOf("listeners=PLAINTEXT://localhost:9092", "port=9092"), topics = ["oppgave-endret", "oppgave-opprettet"])
 internal class OppgaveEndretHendelseListenerTest {
 
     @Autowired

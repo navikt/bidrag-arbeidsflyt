@@ -21,7 +21,6 @@ import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -34,11 +33,7 @@ import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
-import org.springframework.kafka.listener.KafkaListenerErrorHandler
-import org.springframework.kafka.listener.ListenerExecutionFailedException
-import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-import org.springframework.messaging.Message
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
@@ -58,20 +53,15 @@ class HendelseConfiguration {
     )
 
     @Bean
-    fun hendelseErrorHandler(exceptionLogger: ExceptionLogger): KafkaListenerErrorHandler {
-        return KafkaListenerErrorHandler { message: Message<*>, e: ListenerExecutionFailedException ->
-            val key = message.headers[KafkaHeaders.RECEIVED_MESSAGE_KEY]
-            val offset = message.headers[KafkaHeaders.OFFSET]
-            val topic = message.headers[KafkaHeaders.RECEIVED_TOPIC]
-            LOGGER.error("Kafka melding med nøkkel $key og topic $topic feilet på offset $offset med feilmelding ${e.message} ${message.headers}", e)
-        }
-    }
-
-    @Bean
     fun defaultErrorHandler(): DefaultErrorHandler? {
         return DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
-            LOGGER.error("RETRY ##################################################", ex)
-        }, FixedBackOff(100, 10))
+            val key = rec.key()
+            val value = rec.value()
+            val offset = rec.offset()
+            val topic =  rec.topic()
+            val partition =  rec.topic()
+            LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
+        }, FixedBackOff(2000, 10))
     }
 
     @Bean
@@ -79,12 +69,12 @@ class HendelseConfiguration {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
         factory.consumerFactory = oppgaveConsumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        factory.setCommonErrorHandler(defaultErrorHandler)
         //Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->
             container.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
         }
 
+        factory.setCommonErrorHandler(defaultErrorHandler);
         return factory;
     }
 
