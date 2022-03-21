@@ -18,13 +18,13 @@ data class Journalpost (
     var journalpostId: String,
 
     @Column(name = "status")
-    var status: String?,
+    var status: String,
 
     @Column(name = "enhet")
-    var enhet: String?,
+    var enhet: String,
 
     @Column(name = "tema")
-    var tema: String?,
+    var tema: String,
 
     @Column(name = "gjelder_id")
     var gjelderId: String?

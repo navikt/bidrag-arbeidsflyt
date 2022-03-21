@@ -17,20 +17,20 @@ data class Oppgave (
     var journalpostId: String?,
 
     @Column(name = "status")
-    var status: String?,
+    var status: String,
 
     @Column(name = "tema")
-    var tema: String?,
+    var tema: String,
 
     @Column(name = "oppgavetype")
-    var oppgavetype: String?
+    var oppgavetype: String
 ) {
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
     fun harJournalpostId(): Boolean = journalpostId != null
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
-        status = oppgaveHendelse.status?.name
+        status = oppgaveHendelse.status?.name!!
         journalpostId = oppgaveHendelse.journalpostId
-        oppgavetype = oppgaveHendelse.oppgavetype
-        tema = oppgaveHendelse.tema
+        oppgavetype = oppgaveHendelse.oppgavetype!!
+        tema = oppgaveHendelse.tema!!
     }
 }

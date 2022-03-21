@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.PROFILE_KAFKA_TEST
-import no.nav.bidrag.arbeidsflyt.PROFILE_LIVE
+import no.nav.bidrag.arbeidsflyt.PROFILE_NAIS
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @DependsOn("oppgaveKafkaListenerContainerFactory")
-@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
+@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])
 class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val jsonMapperService: JsonMapperService,

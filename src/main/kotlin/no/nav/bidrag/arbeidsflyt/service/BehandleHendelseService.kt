@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class BehandleHendelseService(private val oppgaveService: OppgaveService, private val journalpostRepository: JournalpostRepository, private val featureToggle: FeatureToggle) {
+class BehandleHendelseService(private val oppgaveService: OppgaveService, private val persistenceService: PersistenceService) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
@@ -20,8 +20,6 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
-        lagreJournalpost(journalpostHendelse)
-
         OppdaterOppgaver(journalpostHendelse, oppgaveService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
@@ -29,34 +27,6 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
 
-
-
-    }
-
-    fun lagreJournalpost(journalpostHendelse: JournalpostHendelse){
-        if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
-            return
-        }
-
-        LOGGER.info("Lagrer journalpost ${journalpostHendelse.journalpostId} fra hendelse")
-        val existing = journalpostRepository.findByJournalpostIdContaining(journalpostId = journalpostHendelse.journalpostId)
-        if (existing.isPresent){
-            val journalpost = existing.get()
-            journalpost.status = journalpostHendelse.journalstatus ?: journalpost.status
-            journalpost.enhet = journalpostHendelse.enhet ?: journalpost.enhet
-            journalpost.tema = journalpostHendelse.fagomrade ?: journalpost.tema
-            journalpost.gjelderId = journalpostHendelse.aktorId ?: journalpost.gjelderId
-            journalpostRepository.save(journalpost)
-        } else {
-            journalpostRepository.save(Journalpost(
-                journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId,
-                status = journalpostHendelse.journalstatus,
-                tema = journalpostHendelse.fagomrade,
-                enhet = journalpostHendelse.enhet,
-                gjelderId = journalpostHendelse.aktorId
-            ))
-        }
-
-
+        persistenceService.oppdaterJournalpostFraHendelse(journalpostHendelse)
     }
 }

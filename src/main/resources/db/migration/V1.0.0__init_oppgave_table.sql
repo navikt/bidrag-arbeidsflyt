@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS oppgave (
     oppgave_id numeric NOT NULL,
-    journalpost_id varchar(30) NOT NULL,
+    journalpost_id varchar(30) NULL,
     status varchar(20) NOT NULL,
     tema varchar(20) NOT NULL,
     oppgavetype varchar(20) NOT NULL,

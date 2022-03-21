@@ -7,5 +7,5 @@ import java.util.Optional
 
 interface JournalpostRepository: CrudRepository<Journalpost, Long> {
 
-    fun findByJournalpostIdContaining(journalpostId: String): Optional<Journalpost>
+    fun findByJournalpostId(journalpostId: String): Optional<Journalpost>
 }

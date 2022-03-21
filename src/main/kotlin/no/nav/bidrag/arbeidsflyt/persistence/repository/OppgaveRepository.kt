@@ -5,5 +5,4 @@ import org.springframework.data.repository.CrudRepository
 import java.util.Optional
 
 interface OppgaveRepository: CrudRepository<Oppgave, Long> {
-    fun findByJournalpostIdContaining(journalpostId: String): Optional<Oppgave>
 }

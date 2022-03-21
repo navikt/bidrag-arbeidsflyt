@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Profile
 import javax.sql.DataSource
 
 @Configuration
-@Profile(PROFILE_LIVE)
+@Profile(PROFILE_NAIS)
 class FlywayConfiguration @Autowired constructor(dataSource: DataSource?) {
 
     init {

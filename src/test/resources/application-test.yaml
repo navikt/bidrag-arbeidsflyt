@@ -34,6 +34,11 @@ no.nav.security.jwt:
 #### KAFKA
 
 spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:

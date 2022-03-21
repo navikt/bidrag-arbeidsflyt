@@ -19,7 +19,7 @@ class TestDataGenerator {
     @Autowired
     lateinit var oppgaveRepository: OppgaveRepository
 
-    fun createOppgave(journalpostId: String, status: String? = "OPPRETTET", oppgaveType: String? = "JFR"): Oppgave {
+    fun createOppgave(journalpostId: String, status: String = "OPPRETTET", oppgaveType: String = "JFR"): Oppgave {
         return Oppgave(
             oppgaveId = Random(5).nextLong(),
             journalpostId = journalpostId,
@@ -29,7 +29,7 @@ class TestDataGenerator {
         )
     }
 
-    fun  createJournalpost(journalpostId: String, status: String? = "M"): Journalpost {
+    fun  createJournalpost(journalpostId: String, status: String = "M"): Journalpost {
         return Journalpost(
             journalpostId = journalpostId,
             status = status,
