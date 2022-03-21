@@ -12,7 +12,7 @@ kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-preprod
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-preprod
 feature-toggle: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
 database:
-  dbname: bidrag-arbeidsflyt-feature2
+  dbname: bidrag-arbeidsflyt-feature
   autoResize: false
 ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.adeo.no
