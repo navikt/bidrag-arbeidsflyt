@@ -1,7 +1,7 @@
 name: bidrag-arbeidsflyt-feature
 azure:
   oppgave: oppgave-q1.dev-fss-pub.nais.io
-  person: bidrag-person-feature.dev.adeo.no
+  person: bidrag-person-feature.dev-fss.nais.io
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave-q1
   person_clientid: dev-fss.bidrag.bidrag-person-feature
 kafka:

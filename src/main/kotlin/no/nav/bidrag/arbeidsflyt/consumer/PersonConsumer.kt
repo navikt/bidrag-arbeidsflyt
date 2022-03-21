@@ -31,7 +31,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             ).body ?: HentPersonResponse()
         } catch (e: Exception){
             LOGGER.error("Det skjedde en feil ved henting av person $ident fra bidrag-person", e)
-            HentPersonResponse()
+            HentPersonResponse(ident = ident, aktoerId = ident)
         }
 
 
