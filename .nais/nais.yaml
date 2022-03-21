@@ -65,6 +65,7 @@ spec:
     sqlInstances:
       - name: {{ database.dbname }}
         type: POSTGRES_14
+        cascadingDelete: true
         diskAutoresize: {{ database.autoResize }}
         databases:
           - name: bidrag-arbeidsflyt-db
