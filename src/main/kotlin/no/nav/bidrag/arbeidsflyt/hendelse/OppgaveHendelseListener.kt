@@ -3,17 +3,13 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import no.nav.bidrag.arbeidsflyt.PROFILE_KAFKA_TEST
 import no.nav.bidrag.arbeidsflyt.PROFILE_LIVE
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
-import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
+import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.support.Acknowledgment
-import org.springframework.kafka.support.KafkaHeaders
-import org.springframework.messaging.handler.annotation.Header
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 
 
@@ -30,7 +26,7 @@ class OppgaveHendelseListener(
         private val LOGGER = LoggerFactory.getLogger(OppgaveHendelseListener::class.java)
     }
 
-    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"], errorHandler = "hendelseErrorHandler")
+    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
     fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
@@ -44,7 +40,7 @@ class OppgaveHendelseListener(
         }
     }
 
-    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"], errorHandler = "hendelseErrorHandler")
+    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
     fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 

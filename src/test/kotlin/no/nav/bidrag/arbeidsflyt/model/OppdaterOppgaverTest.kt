@@ -22,9 +22,11 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @DisplayName("OppdaterOppgaver")
+@ActiveProfiles("test")
 internal class OppdaterOppgaverTest {
 
     private val enhetsnummerFraSporingsdata = "1001"

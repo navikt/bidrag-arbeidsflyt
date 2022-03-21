@@ -6,9 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.annotation.Profile
+import org.springframework.test.context.ActiveProfiles
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableAspectJAutoProxy
+@ActiveProfiles(value = [PROFILE_KAFKA_TEST, "local"])
 @Profile("local")
 class BidragArbeidsflytLocal
 
