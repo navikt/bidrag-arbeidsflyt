@@ -1,7 +1,7 @@
 name: bidrag-arbeidsflyt
 azure:
   oppgave: oppgave.prod-fss-pub.nais.io
-  person: bidrag-person.prod-fss.nais.io
+  person: bidrag-person.prod-fss-pub.nais.io
   oppgave_clientid: prod-fss.oppgavehandtering.oppgave
   person_clientid: prod-fss.bidrag.bidrag-person
 kafka:
