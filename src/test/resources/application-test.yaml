@@ -3,6 +3,7 @@ logging:
   level:
     root: INFO
 OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
+PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 TOPIC_JOURNALPOST: topic_journalpost
