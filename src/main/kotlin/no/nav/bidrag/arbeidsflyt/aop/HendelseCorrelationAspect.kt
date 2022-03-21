@@ -26,9 +26,9 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
             val correlationIdJsonNode = jsonNode["sporing"]?.get(CORRELATION_ID)
 
             if (correlationIdJsonNode == null) {
-                val unknown = "unknown-${System.currentTimeMillis().toString(16)}"
-                LOGGER.warn("Unable to find correlation Id in '${hendelse.trim(' ')}', using '$unknown'")
-                MDC.put(CORRELATION_ID, unknown)
+                val correlationId = CorrelationId.generateTimestamped("unknown").get()
+                LOGGER.warn("Unable to find correlation Id in '${hendelse.trim(' ')}', using '$correlationId'")
+                MDC.put(CORRELATION_ID, correlationId)
             } else {
                 val correlationId = CorrelationId.existing(correlationIdJsonNode.asText())
                 MDC.put(CORRELATION_ID, correlationId.get())
@@ -38,9 +38,10 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveEndretHendelse(..)) && args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveHendelse(..)) && args(hendelse)")
     fun addCorrelationIdFromOppgaveHendelseToThread(joinPoint: JoinPoint, hendelse: String) {
-        MDC.put(CORRELATION_ID, "oppgave-${System.currentTimeMillis().toString(16)}")
+        val correlationId = CorrelationId.generateTimestamped("oppgave")
+        MDC.put(CORRELATION_ID, correlationId.get())
     }
 
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")

@@ -1,35 +1,38 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.LocalDate
+import java.time.ZonedDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class OppgaveEndretHendelse(
+data class OppgaveHendelse(
     val id: Long? = null,
+    val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
+    val opprettetAvEnhetsnr: String? = null,
     val journalpostId: String? = null,
     val tilordnetRessurs: String? = null,
+    val saksreferanse: String? = null,
+    val beskrivelse: String? = null,
     val temagruppe: String? = null,
     val tema: String? = null,
     val behandlingstema: String? = null,
     val oppgavetype: String? = null,
     val behandlingstype: String? = null,
     val versjon: Int? = null,
-    val status: Status? = null,
+    val status: OppgaveStatus? = null,
     val statuskategori: String? = null,
     val endretAv: String? = null,
     val opprettetAv: String? = null,
     val behandlesAvApplikasjon: String? = null,
     val ident: Ident? = null,
-    val metadata: Map<String, String>? = null
+    val metadata: Map<String, String>? = null,
+    val fristFerdigstillelse: LocalDate? = null,
+    val aktivDato: LocalDate? = null,
+    val opprettetTidspunkt: ZonedDateTime? = null,
+    val ferdigstiltTidspunkt: ZonedDateTime? = null,
+    val endretTidspunkt: ZonedDateTime? = null
 ){
-
-    enum class Status {
-        FERDIGSTILT,
-        AAPNET,
-        OPPRETTET,
-        FEILREGISTRERT,
-        UNDER_BEHANDLING
-    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Ident(
@@ -39,9 +42,10 @@ data class OppgaveEndretHendelse(
     )
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
-    fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
-    fun erStatusKategoriAapnet(): Boolean = statuskategori == "AAPNET"
-    fun erStatusFerdigstilt(): Boolean = status == Status.FERDIGSTILT
-    fun erStatusAapnet(): Boolean = status == Status.AAPNET
-    fun erStatusOpprettet(): Boolean = status == Status.OPPRETTET
+    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
+
+    internal val erJournalforingOppgave get() = oppgavetype == "JFR"
+    internal val hasJournalpostId get() = journalpostId != null
+    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
+    internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
 }

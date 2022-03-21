@@ -12,7 +12,7 @@ class KafkaJournalpostHendelseListener(
     jsonMapperService: JsonMapperService, behandeHendelseService: BehandleHendelseService
 ) : PojoJournalpostHendelseListener(jsonMapperService, behandeHendelseService) {
 
-    @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"], errorHandler = "hendelseErrorHandler")
+    @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"])
     override fun lesHendelse(hendelse: String) {
         super.lesHendelse(hendelse)
     }

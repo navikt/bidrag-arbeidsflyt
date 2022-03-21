@@ -1,41 +1,53 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import no.nav.bidrag.arbeidsflyt.PROFILE_KAFKA_TEST
+import no.nav.bidrag.arbeidsflyt.PROFILE_LIVE
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.DependsOn
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.annotation.PartitionOffset
+import org.springframework.stereotype.Service
 
-interface OppgaveHendelseListener {
-    fun lesHendelse(consumerRecord: ConsumerRecord<String, String>)
-}
 
-class KafkaOppgaveHendelseListener(jsonMapperService: JsonMapperService): PojoOppgaveEndretHendelseListener(
-    jsonMapperService
+@Service
+@DependsOn("oppgaveKafkaListenerContainerFactory")
+@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
+class OppgaveHendelseListener(
+    private val jsonMapperService: JsonMapperService,
+    private val featureToggle: FeatureToggle
 ) {
-
-    @KafkaListener(containerFactory="oppgaveEndretKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"], errorHandler = "hendelseErrorHandler")
-    override fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
-        super.lesHendelse(consumerRecord);
-    }
-}
-
-open class PojoOppgaveEndretHendelseListener(
-    private val jsonMapperService: JsonMapperService
-) : OppgaveHendelseListener {
     companion object {
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(PojoOppgaveEndretHendelseListener::class.java)
+        private val LOGGER = LoggerFactory.getLogger(OppgaveHendelseListener::class.java)
     }
 
-    override fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
-        val oppgaveEndretHendelse = jsonMapperService.mapOppgaveEndretHendelse(consumerRecord.value())
+    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
+    fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
+        val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
-        if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
-//            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
-//                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
-//                    "tema ${oppgaveEndretHendelse.tema}, " +
-//                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
-//                    "og status ${oppgaveEndretHendelse.status}")
+        if (oppgaveEndretHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
+            LOGGER.info("Oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
+                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
+                    "tema ${oppgaveEndretHendelse.tema}, " +
+                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
+                    "og status ${oppgaveEndretHendelse.status}")
+        }
+    }
+
+    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
+    fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
+        val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
+
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
+            LOGGER.info("Oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
+                    "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
+                    "tema ${oppgaveOpprettetHendelse.tema}, " +
+                    "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
+                    "og status ${oppgaveOpprettetHendelse.status}")
         }
     }
 }

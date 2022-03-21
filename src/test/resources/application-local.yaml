@@ -1,12 +1,48 @@
-OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
-KAFKA_BOOTSTRAP_SERVERS: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-TOPIC_JOURNALPOST: bidrag.journalpost-feature
-TOPIC_OPPGAVE_ENDRET: aapen-oppgave-endret-v1-preprod
-OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
+logging:
+  level:
+    root: INFO
 
+OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
+OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
 AZURE_APP_CLIENT_SECRET: changme
-AZURE_APP_CLIENT_ID: f92b7649-d007-4141-b007-cf6bf244d7a0
+AZURE_APP_CLIENT_ID: b2c755a5-725d-4fde-8a01-98de11bf250cc
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
 AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
 AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
+
+
+#### KAFKA
+
+KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
+KAFKA_BROKERS: localhost:9092
+TOPIC_JOURNALPOST: bidrag-journalpost
+TOPIC_OPPGAVE_ENDRET: oppgave-endret
+TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
+NAV_TRUSTSTORE_PATH: test
+NAV_TRUSTSTORE_PASSWORD: test
+SRV_BD_ARBEIDSFLYT_PASSWORD: test
+
+no.nav.security.jwt:
+  client:
+    registration:
+      oppgave:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${OPPGAVE_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      security.protocol: PLAINTEXT
+    consumer:
+      enableAutoCommit: false
+    listener:
+      ackMode: RECORD
