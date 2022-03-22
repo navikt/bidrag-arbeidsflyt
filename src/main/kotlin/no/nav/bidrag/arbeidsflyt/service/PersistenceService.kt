@@ -57,7 +57,7 @@ class PersistenceService(
             })
     }
 
-    fun oppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
+    fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
         if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
             return
         }
@@ -72,7 +72,7 @@ class PersistenceService(
                 it.status = journalpostHendelse.journalstatus ?: it.status
                 it.enhet = journalpostHendelse.enhet ?: it.enhet
                 it.tema = journalpostHendelse.fagomrade ?: it.tema
-                it.gjelderId = gjelderId.ident ?: it.gjelderId
+                it.gjelderId = gjelderId?.ident ?: it.gjelderId
                 journalpostRepository.save(it)
             }, {
                 journalpostRepository.save(
@@ -81,7 +81,7 @@ class PersistenceService(
                     status = journalpostHendelse.journalstatus ?: "UKJENT",
                     tema = journalpostHendelse.fagomrade ?: "BID",
                     enhet = journalpostHendelse.enhet ?: "UKJENT",
-                    gjelderId = gjelderId.ident
+                    gjelderId = gjelderId?.ident ?: journalpostHendelse.aktorId
                 )
                 )
             })

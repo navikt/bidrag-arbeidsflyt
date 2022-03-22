@@ -1,8 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
+import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
@@ -89,6 +91,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave med BID prefix nar oppgave ferdigstilt men journalpost status er mottatt`(){
+        stubHentOppgave(emptyList())
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_5, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -111,6 +114,15 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave nar oppgave ferdigstilt men journalpost status er mottatt`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "BEH_SAK",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -130,7 +142,37 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `skal ikke opprette oppgave nar oppgave ferdigstilt og journalpost status er mottatt men har allerede åpen JFR oppgave`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+        val endretOppgaveOptional = testDataGenerator.hentOppgave(OPPGAVE_ID_1)
+        assertThat(endretOppgaveOptional.isPresent).isTrue
+
+        assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
+            assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_1)
+            assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
+            assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
+            assertThat(oppgave.tema).isEqualTo("BID")
+            assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
+        }
+
+       verifyOppgaveNotOpprettet()
+    }
+
+    @Test
     fun `skal opprette oppgave nar oppgave endret fra JFR til BEH_SAK`(){
+        stubHentOppgave(emptyList())
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -148,4 +190,34 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyOppgaveOpprettetWith(OPPGAVE_ID_1.toString(), "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
     }
+
+//    @Nested
+//    @SpringBootTest(properties = ["FEATURE_ENABLED=KAFKA_OPPGAVE,LAGRE_JOURNALPOST"])
+//    inner class FeatureToggleOpprettOppgave {
+//        @Test
+//        fun `skal ikke opprette oppgave nar oppgave ferdigstilt men journalpost status er mottatt`(){
+//            stubHentPerson()
+//            stubOpprettOppgave()
+//            stubEndreOppgave()
+//            stubHentOppgave()
+//
+//            val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
+//
+//            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+//
+//            val endretOppgaveOptional = testDataGenerator.hentOppgave(OPPGAVE_ID_1)
+//            assertThat(endretOppgaveOptional.isPresent).isTrue
+//
+//            assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
+//                assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_1)
+//                assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
+//                assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
+//                assertThat(oppgave.tema).isEqualTo("BID")
+//                assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
+//            }
+//
+//            verifyOppgaveNotOpprettet()
+//        }
+//
+//    }
 }

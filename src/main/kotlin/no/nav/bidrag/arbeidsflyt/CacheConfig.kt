@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableCaching
-@Profile(PROFILE_NAIS)
+@Profile(value = [PROFILE_NAIS, "local"])
 class CacheConfig {
     companion object {
         const val PERSON_CACHE = "PERSON_CACHE"

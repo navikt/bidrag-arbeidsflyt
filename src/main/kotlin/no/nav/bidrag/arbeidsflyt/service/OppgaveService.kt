@@ -20,6 +20,15 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
+    internal fun finnAapneOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostId)
+
+        return OppgaverForHendelse(
+            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
+                .map { OppgaveDataForHendelse(it) }
+        )
+    }
+
     internal fun finnOppgaverForHendelse(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
         val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId)
 

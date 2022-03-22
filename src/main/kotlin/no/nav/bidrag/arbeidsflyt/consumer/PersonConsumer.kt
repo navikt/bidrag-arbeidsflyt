@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpMethod
 
 interface PersonConsumer {
-    fun hentPerson(ident: String?): HentPersonResponse
+    fun hentPerson(ident: String?): HentPersonResponse?
 }
 
 open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplate) : PersonConsumer {
@@ -16,8 +16,8 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(DefaultPersonConsumer::class.java)
     }
-    @Cacheable(PERSON_CACHE, unless = "#ident==null")
-    override fun hentPerson(ident: String?): HentPersonResponse {
+    @Cacheable(PERSON_CACHE, unless = "#ident==null||#result==null")
+    override fun hentPerson(ident: String?): HentPersonResponse? {
         if (ident == null){
             return HentPersonResponse()
         }
@@ -31,7 +31,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             ).body ?: HentPersonResponse()
         } catch (e: Exception){
             LOGGER.error("Det skjedde en feil ved henting av person $ident fra bidrag-person", e)
-            HentPersonResponse(ident = ident, aktoerId = ident)
+            return null
         }
 
 
