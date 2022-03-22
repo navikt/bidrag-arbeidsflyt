@@ -34,7 +34,7 @@ class OppgaveHendelseListener(
 
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
-            LOGGER.info("Oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
+            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
                     "tema ${oppgaveEndretHendelse.tema}, " +
                     "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
@@ -48,7 +48,7 @@ class OppgaveHendelseListener(
 
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
-            LOGGER.info("Oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
+            LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
                     "tema ${oppgaveOpprettetHendelse.tema}, " +
                     "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
