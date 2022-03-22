@@ -24,16 +24,4 @@ class TestConfiguration {
         jsonMapperService,
         behandleHendelseService
     )
-
-//    @Bean
-//    @Profile("!$PROFILE_KAFKA_TEST&!local")
-//    fun oppgaveHendelseListener(
-//        jsonMapperService: JsonMapperService,
-//        behandleHendelseService: BehandleOppgaveHendelseService,
-//        featureToggle: FeatureToggle
-//    ): OppgaveHendelseListener = OppgaveHendelseListener(
-//        behandleHendelseService,
-//        jsonMapperService,
-//        featureToggle,
-//    )
 }

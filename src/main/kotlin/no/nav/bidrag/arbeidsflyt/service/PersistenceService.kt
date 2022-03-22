@@ -30,7 +30,7 @@ class PersistenceService(
     }
 
     fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
-        return journalpostRepository.findByJournalpostId(journalpostId)
+        return journalpostRepository.findByJournalpostIdContaining(journalpostId)
     }
 
     fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
