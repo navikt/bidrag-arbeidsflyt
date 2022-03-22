@@ -47,7 +47,8 @@ fun createOppgave(oppgaveId: Long,
         status = status,
         tema = tema,
         oppgavetype = oppgaveType,
-        ident = ident
+        ident = ident,
+        statuskategori = "AAPEN"
     )
 }
 
@@ -65,6 +66,7 @@ fun createOppgaveHendelse(
     id: Long,
     journalpostId: String = "123213",
     tildeltEnhetsnr: String = "9999",
+    statuskategori: String = "AAPEN",
     status: OppgaveStatus = OppgaveStatus.OPPRETTET,
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
@@ -80,6 +82,7 @@ fun createOppgaveHendelse(
         tildeltEnhetsnr = tildeltEnhetsnr,
         status = status,
         oppgavetype = oppgavetype,
+        statuskategori = statuskategori,
         tema = tema,
         ident = ident,
         opprettetTidspunkt = CREATED_TIME,

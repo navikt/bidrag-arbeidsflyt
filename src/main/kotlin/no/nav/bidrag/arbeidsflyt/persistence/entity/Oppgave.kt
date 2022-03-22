@@ -19,6 +19,9 @@ data class Oppgave (
     @Column(name = "status")
     var status: String,
 
+    @Column(name = "statuskategori")
+    var statuskategori: String,
+
     @Column(name = "tema")
     var tema: String,
 
@@ -32,6 +35,7 @@ data class Oppgave (
     fun harJournalpostId(): Boolean = journalpostId != null
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         status = oppgaveHendelse.status?.name!!
+        statuskategori = oppgaveHendelse.statuskategori!!
         journalpostId = oppgaveHendelse.journalpostId
         oppgavetype = oppgaveHendelse.oppgavetype!!
         tema = oppgaveHendelse.tema!!

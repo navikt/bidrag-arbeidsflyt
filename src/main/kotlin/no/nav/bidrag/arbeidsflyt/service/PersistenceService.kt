@@ -11,6 +11,8 @@ import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Optional
+import javax.persistence.EntityManager
+import javax.persistence.PersistenceContext
 
 @Service
 class PersistenceService(
@@ -20,6 +22,9 @@ class PersistenceService(
     private val personConsumer: PersonConsumer
 ) {
 
+    @PersistenceContext
+    lateinit var entityManager: EntityManager
+
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(PersistenceService::class.java)
@@ -27,6 +32,12 @@ class PersistenceService(
 
     fun hentOppgave(oppgaveId: Long): Optional<Oppgave> {
         return oppgaveRepository.findById(oppgaveId)
+    }
+
+    fun hentOppgaveDetached(oppgaveId: Long): Optional<Oppgave> {
+        val oppgave = oppgaveRepository.findById(oppgaveId)
+        oppgave.ifPresent { entityManager.detach(it) }
+        return oppgave
     }
 
     fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
@@ -38,6 +49,7 @@ class PersistenceService(
             oppgaveId = oppgaveHendelse.id,
             oppgavetype =  oppgaveHendelse.oppgavetype!!,
             status = oppgaveHendelse.status?.name!!,
+            statuskategori = oppgaveHendelse.statuskategori!!,
             journalpostId = oppgaveHendelse.journalpostId,
             tema = oppgaveHendelse.tema!!,
             ident = oppgaveHendelse.hentIdent
