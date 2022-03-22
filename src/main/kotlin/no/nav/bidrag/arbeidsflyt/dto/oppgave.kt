@@ -108,11 +108,8 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
     constructor(oppgaveHendelse: OppgaveHendelse): this(oppgaveHendelse.journalpostIdUtenPrefix!!){
         this.journalpostIdMedPrefix = oppgaveHendelse.journalpostId!!
 
-        val aktorId = if (oppgaveHendelse.ident?.identType == "AKTOERID") oppgaveHendelse.ident.verdi else null
-        val bnr = if (oppgaveHendelse.ident?.identType == "BNR") oppgaveHendelse.ident.verdi else null
-
-        this.aktoerId = aktorId
-        this.bnr = bnr
+        this.aktoerId = oppgaveHendelse.hentAktoerId
+        this.bnr = oppgaveHendelse.hentBnr
         this.tema = oppgaveHendelse.tema ?: this.tema
         this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr
     }
@@ -263,6 +260,12 @@ enum class Prioritet {
     HOY //, NORM, LAV
 }
 
+enum class OppgaveIdentType {
+    AKTOERID,
+    ORGNR,
+    SAMHANDLERNR,
+    BNR
+}
 enum class OppgaveStatus {
     FERDIGSTILT,
     AAPNET,

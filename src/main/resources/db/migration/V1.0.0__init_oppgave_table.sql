@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS oppgave (
     status varchar(20) NOT NULL,
     tema varchar(20) NOT NULL,
     oppgavetype varchar(20) NOT NULL,
+    ident varchar(30) NULL,
     opprettet_timestamp timestamp DEFAULT now() NOT NULL,
     endret_timestamp timestamp DEFAULT now() NOT NULL,
     CONSTRAINT oppgave_pkey PRIMARY KEY (oppgave_id)

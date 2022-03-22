@@ -13,6 +13,8 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 
 
+
+
 @Service
 @DependsOn("oppgaveKafkaListenerContainerFactory")
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])

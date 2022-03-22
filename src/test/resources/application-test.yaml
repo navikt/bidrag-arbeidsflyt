@@ -17,12 +17,21 @@ KAFKA_GROUP_ID: test
 AZURE_ISSUER_URL: http://localhost:${mock-oauth2-server.port:1234}/aad
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: passord
-FEATURE_TOGGLE: NONE
+FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
+OPPGAVE_KAFKA_OFFSET_RESET: earliest
 
 no.nav.security.jwt:
   client:
     registration:
       oppgave:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+      person:
         token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default
@@ -45,6 +54,7 @@ spring:
     properties:
       security.protocol: PLAINTEXT
     consumer:
+      auto-offset-reset: earliest
       enableAutoCommit: false
     listener:
       ackMode: RECORD

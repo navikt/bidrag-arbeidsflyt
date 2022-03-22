@@ -23,7 +23,10 @@ data class Oppgave (
     var tema: String,
 
     @Column(name = "oppgavetype")
-    var oppgavetype: String
+    var oppgavetype: String,
+
+    @Column(name = "ident")
+    var ident: String? = null
 ) {
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
     fun harJournalpostId(): Boolean = journalpostId != null
@@ -32,5 +35,6 @@ data class Oppgave (
         journalpostId = oppgaveHendelse.journalpostId
         oppgavetype = oppgaveHendelse.oppgavetype!!
         tema = oppgaveHendelse.tema!!
+        ident = oppgaveHendelse.hentIdent
     }
 }

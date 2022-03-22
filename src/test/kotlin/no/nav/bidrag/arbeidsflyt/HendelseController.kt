@@ -27,5 +27,6 @@ class HendelseController(var behandleHendelseService: BehandleHendelseService, v
     fun simulateOppgaveHendelse(@RequestBody oppgave: String){
         CorrelationId.existing("test fra bidrag")
         var oppgave = jsonMapperService.mapOppgaveHendelse(oppgave);
+
     }
 }

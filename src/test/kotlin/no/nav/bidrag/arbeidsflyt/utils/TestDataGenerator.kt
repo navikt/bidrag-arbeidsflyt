@@ -6,11 +6,8 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import kotlin.random.Random
+import java.util.Optional
 
-var JOURNALPOST_ID_1 = "124123"
-var JOURNALPOST_ID_2 = "142312"
-var JOURNALPOST_ID_3 = "5125125"
 @Component
 class TestDataGenerator {
 
@@ -19,34 +16,30 @@ class TestDataGenerator {
     @Autowired
     lateinit var oppgaveRepository: OppgaveRepository
 
-    fun createOppgave(journalpostId: String, status: String = "OPPRETTET", oppgaveType: String = "JFR"): Oppgave {
-        return Oppgave(
-            oppgaveId = Random(5).nextLong(),
-            journalpostId = journalpostId,
-            status = status,
-            tema = "BID",
-            oppgavetype = oppgaveType
-        )
+    fun hentOppgave(oppgaveId: Long): Optional<Oppgave> {
+        return oppgaveRepository.findById(oppgaveId)
     }
-
-    fun  createJournalpost(journalpostId: String, status: String = "M"): Journalpost {
-        return Journalpost(
-            journalpostId = journalpostId,
-            status = status,
-            enhet = "4833",
-            gjelderId = "",
-            tema = "BID"
-        )
+    fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
+        return journalpostRepository.findByJournalpostId(journalpostId)
     }
 
     fun initTestData(){
-        oppgaveRepository.save(createOppgave(JOURNALPOST_ID_1))
-        oppgaveRepository.save(createOppgave(JOURNALPOST_ID_2))
-        oppgaveRepository.save(createOppgave(JOURNALPOST_ID_3))
+        oppgaveRepository.save(createOppgave(OPPGAVE_ID_1, JOURNALPOST_ID_1, ident = PERSON_IDENT_1))
+        oppgaveRepository.save(createOppgave(OPPGAVE_ID_2, JOURNALPOST_ID_2, ident = PERSON_IDENT_2))
+        oppgaveRepository.save(createOppgave(OPPGAVE_ID_3, JOURNALPOST_ID_3, ident = PERSON_IDENT_3))
+        oppgaveRepository.save(createOppgave(OPPGAVE_ID_4, BID_JOURNALPOST_ID_1, ident = PERSON_IDENT_3))
+        oppgaveRepository.save(createOppgave(OPPGAVE_ID_5, BID_JOURNALPOST_ID_2, ident = PERSON_IDENT_3))
 
-        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_1))
-        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_2))
-        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_3))
+        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_2, gjelderId = PERSON_IDENT_2))
+        journalpostRepository.save(createJournalpost(JOURNALPOST_ID_3, status = "J", gjelderId = PERSON_IDENT_3))
+        journalpostRepository.save(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_3))
+        journalpostRepository.save(createJournalpost(BID_JOURNALPOST_ID_2, status = "J", gjelderId = PERSON_IDENT_3))
+    }
+
+    fun deleteAll(){
+        oppgaveRepository.deleteAll()
+        journalpostRepository.deleteAll()
     }
     
 }

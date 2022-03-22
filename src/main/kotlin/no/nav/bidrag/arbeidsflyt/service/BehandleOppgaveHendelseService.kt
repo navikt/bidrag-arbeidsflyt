@@ -2,9 +2,6 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
-import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
-import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -25,21 +22,27 @@ class BehandleOppgaveHendelseService(
 
     @Transactional
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        persistenceService.opprettOppgaveFraHendelse(oppgaveHendelse)
+        persistenceService.lagreOppgaveFraHendelse(oppgaveHendelse)
     }
 
     @Transactional
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
-        persistenceService.oppdaterOppgaveFraHendelse(oppgaveHendelse)
-        if (!oppgaveHendelse.hasJournalpostId){
-            LOGGER.warn("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
+        try {
+            LOGGER.info("Behandler endret oppgave ${oppgaveHendelse.id} med status ${oppgaveHendelse.status}.")
+
+            if (!oppgaveHendelse.hasJournalpostId){
+                LOGGER.warn("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
+            }
+
+            if (oppgaveHendelse.erJournalforingOppgave){
+                opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse)
+            } else {
+                opprettNyOppgaveHvisOppgavetypeEndretFraJournalforingTilNoeAnnet(oppgaveHendelse)
+            }
+        } finally {
+            persistenceService.oppdaterOppgaveFraHendelse(oppgaveHendelse)
         }
 
-        if (oppgaveHendelse.erJournalforingOppgave){
-            opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse)
-        } else {
-            opprettNyOppgaveHvisOppgavetypeEndretFraJournalforingTilNoeAnnet(oppgaveHendelse)
-        }
     }
 
     fun opprettNyOppgaveHvisFerdigstiltOgJournalpostErMottatt(oppgaveHendelse: OppgaveHendelse){

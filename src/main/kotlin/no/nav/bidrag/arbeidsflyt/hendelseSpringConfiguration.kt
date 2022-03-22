@@ -83,6 +83,7 @@ class HendelseConfiguration {
     @Bean
     fun oppgaveConsumerFactory(@Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
                         @Value("\${KAFKA_GROUP_ID}") groupId: String,
+                        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
                         @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
                         @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
                         @Value("\${SERVICE_USER_USERNAME}") username: String,
@@ -91,6 +92,7 @@ class HendelseConfiguration {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
+        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = offsetReset
         props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java

@@ -33,16 +33,17 @@ class PersistenceService(
         return journalpostRepository.findByJournalpostId(journalpostId)
     }
 
-    fun opprettOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         val oppgave = Oppgave(
             oppgaveId = oppgaveHendelse.id,
             oppgavetype =  oppgaveHendelse.oppgavetype!!,
             status = oppgaveHendelse.status?.name!!,
             journalpostId = oppgaveHendelse.journalpostId,
-            tema = oppgaveHendelse.tema!!
+            tema = oppgaveHendelse.tema!!,
+            ident = oppgaveHendelse.hentIdent
         )
         oppgaveRepository.save(oppgave)
-        LOGGER.info("Lagret opprettet oppgave ${oppgaveHendelse.id} i databasen.")
+        LOGGER.info("Lagret oppgave med ${oppgaveHendelse.id} i databasen.")
     }
 
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
@@ -52,7 +53,7 @@ class PersistenceService(
                 oppgaveRepository.save(it)
             }, {
                 LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
-                opprettOppgaveFraHendelse(oppgaveHendelse)
+                lagreOppgaveFraHendelse(oppgaveHendelse)
             })
     }
 
@@ -78,7 +79,7 @@ class PersistenceService(
                     Journalpost(
                     journalpostId = journalpostId,
                     status = journalpostHendelse.journalstatus ?: "UKJENT",
-                    tema = journalpostHendelse.fagomrade ?: "UKJENT",
+                    tema = journalpostHendelse.fagomrade ?: "BID",
                     enhet = journalpostHendelse.enhet ?: "UKJENT",
                     gjelderId = gjelderId.ident
                 )

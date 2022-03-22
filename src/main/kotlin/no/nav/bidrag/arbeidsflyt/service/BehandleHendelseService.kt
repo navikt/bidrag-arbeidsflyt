@@ -20,13 +20,17 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
-        OppdaterOppgaver(journalpostHendelse, oppgaveService)
-            .oppdaterEksterntFagomrade()
-            .oppdaterEndretEnhetsnummer()
-            .oppdaterOppgaveMedAktoerId()
-            .opprettJournalforingsoppgave()
-            .ferdigstillJournalforingsoppgaver()
+        try {
+            OppdaterOppgaver(journalpostHendelse, oppgaveService)
+                .oppdaterEksterntFagomrade()
+                .oppdaterEndretEnhetsnummer()
+                .oppdaterOppgaveMedAktoerId()
+                .opprettJournalforingsoppgave()
+                .ferdigstillJournalforingsoppgaver()
+        } finally {
+            persistenceService.oppdaterJournalpostFraHendelse(journalpostHendelse)
+        }
 
-        persistenceService.oppdaterJournalpostFraHendelse(journalpostHendelse)
+
     }
 }
