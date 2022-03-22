@@ -31,7 +31,7 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
 
-        await.atMost(2, TimeUnit.SECONDS).until {
+        await.atMost(4, TimeUnit.SECONDS).until {
             val oppgave = testDataGenerator.hentOppgave(OPPGAVE_ID_3)
             oppgave.isPresent && oppgave.get().ident == PERSON_IDENT_1
         }
@@ -59,7 +59,7 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
 
         configureProducer()?.send(ProducerRecord(topicOpprettet, hendelseString))
 
-        await.atMost(2, TimeUnit.SECONDS).until {
+        await.atMost(4, TimeUnit.SECONDS).until {
             testDataGenerator.hentOppgave(oppgaveId).isPresent
         }
 
