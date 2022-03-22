@@ -4,20 +4,20 @@ import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-
-interface BehandleHendelseService {
-    fun behandleHendelse(journalpostHendelse: JournalpostHendelse)
-}
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService) : BehandleHendelseService {
+class BehandleHendelseService(private val oppgaveService: OppgaveService, private val persistenceService: PersistenceService) {
     companion object {
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(DefaultBehandleHendelseService::class.java)
+        private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
     }
 
-    override fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
+    @Transactional
+    fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
+
+        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse)
 
         OppdaterOppgaver(journalpostHendelse, oppgaveService)
             .oppdaterEksterntFagomrade()
@@ -25,5 +25,8 @@ class DefaultBehandleHendelseService(private val oppgaveService: OppgaveService)
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
+
+
+
     }
 }

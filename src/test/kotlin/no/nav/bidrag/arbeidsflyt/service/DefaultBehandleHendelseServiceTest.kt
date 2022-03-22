@@ -31,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles
 internal class DefaultBehandleHendelseServiceTest {
 
     @Autowired
-    private lateinit var behandleHendelseService: DefaultBehandleHendelseService
+    private lateinit var behandleHendelseService: BehandleHendelseService
 
     @MockBean
     private lateinit var oppgaveConsumerMock: OppgaveConsumer

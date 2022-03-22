@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
-import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.Journalstatus
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
@@ -71,8 +71,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         )
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
-        patchOppgaveJournalpostIdRequest.endretAvEnhetsnr = enhetsNummer
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -126,7 +125,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         )
 
         val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
         patchOppgaveJournalpostIdRequest.endretAvEnhetsnr = enhetsNummer
 
         verify(httpHeaderRestTemplateMock).exchange(
@@ -181,7 +180,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
@@ -228,7 +227,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettOppgaveRequest("2525", aktoerId, tema, enhetsNummer)
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest("2525", aktoerId, tema, enhetsNummer)
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
         updateOppgaveAfterOpprettRequest.endretAvEnhetsnr = enhetsNummer
 

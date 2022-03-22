@@ -1,12 +1,15 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
@@ -87,17 +90,64 @@ data class OppgaveData(
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettOppgaveRequest(var journalpostId: String, var aktoerId: String? = null, var tema: String? = "BID", var tildeltEnhetsnr: String? = "4833") {
+data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
+    private var journalpostIdMedPrefix: String = journalpostId
+
+    // Default verdier
+    var beskrivelse: String = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)"
     var oppgavetype: String = "JFR"
+    var opprettetAvEnhetsnr: String = "9999"
     var prioritet: String = Prioritet.HOY.name
+    var tildeltEnhetsnr: String? = "4833"
+    var tema: String? = "BID"
     var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
     var fristFerdigstillelse: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
-    var opprettetAvEnhetsnr: String = "9999"
+
+    var aktoerId: String? = null
+    var bnr: String? = null
+    constructor(oppgaveHendelse: OppgaveHendelse): this(oppgaveHendelse.journalpostIdUtenPrefix!!){
+        this.journalpostIdMedPrefix = oppgaveHendelse.journalpostId!!
+
+        this.aktoerId = oppgaveHendelse.hentAktoerId
+        this.bnr = oppgaveHendelse.hentBnr
+        this.tema = oppgaveHendelse.tema ?: this.tema
+        this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr
+    }
+
+    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostIdUtenPrefix){
+        this.journalpostIdMedPrefix = journalpostHendelse.journalpostId
+
+        this.aktoerId = journalpostHendelse.aktorId
+        this.tema = journalpostHendelse.fagomrade ?: this.tema
+        this.tildeltEnhetsnr = journalpostHendelse.enhet
+    }
+
+    constructor(oppgaveData: OppgaveData): this(oppgaveData.journalpostId!!){
+        this.aktoerId = oppgaveData.aktoerId
+        this.bnr = oppgaveData.bnr
+        this.tema = oppgaveData.tema ?: this.tema
+        this.tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
+    }
+
+    constructor(journalpostId: String, aktoerId: String? = null, tema: String? = "BID", tildeltEnhetsnr: String? = "4833"): this(journalpostId){
+        this.aktoerId = aktoerId
+        this.tema = tema
+        this.tildeltEnhetsnr = tildeltEnhetsnr
+    }
+
+    fun harJournalpostIdMedBIDPrefix(): Boolean {
+        return journalpostIdMedPrefix.startsWith("BID-")
+    }
+
+    fun hentJournalpostIdMedBIDPrefix(): String {
+        return journalpostIdMedPrefix
+    }
+
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
-        return HttpEntity<OpprettOppgaveRequest>(this, headers)
+        return HttpEntity<OpprettJournalforingsOppgaveRequest>(this, headers)
     }
 }
 
@@ -210,6 +260,12 @@ enum class Prioritet {
     HOY //, NORM, LAV
 }
 
+enum class OppgaveIdentType {
+    AKTOERID,
+    ORGNR,
+    SAMHANDLERNR,
+    BNR
+}
 enum class OppgaveStatus {
     FERDIGSTILT,
     AAPNET,

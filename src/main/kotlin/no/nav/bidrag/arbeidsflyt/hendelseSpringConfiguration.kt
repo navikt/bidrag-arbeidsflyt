@@ -2,6 +2,8 @@ package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
@@ -38,7 +40,7 @@ import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
 @Configuration
-@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_LIVE])
+@Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
 class HendelseConfiguration {
     companion object {
         @JvmStatic
@@ -81,6 +83,7 @@ class HendelseConfiguration {
     @Bean
     fun oppgaveConsumerFactory(@Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
                         @Value("\${KAFKA_GROUP_ID}") groupId: String,
+                        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
                         @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
                         @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
                         @Value("\${SERVICE_USER_USERNAME}") username: String,
@@ -89,6 +92,7 @@ class HendelseConfiguration {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
+        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = offsetReset
         props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
@@ -126,6 +130,16 @@ class ArbeidsflytConfiguration {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("oppgave"))
         return DefaultOppgaveConsumer(restTemplate)
+    }
+
+    @Bean
+    fun personConsumer(
+        @Value("\${PERSON_URL}") personUrl: String,
+        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+    ): PersonConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler(personUrl+"/bidrag-person")
+        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
+        return DefaultPersonConsumer(restTemplate)
     }
 
     @Bean

@@ -3,6 +3,7 @@ logging:
   level:
     root: INFO
 OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
+PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 TOPIC_JOURNALPOST: topic_journalpost
@@ -16,7 +17,8 @@ KAFKA_GROUP_ID: test
 AZURE_ISSUER_URL: http://localhost:${mock-oauth2-server.port:1234}/aad
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: passord
-FEATURE_TOGGLE: NONE
+FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
+OPPGAVE_KAFKA_OFFSET_RESET: earliest
 
 no.nav.security.jwt:
   client:
@@ -29,16 +31,30 @@ no.nav.security.jwt:
           client-id: 123
           client-secret: 123
           client-auth-method: client_secret_basic
+      person:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
 
 
 #### KAFKA
 
 spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
       security.protocol: PLAINTEXT
     consumer:
+      auto-offset-reset: earliest
       enableAutoCommit: false
     listener:
       ackMode: RECORD

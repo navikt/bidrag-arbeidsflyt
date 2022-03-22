@@ -1,14 +1,19 @@
 name: bidrag-arbeidsflyt-feature
 azure:
   oppgave: oppgave-q1.dev-fss-pub.nais.io
+  person: bidrag-person-feature.dev-fss-pub.nais.io
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave-q1
+  person_clientid: dev-fss.bidrag.bidrag-person-feature
 kafka:
   pool: nav-dev
   bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
 kafka-topic-journalpost: bidrag.journalpost-feature
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-preprod
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-preprod
-feature-toggle: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
+feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST
+database:
+  dbname: bidrag-arbeidsflyt-feature
+  autoResize: false
 ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.adeo.no
   - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no

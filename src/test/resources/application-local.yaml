@@ -3,9 +3,11 @@ logging:
     root: INFO
 
 OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
+PERSON_URL: https://bidrag-person-feature.dev.adeo.no
 OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
+PERSON_SCOPE: dev-fss.bidrag.bidrag-person-feature
 AZURE_APP_CLIENT_SECRET: changme
-AZURE_APP_CLIENT_ID: b2c755a5-725d-4fde-8a01-98de11bf250cc
+AZURE_APP_CLIENT_ID: 98a4c9b5-4ace-4759-b8f6-905d4765b125
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
 AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
@@ -23,21 +25,14 @@ TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
-
-no.nav.security.jwt:
-  client:
-    registration:
-      oppgave:
-        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
-        grant-type: client_credentials
-        scope: api://${OPPGAVE_SCOPE}/.default
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_basic
-
+FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
 
 spring:
+  flyway.enabled: false
+  datasource.type: com.zaxxer.hikari.HikariDataSource
+  datasource.url: jdbc:h2:mem:default
+  h2.console.enabled: true
+  jpa.hibernate.hbmddl-auto: create-drop
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:

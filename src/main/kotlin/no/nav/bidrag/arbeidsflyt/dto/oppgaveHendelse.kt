@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
-    val id: Long? = null,
+    val id: Long,
     val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
@@ -36,7 +36,7 @@ data class OppgaveHendelse(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Ident(
-        val identType: String? = null,
+        var identType: OppgaveIdentType? = null,
         val verdi: String? = null,
         val folkeregisterident: String? = null
     )
@@ -48,4 +48,7 @@ data class OppgaveHendelse(
     internal val hasJournalpostId get() = journalpostId != null
     internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
+    internal val hentIdent get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.folkeregisterident else ident?.verdi
+    internal val hentBnr get() = if (ident?.identType == OppgaveIdentType.BNR) ident.verdi else null
+    internal val hentAktoerId get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.verdi else null
 }
