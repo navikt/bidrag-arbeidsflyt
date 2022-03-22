@@ -16,8 +16,13 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_5
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestPropertySource
 
 class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -190,34 +195,4 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyOppgaveOpprettetWith(OPPGAVE_ID_1.toString(), "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
     }
-
-//    @Nested
-//    @SpringBootTest(properties = ["FEATURE_ENABLED=KAFKA_OPPGAVE,LAGRE_JOURNALPOST"])
-//    inner class FeatureToggleOpprettOppgave {
-//        @Test
-//        fun `skal ikke opprette oppgave nar oppgave ferdigstilt men journalpost status er mottatt`(){
-//            stubHentPerson()
-//            stubOpprettOppgave()
-//            stubEndreOppgave()
-//            stubHentOppgave()
-//
-//            val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
-//
-//            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
-//
-//            val endretOppgaveOptional = testDataGenerator.hentOppgave(OPPGAVE_ID_1)
-//            assertThat(endretOppgaveOptional.isPresent).isTrue
-//
-//            assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
-//                assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_1)
-//                assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
-//                assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
-//                assertThat(oppgave.tema).isEqualTo("BID")
-//                assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
-//            }
-//
-//            verifyOppgaveNotOpprettet()
-//        }
-//
-//    }
 }
