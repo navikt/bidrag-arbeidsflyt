@@ -24,6 +24,7 @@ data class JournalpostHendelse(
     internal fun harJournalpostIdJOARKPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("JOARK")
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
+    internal fun hentJournalpostMedBareBIDprefix() = if (harJournalpostIdBIDPrefix()) journalpostId else journalpostIdUtenPrefix
 }
 
 data class Sporingsdata(
