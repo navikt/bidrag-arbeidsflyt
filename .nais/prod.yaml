@@ -12,7 +12,7 @@ kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-prod
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-prod
 feature-toggle: NONE
 database:
-  dbname: bidrag-arbeidsflyt-prod
+  dbname: bidrag-arbeidsflyt
   autoResize: true
 ingresses:
   - https://bidrag-arbeidsflyt.intern.nav.no
