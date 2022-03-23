@@ -46,7 +46,9 @@ class PersistenceService(
     }
 
     fun finnAapneJournalforingsOppgaver(journalpostId: String): List<Oppgave>{
-        return oppgaveRepository.findAllByJournalpostIdContainingAndStatuskategoriAndOppgavetype(journalpostId, Oppgavestatuskategori.AAPEN.name, "JFR")
+        val harJournalpostIdPrefiks = journalpostId.contains("-")
+        val journalpostIdUtenPrefiks = if (harJournalpostIdPrefiks) journalpostId.split('-')[1] else journalpostId
+        return oppgaveRepository.findAllByJournalpostIdContainingAndStatuskategoriAndOppgavetype(journalpostIdUtenPrefiks, Oppgavestatuskategori.AAPEN.name, "JFR")
     }
 
     fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
