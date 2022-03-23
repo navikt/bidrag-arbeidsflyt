@@ -7,9 +7,7 @@ import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
@@ -272,4 +270,8 @@ enum class OppgaveStatus {
     OPPRETTET,
     FEILREGISTRERT,
     UNDER_BEHANDLING
+}
+
+enum class Oppgavestatuskategori {
+    AAPEN, AVSLUTTET
 }

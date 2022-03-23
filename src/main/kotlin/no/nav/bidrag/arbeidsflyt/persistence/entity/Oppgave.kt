@@ -31,11 +31,12 @@ data class Oppgave (
     @Column(name = "ident")
     var ident: String? = null
 ) {
+    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT.name
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
     fun harJournalpostId(): Boolean = journalpostId != null
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         status = oppgaveHendelse.status?.name!!
-        statuskategori = oppgaveHendelse.statuskategori!!
+        statuskategori = oppgaveHendelse.statuskategori?.name!!
         journalpostId = oppgaveHendelse.journalpostId
         oppgavetype = oppgaveHendelse.oppgavetype!!
         tema = oppgaveHendelse.tema!!

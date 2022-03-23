@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
@@ -44,12 +45,16 @@ class PersistenceService(
         return journalpostRepository.findByJournalpostIdContaining(journalpostId)
     }
 
+    fun finnAapneJournalforingsOppgaver(journalpostId: String): List<Oppgave>{
+        return oppgaveRepository.findAllByJournalpostIdContainingAndStatuskategoriAndOppgavetype(journalpostId, Oppgavestatuskategori.AAPEN.name, "JFR")
+    }
+
     fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         val oppgave = Oppgave(
             oppgaveId = oppgaveHendelse.id,
             oppgavetype =  oppgaveHendelse.oppgavetype!!,
             status = oppgaveHendelse.status?.name!!,
-            statuskategori = oppgaveHendelse.statuskategori!!,
+            statuskategori = oppgaveHendelse.statuskategori?.name!!,
             journalpostId = oppgaveHendelse.journalpostId,
             tema = oppgaveHendelse.tema!!,
             ident = oppgaveHendelse.hentIdent

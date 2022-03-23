@@ -4,6 +4,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
+import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
@@ -66,7 +67,7 @@ fun createOppgaveHendelse(
     id: Long,
     journalpostId: String = "123213",
     tildeltEnhetsnr: String = "9999",
-    statuskategori: String = "AAPEN",
+    statuskategori: Oppgavestatuskategori = Oppgavestatuskategori.AAPEN,
     status: OppgaveStatus = OppgaveStatus.OPPRETTET,
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
