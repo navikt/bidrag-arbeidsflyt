@@ -21,7 +21,7 @@ data class OppgaveHendelse(
     val behandlingstype: String? = null,
     val versjon: Int? = null,
     val status: OppgaveStatus? = null,
-    val statuskategori: String? = null,
+    val statuskategori: Oppgavestatuskategori? = null,
     val endretAv: String? = null,
     val opprettetAv: String? = null,
     val behandlesAvApplikasjon: String? = null,

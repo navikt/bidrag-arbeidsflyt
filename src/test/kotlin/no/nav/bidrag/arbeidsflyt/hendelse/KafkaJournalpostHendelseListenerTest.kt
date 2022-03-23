@@ -17,7 +17,7 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
     private val topic: String? = null
 
     @Test
-    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`() {
+    fun `skal opprette oppgave med BID prefix nar journalpost mottatt uten oppgave`() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)

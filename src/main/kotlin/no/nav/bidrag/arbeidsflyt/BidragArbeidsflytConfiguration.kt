@@ -56,14 +56,16 @@ class HendelseConfiguration {
 
     @Bean
     fun defaultErrorHandler(): DefaultErrorHandler? {
-        return DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
+        val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
             val offset = rec.offset()
             val topic =  rec.topic()
             val partition =  rec.topic()
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, FixedBackOff(2000, 10))
+        }, FixedBackOff(10000, 10))
+
+        return errorHandler
     }
 
     @Bean
