@@ -21,13 +21,14 @@ class BehandleOppgaveHendelseService(
     }
 
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        persistenceService.lagreOppgaveFraHendelse(oppgaveHendelse)
+        persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
     }
 
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         LOGGER.info("Behandler endret oppgave ${oppgaveHendelse.id} med status ${oppgaveHendelse.status} endret av ${oppgaveHendelse.endretAv}.")
 
         val oppgaveBefore = persistenceService.hentOppgaveDetached(oppgaveHendelse.id)
+
         persistenceService.oppdaterOppgaveFraHendelse(oppgaveHendelse)
 
         if (oppgaveHendelse.hasJournalpostId){

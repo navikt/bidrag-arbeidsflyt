@@ -43,7 +43,9 @@ class PersistenceService(
     }
 
     fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
-        return journalpostRepository.findByJournalpostIdContaining(journalpostId)
+        val harJournalpostIdPrefiks = journalpostId.contains("-")
+        val journalpostIdUtenPrefiks = if (harJournalpostIdPrefiks) journalpostId.split('-')[1] else journalpostId
+        return journalpostRepository.findByJournalpostIdContaining(journalpostIdUtenPrefiks)
     }
 
     fun finnAapneJournalforingsOppgaver(journalpostId: String): List<Oppgave>{
@@ -53,7 +55,7 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         if (!oppgaveHendelse.erJournalforingOppgave){
             LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
             return
@@ -80,7 +82,7 @@ class PersistenceService(
                 oppgaveRepository.save(it)
             }, {
                 LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
-                lagreOppgaveFraHendelse(oppgaveHendelse)
+                lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
             })
     }
 

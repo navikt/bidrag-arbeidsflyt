@@ -78,5 +78,19 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
         verifyOppgaveNotOpprettet()
     }
 
+    @Test
+    fun `skal ikke mappe og behandle oppgave opprettet hendelse som ikke er type JFR`() {
+        val oppgaveId = 239999L
+        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = JOURNALPOST_ID_3, oppgavetype = "BEH_SAK")
+        val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
+
+        configureProducer()?.send(ProducerRecord(topicOpprettet, hendelseString))
+
+        await.atLeast(4, TimeUnit.SECONDS)
+
+        val endretOppgaveOptional = testDataGenerator.hentOppgave(oppgaveId)
+        assertThat(endretOppgaveOptional.isPresent).isFalse
+    }
+
 
 }
