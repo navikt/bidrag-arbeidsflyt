@@ -87,7 +87,8 @@ fun createOppgaveHendelse(
         tema = tema,
         ident = ident,
         opprettetTidspunkt = CREATED_TIME,
-        endretTidspunkt = CREATED_TIME
+        endretTidspunkt = CREATED_TIME,
+        endretAv = "test"
     )
 }
 

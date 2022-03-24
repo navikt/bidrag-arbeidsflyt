@@ -33,12 +33,12 @@ class OppgaveHendelseListener(
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
-            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
             LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
                     "tema ${oppgaveEndretHendelse.tema}, " +
                     "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
                     "og status ${oppgaveEndretHendelse.status}")
+            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
         }
     }
 
@@ -47,12 +47,12 @@ class OppgaveHendelseListener(
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
-            behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
             LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
                     "tema ${oppgaveOpprettetHendelse.tema}, " +
                     "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
                     "og status ${oppgaveOpprettetHendelse.status}")
+            behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
         }
     }
 }

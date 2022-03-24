@@ -67,13 +67,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun opprettJournalforingOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest) {
-        val oppgaveData = oppgaveConsumer.opprettOppgave(opprettJournalforingsOppgaveRequest)
-
-        // Opprett oppgave doesn`t support journalpostId with prefix. Have to patch oppgave after opprett
-        if (opprettJournalforingsOppgaveRequest.harJournalpostIdMedBIDPrefix()) {
-            oppgaveConsumer.endreOppgave(
-                patchOppgaveRequest = UpdateOppgaveAfterOpprettRequest(oppgaveData, opprettJournalforingsOppgaveRequest.hentJournalpostIdMedBIDPrefix())
-            )
-        }
+        oppgaveConsumer.opprettOppgave(opprettJournalforingsOppgaveRequest)
     }
 }

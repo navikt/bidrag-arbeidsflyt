@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
@@ -95,8 +96,32 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.enhet).isEqualTo("4833")
         }
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW.replace("BID-", "")}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
-        verifyOppgaveEndretWith(1, BID_JOURNALPOST_ID_3_NEW)
+        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal opprette oppgave med uten prefix nar Joark journalpost mottat uten oppgave`(){
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_4_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+            assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
+            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
+            assertThat(journalpost.status).isEqualTo("M")
+            assertThat(journalpost.tema).isEqualTo("BID")
+            assertThat(journalpost.enhet).isEqualTo("4833")
+        }
+
+        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
     }
 
 }

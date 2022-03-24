@@ -89,8 +89,6 @@ data class OppgaveData(
 
 @Suppress("unused") // used by jackson...
 data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
-    private var journalpostIdMedPrefix: String = journalpostId
-
     // Default verdier
     var beskrivelse: String = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)"
     var oppgavetype: String = "JFR"
@@ -103,18 +101,14 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
 
     var aktoerId: String? = null
     var bnr: String? = null
-    constructor(oppgaveHendelse: OppgaveHendelse): this(oppgaveHendelse.journalpostIdUtenPrefix!!){
-        this.journalpostIdMedPrefix = oppgaveHendelse.journalpostId!!
-
+    constructor(oppgaveHendelse: OppgaveHendelse): this(oppgaveHendelse.journalpostId!!){
         this.aktoerId = oppgaveHendelse.hentAktoerId
         this.bnr = oppgaveHendelse.hentBnr
         this.tema = oppgaveHendelse.tema ?: this.tema
         this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr
     }
 
-    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostIdUtenPrefix){
-        this.journalpostIdMedPrefix = journalpostHendelse.journalpostId
-
+    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostMedBareBIDprefix){
         this.aktoerId = journalpostHendelse.aktorId
         this.tema = journalpostHendelse.fagomrade ?: this.tema
         this.tildeltEnhetsnr = journalpostHendelse.enhet
@@ -131,14 +125,6 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
         this.aktoerId = aktoerId
         this.tema = tema
         this.tildeltEnhetsnr = tildeltEnhetsnr
-    }
-
-    fun harJournalpostIdMedBIDPrefix(): Boolean {
-        return journalpostIdMedPrefix.startsWith("BID-")
-    }
-
-    fun hentJournalpostIdMedBIDPrefix(): String {
-        return journalpostIdMedPrefix
     }
 
     fun somHttpEntity(): HttpEntity<*> {

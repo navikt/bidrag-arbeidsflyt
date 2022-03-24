@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import java.util.Optional
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
+import javax.transaction.Transactional
 
 @Service
 class PersistenceService(
@@ -42,7 +43,9 @@ class PersistenceService(
     }
 
     fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
-        return journalpostRepository.findByJournalpostIdContaining(journalpostId)
+        val harJournalpostIdPrefiks = journalpostId.contains("-")
+        val journalpostIdUtenPrefiks = if (harJournalpostIdPrefiks) journalpostId.split('-')[1] else journalpostId
+        return journalpostRepository.findByJournalpostIdContaining(journalpostIdUtenPrefiks)
     }
 
     fun finnAapneJournalforingsOppgaver(journalpostId: String): List<Oppgave>{
@@ -51,7 +54,12 @@ class PersistenceService(
         return oppgaveRepository.findAllByJournalpostIdContainingAndStatuskategoriAndOppgavetype(journalpostIdUtenPrefiks, Oppgavestatuskategori.AAPEN.name, "JFR")
     }
 
-    fun lagreOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    @Transactional
+    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+        if (!oppgaveHendelse.erJournalforingOppgave){
+            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
+            return
+        }
         val oppgave = Oppgave(
             oppgaveId = oppgaveHendelse.id,
             oppgavetype =  oppgaveHendelse.oppgavetype!!,
@@ -62,17 +70,19 @@ class PersistenceService(
             ident = oppgaveHendelse.hentIdent
         )
         oppgaveRepository.save(oppgave)
-        LOGGER.info("Lagret oppgave med ${oppgaveHendelse.id} i databasen.")
+        LOGGER.info("Lagret oppgave med id ${oppgaveHendelse.id} i databasen.")
     }
 
+    @Transactional
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         oppgaveRepository.findById(oppgaveHendelse.id)
             .ifPresentOrElse({
+                LOGGER.info("Oppdaterer oppgave ${oppgaveHendelse.id} i databasen")
                 it.oppdaterOppgaveFraHendelse(oppgaveHendelse)
                 oppgaveRepository.save(it)
             }, {
                 LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
-                lagreOppgaveFraHendelse(oppgaveHendelse)
+                lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
             })
     }
 

@@ -70,21 +70,13 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val patchOppgaveJournalpostIdRequest = UpdateOppgaveAfterOpprettRequest(OppgaveDataForHendelse(oppgaveData), journalpostId)
-        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId.split("-")[1], aktoerId, "BID", enhetsNummer)
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
             eq(HttpMethod.POST),
             eq(opprettOppgaveRequest.somHttpEntity()),
             eq(OppgaveData::class.java)
-        )
-
-        verify(httpHeaderRestTemplateMock).exchange(
-            anyString(),
-            eq(HttpMethod.PATCH),
-            eq(patchOppgaveJournalpostIdRequest.somHttpEntity()),
-            eq(String::class.java)
         )
     }
 
@@ -154,9 +146,6 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(oppgaveData))) // neste søk gir oppgave for patch av jpId
         )
 
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
-            .thenReturn(ResponseEntity.ok("OK"))
-
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
 
@@ -180,7 +169,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostId, aktoerId, "BID", enhetsNummer)
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest(journalpostIdMedPrefix, aktoerId, "BID", enhetsNummer)
 
         verify(httpHeaderRestTemplateMock).exchange(
             anyString(),
