@@ -108,7 +108,7 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
         this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr
     }
 
-    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.hentJournalpostMedBareBIDprefix()){
+    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostMedBareBIDprefix){
         this.aktoerId = journalpostHendelse.aktorId
         this.tema = journalpostHendelse.fagomrade ?: this.tema
         this.tildeltEnhetsnr = journalpostHendelse.enhet

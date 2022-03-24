@@ -2,7 +2,7 @@ logging:
   level:
     root: INFO
 
-OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
+OPPGAVE_URL: https://oppgave-q12.dev-fss-pub.nais.io
 PERSON_URL: https://bidrag-person-feature.dev.adeo.no
 OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
 PERSON_SCOPE: dev-fss.bidrag.bidrag-person-feature

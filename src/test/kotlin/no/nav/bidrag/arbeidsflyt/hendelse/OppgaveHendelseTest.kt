@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVETYPE_BEH_SAK
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVETYPE_JFR
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
@@ -109,8 +110,8 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
         }
 
-        verifyOppgaveOpprettetWith(OPPGAVE_ID_1.toString(), "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1.replace("BID-", "")}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
-        verifyOppgaveEndretWith(1, BID_JOURNALPOST_ID_1)
+        verifyOppgaveOpprettetWith(OPPGAVE_ID_1.toString(), "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
     }
 
     @Test
@@ -214,6 +215,42 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `skal ikke lagre oppgave som ikke har type JFR`(){
+        stubHentOppgave(emptyList())
+        val oppgaveId = 500L
+        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = JOURNALPOST_ID_4_NEW, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+        val endretOppgaveOptional = testDataGenerator.hentOppgave(oppgaveId)
+        assertThat(endretOppgaveOptional.isPresent).isFalse
+
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `skal oppdatere oppgave som har type JFR men har endret type`(){
+        stubHentOppgave(emptyList())
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_4_NEW, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+        val endretOppgaveOptional = testDataGenerator.hentOppgave(OPPGAVE_ID_1)
+        assertThat(endretOppgaveOptional.isPresent).isTrue
+
+        assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
+            assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_1)
+            assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
+            assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_BEH_SAK)
+            assertThat(oppgave.tema).isEqualTo("BID")
+            assertThat(oppgave.status).isEqualTo(OppgaveStatus.OPPRETTET.name)
+        }
+
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    @Disabled
     fun `skal ikke opprette oppgave nar oppgave ikke er JFR men det ikke finnes noe oppgave lagret fra for`(){
         stubHentOppgave(emptyList())
         val oppgaveId = 500L
