@@ -57,7 +57,7 @@ class PersistenceService(
     @Transactional
     fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         if (!oppgaveHendelse.erJournalforingOppgave){
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
+            LOGGER.debug("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
             return
         }
         val oppgave = Oppgave(
@@ -86,6 +86,7 @@ class PersistenceService(
             })
     }
 
+    @Transactional
     fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
         if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
             return

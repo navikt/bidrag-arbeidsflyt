@@ -13,7 +13,6 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
         private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
     }
 
-    @Transactional
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 

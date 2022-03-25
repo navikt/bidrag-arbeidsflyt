@@ -21,6 +21,11 @@ class BehandleOppgaveHendelseService(
     }
 
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
+        LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveHendelse.journalpostId}, " +
+                "statuskategori ${oppgaveHendelse.statuskategori}, " +
+                "tema ${oppgaveHendelse.tema}, " +
+                "oppgavetype ${oppgaveHendelse.oppgavetype} " +
+                "og status ${oppgaveHendelse.status}")
         persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
     }
 

@@ -94,7 +94,8 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave med BID prefix nar oppgave ferdigstilt men journalpost status er mottatt`(){
         stubHentOppgave(emptyList())
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_5, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
+        val journalpostIdWithoutPrefix = BID_JOURNALPOST_ID_1.replace("BID-", "")
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_5, journalpostId = journalpostIdWithoutPrefix, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -103,14 +104,14 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
             assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_5)
-            assertThat(oppgave.journalpostId).isEqualTo(BID_JOURNALPOST_ID_1)
+            assertThat(oppgave.journalpostId).isEqualTo(journalpostIdWithoutPrefix)
             assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
             assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
             assertThat(oppgave.tema).isEqualTo("BID")
             assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
         }
 
-        verifyOppgaveOpprettetWith(OPPGAVE_ID_1.toString(), "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${journalpostIdWithoutPrefix}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
 
