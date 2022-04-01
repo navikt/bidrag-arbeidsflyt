@@ -46,7 +46,6 @@ abstract class AbstractBehandleHendelseTest {
         stubOpprettOppgave()
         stubEndreOppgave()
         stubHentOppgave()
-        testDataGenerator.initTestData()
     }
 
     @AfterEach

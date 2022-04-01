@@ -10,7 +10,7 @@ kafka:
 kafka-topic-journalpost: bidrag.journalpost
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-dev-syntetisk
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-dev-syntetisk
-feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST
+feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST,OPPRETT_OPPGAVE
 database:
   dbname: bidrag-arbeidsflyt-dev4
   autoResize: true

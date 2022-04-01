@@ -2,11 +2,9 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.Optional
 
 @Service
 class BehandleOppgaveHendelseService(
@@ -20,74 +18,38 @@ class BehandleOppgaveHendelseService(
         private val LOGGER = LoggerFactory.getLogger(BehandleOppgaveHendelseService::class.java)
     }
 
-    fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveHendelse.journalpostId}, " +
-                "statuskategori ${oppgaveHendelse.statuskategori}, " +
-                "tema ${oppgaveHendelse.tema}, " +
-                "oppgavetype ${oppgaveHendelse.oppgavetype} " +
-                "og status ${oppgaveHendelse.status}")
-        persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
-    }
-
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         LOGGER.info("Behandler endret oppgave ${oppgaveHendelse.id} med status ${oppgaveHendelse.status} endret av ${oppgaveHendelse.endretAv}.")
 
-        val oppgaveBefore = persistenceService.hentOppgaveDetached(oppgaveHendelse.id)
-
-        persistenceService.oppdaterOppgaveFraHendelse(oppgaveHendelse)
-
         if (oppgaveHendelse.hasJournalpostId){
-            opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse, oppgaveBefore)
+            opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
         } else {
-            LOGGER.warn("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
+            LOGGER.debug("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
         }
-
     }
 
-    fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse, oppgaveBefore: Optional<Oppgave>){
+    fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse){
+        if (oppgaveHendelse.erAapenJournalforingsoppgave()){
+            LOGGER.info("Oppgave ${oppgaveHendelse.id} er åpen journalføringsoppgave. Videre behandling er ikke nødvendig.")
+            return
+        }
         // Antar at Bidrag journlpost lagres med BID- prefix i databasen og oppgaven
-        persistenceService.hentJournalpost(oppgaveHendelse.journalpostId!!)
-            .ifPresentOrElse({ journalpost ->
+        persistenceService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostId!!)
+            .ifPresentOrElse({
                 run {
-                    if (journalpost.erStatusMottatt() && harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
-                        opprettNyJournalforingOppgave(oppgaveHendelse, oppgaveBefore)
+                    if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
+                        LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
+                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
                     }
                 }
             },
-            {LOGGER.warn("Fant ingen tilhørende journalpost for oppgave ${oppgaveHendelse.id} med journalpostid ${oppgaveHendelse.journalpostId}. Stopper videre behandling.")})
+            {LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.")})
     }
 
-
-    fun opprettNyJournalforingOppgave(oppgaveHendelse: OppgaveHendelse, oppgaveBeforeOptional: Optional<Oppgave>){
-        logReason(oppgaveHendelse, oppgaveBeforeOptional)
-        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
-
-    }
-
-    fun logReason(oppgaveHendelse: OppgaveHendelse, oppgaveBeforeOptional: Optional<Oppgave>){
-        val oppgaveBefore = oppgaveBeforeOptional.orElse(null)
-        if (oppgaveHendelse.erStatusFerdigstilt() && oppgaveHendelse.erJournalforingOppgave) {
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} ble lukket når tilhørende journalpost ${oppgaveHendelse.journalpostId} fortsatt har status MOTTATT. Oppretter ny journalføringsoppgave. ")
-        } else if (!oppgaveHendelse.erJournalforingOppgave && oppgaveBefore?.erJournalforingOppgave() == true) {
-            LOGGER.info("Oppgavetype på oppgave ${oppgaveHendelse.id} ble endret fra Journalføring (JFR) til ${oppgaveHendelse.oppgavetype} når tilhørende journalpost ${oppgaveHendelse.journalpostId} fortsatt har status MOTTATT. Oppretter ny journalføringsoppgave.")
-        } else {
-            LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT og har ingen åpen journalføringsoppgave (ukjent årsak). Oppretter ny journalføringsoppgave.")
-        }
-    }
-
-    fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean{
-         // TODO: Check by querying database instead of using api. Needs time to populate database
-        val aapneOppgaveDB = persistenceService.finnAapneJournalforingsOppgaver(journalpostId)
+    fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
         val aapneOppgaveAPI = oppgaveService.finnAapneOppgaverForJournalpost(journalpostId)
-
-        LOGGER.info("Åpne journalføringsoppgaver i databasen ${aapneOppgaveDB.size}, fra api ${aapneOppgaveAPI.hentJournalforingsOppgaver().size} med harIkkeJournalforingsoppgave: ${aapneOppgaveAPI.harIkkeJournalforingsoppgave()}")
-        if (aapneOppgaveDB.size != aapneOppgaveAPI.hentJournalforingsOppgaver().size){
-            LOGGER.warn("Det var ulik resultat på antall åpne journalføringsoppgaver i databasen (${aapneOppgaveDB.size}) og fra api (${aapneOppgaveAPI.hentJournalforingsOppgaver().size})")
-        }
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
-
-
 
     fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         if (featureToggle.isFeatureEnabled(FeatureToggle.Feature.OPPRETT_OPPGAVE)){

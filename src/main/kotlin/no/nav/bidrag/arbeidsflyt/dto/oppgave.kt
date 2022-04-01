@@ -70,6 +70,7 @@ data class OppgaveData(
     var opprettetAv: String? = null,
     var endretAv: String? = null,
     var ferdigstiltTidspunkt: String? = null,
+    val statuskategori: Oppgavestatuskategori? = null,
     var endretTidspunkt: String? = null,
     var prioritet: String? = null,
     var status: String? = null,

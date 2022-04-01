@@ -41,13 +41,4 @@ class OppgaveHendelseListener(
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
         }
     }
-
-    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
-    fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
-        val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
-
-        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
-            behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
-        }
-    }
 }
