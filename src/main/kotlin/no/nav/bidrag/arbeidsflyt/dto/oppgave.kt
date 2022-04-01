@@ -85,7 +85,7 @@ data class OppgaveData(
         tildeltEnhetsnr = tildeltEnhetsnr
     )
 
-    override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,aktoerId=$aktoerId,oppgavetype=$oppgavetype...}"
+    override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status...}"
 }
 
 @Suppress("unused") // used by jackson...
