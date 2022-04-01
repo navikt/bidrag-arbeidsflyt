@@ -40,9 +40,9 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
             )
 
         // when/then ferdigstill oppgave
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
             .thenReturn(
-                ResponseEntity.ok("endret")
+                ResponseEntity.ok(OppgaveData(1))
             )
 
         // kafka hendelse

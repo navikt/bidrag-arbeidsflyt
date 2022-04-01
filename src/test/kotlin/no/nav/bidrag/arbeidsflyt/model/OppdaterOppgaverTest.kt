@@ -63,8 +63,8 @@ internal class OppdaterOppgaverTest {
     fun `skal sette endretAvEnhetsnummer når oppdatering av eksternt fagområde gjøres`() {
         journalpostHendelse.fagomrade = "IKKE_BIDRAG"
 
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
-            .thenReturn(ResponseEntity.ok("jay!!!"))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(OppgaveData()))
 
         // then
         oppdaterOppgaver.oppdaterEksterntFagomrade()
@@ -88,8 +88,8 @@ internal class OppdaterOppgaverTest {
     fun `skal sette endretAvEnhetsnummer når oppdatering av enhetsnummer gjøres`() {
         journalpostHendelse.enhet = "1234"
 
-        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
-            .thenReturn(ResponseEntity.ok("jay!!!"))
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
+            .thenReturn(ResponseEntity.ok(OppgaveData()))
 
         // then
         oppdaterOppgaver.oppdaterEndretEnhetsnummer()
