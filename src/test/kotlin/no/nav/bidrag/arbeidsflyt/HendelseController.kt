@@ -1,14 +1,11 @@
 package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
-import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -17,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @Unprotected
 @Profile("local")
-class HendelseController(var behandleHendelseService: BehandleHendelseService, var jsonMapperService: JsonMapperService, var oppgaveRepository: OppgaveRepository) {
+class HendelseController(var behandleHendelseService: BehandleHendelseService, var jsonMapperService: JsonMapperService) {
 
     // Simulate kafka message on journalpost hendelse
     @PostMapping("/journalpost")
@@ -33,9 +30,4 @@ class HendelseController(var behandleHendelseService: BehandleHendelseService, v
 
     }
 
-    @GetMapping("/oppgave")
-    fun hentAlleOppgaver(): MutableIterable<Oppgave> {
-        return oppgaveRepository.findAll()
-
-    }
 }
