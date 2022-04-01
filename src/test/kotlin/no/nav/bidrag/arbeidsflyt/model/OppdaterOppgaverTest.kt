@@ -75,7 +75,7 @@ internal class OppdaterOppgaverTest {
             anyString(),
             eq(HttpMethod.PATCH),
             patchEntityCaptor.capture(),
-            eq(String::class.java)
+            eq(OppgaveData::class.java)
         )
 
         val patchRequest = patchEntityCaptor.value.body as PatchOppgaveRequest
@@ -100,7 +100,7 @@ internal class OppdaterOppgaverTest {
             anyString(),
             eq(HttpMethod.PATCH),
             patchEntityCaptor.capture(),
-            eq(String::class.java)
+            eq(OppgaveData::class.java)
         )
 
         val patchRequest = patchEntityCaptor.value.body as PatchOppgaveRequest

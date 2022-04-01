@@ -58,8 +58,8 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplateMock).exchange(eq("/api/v1/oppgaver/2"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
-        verify(httpHeaderRestTemplateMock, never()).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock).exchange(eq("/api/v1/oppgaver/2"), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java))
+        verify(httpHeaderRestTemplateMock, never()).exchange(eq("/api/v1/oppgaver/1"), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java))
     }
 
     @Test
@@ -83,6 +83,6 @@ internal class JournalpostHendelseListenerFerdigstillOppgaverEndeTilEndeTest {
             """.trimIndent()
         )
 
-        verify(httpHeaderRestTemplateMock, never()).exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java))
+        verify(httpHeaderRestTemplateMock, never()).exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java))
     }
 }

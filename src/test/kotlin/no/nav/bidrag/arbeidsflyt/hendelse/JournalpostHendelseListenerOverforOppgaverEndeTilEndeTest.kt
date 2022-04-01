@@ -71,7 +71,7 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
             eq("/api/v1/oppgaver/6"),
             eq(HttpMethod.PATCH),
             eq(overforOppgaveRequest.somHttpEntity()),
-            eq(String::class.java)
+            eq(OppgaveData::class.java)
         )
     }
 }
