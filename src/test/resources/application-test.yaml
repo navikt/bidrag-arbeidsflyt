@@ -7,8 +7,8 @@ PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 TOPIC_JOURNALPOST: topic_journalpost
-KAFKA_BROKERS: localhost:9092
-KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+KAFKA_BROKERS: localhost:9093
+KAFKA_BOOTSTRAP_SERVERS: localhost:9093
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test

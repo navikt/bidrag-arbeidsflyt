@@ -43,7 +43,9 @@ data class OppgaveHendelse(
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
     fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
+    fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
 
+    internal val erStatusKategoriAapen get() = statuskategori == Oppgavestatuskategori.AAPEN
     internal val erJournalforingOppgave get() = oppgavetype == "JFR"
     internal val hasJournalpostId get() = journalpostId != null
     internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId

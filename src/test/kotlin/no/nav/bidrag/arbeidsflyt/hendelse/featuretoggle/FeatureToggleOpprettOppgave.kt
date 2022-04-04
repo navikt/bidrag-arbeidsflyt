@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
+import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
@@ -31,20 +32,9 @@ class FeatureToggleOpprettOppgave: AbstractBehandleHendelseTest() {
             tildeltEnhetsnr = "4833"
         )
         ))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
-
-        val endretOppgaveOptional = testDataGenerator.hentOppgave(OPPGAVE_ID_1)
-        Assertions.assertThat(endretOppgaveOptional.isPresent).isTrue
-
-        Assertions.assertThat(endretOppgaveOptional).hasValueSatisfying { oppgave ->
-            Assertions.assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_1)
-            Assertions.assertThat(oppgave.ident).isEqualTo(PERSON_IDENT_1)
-            Assertions.assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
-            Assertions.assertThat(oppgave.tema).isEqualTo("BID")
-            Assertions.assertThat(oppgave.status).isEqualTo(OppgaveStatus.FERDIGSTILT.name)
-        }
 
         verifyOppgaveNotOpprettet()
     }

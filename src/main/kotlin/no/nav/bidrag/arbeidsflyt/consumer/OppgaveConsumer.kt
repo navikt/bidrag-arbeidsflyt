@@ -59,7 +59,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             oppgaverPath,
             HttpMethod.PATCH,
             patchOppgaveRequest.somHttpEntity(),
-            String::class.java
+            OppgaveData::class.java
         )
 
         LOGGER.info("Response: ${responseEntity.statusCode}, ${responseEntity.body}")

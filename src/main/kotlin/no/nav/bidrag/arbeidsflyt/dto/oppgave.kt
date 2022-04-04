@@ -70,6 +70,7 @@ data class OppgaveData(
     var opprettetAv: String? = null,
     var endretAv: String? = null,
     var ferdigstiltTidspunkt: String? = null,
+    val statuskategori: Oppgavestatuskategori? = null,
     var endretTidspunkt: String? = null,
     var prioritet: String? = null,
     var status: String? = null,
@@ -84,7 +85,7 @@ data class OppgaveData(
         tildeltEnhetsnr = tildeltEnhetsnr
     )
 
-    override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,aktoerId=$aktoerId,oppgavetype=$oppgavetype...}"
+    override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 }
 
 @Suppress("unused") // used by jackson...
