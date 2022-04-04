@@ -8,4 +8,5 @@ interface JournalpostRepository: CrudRepository<Journalpost, Long> {
 
     fun findByJournalpostId(journalpostId: String): Optional<Journalpost>
     fun findByJournalpostIdContaining(journalpostId: String): Optional<Journalpost>
+    fun deleteByJournalpostId(journalpostId: String): Optional<Journalpost>
 }

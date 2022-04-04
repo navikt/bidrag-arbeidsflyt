@@ -11,6 +11,7 @@ import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
+import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -58,7 +59,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = "J", sporingEnhet = "1234")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, enhet = "1234", sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -68,10 +69,59 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_1)
             assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_1)
-            assertThat(journalpost.status).isEqualTo("J")
+            assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
+            assertThat(journalpost.enhet).isEqualTo("1234")
         }
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveEndretWith(1, "\"tildeltEnhetsnr\":\"1234\"", "\"endretAvEnhetsnr\":\"1234\"")
+    }
+
+    @Test
+    fun `skal slette journalpost fra databasen hvis status ikke er M`() {
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        assertThat(journalpostOptionalBefore.isPresent).isTrue
+
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptionalAfter = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        assertThat(journalpostOptionalAfter.isPresent).isFalse
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")
+    }
+
+    @Test
+    fun `skal ikke lagre eller journalpost hvis status ikke er M og ikke finnes`() {
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptionalAfter = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        assertThat(journalpostOptionalAfter.isPresent).isFalse
 
         verifyOppgaveNotOpprettet()
         verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")

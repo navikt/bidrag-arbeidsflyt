@@ -37,9 +37,18 @@ class PersistenceService(
 
         val journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
 
-        val gjelderId = personConsumer.hentPerson(journalpostHendelse.aktorId)
 
-        LOGGER.info("Lagrer journalpost ${journalpostHendelse.journalpostId} fra hendelse")
+        if (!journalpostHendelse.erMottaksregistrert){
+            LOGGER.info("Sletter journalpost $journalpostId fra hendelse da status ikke lenger er MOTTATT (status=${journalpostHendelse.journalstatus}")
+            deleteJournalpost(journalpostId)
+        } else {
+            LOGGER.info("Lagrer journalpost $journalpostId fra hendelse")
+            saveOrUpdateMottattJournalpost(journalpostId, journalpostHendelse)
+        }
+    }
+
+    fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse){
+        val gjelderId = personConsumer.hentPerson(journalpostHendelse.aktorId)
         journalpostRepository.findByJournalpostId(journalpostId)
             .ifPresentOrElse({
                 it.status = journalpostHendelse.journalstatus ?: it.status
@@ -50,14 +59,18 @@ class PersistenceService(
             }, {
                 journalpostRepository.save(
                     Journalpost(
-                    journalpostId = journalpostId,
-                    status = journalpostHendelse.journalstatus ?: "UKJENT",
-                    tema = journalpostHendelse.fagomrade ?: "BID",
-                    enhet = journalpostHendelse.enhet ?: "UKJENT",
-                    gjelderId = gjelderId?.ident ?: journalpostHendelse.aktorId
-                )
+                        journalpostId = journalpostId,
+                        status = journalpostHendelse.journalstatus ?: "UKJENT",
+                        tema = journalpostHendelse.fagomrade ?: "BID",
+                        enhet = journalpostHendelse.enhet ?: "UKJENT",
+                        gjelderId = gjelderId?.ident ?: journalpostHendelse.aktorId
+                    )
                 )
             })
+    }
+
+    fun deleteJournalpost(journalpostId: String){
+        journalpostRepository.deleteByJournalpostId(journalpostId)
     }
 
 }
