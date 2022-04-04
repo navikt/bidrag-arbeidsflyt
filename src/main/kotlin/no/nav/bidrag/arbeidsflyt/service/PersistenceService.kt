@@ -39,7 +39,7 @@ class PersistenceService(
 
 
         if (!journalpostHendelse.erMottaksregistrert || journalpostHendelse.erEksterntFagomrade){
-            LOGGER.info("Sletter journalpost $journalpostId fra hendelse da status ikke lenger er MOTTATT eller er eksternFagomrade (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
+            LOGGER.info("Sletter journalpost $journalpostId fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
             deleteJournalpost(journalpostId)
         } else {
             LOGGER.info("Lagrer journalpost $journalpostId fra hendelse")
