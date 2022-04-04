@@ -63,7 +63,7 @@ class OppdaterOppgaver(
     fun opprettJournalforingsoppgave(): OppdaterOppgaver {
         finnOppgaverForHendelse()
 
-        if (journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
+        if (!journalpostHendelse.erEksterntFagomrade && journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
             oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(journalpostHendelse))
