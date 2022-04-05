@@ -26,7 +26,7 @@ class PersistenceService(
         val harJournalpostIdPrefiks = journalpostId.contains("-")
         val journalpostIdUtenPrefiks = if (harJournalpostIdPrefiks) journalpostId.split('-')[1] else journalpostId
         return journalpostRepository.findByJournalpostIdContaining(journalpostIdUtenPrefiks)
-            .filter{ it.erStatusMottatt() }
+            .filter{ it.erStatusMottatt && it.erBidragFagomrade }
     }
 
     @Transactional
@@ -38,8 +38,8 @@ class PersistenceService(
         val journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
 
 
-        if (!journalpostHendelse.erMottaksregistrert){
-            LOGGER.info("Sletter journalpost $journalpostId fra hendelse da status ikke lenger er MOTTATT (status=${journalpostHendelse.journalstatus}")
+        if (!journalpostHendelse.erMottaksregistrert || journalpostHendelse.erEksterntFagomrade){
+            LOGGER.info("Sletter journalpost $journalpostId fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
             deleteJournalpost(journalpostId)
         } else {
             LOGGER.info("Lagrer journalpost $journalpostId fra hendelse")
