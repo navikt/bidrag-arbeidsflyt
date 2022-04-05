@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
-private const val PARAMS_100_APNE_OPPGAVER = "tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+private const val PARAMS_100_APNE_OPPGAVER = "tema=BID&tema=FAR&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
 private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
 
 data class OppgaveSokRequest(val journalpostId: String) {
