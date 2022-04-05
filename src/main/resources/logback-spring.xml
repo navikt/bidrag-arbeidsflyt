@@ -14,7 +14,7 @@
         <stackTrace/>
       </providers>
       <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-        <valueMasker class="no.nav.bidrag.arbeidsflyt.logging.MaskingPatternLayout"/>
+        <valueMasker class="no.nav.bidrag.arbeidsflyt.logging.SensitiveLogMasker"/>
       </jsonGeneratorDecorator>
     </encoder>
   </appender>

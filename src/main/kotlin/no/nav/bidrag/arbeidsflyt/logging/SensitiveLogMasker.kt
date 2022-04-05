@@ -1,13 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.logging
 
-import ch.qos.logback.classic.spi.ILoggingEvent
 import com.fasterxml.jackson.core.JsonStreamContext
 import net.logstash.logback.mask.ValueMasker
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-class MaskingPatternLayout : ValueMasker {
+class SensitiveLogMasker : ValueMasker {
 
     companion object {
         private val FNR_PATTERN: Pattern = "(?<![0-9])[0-9]{11,14}(?![0-9])".toPattern()

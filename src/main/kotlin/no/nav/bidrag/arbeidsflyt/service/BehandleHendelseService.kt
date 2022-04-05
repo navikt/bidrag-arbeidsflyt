@@ -24,8 +24,5 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
-
-
-
     }
 }
