@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
+import no.nav.bidrag.arbeidsflyt.model.FunksjonellFeilException
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
@@ -63,8 +64,9 @@ class HendelseConfiguration {
             val topic =  rec.topic()
             val partition =  rec.topic()
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, FixedBackOff(10000, 10))
+        }, FixedBackOff(2000, 10))
 
+        errorHandler.addNotRetryableExceptions(FunksjonellFeilException::class.java)
         return errorHandler
     }
 

@@ -6,9 +6,14 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.client.HttpStatusCodeException
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 
@@ -55,27 +60,44 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
 
-        val responseEntity = restTemplate.exchange(
-            oppgaverPath,
-            HttpMethod.PATCH,
-            patchOppgaveRequest.somHttpEntity(),
-            OppgaveData::class.java
-        )
+        try {
+            val responseEntity = restTemplate.exchange(
+                oppgaverPath,
+                HttpMethod.PATCH,
+                patchOppgaveRequest.somHttpEntity(),
+                OppgaveData::class.java
+            )
+            LOGGER.info("Endret en oppgave: ${responseEntity.statusCode}, ${responseEntity.body}")
+        } catch (e: HttpStatusCodeException){
+            if (e.statusCode == HttpStatus.BAD_REQUEST){
+                throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)
+            }
 
-        LOGGER.info("Response: ${responseEntity.statusCode}, ${responseEntity.body}")
+            throw e
+        }
+
     }
 
     override fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse {
-        LOGGER.info("Oppretter oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}")
+        try {
+            LOGGER.info("Oppretter ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}")
 
-        val responseEntity = restTemplate.exchange(
-            OPPGAVE_CONTEXT,
-            HttpMethod.POST,
-            opprettJournalforingsOppgaveRequest.somHttpEntity(),
-            OppgaveData::class.java
-        )
+            val responseEntity = restTemplate.exchange(
+                OPPGAVE_CONTEXT,
+                HttpMethod.POST,
+                opprettJournalforingsOppgaveRequest.somHttpEntity(),
+                OppgaveData::class.java
+            )
 
-        LOGGER.info("Response: {}, HttpStatus: {}", responseEntity.body, responseEntity.statusCode)
-        return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
+            LOGGER.info("Opprettet ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost {}, HttpStatus: {}", responseEntity.body?.id, responseEntity.statusCode)
+            return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
+        } catch (e: HttpStatusCodeException){
+            if (e.statusCode == HttpStatus.BAD_REQUEST){
+                throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke opprette oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}. Feilet med feilmelding ${e.message}", e)
+            }
+
+            throw e
+        }
+
     }
 }
