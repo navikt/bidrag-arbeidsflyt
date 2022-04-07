@@ -5,14 +5,13 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpStatusCodeException
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
@@ -70,7 +69,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             LOGGER.info("Endret en oppgave: ${responseEntity.statusCode}, ${responseEntity.body}")
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){
-                throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)
+                throw EndreOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)
             }
 
             throw e

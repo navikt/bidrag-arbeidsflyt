@@ -1,12 +1,13 @@
 package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
-import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.model.FunksjonellFeilException
+import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
+import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
@@ -66,7 +67,7 @@ class HendelseConfiguration {
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
         }, FixedBackOff(2000, 10))
 
-        errorHandler.addNotRetryableExceptions(FunksjonellFeilException::class.java)
+        errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
     }
 
