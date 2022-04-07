@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <mdc/>
+        <timestamp/>
+        <message/>
+        <loggerName/>
+        <threadName/>
+        <logLevel/>
+        <callerData/>
+        <arguments/>
+        <stackTrace/>
+      </providers>
+      <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+        <valueMasker class="no.nav.bidrag.arbeidsflyt.logging.SensitiveLogMasker"/>
+      </jsonGeneratorDecorator>
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="stdout_json"/>
+  </root>
+</configuration>
