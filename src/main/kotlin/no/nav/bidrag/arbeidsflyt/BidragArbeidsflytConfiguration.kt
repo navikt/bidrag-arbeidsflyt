@@ -67,7 +67,7 @@ class HendelseConfiguration {
             val topic =  rec.topic()
             val partition =  rec.topic()
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, ExponentialBackOffWithMaxRetries(15))
+        }, ExponentialBackOffWithMaxRetries(10))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
