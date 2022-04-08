@@ -23,47 +23,49 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
         val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
-        await.atMost(4, TimeUnit.SECONDS).until {
+        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
             testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW).isPresent
+            val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+            assertThat(journalpostOptional.isPresent).isTrue
+
+            assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+                assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+                assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
+                assertThat(journalpost.status).isEqualTo("M")
+                assertThat(journalpost.tema).isEqualTo("BID")
+                assertThat(journalpost.enhet).isEqualTo("4833")
+            }
         }
 
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
 
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
-        }
     }
 
     @Test
     fun `skal opprette oppgave med BID prefix nar journalpost mottatt uten oppgave`() {
         stubHentOppgave(emptyList())
+        stubOpprettOppgave()
         stubHentPerson(PERSON_IDENT_3)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
         val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
-        await.atMost(4, TimeUnit.SECONDS).until {
-            testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW).isPresent
+        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
+            val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+            assertThat(journalpostOptional.isPresent).isTrue
+
+            assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+                assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+                assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
+                assertThat(journalpost.status).isEqualTo("M")
+                assertThat(journalpost.tema).isEqualTo("BID")
+                assertThat(journalpost.enhet).isEqualTo("4833")
+            }
+
+            verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+            verifyOppgaveNotEndret()
         }
 
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
 
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
-        }
-
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
-        verifyOppgaveNotEndret()
     }
 
 

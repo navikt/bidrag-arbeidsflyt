@@ -38,6 +38,7 @@ import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
@@ -66,7 +67,7 @@ class HendelseConfiguration {
             val topic =  rec.topic()
             val partition =  rec.topic()
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, FixedBackOff(2000, 10))
+        }, ExponentialBackOffWithMaxRetries(10))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
