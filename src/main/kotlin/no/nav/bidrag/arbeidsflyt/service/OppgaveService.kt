@@ -1,12 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
+import no.nav.bidrag.arbeidsflyt.dto.EndreTemaOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
@@ -20,8 +20,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    internal fun finnAapneOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostId)
+    internal fun finnAapneOppgaverForJournalpost(journalpostId: String, tema: String? = "BID"): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, tema)
 
         return OppgaverForHendelse(
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
@@ -52,6 +52,27 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")
+            )
+        }
+    }
+
+    internal fun endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostId: String, endretAvEnhetsnummer: String?, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse) {
+        LOGGER.info("Endrer tema eller ferdigstiller journalforingsoppgaver for journalpost $journalpostId med nytt tema $nyttTema")
+        val harJournalforingsOppgaverForNyttTema = finnAapneOppgaverForJournalpost(journalpostId, nyttTema).harJournalforingsoppgaver()
+        if (harJournalforingsOppgaverForNyttTema){
+            LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker bidrag journalføringsoppgaver")
+            ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
+        } else {
+            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, nyttTema, oppgaverForHendelse)
+        }
+    }
+
+    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse){
+        oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
+            LOGGER.info("Endrer tema på oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = endretAvEnhetsnummer,
+                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema)
             )
         }
     }

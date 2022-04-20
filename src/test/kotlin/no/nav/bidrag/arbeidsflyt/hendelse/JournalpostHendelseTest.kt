@@ -174,4 +174,79 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
     }
 
+    @Test
+    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_4_NEW,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        stubHentPerson(PERSON_IDENT_3)
+        val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.fagomrade = "EKSTERN"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
+        verifyOppgaveEndretWith(0, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
+    }
+
+    @Test
+    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade for Joark journalpost men JFR oppgave finnes fra for`(){
+        stubHentOppgaveContaining(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_4_NEW,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )), Pair("tema", "BID"))
+        stubHentOppgaveContaining(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_4_NEW,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "EKSTERN",
+            tildeltEnhetsnr = "4833"
+        )), Pair("tema", "EKSTERN"))
+        stubHentPerson(PERSON_IDENT_3)
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.fagomrade = "EKSTERN"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
+        verifyOppgaveEndretWith(0, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
+    }
+
+    @Test
+    fun `skal endre tema oppgave nar endret til ekstern fagomrade for Joark journalpost`(){
+        stubHentOppgaveContaining(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_4_NEW,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )), Pair("tema", "BID"))
+        stubHentPerson(PERSON_IDENT_3)
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.fagomrade = "EKSTERN"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveEndretWith(1, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
+        verifyOppgaveEndretWith(0, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
+    }
+
 }

@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -81,6 +82,13 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))))
     }
 
+    fun stubHentOppgaveContaining(oppgaver: List<OppgaveData> = oppgaveDataResponse(), vararg params: Pair<String, String>){
+        val stub = get(urlMatching("/oppgave/api/v1/oppgaver/.*"))
+        params.forEach { stub.withQueryParam(it.first, EqualToPattern(it.second)) }
+        stub.willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))))
+        stubFor(stub)
+    }
+
     fun stubHentPerson(personId: String = PERSON_IDENT_1){
         stubFor(get(urlMatching("/person.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, AKTOER_ID)))))
     }
@@ -110,6 +118,6 @@ abstract class AbstractBehandleHendelseTest {
                 ContainsPattern(contain)
             )
         }
-        WireMock.verify(1, requestPattern)
+        WireMock.verify(count, requestPattern)
     }
 }
