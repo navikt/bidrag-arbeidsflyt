@@ -19,7 +19,7 @@
     <kotlin.version>1.6.10</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-commons.version>0.6.6</bidrag-commons.version>
+    <bidrag-commons.version>0.7.4</bidrag-commons.version>
     <logback-encoder.version>6.6</logback-encoder.version>
     <mockito-kotlin.version>4.0.0</mockito-kotlin.version>
     <token-support.version>2.0.8</token-support.version>
