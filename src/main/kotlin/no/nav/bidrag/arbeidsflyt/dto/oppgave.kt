@@ -235,9 +235,9 @@ class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveReque
     }
 }
 
-class EndreTemaOppgaveRequest(override var tema: String?) : PatchOppgaveRequest() {
+class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
 
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, tema: String?) : this(tema = tema) {
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, tema: String?, tildeltEnhetsnr: String?) : this(tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }

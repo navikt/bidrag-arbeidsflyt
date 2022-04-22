@@ -229,6 +229,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal endre tema oppgave nar endret til ekstern fagomrade for Joark journalpost`(){
+        stubHentOppgave(emptyList())
         stubHentOppgaveContaining(listOf(OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -242,10 +243,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
         journalpostHendelse.fagomrade = "EKSTERN"
+        journalpostHendelse.enhet = "4999"
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveEndretWith(1, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
+        verifyOppgaveEndretWith(null,  "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"", "\"tildeltEnhetsnr\":\"4999\"")
         verifyOppgaveEndretWith(0, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
     }
 

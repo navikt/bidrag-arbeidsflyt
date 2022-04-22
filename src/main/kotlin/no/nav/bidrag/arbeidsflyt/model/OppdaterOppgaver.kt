@@ -27,7 +27,7 @@ class OppdaterOppgaver(
 
             val nyttFagomrade = journalpostHendelse.fagomrade
             if (journalpostHendelse.harJournalpostIdJOARKPrefix() && nyttFagomrade != null){
-                oppgaveService.endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse.journalpostIdUtenPrefix, journalpostHendelse.hentEndretAvEnhetsnummer(), nyttFagomrade, oppgaverForHendelse)
+                oppgaveService.endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse, nyttFagomrade, oppgaverForHendelse)
             } else {
                 oppgaveService.ferdigstillJournalforingsOppgaver(
                     endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),

@@ -56,23 +56,25 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostId: String, endretAvEnhetsnummer: String?, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse) {
+    internal fun endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse: JournalpostHendelse, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse) {
+        val journalpostId = journalpostHendelse.journalpostIdUtenPrefix
+        val endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer()
         LOGGER.info("Endrer tema eller ferdigstiller journalforingsoppgaver for journalpost $journalpostId med nytt tema $nyttTema")
         val harJournalforingsOppgaverForNyttTema = finnAapneOppgaverForJournalpost(journalpostId, nyttTema).harJournalforingsoppgaver()
         if (harJournalforingsOppgaverForNyttTema){
             LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker bidrag journalføringsoppgaver")
             ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
         } else {
-            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, nyttTema, oppgaverForHendelse)
+            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse)
         }
     }
 
-    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse){
+    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, tildeltEnhet: String, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse){
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             LOGGER.info("Endrer tema på oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
-                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema)
+                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema, tildeltEnhet)
             )
         }
     }

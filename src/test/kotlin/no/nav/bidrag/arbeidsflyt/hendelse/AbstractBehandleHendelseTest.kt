@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.patch
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -83,8 +84,9 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun stubHentOppgaveContaining(oppgaver: List<OppgaveData> = oppgaveDataResponse(), vararg params: Pair<String, String>){
-        val stub = get(urlMatching("/oppgave/api/v1/oppgaver/.*"))
-        params.forEach { stub.withQueryParam(it.first, EqualToPattern(it.second)) }
+        var matchUrl = "/oppgave/api/v1/oppgaver/.*"
+        params.forEach { matchUrl = "$matchUrl${it.first}=${it.second}.*"}
+        val stub = get(urlMatching(matchUrl))
         stub.willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))))
         stubFor(stub)
     }
@@ -111,13 +113,13 @@ abstract class AbstractBehandleHendelseTest {
         WireMock.verify(1, requestPattern)
     }
 
-    fun verifyOppgaveEndretWith(count: Int = 1, vararg contains: String){
+    fun verifyOppgaveEndretWith(count: Int?, vararg contains: String){
         val requestPattern = WireMock.patchRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/.*"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
                 ContainsPattern(contain)
             )
         }
-        WireMock.verify(count, requestPattern)
+        if (count != null) WireMock.verify(count, requestPattern) else WireMock.verify(requestPattern)
     }
 }
