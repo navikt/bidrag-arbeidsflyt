@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -19,17 +20,17 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
     @Test
     fun `skal lagre journalpost i databasen`() {
         stubHentPerson(PERSON_IDENT_3)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        val journalpostHendelse = createJournalpostHendelse(JOURNALPOST_ID_1)
         val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
-            testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW).isPresent
-            val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+            testDataGenerator.hentJournalpost(JOURNALPOST_ID_1).isPresent
+            val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_1)
             assertThat(journalpostOptional.isPresent).isTrue
 
             assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-                assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+                assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_1)
                 assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
                 assertThat(journalpost.status).isEqualTo("M")
                 assertThat(journalpost.tema).isEqualTo("BID")
