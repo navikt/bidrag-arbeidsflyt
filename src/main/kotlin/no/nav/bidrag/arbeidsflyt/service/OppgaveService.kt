@@ -59,12 +59,12 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     internal fun endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse: JournalpostHendelse, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse) {
         val journalpostId = journalpostHendelse.journalpostIdUtenPrefix
         val endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer()
-        LOGGER.info("Endrer tema eller ferdigstiller journalforingsoppgaver for journalpost $journalpostId med nytt tema $nyttTema")
         val harJournalforingsOppgaverForNyttTema = finnAapneOppgaverForJournalpost(journalpostId, nyttTema).harJournalforingsoppgaver()
         if (harJournalforingsOppgaverForNyttTema){
-            LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker bidrag journalføringsoppgaver")
+            LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker Bidrag journalføringsoppgaver")
             ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
         } else {
+            LOGGER.info("Ferdigstiller journalforingsoppgaver for journalpost $journalpostId med nytt tema $nyttTema")
             endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse)
         }
     }

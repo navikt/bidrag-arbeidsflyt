@@ -25,9 +25,8 @@ class OppdaterOppgaver(
         if (journalpostHendelse.erEksterntFagomrade) {
             LOGGER.info("Endring til eksternt fagområde av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
-            val nyttFagomrade = journalpostHendelse.fagomrade
-            if (journalpostHendelse.harJournalpostIdJOARKPrefix() && nyttFagomrade != null){
-                oppgaveService.endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse, nyttFagomrade, oppgaverForHendelse)
+            if (journalpostHendelse.erJoarkJournalpost()){
+                oppgaveService.endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse, journalpostHendelse.fagomrade!!, oppgaverForHendelse)
             } else {
                 oppgaveService.ferdigstillJournalforingsOppgaver(
                     endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
