@@ -29,7 +29,7 @@ class PersistenceService(
             .filter{ it.erStatusMottatt && it.erBidragFagomrade }
     }
 
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    @Transactional
     fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
         if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
             return

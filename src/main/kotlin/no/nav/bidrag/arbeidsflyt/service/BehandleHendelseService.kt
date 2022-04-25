@@ -26,5 +26,7 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
+
+        Thread.sleep(1000)
     }
 }
