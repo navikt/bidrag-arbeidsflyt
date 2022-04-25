@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
 import org.slf4j.LoggerFactory
@@ -14,7 +15,8 @@ class BehandleHendelseService(private val oppgaveService: OppgaveService, privat
     }
 
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
-        LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
+        LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
+        SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
         persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse)
 

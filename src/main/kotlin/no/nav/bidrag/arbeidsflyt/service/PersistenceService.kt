@@ -35,7 +35,7 @@ class PersistenceService(
             return
         }
 
-        val journalpostId = if (journalpostHendelse.harJournalpostIdJOARKPrefix()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
+        val journalpostId = if (journalpostHendelse.erJoarkJournalpost()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
 
 
         if (!journalpostHendelse.erMottaksregistrert || journalpostHendelse.erEksterntFagomrade){
