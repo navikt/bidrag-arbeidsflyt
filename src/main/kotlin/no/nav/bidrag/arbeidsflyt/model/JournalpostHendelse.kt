@@ -26,7 +26,7 @@ data class JournalpostHendelse(
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
     internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
 
-    override fun toString() = "{aktorId=$aktorId,journalpostId=$journalpostId,enhet=$enhet,journalstatus=$journalstatus....}"
+    fun printSummary() = "{journalpostId=$journalpostId,fagomrade=$fagomrade,enhet=$enhet,saksbehandlerEnhet=${sporing?.enhetsnummer},journalstatus=$journalstatus....}"
 }
 
 data class Sporingsdata(

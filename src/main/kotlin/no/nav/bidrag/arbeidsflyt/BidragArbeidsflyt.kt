@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt
 
+import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 
 const val PROFILE_NAIS = "nais"
 const val PROFILE_KAFKA_TEST = "kafka_test"
+val SECURE_LOGGER = LoggerFactory.getLogger("secureLogger")
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableAspectJAutoProxy

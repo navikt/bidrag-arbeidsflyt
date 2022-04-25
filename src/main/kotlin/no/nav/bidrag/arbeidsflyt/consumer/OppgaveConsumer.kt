@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
@@ -57,7 +58,8 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
+        LOGGER.info("Endrer en oppgave med id $oppgaverPath: ${patchOppgaveRequest.printSummary()}")
+        SECURE_LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
 
         try {
             val responseEntity = restTemplate.exchange(

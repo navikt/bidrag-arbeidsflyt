@@ -199,11 +199,10 @@ sealed class PatchOppgaveRequest {
         return result
     }
 
-    override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
+    fun printSummary() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
 
     private fun fieldsWithValues(): String {
         return StringBuilder("")
-            .append(fieldToString("aktorId", aktoerId))
             .append(fieldToString("endretAvEnhetsnr", endretAvEnhetsnr))
             .append(fieldToString("oppgavetype", oppgavetype))
             .append(fieldToString("prioritet", prioritet))
