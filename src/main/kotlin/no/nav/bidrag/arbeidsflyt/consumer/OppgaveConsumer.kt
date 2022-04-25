@@ -58,7 +58,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Endrer en oppgave med id $oppgaverPath: ${patchOppgaveRequest.printSummary()}")
+        LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
         SECURE_LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
 
         try {
