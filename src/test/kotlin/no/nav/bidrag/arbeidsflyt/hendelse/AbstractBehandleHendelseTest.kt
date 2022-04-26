@@ -83,6 +83,10 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))))
     }
 
+    fun stubHentOppgaveError(){
+        stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+    }
+
     fun stubHentOppgaveContaining(oppgaver: List<OppgaveData> = oppgaveDataResponse(), vararg params: Pair<String, String>){
         var matchUrl = "/oppgave/api/v1/oppgaver/.*"
         params.forEach { matchUrl = "$matchUrl${it.first}=${it.second}.*"}

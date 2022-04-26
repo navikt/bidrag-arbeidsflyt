@@ -90,7 +90,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 OppgaveData::class.java
             )
 
-            LOGGER.info("Opprettet ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost {}, HttpStatus: {}", responseEntity.body?.id, responseEntity.statusCode)
+            LOGGER.info("Opprettet ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost {}", responseEntity.body?.id)
             return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){

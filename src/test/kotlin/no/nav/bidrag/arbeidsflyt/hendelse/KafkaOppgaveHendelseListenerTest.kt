@@ -48,5 +48,20 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
 
     }
 
+    @Test
+    fun `skal lagre hendelse i dead letter repository ved feil`() {
+        stubHentOppgaveError()
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
+
+        configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
+
+
+        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
+            assertThat(testDataGenerator.hentDlKafka().size).isEqualTo(1)
+        }
+
+    }
 
 }

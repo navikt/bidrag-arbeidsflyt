@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import java.time.ZonedDateTime
 
 var JOURNALPOST_ID_1 = "124123"
@@ -33,6 +34,23 @@ var BNR = "12321331233"
 var OPPGAVETYPE_JFR = "JFR"
 var OPPGAVETYPE_BEH_SAK = "BEH_SAK"
 var CREATED_TIME = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]")
+
+
+fun createOppgave(oppgaveId: Long,
+                  journalpostId: String = JOURNALPOST_ID_1,
+                  status: String = OppgaveStatus.OPPRETTET.name,
+                  oppgaveType: String = OPPGAVETYPE_JFR,
+                  tema: String = "BID"
+): Oppgave {
+    return Oppgave(
+        oppgaveId = oppgaveId,
+        journalpostId = journalpostId,
+        status = status,
+        tema = tema,
+        oppgavetype = oppgaveType,
+        statuskategori = "AAPEN"
+    )
+}
 
 fun  createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", gjelderId: String? = PERSON_IDENT_1, tema: String = "BID"): Journalpost {
     return Journalpost(

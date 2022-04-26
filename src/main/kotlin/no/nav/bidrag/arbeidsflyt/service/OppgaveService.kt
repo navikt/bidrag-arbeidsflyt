@@ -64,7 +64,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker Bidrag journalføringsoppgaver")
             ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
         } else {
-            LOGGER.info("Ferdigstiller journalforingsoppgaver for journalpost $journalpostId med nytt tema $nyttTema")
+            LOGGER.info("Endrer tema på journalforingsoppgaver for journalpost $journalpostId til tema $nyttTema")
             endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse)
         }
     }

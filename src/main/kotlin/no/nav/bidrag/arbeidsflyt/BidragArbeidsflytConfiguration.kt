@@ -9,8 +9,11 @@ import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaRetryListener
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
+import no.nav.bidrag.arbeidsflyt.persistence.entity.DLKafka
+import no.nav.bidrag.arbeidsflyt.persistence.repository.DLKafkaRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
@@ -59,15 +62,17 @@ class HendelseConfiguration {
     )
 
     @Bean
-    fun defaultErrorHandler(): DefaultErrorHandler? {
+    fun defaultErrorHandler(@Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int, persistenceService: PersistenceService): DefaultErrorHandler? {
+        LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
         val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
             val offset = rec.offset()
             val topic =  rec.topic()
-            val partition =  rec.topic()
+            val partition =  rec.partition()
             LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, ExponentialBackOffWithMaxRetries(10))
+            persistenceService.lagreDLKafka(topic, key?.toString(), value?.toString() ?: "{}")
+        }, ExponentialBackOffWithMaxRetries(maxRetries))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler

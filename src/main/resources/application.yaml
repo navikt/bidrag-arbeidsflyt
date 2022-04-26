@@ -11,7 +11,7 @@ management:
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
-
+KAFKA_MAX_RETRY: 10
 ---
 spring:
   config.activate.on-profile: nais
