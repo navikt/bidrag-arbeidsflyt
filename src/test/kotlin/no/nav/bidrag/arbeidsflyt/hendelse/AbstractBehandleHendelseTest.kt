@@ -3,14 +3,12 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.patch
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
-import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -113,7 +111,7 @@ abstract class AbstractBehandleHendelseTest {
         WireMock.verify(1, requestPattern)
     }
 
-    fun verifyOppgaveEndretWith(count: Int?, vararg contains: String){
+    fun verifyOppgaveEndretWith(count: Int? = null, vararg contains: String){
         val requestPattern = WireMock.patchRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/.*"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(

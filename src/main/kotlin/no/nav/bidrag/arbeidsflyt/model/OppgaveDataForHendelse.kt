@@ -11,7 +11,8 @@ data class OppgaveDataForHendelse(
     val journalpostId: String? = null,
     val oppgavetype: String? = null,
     val tema: String? = null,
-    val tildeltEnhetsnr: String? = null
+    val tildeltEnhetsnr: String? = null,
+    val beskrivelse: String? = null
 ) {
     constructor(oppgaveData: OppgaveData) : this(
         id = oppgaveData.id ?: -1,
@@ -21,6 +22,7 @@ data class OppgaveDataForHendelse(
         aktorId = oppgaveData.aktoerId,
         oppgavetype = oppgaveData.oppgavetype,
         tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr,
-        journalpostId = oppgaveData.journalpostId
+        journalpostId = oppgaveData.journalpostId,
+        beskrivelse = oppgaveData.beskrivelse
     )
 }
