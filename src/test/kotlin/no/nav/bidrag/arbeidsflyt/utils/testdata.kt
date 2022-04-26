@@ -90,7 +90,7 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, saksbehandlersNavn = "Navn Navnesen")
+        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z12312312", saksbehandlersNavn = "Navn Navnesen")
     )
 }
 
