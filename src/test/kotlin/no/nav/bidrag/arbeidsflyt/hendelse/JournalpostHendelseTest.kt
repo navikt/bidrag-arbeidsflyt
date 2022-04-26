@@ -256,7 +256,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-            verifyOppgaveEndretWith(1,  "\"beskrivelse\":\"--- 01.01.2020 12:00 Z12312312, Navn Navnesen ---\\r\\nOppgave overført fra tema BID til EKSTERN\\r\\nSaksbehandler endret fra Z12312312, Navn Navnesen til ikke valgt\\r\\n\\r\\ntest\"", "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"", "\"tildeltEnhetsnr\":\"4999\"", "\"tilordnetRessurs\":null")
+            verifyOppgaveEndretWith(1,  "\"beskrivelse\":\"--- 01.01.2020 12:00 Z12312312, Navn Navnesen ---\\r\\nOppgave overført fra tema BID til EKSTERN\\r\\n\\r\\n--- 01.01.2020 12:00 Z12312312, Navn Navnesen ---\\r\\nSaksbehandler endret fra Z12312312, Navn Navnesen til ikke valgt\\r\\n\\r\\ntest\"")
+            verifyOppgaveEndretWith(1,   "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"", "\"tildeltEnhetsnr\":\"4999\"", "\"tilordnetRessurs\":null")
             verifyOppgaveEndretWith(0, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
         } finally {
             mockStatic.reset()

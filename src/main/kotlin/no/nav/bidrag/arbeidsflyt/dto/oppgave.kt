@@ -243,9 +243,13 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
     override var tilordnetRessurs: String? = null
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, tema: String?, tildeltEnhetsnr: String?, saksbehandlersInfo: String) : this(tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
-        this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} $saksbehandlersInfo ---\r\n" +
-                "${"Oppgave overført fra tema ${oppgaveDataForHendelse.tema} til $tema\r\nSaksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.beskrivelse = "--- ${dateFormatted} $saksbehandlersInfo ---\r\n" +
+                "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
                 "${oppgaveDataForHendelse.beskrivelse}"
+        this.beskrivelse = "--- ${dateFormatted} $saksbehandlersInfo ---\r\n" +
+                "${"Oppgave overført fra tema ${oppgaveDataForHendelse.tema} til $tema"}\r\n\r\n" +
+                "${this.beskrivelse}"
     }
 }
 
