@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS dead_letter_kafka (
 
 GRANT ALL PRIVILEGES ON TABLE public.dead_letter_kafka TO cloudsqliamuser;
 
-CREATE INDEX idx_dl_kafka_retry ON dead_letter_kafka(retry);
-CREATE INDEX idx_dl_kafka_topic ON dead_letter_kafka(topic_name);
+CREATE INDEX IF NOT EXISTS idx_dl_kafka_retry ON dead_letter_kafka(retry);
+CREATE INDEX IF NOT EXISTS idx_dl_kafka_topic ON dead_letter_kafka(topic_name);
