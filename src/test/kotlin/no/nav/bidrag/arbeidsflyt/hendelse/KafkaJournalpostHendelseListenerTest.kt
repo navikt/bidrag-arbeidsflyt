@@ -31,7 +31,6 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
 
             assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
                 assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_1)
-                assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
                 assertThat(journalpost.status).isEqualTo("M")
                 assertThat(journalpost.tema).isEqualTo("BID")
                 assertThat(journalpost.enhet).isEqualTo("4833")
@@ -56,7 +55,6 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
 
             assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
                 assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-                assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
                 assertThat(journalpost.status).isEqualTo("M")
                 assertThat(journalpost.tema).isEqualTo("BID")
                 assertThat(journalpost.enhet).isEqualTo("4833")

@@ -9,8 +9,6 @@ import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaRetryListener
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
-import no.nav.bidrag.arbeidsflyt.persistence.entity.DLKafka
-import no.nav.bidrag.arbeidsflyt.persistence.repository.DLKafkaRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
@@ -43,7 +41,6 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
 @Configuration
@@ -149,7 +146,7 @@ class ArbeidsflytConfiguration {
         @Value("\${PERSON_URL}") personUrl: String,
         restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
     ): PersonConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(personUrl+"/bidrag-person")
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
         return DefaultPersonConsumer(restTemplate)
     }

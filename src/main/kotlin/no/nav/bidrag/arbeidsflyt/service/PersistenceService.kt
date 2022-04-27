@@ -1,12 +1,11 @@
 package no.nav.bidrag.arbeidsflyt.service
 
-import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.persistence.entity.DLKafka
+import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
-import no.nav.bidrag.arbeidsflyt.persistence.repository.DLKafkaRepository
+import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
@@ -18,10 +17,9 @@ import javax.transaction.Transactional
 @Service
 class PersistenceService(
     private val oppgaveRepository: OppgaveRepository,
-    private val dlKafkaRepository: DLKafkaRepository,
+    private val dlqKafkaRepository: DLQKafkaRepository,
     private val journalpostRepository: JournalpostRepository,
-    private val featureToggle: FeatureToggle,
-    private val personConsumer: PersonConsumer
+    private val featureToggle: FeatureToggle
 ) {
 
     companion object {
@@ -43,7 +41,7 @@ class PersistenceService(
     @Transactional
     fun lagreDLKafka(topic: String, key: String?, payload: String){
         try {
-            dlKafkaRepository.save(DLKafka(
+            dlqKafkaRepository.save(DLQKafka(
                 messageKey = key ?: "UKJENT",
                 topicName = topic,
                 payload = payload
@@ -108,13 +106,11 @@ class PersistenceService(
     }
 
     fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse){
-        val gjelderId = personConsumer.hentPerson(journalpostHendelse.aktorId)
         journalpostRepository.findByJournalpostId(journalpostId)
             .ifPresentOrElse({
                 it.status = journalpostHendelse.journalstatus ?: it.status
                 it.enhet = journalpostHendelse.enhet ?: it.enhet
                 it.tema = journalpostHendelse.fagomrade ?: it.tema
-                it.gjelderId = gjelderId?.ident ?: it.gjelderId
                 journalpostRepository.save(it)
             }, {
                 journalpostRepository.save(
@@ -123,7 +119,6 @@ class PersistenceService(
                         status = journalpostHendelse.journalstatus ?: "UKJENT",
                         tema = journalpostHendelse.fagomrade ?: "BID",
                         enhet = journalpostHendelse.enhet ?: "UKJENT",
-                        gjelderId = gjelderId?.ident ?: journalpostHendelse.aktorId
                     )
                 )
             })

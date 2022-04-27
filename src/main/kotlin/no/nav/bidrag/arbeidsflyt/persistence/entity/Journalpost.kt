@@ -24,10 +24,7 @@ data class Journalpost (
     var enhet: String,
 
     @Column(name = "tema")
-    var tema: String,
-
-    @Column(name = "gjelder_id")
-    var gjelderId: String?
+    var tema: String
 ) {
     internal val erStatusMottatt get() = status == "M"
     internal val erBidragFagomrade get() = tema == Fagomrade.BIDRAG || tema == Fagomrade.FARSKAP

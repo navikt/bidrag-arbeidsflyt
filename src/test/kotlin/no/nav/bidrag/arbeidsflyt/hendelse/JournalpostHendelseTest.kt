@@ -42,7 +42,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_1)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")
@@ -71,7 +70,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_1)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_1)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("1234")
@@ -92,7 +90,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
         assertThat(journalpostOptionalBefore.isPresent).isTrue
 
@@ -143,7 +141,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")
@@ -167,7 +164,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")

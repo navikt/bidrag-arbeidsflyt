@@ -106,7 +106,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave med BID prefix nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`(){
         stubHentOppgave(emptyList())
-        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -127,7 +127,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -147,7 +147,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1, tema = "BAR"))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, tema = "BAR"))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -166,7 +166,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -189,7 +189,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost er mottatt`(){
         stubHentOppgave(emptyList())
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
 
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
 
@@ -202,7 +202,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal ikke opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost ikke mottatt`(){
         stubHentOppgave(emptyList())
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1, status = "J"))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, status = "J"))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -213,7 +213,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal ikke opprette oppgave nar oppgave endret fra JFR til BEH_SAK og oppgave ikke er lagret databasen`(){
         stubHentOppgave(emptyList())
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1, status = "J"))
+        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, status = "J"))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)

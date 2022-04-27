@@ -55,12 +55,11 @@ fun createOppgave(oppgaveId: Long,
     )
 }
 
-fun  createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", gjelderId: String? = PERSON_IDENT_1, tema: String = "BID"): Journalpost {
+fun  createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", tema: String = "BID"): Journalpost {
     return Journalpost(
         journalpostId = journalpostId,
         status = status,
         enhet = enhet,
-        gjelderId = gjelderId,
         tema = tema
     )
 }

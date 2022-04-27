@@ -5,10 +5,9 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
-import javax.persistence.Lob
 
 @Entity(name = "dead_letter_kafka")
-data class DLKafka (
+data class DLQKafka (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
