@@ -9,11 +9,13 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
 private const val PARAMS_100_APNE_OPPGAVER = "tema={tema}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
 private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
+private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 
 data class OppgaveSokRequest(val journalpostId: String, val tema: String? = "BID") {
 
@@ -153,6 +155,7 @@ sealed class PatchOppgaveRequest {
     open var tema: String? = null
     open var tildeltEnhetsnr: String? = null
     open var tilordnetRessurs: String? = null
+    open var beskrivelse: String? = null
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
     fun somHttpEntity(): HttpEntity<*> {
@@ -237,9 +240,17 @@ class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveReque
 }
 
 class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
-
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, tema: String?, tildeltEnhetsnr: String?) : this(tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    override var tilordnetRessurs: String? = null
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, tema: String?, tildeltEnhetsnr: String?, saksbehandlersInfo: String) : this(tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
+                "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+                "${oppgaveDataForHendelse.beskrivelse}"
+        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
+                "${"Oppgave overført fra tema ${oppgaveDataForHendelse.tema} til $tema"}\r\n\r\n" +
+                "${this.beskrivelse}"
     }
 }
 

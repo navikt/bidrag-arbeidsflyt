@@ -9,7 +9,10 @@ import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
+val DEFAULT_TIME = LocalDateTime.of(2020, 1, 1, 12, 0)
 
 var JOURNALPOST_ID_1 = "124123"
 var JOURNALPOST_ID_2 = "142312"
@@ -105,7 +108,7 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet)
+        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z12312312", saksbehandlersNavn = "Navn Navnesen")
     )
 }
 

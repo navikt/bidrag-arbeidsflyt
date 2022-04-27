@@ -10,6 +10,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
+import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -65,16 +66,16 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
         } else {
             LOGGER.info("Endrer tema på journalforingsoppgaver for journalpost $journalpostId til tema $nyttTema")
-            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse)
+            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse, journalpostHendelse.sporing)
         }
     }
 
-    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, tildeltEnhet: String, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse){
+    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, tildeltEnhet: String, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse, sporingsdata: Sporingsdata?){
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
-            LOGGER.info("Endrer tema på oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
+            LOGGER.info("Endrer tema på oppgave ${it.id} med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
-                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema, tildeltEnhet)
+                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema, tildeltEnhet, sporingsdata?.lagSaksbehandlerInfo()?:"ukjent saksbehandler")
             )
         }
     }
