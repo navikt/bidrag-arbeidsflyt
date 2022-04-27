@@ -214,6 +214,8 @@ sealed class PatchOppgaveRequest {
             .append(fieldToString("status", status))
             .append(fieldToString("tema", tema))
             .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
+            .append(fieldToString("tilordnetRessurs", tilordnetRessurs))
+            .append(fieldToString("beskrivelse", beskrivelse))
             .toString()
     }
 
