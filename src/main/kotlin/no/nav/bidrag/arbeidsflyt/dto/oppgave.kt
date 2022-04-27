@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -103,11 +104,11 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
 
     var aktoerId: String? = null
     var bnr: String? = null
-    constructor(oppgaveHendelse: OppgaveHendelse): this(oppgaveHendelse.journalpostId!!){
+    constructor(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost): this(oppgaveHendelse.journalpostId!!){
         this.aktoerId = oppgaveHendelse.hentAktoerId
         this.bnr = oppgaveHendelse.hentBnr
         this.tema = oppgaveHendelse.tema ?: this.tema
-        this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr
+        this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: journalpost.enhet
     }
 
     constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostMedBareBIDprefix){

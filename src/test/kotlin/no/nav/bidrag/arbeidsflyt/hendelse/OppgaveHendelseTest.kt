@@ -106,13 +106,12 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave med BID prefix nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`(){
         stubHentOppgave(emptyList())
-        val journalpostIdWithoutPrefix = BID_JOURNALPOST_ID_1.replace("BID-", "")
         testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = journalpostIdWithoutPrefix, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${journalpostIdWithoutPrefix}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
 
@@ -133,7 +132,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
     }
 
     @Test
@@ -196,7 +195,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
     }
 
     @Test

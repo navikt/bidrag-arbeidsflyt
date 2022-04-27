@@ -58,8 +58,8 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
-        SECURE_LOGGER.info("Endrer en oppgave med id $oppgaverPath: $patchOppgaveRequest")
+        LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
+        SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
 
         try {
             val responseEntity = restTemplate.exchange(
@@ -68,7 +68,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 patchOppgaveRequest.somHttpEntity(),
                 OppgaveData::class.java
             )
-            LOGGER.info("Endret en oppgave: ${responseEntity.statusCode}, ${responseEntity.body}")
+            LOGGER.info("Endret oppgave ${patchOppgaveRequest.id} - ${responseEntity.body}")
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){
                 throw EndreOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)

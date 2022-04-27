@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -19,11 +20,6 @@ class BehandleOppgaveHendelseService(
     }
 
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveHendelse.journalpostId}, " +
-                "statuskategori ${oppgaveHendelse.statuskategori}, " +
-                "tema ${oppgaveHendelse.tema}, " +
-                "oppgavetype ${oppgaveHendelse.oppgavetype} " +
-                "og status ${oppgaveHendelse.status}")
         persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
     }
 
@@ -52,7 +48,7 @@ class BehandleOppgaveHendelseService(
                 run {
                     if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
                         LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
-                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
+                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse, it)
                     }
                 }
             },
@@ -63,9 +59,9 @@ class BehandleOppgaveHendelseService(
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 
-    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost){
         if (featureToggle.isFeatureEnabled(FeatureToggle.Feature.OPPRETT_OPPGAVE)){
-            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse))
+            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, journalpost))
         } else {
             LOGGER.info("Feature ${FeatureToggle.Feature.OPPRETT_OPPGAVE} er ikke skrudd på. Oppretter ikke oppgave")
         }

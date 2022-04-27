@@ -47,6 +47,11 @@ class OppgaveHendelseListener(
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
+            LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
+                    "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
+                    "tema ${oppgaveOpprettetHendelse.tema}, " +
+                    "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
+                    "og status ${oppgaveOpprettetHendelse.status}")
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
         }
     }
