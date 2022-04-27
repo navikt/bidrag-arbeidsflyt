@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BehandleOppgaveHendelseService(
@@ -23,6 +24,7 @@ class BehandleOppgaveHendelseService(
         persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
     }
 
+    @Transactional
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         if (oppgaveHendelse.hasJournalpostId){
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
