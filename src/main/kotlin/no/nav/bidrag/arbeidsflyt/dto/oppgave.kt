@@ -143,6 +143,25 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
 
         return HttpEntity<OpprettJournalforingsOppgaveRequest>(this, headers)
     }
+
+    override fun toString() = "${javaClass.simpleName}: ${fieldsWithValues()}"
+
+    private fun fieldsWithValues(): String {
+        return StringBuilder("")
+            .append(fieldToString("aktorId", aktoerId))
+            .append(fieldToString("bnr", bnr))
+            .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
+            .append(fieldToString("fristFerdigstillelse", fristFerdigstillelse))
+            .append(fieldToString("aktivDato", aktivDato))
+            .append(fieldToString("oppgavetype", oppgavetype))
+            .append(fieldToString("prioritet", prioritet))
+            .append(fieldToString("tema", tema))
+            .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
+            .append(fieldToString("beskrivelse", beskrivelse))
+            .toString()
+    }
+
+    private fun fieldToString(fieldName: String, value: String?) = if (value != null) ",$fieldName=$value" else ""
 }
 
 /**

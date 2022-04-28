@@ -59,7 +59,6 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
-        SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
 
         try {
             val responseEntity = restTemplate.exchange(
