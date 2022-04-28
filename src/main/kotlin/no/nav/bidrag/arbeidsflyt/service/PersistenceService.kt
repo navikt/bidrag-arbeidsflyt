@@ -39,7 +39,7 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreDLKafka(topic: String, key: String?, payload: String){
+    fun lagreDLQKafka(topic: String, key: String?, payload: String){
         try {
             dlqKafkaRepository.save(DLQKafka(
                 messageKey = key ?: "UKJENT",

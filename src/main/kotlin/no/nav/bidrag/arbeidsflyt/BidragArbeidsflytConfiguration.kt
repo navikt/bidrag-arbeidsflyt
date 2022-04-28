@@ -67,8 +67,10 @@ class HendelseConfiguration {
             val offset = rec.offset()
             val topic =  rec.topic()
             val partition =  rec.partition()
-            LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-            persistenceService.lagreDLKafka(topic, key?.toString(), value?.toString() ?: "{}")
+            val errorMessage = "Håndtering av Kafka melding feilet. Nøkkel $key, partition $partition, topic $topic og offset $offset. Melding som feilet: $value"
+            LOGGER.error(errorMessage, ex)
+            SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
+            persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}")
         }, ExponentialBackOffWithMaxRetries(maxRetries))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
