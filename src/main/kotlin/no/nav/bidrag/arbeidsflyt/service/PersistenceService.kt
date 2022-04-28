@@ -80,8 +80,10 @@ class PersistenceService(
                     lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
                 })
         } else {
-            oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
-            LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
+            oppgaveRepository.findById(oppgaveHendelse.id).ifPresent {
+                oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
+                LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
+            }
         }
 
     }
