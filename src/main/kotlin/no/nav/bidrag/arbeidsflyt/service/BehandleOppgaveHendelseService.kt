@@ -38,8 +38,6 @@ class BehandleOppgaveHendelseService(
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {
         if (oppgaveHendelse.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse)) {
             opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse)
-        } else {
-            LOGGER.debug("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
         }
     }
 
