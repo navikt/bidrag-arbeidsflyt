@@ -11,6 +11,7 @@ import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.commons.CorrelationId
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
@@ -40,7 +41,6 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-import org.springframework.util.backoff.FixedBackOff
 import java.time.Duration
 
 @Configuration
@@ -59,15 +59,19 @@ class HendelseConfiguration {
     )
 
     @Bean
-    fun defaultErrorHandler(): DefaultErrorHandler? {
+    fun defaultErrorHandler(@Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int, persistenceService: PersistenceService): DefaultErrorHandler? {
+        LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
         val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
             val offset = rec.offset()
             val topic =  rec.topic()
-            val partition =  rec.topic()
-            LOGGER.error("Kafka melding med nøkkel $key, partition $partition og topic $topic feilet på offset $offset. Melding som feilet: $value", ex)
-        }, ExponentialBackOffWithMaxRetries(10))
+            val partition =  rec.partition()
+            val errorMessage = "Håndtering av Kafka melding feilet. Nøkkel $key, partition $partition, topic $topic og offset $offset. Melding som feilet: $value"
+            LOGGER.error(errorMessage, ex)
+            SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
+            persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}")
+        }, ExponentialBackOffWithMaxRetries(maxRetries))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
@@ -144,7 +148,7 @@ class ArbeidsflytConfiguration {
         @Value("\${PERSON_URL}") personUrl: String,
         restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
     ): PersonConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(personUrl+"/bidrag-person")
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
         return DefaultPersonConsumer(restTemplate)
     }

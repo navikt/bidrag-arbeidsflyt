@@ -1,11 +1,13 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
+import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
+import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
@@ -42,7 +44,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_1)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")
@@ -71,7 +72,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_1)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_1)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("1234")
@@ -92,7 +92,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
-        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1, gjelderId = PERSON_IDENT_1))
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
         assertThat(journalpostOptionalBefore.isPresent).isTrue
 
@@ -143,7 +143,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")
@@ -167,13 +166,48 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
             assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
-            assertThat(journalpost.gjelderId).isEqualTo(PERSON_IDENT_3)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
             assertThat(journalpost.enhet).isEqualTo("4833")
         }
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal opprette oppgave med tema BID selv om journalpost har tema FAR`(){
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.fagomrade = "FAR"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_4_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+            assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
+            assertThat(journalpost.status).isEqualTo("M")
+            assertThat(journalpost.tema).isEqualTo("FAR")
+            assertThat(journalpost.enhet).isEqualTo("4833")
+        }
+
+        verifyOppgaveOpprettetWith(
+            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
 

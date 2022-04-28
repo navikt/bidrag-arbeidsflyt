@@ -2,9 +2,11 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BehandleOppgaveHendelseService(
@@ -18,32 +20,39 @@ class BehandleOppgaveHendelseService(
         private val LOGGER = LoggerFactory.getLogger(BehandleOppgaveHendelseService::class.java)
     }
 
-    fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
-        LOGGER.info("Behandler endret oppgave ${oppgaveHendelse.id} med status ${oppgaveHendelse.status} endret av ${oppgaveHendelse.endretAv}.")
+    fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
+        persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
+    }
 
+    @Transactional
+    fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         if (oppgaveHendelse.hasJournalpostId){
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
         } else {
             LOGGER.debug("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
         }
+
+        persistenceService.oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse)
     }
 
-    fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.erAapenJournalforingsoppgave()){
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} er åpen journalføringsoppgave. Videre behandling er ikke nødvendig.")
-            return
+    fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {
+        if (oppgaveHendelse.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse)) {
+            opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse)
         }
+    }
+
+    fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
         // Antar at Bidrag journlpost lagres med BID- prefix i databasen og oppgaven
         persistenceService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostId!!)
             .ifPresentOrElse({
                 run {
                     if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
                         LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
-                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
+                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse, it)
                     }
                 }
             },
-            {LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.")})
+            { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") })
     }
 
     fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
@@ -51,12 +60,26 @@ class BehandleOppgaveHendelseService(
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 
-    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost){
         if (featureToggle.isFeatureEnabled(FeatureToggle.Feature.OPPRETT_OPPGAVE)){
-            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse))
+            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, journalpost))
         } else {
             LOGGER.info("Feature ${FeatureToggle.Feature.OPPRETT_OPPGAVE} er ikke skrudd på. Oppretter ikke oppgave")
         }
+    }
+
+    fun erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse: OppgaveHendelse): Boolean {
+        if(oppgaveHendelse.erJournalforingOppgave){
+            return false
+        }
+
+        val prevOppgaveState = persistenceService.hentJournalforingOppgave(oppgaveHendelse.id)
+        if (prevOppgaveState.isPresent && prevOppgaveState.get().erJournalforingOppgave()){
+            LOGGER.info("Oppgavetype for oppgave ${oppgaveHendelse.id} er endret fra JFR til ${oppgaveHendelse.oppgavetype}")
+            return true
+        }
+
+        return false
 
     }
 }

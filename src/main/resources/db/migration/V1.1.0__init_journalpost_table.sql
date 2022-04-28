@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS journalpost (
     tema varchar(20) NOT NULL,
     enhet varchar(20) NOT NULL,
     status varchar(20) NOT NULL,
-    gjelder_id varchar(30) NULL,
     opprettet_timestamp timestamp DEFAULT now() NOT NULL,
     endret_timestamp timestamp DEFAULT now() NOT NULL,
     CONSTRAINT journalpost_pkey PRIMARY KEY (id)
@@ -13,3 +12,5 @@ CREATE TABLE IF NOT EXISTS journalpost (
 CREATE TRIGGER update_journalpost_endret BEFORE UPDATE ON journalpost FOR EACH ROW EXECUTE PROCEDURE update_endret_timestamp();
 
 GRANT ALL PRIVILEGES ON TABLE public.journalpost TO cloudsqliamuser;
+
+CREATE INDEX idx_journalpost_id ON journalpost(journalpost_id);
