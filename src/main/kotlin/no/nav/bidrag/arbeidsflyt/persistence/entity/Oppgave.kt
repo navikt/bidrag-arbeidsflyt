@@ -19,24 +19,14 @@ data class Oppgave (
     @Column(name = "status")
     var status: String,
 
-    @Column(name = "statuskategori")
-    var statuskategori: String,
-
-    @Column(name = "tema")
-    var tema: String,
-
     @Column(name = "oppgavetype")
-    var oppgavetype: String,
+    var oppgavetype: String
 
 ) {
-    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT.name
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
-    fun harJournalpostId(): Boolean = journalpostId != null
     fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         status = oppgaveHendelse.status?.name!!
-        statuskategori = oppgaveHendelse.statuskategori?.name!!
         journalpostId = oppgaveHendelse.journalpostId
         oppgavetype = oppgaveHendelse.oppgavetype!!
-        tema = oppgaveHendelse.tema!!
     }
 }

@@ -9,6 +9,7 @@ import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -42,16 +43,13 @@ var CREATED_TIME = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]"
 fun createOppgave(oppgaveId: Long,
                   journalpostId: String = JOURNALPOST_ID_1,
                   status: String = OppgaveStatus.OPPRETTET.name,
-                  oppgaveType: String = OPPGAVETYPE_JFR,
-                  tema: String = "BID"
+                  oppgaveType: String = OPPGAVETYPE_JFR
 ): Oppgave {
     return Oppgave(
         oppgaveId = oppgaveId,
         journalpostId = journalpostId,
         status = status,
-        tema = tema,
-        oppgavetype = oppgaveType,
-        statuskategori = "AAPEN"
+        oppgavetype = oppgaveType
     )
 }
 
@@ -74,7 +72,8 @@ fun createOppgaveHendelse(
     tema: String = "BID",
     identVerdi: String = AKTOER_ID,
     fnr: String = PERSON_IDENT_1,
-    identType: OppgaveIdentType = OppgaveIdentType.AKTOERID
+    identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
+    fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
 ): OppgaveHendelse {
     val ident = OppgaveHendelse.Ident(verdi = identVerdi, identType = identType, folkeregisterident = if (identType == OppgaveIdentType.AKTOERID) fnr else null)
     return OppgaveHendelse(
@@ -89,7 +88,8 @@ fun createOppgaveHendelse(
         ident = ident,
         opprettetTidspunkt = CREATED_TIME,
         endretTidspunkt = CREATED_TIME,
-        endretAv = "test"
+        endretAv = "test",
+        fristFerdigstillelse = fristFerdigstillelse
     )
 }
 

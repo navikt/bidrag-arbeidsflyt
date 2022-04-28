@@ -56,6 +56,7 @@ class BehandleOppgaveHendelseService(
             },
             { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") })
     }
+
     fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
         val aapneOppgaveAPI = oppgaveService.finnAapneOppgaverForJournalpost(journalpostId)
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
@@ -74,7 +75,7 @@ class BehandleOppgaveHendelseService(
             return false
         }
 
-        val prevOppgaveState = persistenceService.hentOppgave(oppgaveHendelse.id)
+        val prevOppgaveState = persistenceService.hentJournalforingOppgave(oppgaveHendelse.id)
         if (prevOppgaveState.isPresent && prevOppgaveState.get().erJournalforingOppgave()){
             LOGGER.info("Oppgavetype for oppgave ${oppgaveHendelse.id} er endret fra JFR til ${oppgaveHendelse.oppgavetype}")
             return true

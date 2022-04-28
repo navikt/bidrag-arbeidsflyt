@@ -41,7 +41,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             OppgaveSokResponse::class.java
         )
 
-        LOGGER.info("Response: ${oppgaveSokResponseEntity.statusCode}, ${initStringOf(oppgaveSokResponseEntity.body)}")
+        LOGGER.info("Response søk oppgave - ${initStringOf(oppgaveSokResponseEntity.body)}")
 
         return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
     }
@@ -68,7 +68,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 patchOppgaveRequest.somHttpEntity(),
                 OppgaveData::class.java
             )
-            LOGGER.info("Endret oppgave ${patchOppgaveRequest.id} - ${responseEntity.body}")
+            LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons ${responseEntity.body}")
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){
                 throw EndreOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)
@@ -81,8 +81,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
     override fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse {
         try {
-            LOGGER.info("Oppretter ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}")
-
+            SECURE_LOGGER.info("Oppretter oppgave med verdi $opprettJournalforingsOppgaveRequest")
             val responseEntity = restTemplate.exchange(
                 OPPGAVE_CONTEXT,
                 HttpMethod.POST,
@@ -90,7 +89,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 OppgaveData::class.java
             )
 
-            LOGGER.info("Opprettet ${opprettJournalforingsOppgaveRequest.oppgavetype} oppgave for journalpost {}", responseEntity.body?.id)
+            LOGGER.info("Opprettet oppgave ${responseEntity.body?.id} med type ${opprettJournalforingsOppgaveRequest.oppgavetype} og journalpostId ${opprettJournalforingsOppgaveRequest.journalpostId}")
             return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){

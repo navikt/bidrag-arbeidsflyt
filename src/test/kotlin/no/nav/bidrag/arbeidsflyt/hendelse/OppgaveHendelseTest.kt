@@ -4,9 +4,11 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
+import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
@@ -22,7 +24,13 @@ import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.MockedStatic
+import org.mockito.Mockito
+import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -44,7 +52,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(oppgave.oppgaveId).isEqualTo(oppgaveId)
             assertThat(oppgave.journalpostId).isEqualTo(journalpostId)
             assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
-            assertThat(oppgave.tema).isEqualTo("BID")
             assertThat(oppgave.status).isEqualTo(OppgaveStatus.OPPRETTET.name)
         }
     }
@@ -62,7 +69,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_3)
             assertThat(oppgave.journalpostId).isEqualTo(JOURNALPOST_ID_3)
             assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
-            assertThat(oppgave.tema).isEqualTo("BID")
             assertThat(oppgave.status).isEqualTo(OppgaveStatus.OPPRETTET.name)
         }
 
@@ -83,7 +89,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(oppgave.oppgaveId).isEqualTo(OPPGAVE_ID_3)
             assertThat(oppgave.journalpostId).isEqualTo(JOURNALPOST_ID_3)
             assertThat(oppgave.oppgavetype).isEqualTo(OPPGAVETYPE_JFR)
-            assertThat(oppgave.tema).isEqualTo("BID")
             assertThat(oppgave.status).isEqualTo(OppgaveStatus.OPPRETTET.name)
         }
 
@@ -128,11 +133,50 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tildeltEnhetsnr = "4833"
         )))
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, fristFerdigstillelse = LocalDate.of(2020, 2, 1))
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
-        verifyOppgaveOpprettetWith("\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"fristFerdigstillelse\":\"2020-02-01\"", "\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+    }
+
+    @Test
+    fun `skal opprette oppgave med frist neste dag`(){
+            stubHentOppgave(
+                listOf(
+                    OppgaveData(
+                        id = OPPGAVE_ID_1,
+                        versjon = 1,
+                        journalpostId = JOURNALPOST_ID_1,
+                        aktoerId = AKTOER_ID,
+                        oppgavetype = "BEH_SAK",
+                        statuskategori = Oppgavestatuskategori.AAPEN,
+                        tema = "BID",
+                        tildeltEnhetsnr = "4833"
+                    )
+                )
+            )
+            testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
+            val oppgaveHendelse = createOppgaveHendelse(
+                OPPGAVE_ID_1,
+                journalpostId = JOURNALPOST_ID_1,
+                fnr = PERSON_IDENT_1,
+                status = OppgaveStatus.FERDIGSTILT,
+                statuskategori = Oppgavestatuskategori.AVSLUTTET,
+                fristFerdigstillelse = null
+            )
+
+            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+            verifyOppgaveOpprettetWith(
+                "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+                "\"aktoerId\":\"$AKTOER_ID\"",
+                "\"oppgavetype\":\"JFR\"",
+                "\"journalpostId\":\"$JOURNALPOST_ID_1\"",
+                "\"opprettetAvEnhetsnr\":\"9999\"",
+                "\"prioritet\":\"HOY\"",
+                "\"tema\":\"BID\""
+            )
     }
 
     @Test

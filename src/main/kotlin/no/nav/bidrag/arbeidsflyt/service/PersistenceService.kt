@@ -27,8 +27,8 @@ class PersistenceService(
         private val LOGGER = LoggerFactory.getLogger(PersistenceService::class.java)
     }
 
-    fun hentOppgave(oppgaveId: Long): Optional<Oppgave> {
-        return oppgaveRepository.findByOppgaveId(oppgaveId)
+    fun hentJournalforingOppgave(oppgaveId: Long): Optional<Oppgave> {
+        return oppgaveRepository.findByOppgaveId(oppgaveId).filter { it.erJournalforingOppgave() }
     }
 
     fun hentJournalpostMedStatusMottatt(journalpostId: String): Optional<Journalpost> {
@@ -61,9 +61,7 @@ class PersistenceService(
             oppgaveId = oppgaveHendelse.id,
             oppgavetype =  oppgaveHendelse.oppgavetype!!,
             status = oppgaveHendelse.status?.name!!,
-            statuskategori = oppgaveHendelse.statuskategori?.name!!,
-            journalpostId = oppgaveHendelse.journalpostId,
-            tema = oppgaveHendelse.tema!!
+            journalpostId = oppgaveHendelse.journalpostId
         )
         oppgaveRepository.save(oppgave)
         LOGGER.info("Lagret oppgave med id ${oppgaveHendelse.id} i databasen.")

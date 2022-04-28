@@ -1,8 +1,6 @@
 CREATE TABLE IF NOT EXISTS oppgave (
        oppgave_id numeric NOT NULL,
        status varchar(20) NOT NULL,
-       statuskategori varchar(30) NOT NULL,
-       tema varchar(20) NOT NULL,
        oppgavetype varchar(20) NOT NULL,
        journalpost_id varchar(30) NULL,
        opprettet_timestamp timestamp DEFAULT now() NOT NULL,

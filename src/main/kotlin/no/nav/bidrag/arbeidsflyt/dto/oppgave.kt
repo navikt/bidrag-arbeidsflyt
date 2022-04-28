@@ -17,6 +17,10 @@ private const val PARAMS_100_APNE_OPPGAVER = "tema={tema}&statuskategori=AAPEN&s
 private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 
+fun formatterDatoForOppgave(date: LocalDate): String{
+    return date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+}
+
 data class OppgaveSokRequest(val journalpostId: String, val tema: String? = "BID") {
 
     fun hentParametre(): String {
@@ -101,8 +105,8 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
     var prioritet: String = Prioritet.HOY.name
     var tildeltEnhetsnr: String? = "4833"
     var tema: String? = "BID"
-    var aktivDato: String = LocalDate.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
-    var fristFerdigstillelse: String = DateUtils.finnNesteArbeidsdag().format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    var aktivDato: String = formatterDatoForOppgave(LocalDate.now())
+    var fristFerdigstillelse: String = formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())
 
     var aktoerId: String? = null
     var bnr: String? = null
@@ -110,12 +114,13 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
         this.aktoerId = oppgaveHendelse.hentAktoerId
         this.bnr = oppgaveHendelse.hentBnr
         this.tema = oppgaveHendelse.tema ?: this.tema
+        this.fristFerdigstillelse = if(oppgaveHendelse.fristFerdigstillelse!=null) formatterDatoForOppgave(oppgaveHendelse.fristFerdigstillelse) else this.fristFerdigstillelse
         this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: journalpost.enhet
     }
 
     constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostMedBareBIDprefix){
         this.aktoerId = journalpostHendelse.aktorId
-        this.tema = journalpostHendelse.fagomrade ?: this.tema
+        this.tema = "BID" // Kan ikke opprette JFR med tema FAR
         this.tildeltEnhetsnr = journalpostHendelse.enhet
     }
 
