@@ -81,6 +81,7 @@ class PersistenceService(
                 })
         } else {
             oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
+            LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
         }
 
     }
@@ -95,11 +96,11 @@ class PersistenceService(
 
 
         if (!journalpostHendelse.erMottaksregistrert || journalpostHendelse.erEksterntFagomrade){
-            LOGGER.info("Sletter journalpost $journalpostId fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
             deleteJournalpost(journalpostId)
+            LOGGER.info("Slettet journalpost $journalpostId fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
         } else {
-            LOGGER.info("Lagrer journalpost $journalpostId fra hendelse")
             saveOrUpdateMottattJournalpost(journalpostId, journalpostHendelse)
+            LOGGER.info("Lagret journalpost $journalpostId i databasen")
         }
     }
 
