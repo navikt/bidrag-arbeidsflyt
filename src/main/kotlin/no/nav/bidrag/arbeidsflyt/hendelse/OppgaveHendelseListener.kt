@@ -37,6 +37,8 @@ class OppgaveHendelseListener(
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
                     "tema ${oppgaveEndretHendelse.tema}, " +
                     "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
+                    "endretAv ${oppgaveEndretHendelse.endretAv} " +
+                    "tilordnetRessurs ${oppgaveEndretHendelse.tilordnetRessurs} " +
                     "og status ${oppgaveEndretHendelse.status}")
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
         }
