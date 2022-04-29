@@ -36,9 +36,11 @@ class OppgaveHendelseListener(
             LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
                     "tema ${oppgaveEndretHendelse.tema}, " +
-                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype} " +
-                    "endretAv ${oppgaveEndretHendelse.endretAv} " +
-                    "tilordnetRessurs ${oppgaveEndretHendelse.tilordnetRessurs} " +
+                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype}, " +
+                    "opprettetAv ${oppgaveEndretHendelse.opprettetAv}, " +
+                    "endretAv ${oppgaveEndretHendelse.endretAv}, " +
+                    "tilordnetRessurs ${oppgaveEndretHendelse.tilordnetRessurs}, " +
+                    "versjon ${oppgaveEndretHendelse.versjon}, " +
                     "og status ${oppgaveEndretHendelse.status}")
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
         }
@@ -52,7 +54,8 @@ class OppgaveHendelseListener(
             LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
                     "tema ${oppgaveOpprettetHendelse.tema}, " +
-                    "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype} " +
+                    "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype}, " +
+                    "opprettetAv ${oppgaveOpprettetHendelse.opprettetAv}, " +
                     "og status ${oppgaveOpprettetHendelse.status}")
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
         }
