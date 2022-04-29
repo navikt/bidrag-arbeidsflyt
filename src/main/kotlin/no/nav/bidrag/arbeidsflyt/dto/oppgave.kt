@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
 private const val PARAMS_100_APNE_OPPGAVER = "tema={tema}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
-private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}"
+private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}&journalpostId={prefix}-{id}:{id}"
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 
 fun formatterDatoForOppgave(date: LocalDate): String{
