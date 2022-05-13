@@ -21,8 +21,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    internal fun finnAapneOppgaverForJournalpost(journalpostId: String, tema: String? = "BID"): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostId, tema)
+    internal fun finnAapneOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest(journalpostId)
 
         return OppgaverForHendelse(
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
@@ -53,29 +53,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")
-            )
-        }
-    }
-
-    internal fun endreTemaEllerFerdigstillJournalforingsoppgaver(journalpostHendelse: JournalpostHendelse, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse) {
-        val journalpostId = journalpostHendelse.journalpostIdUtenPrefix
-        val endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer()
-        val harJournalforingsOppgaverForNyttTema = finnAapneOppgaverForJournalpost(journalpostId, nyttTema).harJournalforingsoppgaver()
-        if (harJournalforingsOppgaverForNyttTema){
-            LOGGER.info("Journalpost $journalpostId med tema $nyttTema har allerede journalforingsoppgave for samme tema. Lukker Bidrag journalføringsoppgaver")
-            ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer, oppgaverForHendelse)
-        } else {
-            LOGGER.info("Endrer tema på journalforingsoppgaver for journalpost $journalpostId til tema $nyttTema")
-            endreTemaJournalforingsoppgaver(endretAvEnhetsnummer, journalpostHendelse.enhet!!, nyttTema, oppgaverForHendelse, journalpostHendelse.sporing)
-        }
-    }
-
-    internal fun endreTemaJournalforingsoppgaver(endretAvEnhetsnummer: String?, tildeltEnhet: String, nyttTema: String, oppgaverForHendelse: OppgaverForHendelse, sporingsdata: Sporingsdata?){
-        oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
-            LOGGER.info("Endrer tema på oppgave ${it.id} med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
-            oppgaveConsumer.endreOppgave(
-                endretAvEnhetsnummer = endretAvEnhetsnummer,
-                patchOppgaveRequest = EndreTemaOppgaveRequest(it, nyttTema, tildeltEnhet, sporingsdata?.lagSaksbehandlerInfo()?:"ukjent saksbehandler")
             )
         }
     }

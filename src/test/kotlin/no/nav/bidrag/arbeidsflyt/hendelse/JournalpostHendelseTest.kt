@@ -264,40 +264,4 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(0, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
     }
 
-    @Test
-    fun `skal endre tema oppgave nar endret til ekstern fagomrade for Joark journalpost`(){
-        val defaultLocalDateTime = LocalDateTime.of(2020, 1, 1, 12, 0)
-        val mockStatic: MockedStatic<LocalDateTime> = Mockito.mockStatic(LocalDateTime::class.java)
-
-        try {
-            mockStatic.`when`<Any>(LocalDateTime::now).thenReturn(defaultLocalDateTime)
-            stubHentOppgave(emptyList())
-            stubHentOppgaveContaining(listOf(OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                journalpostId = JOURNALPOST_ID_4_NEW,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "JFR",
-                tema = "BID",
-                beskrivelse = "test",
-                tildeltEnhetsnr = "4833"
-            )), Pair("tema", "BID"))
-            stubHentPerson(PERSON_IDENT_3)
-            val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-            val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-            journalpostHendelse.fagomrade = "EKSTERN"
-            journalpostHendelse.enhet = "4999"
-
-            behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-            verifyOppgaveEndretWith(1,  "\"beskrivelse\":\"--- 01.01.2020 12:00 Z12312312, Navn Navnesen ---\\r\\nOppgave overført fra tema BID til EKSTERN\\r\\n\\r\\n--- 01.01.2020 12:00 Z12312312, Navn Navnesen ---\\r\\nSaksbehandler endret fra Z12312312, Navn Navnesen til ikke valgt\\r\\n\\r\\ntest\"")
-            verifyOppgaveEndretWith(1,   "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"", "\"tildeltEnhetsnr\":\"4999\"", "\"tilordnetRessurs\":null")
-            verifyOppgaveEndretWith(0, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"4833\"")
-        } finally {
-            mockStatic.reset()
-        }
-
-
-    }
-
 }

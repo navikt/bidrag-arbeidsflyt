@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
-private const val PARAMS_100_APNE_OPPGAVER = "tema={tema}&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+private const val PARAMS_100_APNE_OPPGAVER = "tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
 private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}&journalpostId={prefix}-{id}:{id}"
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 
@@ -21,22 +21,21 @@ fun formatterDatoForOppgave(date: LocalDate): String{
     return date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
 }
 
-data class OppgaveSokRequest(val journalpostId: String, val tema: String? = "BID") {
+data class OppgaveSokRequest(val journalpostId: String) {
 
     fun hentParametre(): String {
-        val sokTema = tema ?: "BID"
         if (harJournalpostIdPrefiks()) {
             val prefix = hentPrefiks()
             val idWithoutPrefix = hentJournalpostIdUtenPrefiks()
 
-            return "${PARAMS_100_APNE_OPPGAVER.replace("{tema}", sokTema)}&${
+            return "$PARAMS_100_APNE_OPPGAVER&${
                 PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
                     .replace("{prefix}", prefix)
                     .replace("{id}", idWithoutPrefix)
             }"
         }
 
-        return "${PARAMS_100_APNE_OPPGAVER.replace("{tema}", sokTema)}&${
+        return "$PARAMS_100_APNE_OPPGAVER&${
             PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
                 .replace("{prefix}", "BID")
                 .replace("{id}", journalpostId)
