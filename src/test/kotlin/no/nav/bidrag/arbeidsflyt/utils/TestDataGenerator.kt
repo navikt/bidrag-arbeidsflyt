@@ -31,7 +31,9 @@ class TestDataGenerator {
         return journalpostRepository.findByJournalpostId(journalpostId)
     }
 
-
+    fun opprettDLQMelding(dlqKafka: DLQKafka){
+        dlqKafkaRepository.save(dlqKafka)
+    }
     fun opprettOppgave(oppgave: Oppgave){
         oppgaveRepository.save(oppgave)
     }

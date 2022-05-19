@@ -41,10 +41,12 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+import org.springframework.scheduling.annotation.EnableScheduling
 import java.time.Duration
 
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
+@EnableScheduling
 class HendelseConfiguration {
     companion object {
         @JvmStatic
