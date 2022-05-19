@@ -25,6 +25,7 @@
     <token-support.version>2.0.8</token-support.version>
     <springframework-cloud.version>3.1.0</springframework-cloud.version>
     <squareup-okhttp3.version>4.9.2</squareup-okhttp3.version>
+    <shedlock.version>4.35.0</shedlock.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -69,6 +70,16 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>net.javacrumbs.shedlock</groupId>
+      <artifactId>shedlock-spring</artifactId>
+      <version>${shedlock.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.javacrumbs.shedlock</groupId>
+      <artifactId>shedlock-provider-jdbc-template</artifactId>
+      <version>${shedlock.version}</version>
+    </dependency>
     <!-- nav -->
     <dependency>
       <groupId>no.nav.bidrag</groupId>

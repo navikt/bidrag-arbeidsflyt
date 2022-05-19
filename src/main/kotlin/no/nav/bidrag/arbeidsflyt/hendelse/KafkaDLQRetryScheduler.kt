@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import no.nav.bidrag.arbeidsflyt.model.KunneIkkeProsessereKafkaMelding
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
@@ -31,6 +32,7 @@ class KafkaDLQRetryScheduler(
     lateinit var topicJournalpost: String;
 
     @Scheduled(cron = "0 */2 * ? * *")
+    @SchedulerLock(name = "processKafkaDLQMessages", lockAtMostFor = "50m", lockAtLeastFor = "10m")
     @Transactional
     fun processMessages(){
 
@@ -43,7 +45,7 @@ class KafkaDLQRetryScheduler(
                 processMessage(it)
                 dlqKafkaRepository.delete(it)
             } catch (e: Exception){
-                LOGGER.error("Det skjedde feil ved prosessering av melding ${it.id}", e)
+                LOGGER.error("Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}", e)
                 it.retry = false
                 dlqKafkaRepository.save(it)
             }

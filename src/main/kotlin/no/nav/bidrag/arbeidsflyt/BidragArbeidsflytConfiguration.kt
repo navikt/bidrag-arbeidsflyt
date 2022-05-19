@@ -1,5 +1,8 @@
 package no.nav.bidrag.arbeidsflyt
 
+import net.javacrumbs.shedlock.core.LockProvider
+import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
@@ -34,6 +37,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.core.env.Environment
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -43,14 +47,27 @@ import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.time.Duration
+import javax.sql.DataSource
+
 
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
 @EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "20m")
 class HendelseConfiguration {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
+    }
+
+    @Bean
+    fun lockProvider(dataSource: DataSource): LockProvider? {
+        return JdbcTemplateLockProvider(
+            JdbcTemplateLockProvider.Configuration.builder()
+                .withJdbcTemplate(JdbcTemplate(dataSource))
+                .usingDbTime()
+                .build()
+        )
     }
 
     @Bean

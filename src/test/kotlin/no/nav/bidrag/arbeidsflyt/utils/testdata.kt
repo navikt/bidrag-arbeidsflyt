@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
+import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import java.time.LocalDate
@@ -50,6 +51,15 @@ fun createOppgave(oppgaveId: Long,
         journalpostId = journalpostId,
         status = status,
         oppgavetype = oppgaveType
+    )
+}
+
+fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false): DLQKafka {
+    return DLQKafka(
+        topicName = topicName,
+        messageKey = "JOARK-$JOURNALPOST_ID_1",
+        payload = payload,
+        retry = retry
     )
 }
 
