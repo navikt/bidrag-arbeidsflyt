@@ -31,7 +31,7 @@ class KafkaDLQRetryScheduler(
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String;
 
-    @Scheduled(cron = "0 0 * ? * *") // Every hour
+    @Scheduled(cron = "0 */30 * ? * *") // Every 30 minutes
     @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
     @Transactional
     fun processMessages(){
