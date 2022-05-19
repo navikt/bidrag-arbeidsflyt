@@ -5,7 +5,21 @@ Mikrotjeneste for administrering av arbeidsflyt i bidrag. Dette er en applikasjo
 [![test build on pull request](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/pr.yaml/badge.svg)](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/pr.yaml)
 [![release bidrag-arbeidsflyt](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/release.yaml/badge.svg)](https://github.com/navikt/bidrag-arbeidsflyt/actions/workflows/release.yaml)
 
-### bygg og kjør applikasjon
+Bidrag arbeidsflyt sørger for at mottatte Bidrag journalposter alltid har journalføringsoppgaver og at oppgavene er i synk med journalposten (gjelder, enhet osv).<br/>
+Arbeidsflyt vil lukke journalføringsoppgave hvis journalpost er journalført eller er overført til annen tema
+
+Bidrag arbeisflyt lytter på `oppgave-endret` og `oppgave-opprettet` kafka hendelser for sjekke om en oppgave blir lukket før journalpost er journalført.
+Hvis oppgave er lukket men journalposten ikke er journalført vil arbeidsflyt automatisk opprette ny journalføringsoppgave for journalposten.
+
+### Database og Kafka
+Arbeidsflyt lagrer journalposter med status mottatt og åpne journalføringsoppgaver i databasen. Dette brukes for å sjekke status på journalposten og for å kunne sjekke om en oppgave er endret fra journalføringsoppgave til noe annet.
+Denne informasjonen brukes da for å bestemme om en ny journalføringsoppgave skal opprettes eller ikke.
+#### Prosessering av feilede meldinger (DLQ)
+All feilede (etter 10 forsøk) kafka meldinger lagres i tabellen `dead_letter_kafka`. Scheduler i klassen [KafkaDLQRetryScheduler](src/main/kotlin/no/nav/bidrag/arbeidsflyt/hendelse/KafkaDLQRetryScheduler.kt) sjekker hver 30.min for rader med `retry=true` og prøver å prosessere feilede meldinger på nytt.
+Alle meldinger som feiler vil lagres med `retry=false` som betyr at retry må manuelt settes til true for at arbeidsflyt skal prøve å prosessere melding på nytt.
+
+Følg denne guiden for å koble deg til databasen https://doc.nais.io/persistence/postgres/#personal-database-access 
+### Bygg og kjør applikasjon
 
 Dette er en spring-boot applikasjon og kan kjøres som ren java applikasjon, ved å
 bruke `maven` eller ved å bygge et docker-image og kjøre dette 
@@ -28,6 +42,8 @@ eller<br>
 deretter<br>
 `docker build -t bidrag-arbeidsflyt .`<br>
 `docker run -p bidrag-arbeidsflyt`
+
+
 
 
 ### Lokal utvikling
