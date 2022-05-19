@@ -32,7 +32,7 @@ class KafkaDLQRetryScheduler(
     lateinit var topicJournalpost: String;
 
     @Scheduled(cron = "0 */2 * ? * *")
-    @SchedulerLock(name = "processKafkaDLQMessages", lockAtMostFor = "50m", lockAtLeastFor = "10m")
+    @SchedulerLock(name = "processKafkaDLQMessages", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     @Transactional
     fun processMessages(){
 
