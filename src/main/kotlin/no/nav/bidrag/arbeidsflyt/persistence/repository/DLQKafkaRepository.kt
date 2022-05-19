@@ -6,5 +6,6 @@ import org.springframework.data.repository.CrudRepository
 interface DLQKafkaRepository: CrudRepository<DLQKafka, Long> {
 
     fun findByTopicName(topicName: String): List<DLQKafka>
+    fun findByRetryTrue(): List<DLQKafka>
     override fun findAll(): List<DLQKafka>
 }
