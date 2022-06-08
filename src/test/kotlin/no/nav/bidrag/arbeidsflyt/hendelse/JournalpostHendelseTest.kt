@@ -283,8 +283,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opp`(){
-        val aktorId = "123213213213123"
+    fun `skal opprette oppgave med aktorid null hvis personid ikke funnet`(){
         stubHentOppgaveContaining(listOf())
         stubHentPerson(status = HttpStatus.NO_CONTENT)
         stubHentGeografiskEnhet(enhet = "1234")
@@ -297,7 +296,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyHentPersonKalt()
         verifyHentGeografiskEnhetKalt()
-        verifyOppgaveOpprettetWith( "\"aktoerId\":\"null\"")
+        verifyOppgaveOpprettetWith( "\"aktoerId\":null")
     }
 
     @Test
