@@ -58,7 +58,7 @@ spec:
     - name: PERSON_SCOPE
       value: {{ azure.person_clientid }}
     - name: ORGANISASJON_SCOPE
-      value: { { azure.organisasjon_clientid } }
+      value: {{ azure.organisasjon_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
     - name: TOPIC_OPPGAVE_ENDRET
