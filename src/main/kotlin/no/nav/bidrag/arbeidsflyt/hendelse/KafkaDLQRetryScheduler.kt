@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Component
 class KafkaDLQRetryScheduler(
@@ -24,6 +25,10 @@ class KafkaDLQRetryScheduler(
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(KafkaDLQRetryScheduler::class.java)
+
+        private val MAX_RETRY = 10
+
+        private val FIXED_DELAY =  TimeUnit.HOURS.toMillis(1L)
     }
 
     @Value("\${TOPIC_OPPGAVE_ENDRET}")
@@ -31,7 +36,7 @@ class KafkaDLQRetryScheduler(
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String;
 
-    @Scheduled(cron = "0 */30 * ? * *") // Every 30 minutes
+    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.MINUTES, initialDelay = 20)
     @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
     @Transactional
     fun processMessages(){
@@ -46,7 +51,11 @@ class KafkaDLQRetryScheduler(
                 dlqKafkaRepository.delete(it)
             } catch (e: Exception){
                 LOGGER.error("Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}", e)
-                it.retry = false
+                it.retryCount += 1
+                if (it.retryCount > MAX_RETRY){
+                    LOGGER.error("Har prossert melding med (dead_letter_kafka) id ${it.id} ${it.retryCount} ganger hvor MAX_RETRY=$MAX_RETRY. Stopper reproessering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt", e)
+                    it.retry = false
+                }
                 dlqKafkaRepository.save(it)
             }
         }

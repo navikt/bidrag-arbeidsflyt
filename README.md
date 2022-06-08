@@ -66,6 +66,9 @@ kcat -b localhost:9092 -t bidrag-journalpost -P -K:
 ````
 og lim inn eks:
 ```bash
-BID-2121212121:{"journalpostId":"BID-2121212121","aktorId":"2889800801806","fagomrade":"BID","enhet":"4806","journalstatus":"J","sporing":{"brukerident":"z992903","correlationId":"17f9db643c5-cuke"}}
+BID-2121212121:{"journalpostId":"BID-2121212121","aktorId":"2889800801806","fagomrade":"BID","enhet":"2101","journalstatus":"M","sporing":{"brukerident":"z992903","correlationId":"17f9db643c5-cuke"}}
+```
+```bash
+JOARK-2121212121:{"journalpostId":"JOARK-2121212121","fnr":"13058421019","fagomrade":"BID","enhet":"4806","journalstatus":"M","sporing":{"brukerident":"z992903","correlationId":"17f9db643c5-cuke"}}
 ```
 og deretter trykk Ctrl+D. Da vil meldingen bli sendt til topic bidrag-journalpost

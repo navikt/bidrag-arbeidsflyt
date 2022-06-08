@@ -13,7 +13,9 @@ import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
+import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
@@ -93,10 +95,22 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(stub)
     }
 
-    fun stubHentPerson(personId: String = PERSON_IDENT_1){
-        stubFor(get(urlMatching("/person.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, AKTOER_ID)))))
+    fun stubHentPerson(personId: String = PERSON_IDENT_1, aktorId: String = AKTOER_ID, status: HttpStatus = HttpStatus.OK){
+        stubFor(get(urlMatching("/person.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, aktorId)))))
     }
 
+    fun stubHentGeografiskEnhet(enhet: String = ENHET_4806){
+        stubFor(get(urlMatching("/organisasjon.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(
+            GeografiskTilknytningResponse(enhet, "Enhetnavn")
+        ))))
+    }
+
+    fun verifyHentGeografiskEnhetKalt(antall: Int = 1){
+        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/organisasjon.*")))
+    }
+    fun verifyHentPersonKalt(antall: Int = 1){
+        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/person.*")))
+    }
     fun verifyOppgaveNotOpprettet(){
         WireMock.verify(0, WireMock.postRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/")))
     }

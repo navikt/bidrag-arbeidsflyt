@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt
 import net.javacrumbs.shedlock.core.LockProvider
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock
+import no.nav.bidrag.arbeidsflyt.consumer.BidragOrganisasjonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
@@ -45,6 +46,7 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.time.Duration
 import javax.sql.DataSource
@@ -53,6 +55,7 @@ import javax.sql.DataSource
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
 @EnableScheduling
+@EnableRetry
 @EnableSchedulerLock(defaultLockAtMostFor = "20m")
 class HendelseConfiguration {
     companion object {
@@ -89,8 +92,9 @@ class HendelseConfiguration {
             val errorMessage = "Håndtering av Kafka melding feilet. Nøkkel $key, partition $partition, topic $topic og offset $offset. Melding som feilet: $value"
             LOGGER.error(errorMessage, ex)
             SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
-            persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}")
-        }, ExponentialBackOffWithMaxRetries(maxRetries))
+            val retryableException = !(ex?.cause is OpprettOppgaveFeiletFunksjoneltException || ex?.cause is EndreOppgaveFeiletFunksjoneltException)
+            persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}", retryableException)
+        }, ExponentialBackOffWithMaxRetries(1))
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
@@ -170,6 +174,16 @@ class ArbeidsflytConfiguration {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
         return DefaultPersonConsumer(restTemplate)
+    }
+
+    @Bean
+    fun organisasjonConsumer(
+        @Value("\${ORGANISASJON_URL}") organisasjonUrl: String,
+        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+    ): BidragOrganisasjonConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$organisasjonUrl/bidrag-organisasjon")
+        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("organisasjon"))
+        return BidragOrganisasjonConsumer(restTemplate)
     }
 
     @Bean

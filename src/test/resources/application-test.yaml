@@ -3,6 +3,7 @@ logging:
   level:
     root: INFO
 OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
+ORGANISASJON_URL: http://localhost:${wiremock.server.port:0}/organisasjon
 PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
@@ -40,7 +41,14 @@ no.nav.security.jwt:
           client-id: 123
           client-secret: 123
           client-auth-method: client_secret_basic
-
+      organisasjon:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
 
 #### KAFKA
 

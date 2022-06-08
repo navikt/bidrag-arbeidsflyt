@@ -2,8 +2,10 @@ name: bidrag-arbeidsflyt-feature
 azure:
   oppgave: oppgave-q1.dev-fss-pub.nais.io
   person: bidrag-person-feature.dev-fss-pub.nais.io
+  organisasjon: bidrag-organisasjon-feature.dev-fss-pub.nais.io
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave-q1
   person_clientid: dev-fss.bidrag.bidrag-person-feature
+  organisasjon_clientid: dev-fss.bidrag.bidrag-organisasjon-feature
 kafka:
   pool: nav-dev
   bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
