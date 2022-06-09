@@ -34,7 +34,7 @@ class KafkaDLQRetryScheduler(
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
 
-    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS, initialDelay = 1)
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
     @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
     @Transactional
     fun processMessages(){
