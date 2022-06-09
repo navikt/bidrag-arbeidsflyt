@@ -72,10 +72,10 @@ class OppgaveHendelseListener(
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave){
             meterRegistry.counter(
                 "jfr_oppgave_opprettet",
-                "tema", oppgaveOpprettetHendelse.tema,
-                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr,
-                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv,
-                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr
+                "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
+                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
+                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
+                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
             ).increment()
         }
 
