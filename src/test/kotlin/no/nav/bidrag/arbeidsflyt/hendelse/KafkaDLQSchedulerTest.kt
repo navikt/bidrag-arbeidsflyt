@@ -40,7 +40,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     fun `should set retry to false if processing fails after max retry`(){
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 10))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 19))
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(1)

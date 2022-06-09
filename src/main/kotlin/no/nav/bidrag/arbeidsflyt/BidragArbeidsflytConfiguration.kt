@@ -83,6 +83,8 @@ class HendelseConfiguration {
     @Bean
     fun defaultErrorHandler(@Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int, persistenceService: PersistenceService): DefaultErrorHandler? {
         LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
+        val backoffStrategy = ExponentialBackOffWithMaxRetries(maxRetries)
+        backoffStrategy.multiplier = 2.0
         val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
@@ -94,7 +96,7 @@ class HendelseConfiguration {
             SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
             val retryableException = !(ex?.cause is OpprettOppgaveFeiletFunksjoneltException || ex?.cause is EndreOppgaveFeiletFunksjoneltException)
             persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}", retryableException)
-        }, ExponentialBackOffWithMaxRetries(1))
+        }, backoffStrategy)
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
