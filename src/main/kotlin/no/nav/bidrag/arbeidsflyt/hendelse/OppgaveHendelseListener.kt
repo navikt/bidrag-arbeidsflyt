@@ -73,7 +73,9 @@ class OppgaveHendelseListener(
             meterRegistry.counter(
                 "jfr_oppgave_opprettet",
                 "tema", oppgaveOpprettetHendelse.tema,
-                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr
+                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr,
+                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv,
+                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr
             ).increment()
         }
 
