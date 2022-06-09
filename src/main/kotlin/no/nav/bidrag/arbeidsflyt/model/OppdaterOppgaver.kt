@@ -70,12 +70,8 @@ class OppdaterOppgaver(
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
             val personId = journalpostHendelse.aktorId ?: journalpostHendelse.fnr
-            val tildeltEnhetsnr = geografiskEnhetService.hentGeografiskEnhetFailSafe(personId)
-            if (tildeltEnhetsnr != journalpostHendelse.enhet){
-                LOGGER.warn("Beregnet tildeltenhetsnr $tildeltEnhetsnr er ikke lik enhet fra hendelse ${journalpostHendelse.enhet}")
-            }
-            SECURE_LOGGER.info("Fant tildeltEnhetsnr $tildeltEnhetsnr for person $personId, fikk tildeltEnhetsnr ${journalpostHendelse.enhet}")
-            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(journalpostHendelse))
+            val tildeltEnhetsnr = geografiskEnhetService.hentGeografiskEnhet(personId)
+            oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(journalpostHendelse, tildeltEnhetsnr))
             finnOppdaterteOppgaverForHendelse = true
         }
 

@@ -9,6 +9,7 @@ import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
+import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
@@ -132,9 +133,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`(){
+    fun `skal opprette oppgave med geografisk enhet fra organisasjon`(){
+        val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -149,7 +152,31 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.enhet).isEqualTo("4833")
         }
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`(){
+        val enhet = "4812"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(enhet)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+            assertThat(journalpost.status).isEqualTo("M")
+            assertThat(journalpost.tema).isEqualTo("BID")
+            assertThat(journalpost.enhet).isEqualTo("4833")
+        }
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
 
@@ -157,6 +184,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave med uten prefix nar Joark journalpost mottat uten oppgave`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
 
@@ -173,6 +201,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         }
 
         verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
             "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
@@ -186,6 +215,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave med tema BID selv om journalpost har tema FAR`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
         journalpostHendelse.fagomrade = "FAR"
@@ -203,6 +233,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         }
 
         verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
             "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",

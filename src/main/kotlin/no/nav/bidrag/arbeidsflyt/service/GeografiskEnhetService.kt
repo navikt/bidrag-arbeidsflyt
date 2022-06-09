@@ -14,15 +14,6 @@ class GeografiskEnhetService(private val organisasjonConsumer: BidragOrganisasjo
         private val LOGGER = LoggerFactory.getLogger(GeografiskEnhetService::class.java)
     }
 
-    fun hentGeografiskEnhetFailSafe(personId: String?): String {
-        return try {
-            hentGeografiskEnhet(personId)
-        } catch (e: Exception){
-            LOGGER.warn("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
-            DEFAULT_ENHET
-        }
-    }
-
     fun hentGeografiskEnhet(personId: String?): String {
         if (personId.isNullOrEmpty()){
             SECURE_LOGGER.warn("Personid mangler, bruker enhet $DEFAULT_ENHET")
@@ -36,7 +27,9 @@ class GeografiskEnhetService(private val organisasjonConsumer: BidragOrganisasjo
             return DEFAULT_ENHET
         }
 
-        return geografiskEnhet.get()
+        val geografiskEnhetValue = geografiskEnhet.get()
+        SECURE_LOGGER.info("Hentet geografisk enhet $geografiskEnhetValue for person $personId")
+        return geografiskEnhetValue
     }
 
 }
