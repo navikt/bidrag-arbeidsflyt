@@ -33,7 +33,6 @@ class BehandleOppgaveHendelseService(
         }
 
         persistenceService.oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse)
-        persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveHendelse.id)
     }
 
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {

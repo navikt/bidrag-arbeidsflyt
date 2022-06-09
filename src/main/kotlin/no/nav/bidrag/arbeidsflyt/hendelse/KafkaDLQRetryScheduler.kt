@@ -39,7 +39,7 @@ class KafkaDLQRetryScheduler(
     @Transactional
     fun processMessages(){
 
-        val messages = dlqKafkaRepository.findByRetryTrue()
+        val messages = dlqKafkaRepository.findByRetryTrueOrderByCreatedTimestampAsc()
         LOGGER.info("KafkaDLQRetryScheduler fant ${messages.size} meldinger som skal prosesseres. MAX_RETRY=$maxRetry")
 
         messages.stream().forEach {

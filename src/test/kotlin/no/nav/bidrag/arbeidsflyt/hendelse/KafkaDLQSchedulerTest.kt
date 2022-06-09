@@ -8,6 +8,8 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import java.time.LocalDateTime
 
 internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
 
@@ -68,6 +70,32 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
         assertThat(dlqMessagesAfter.size).isEqualTo(1)
         assertThat(dlqMessagesAfter[0].retry).isEqualTo(true)
         assertThat(dlqMessagesAfter[0].retryCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `should process messages ascending by created date`(){
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3, status = HttpStatus.OK, nextScenario = "FAIL")
+        stubHentPerson(PERSON_IDENT_3, status = HttpStatus.INTERNAL_SERVER_ERROR, scenarioState = "FAIL")
+
+        val journalpostHendelseOld = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+        val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+        journalpostHendelse2.aktorId = null
+        journalpostHendelse2.fnr = "13213213"
+        journalpostHendelseOld.aktorId = null
+        journalpostHendelseOld.fnr = "24444444"
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = true, retryCount = 1, timestamp = LocalDateTime.now(), messageKey = journalpostHendelse2.journalpostId))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelseOld), retry = true, retryCount = 1, timestamp = LocalDateTime.now().minusDays(1), messageKey = journalpostHendelseOld.journalpostId))
+
+        val dlqMessages = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessages.size).isEqualTo(2)
+
+        kafkaDLQRetryScheduler.processMessages()
+
+        val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessagesAfter.size).isEqualTo(1)
+        assertThat(dlqMessagesAfter[0].payload).contains(journalpostHendelse2.fnr)
+        verifyHentPersonKalt(2)
     }
 
 }

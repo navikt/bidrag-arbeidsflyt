@@ -328,27 +328,4 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyHentPersonKalt(0)
     }
-
-    @Test
-    fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`(){
-        stubHentOppgaveContaining(listOf())
-        stubHentPerson()
-        stubHentGeografiskEnhet(enhet = "1234")
-        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
-
-        val dlqMessagesBefore = testDataGenerator.hentDlKafka()
-        assertThat(dlqMessagesBefore.size).isEqualTo(2)
-
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-
-        behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val dlqMessagesAfter = testDataGenerator.hentDlKafka()
-        assertThat(dlqMessagesAfter.size).isEqualTo(0)
-    }
 }

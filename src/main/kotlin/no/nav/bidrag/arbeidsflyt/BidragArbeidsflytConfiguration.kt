@@ -75,9 +75,9 @@ class HendelseConfiguration {
 
     @Bean
     fun journalpostHendelseListener(
-        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
+        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService, persistenceService: PersistenceService
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
-        jsonMapperService, behandleHendelseService
+        jsonMapperService,  behandleHendelseService, persistenceService
     )
 
     @Bean

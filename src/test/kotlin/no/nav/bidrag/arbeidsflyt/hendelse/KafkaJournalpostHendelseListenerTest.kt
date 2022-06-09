@@ -2,7 +2,9 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
+import no.nav.bidrag.arbeidsflyt.utils.createDLQKafka
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
@@ -36,6 +38,31 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
                 assertThat(journalpost.tema).isEqualTo("BID")
                 assertThat(journalpost.enhet).isEqualTo("4833")
             }
+        }
+    }
+
+    @Test
+    fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`(){
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson()
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
+
+        val dlqMessagesBefore = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessagesBefore.size).isEqualTo(2)
+
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+        val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
+        configureProducer()?.send(ProducerRecord(topic, hendelseString))
+
+        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
+            val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+            assertThat(dlqMessagesAfter.size).isEqualTo(0)
         }
 
 

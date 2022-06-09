@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.PROFILE_NAIS
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.DependsOn
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Service
 class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val jsonMapperService: JsonMapperService,
-    private val featureToggle: FeatureToggle
+    private val featureToggle: FeatureToggle,
+    private val persistenceService: PersistenceService
 ) {
     companion object {
         @JvmStatic
@@ -44,6 +46,7 @@ class OppgaveHendelseListener(
                     "versjon ${oppgaveEndretHendelse.versjon}, " +
                     "og status ${oppgaveEndretHendelse.status}")
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
+            persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveEndretHendelse.id)
         }
     }
 
