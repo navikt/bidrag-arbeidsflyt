@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
@@ -11,7 +12,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
-import org.springframework.retry.backoff.ExponentialBackOffPolicy
 import org.springframework.web.client.HttpStatusCodeException
 import java.util.Optional
 
@@ -48,6 +48,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         } catch (statusException: HttpStatusCodeException){
             if (statusException.statusCode.is4xxClientError){
                 LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
+                SECURE_LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
                 throw HentPersonFeiletFunksjoneltException("Det skjedde en feil ved henting av person $ident", statusException)
             }
             throw HentGeografiskEnhetFeiletTekniskException("Det skjedde en teknisk feil ved henting av person $ident", statusException)

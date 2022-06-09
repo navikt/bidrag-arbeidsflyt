@@ -1,10 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.CacheConfig
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
-import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.apache.logging.log4j.util.Strings
 import org.slf4j.LoggerFactory
@@ -40,6 +40,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
         } catch (e: HttpStatusCodeException){
             if (e.statusCode.is4xxClientError){
                 LOGGER.error("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
+                SECURE_LOGGER.error("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
                 throw HentGeografiskEnhetFeiletFunksjoneltException("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
             }
             throw HentGeografiskEnhetFeiletTekniskException("Det skjedde en teknisk feil ved henting av geografisk enhet for person $personId", e)

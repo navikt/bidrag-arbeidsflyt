@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
+import no.nav.bidrag.arbeidsflyt.service.GeografiskEnhetService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 class OppdaterOppgaver(
     private val journalpostHendelse: JournalpostHendelse,
     private val oppgaveService: OppgaveService,
-    private val arbeidsfordelingService: ArbeidsfordelingService
+    private val geografiskEnhetService: GeografiskEnhetService
 ) {
     private var finnOppdaterteOppgaverForHendelse = true
     private lateinit var oppgaverForHendelse: OppgaverForHendelse
@@ -70,7 +70,7 @@ class OppdaterOppgaver(
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
             val personId = journalpostHendelse.aktorId ?: journalpostHendelse.fnr
-            val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordelingFailSafe(personId)
+            val tildeltEnhetsnr = geografiskEnhetService.hentGeografiskEnhetFailSafe(personId)
             if (tildeltEnhetsnr != journalpostHendelse.enhet){
                 LOGGER.warn("Beregnet tildeltenhetsnr $tildeltEnhetsnr er ikke lik enhet fra hendelse ${journalpostHendelse.enhet}")
             }
