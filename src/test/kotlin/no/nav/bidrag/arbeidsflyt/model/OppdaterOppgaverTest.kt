@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.service.GeografiskEnhetService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.assertj.core.api.Assertions.assertThat
@@ -34,6 +35,9 @@ internal class OppdaterOppgaverTest {
     @Autowired
     private lateinit var oppgaveService: OppgaveService
 
+    @Autowired
+    private lateinit var geografiskEnhetService: GeografiskEnhetService
+
     @MockBean
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
@@ -55,7 +59,8 @@ internal class OppdaterOppgaverTest {
 
         oppdaterOppgaver = OppdaterOppgaver(
             journalpostHendelse = journalpostHendelse,
-            oppgaveService = oppgaveService
+            oppgaveService = oppgaveService,
+            geografiskEnhetService = geografiskEnhetService
         )
     }
 

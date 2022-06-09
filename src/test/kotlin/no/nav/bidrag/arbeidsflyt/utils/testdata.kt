@@ -40,7 +40,8 @@ var OPPGAVETYPE_JFR = "JFR"
 var OPPGAVETYPE_BEH_SAK = "BEH_SAK"
 var CREATED_TIME = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]")
 
-
+var ENHET_4833 = "4833"
+var ENHET_4806 = "4806"
 fun createOppgave(oppgaveId: Long,
                   journalpostId: String = JOURNALPOST_ID_1,
                   status: String = OppgaveStatus.OPPRETTET.name,
@@ -54,12 +55,13 @@ fun createOppgave(oppgaveId: Long,
     )
 }
 
-fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false): DLQKafka {
+fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false, retryCount: Int = 0): DLQKafka {
     return DLQKafka(
         topicName = topicName,
         messageKey = "JOARK-$JOURNALPOST_ID_1",
         payload = payload,
-        retry = retry
+        retry = retry,
+        retryCount = retryCount
     )
 }
 

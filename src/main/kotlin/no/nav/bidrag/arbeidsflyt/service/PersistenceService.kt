@@ -39,12 +39,13 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreDLQKafka(topic: String, key: String?, payload: String){
+    fun lagreDLQKafka(topic: String, key: String?, payload: String, retry: Boolean = true){
         try {
             dlqKafkaRepository.save(DLQKafka(
                 messageKey = key ?: "UKJENT",
                 topicName = topic,
-                payload = payload
+                payload = payload,
+                retry = retry
             ))
         } catch (e: Exception){
             LOGGER.error("Det skjedde en feil ved lagring av feilet kafka melding", e)

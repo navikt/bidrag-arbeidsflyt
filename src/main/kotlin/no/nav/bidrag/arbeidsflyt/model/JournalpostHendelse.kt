@@ -4,6 +4,7 @@ data class JournalpostHendelse(
     var journalpostId: String = "na",
     var bnr: String? = null,
     var aktorId: String? = null,
+    var fnr: String? = null,
     var fagomrade: String? = null,
     var enhet: String? = null,
     var journalstatus: String? = null,

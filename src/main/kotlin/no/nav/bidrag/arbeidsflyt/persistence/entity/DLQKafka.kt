@@ -23,5 +23,8 @@ data class DLQKafka (
     var payload: String,
 
     @Column(name = "retry")
-    var retry: Boolean? = false
+    var retry: Boolean? = false,
+
+    @Column(name = "retry_count")
+    var retryCount: Int = 0
 )

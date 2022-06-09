@@ -37,10 +37,10 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `should set retry to false if processing fails`(){
+    fun `should set retry to false if processing fails after max retry`(){
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 19))
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(1)
@@ -52,5 +52,22 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
         assertThat(dlqMessagesAfter[0].retry).isEqualTo(false)
     }
 
+    @Test
+    fun `should increment retry count if processing fails`(){
+        stubHentOppgaveError()
+        val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 1))
+
+        val dlqMessages = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessages.size).isEqualTo(1)
+        assertThat(dlqMessages[0].retryCount).isEqualTo(1)
+
+        kafkaDLQRetryScheduler.processMessages()
+
+        val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessagesAfter.size).isEqualTo(1)
+        assertThat(dlqMessagesAfter[0].retry).isEqualTo(true)
+        assertThat(dlqMessagesAfter[0].retryCount).isEqualTo(2)
+    }
 
 }

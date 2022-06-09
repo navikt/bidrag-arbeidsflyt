@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
+import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
@@ -11,16 +12,15 @@ import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.MockedStatic
-import org.mockito.Mockito
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDateTime
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpServerErrorException
 
 internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -264,4 +264,67 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(0, "\"tema\":\"EKSTERN\"", "\"endretAvEnhetsnr\":\"4833\"")
     }
 
+    @Test
+    fun `skal hente aktorid hvis mangler`(){
+        val aktorId = "123213213213123"
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson(aktorId = aktorId)
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt()
+        verifyHentGeografiskEnhetKalt()
+        verifyOppgaveOpprettetWith( "\"aktoerId\":\"$aktorId\"")
+    }
+
+    @Test
+    fun `skal opprette oppgave med aktorid null hvis personid ikke funnet`(){
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson(status = HttpStatus.NO_CONTENT)
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt()
+        verifyHentGeografiskEnhetKalt()
+        verifyOppgaveOpprettetWith( "\"aktoerId\":null")
+    }
+
+    @Test
+    fun `skal feile behandle hendelse hvis hentperson feiler nar aktorid mangler`(){
+        val aktorId = "123213213213123"
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson(aktorId = aktorId, status = HttpStatus.INTERNAL_SERVER_ERROR)
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.fnr = "123123123"
+
+        assertThrows<HentGeografiskEnhetFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
+    }
+
+    @Test
+    fun `skal ikke hente person hvis aktorid ikke mangler`(){
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson()
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+    }
 }

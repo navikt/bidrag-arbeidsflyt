@@ -49,12 +49,16 @@ spec:
       value: https://{{ azure.oppgave }}
     - name: PERSON_URL
       value: https://{{ azure.person }}
+    - name: ORGANISASJON_URL
+      value: https://{{ azure.organisasjon }}
     - name: KAFKA_BOOTSTRAP_SERVERS
       value: {{ kafka.bootstrap_servers }}
     - name: OPPGAVE_SCOPE
       value: {{ azure.oppgave_clientid }}
     - name: PERSON_SCOPE
       value: {{ azure.person_clientid }}
+    - name: ORGANISASJON_SCOPE
+      value: {{ azure.organisasjon_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
     - name: TOPIC_OPPGAVE_ENDRET
