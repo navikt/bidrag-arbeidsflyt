@@ -44,6 +44,7 @@ abstract class AbstractBehandleHendelseTest {
 
     @BeforeEach
     fun init(){
+        testDataGenerator.deleteAll()
         stubHentPerson()
         stubOpprettOppgave()
         stubEndreOppgave()
