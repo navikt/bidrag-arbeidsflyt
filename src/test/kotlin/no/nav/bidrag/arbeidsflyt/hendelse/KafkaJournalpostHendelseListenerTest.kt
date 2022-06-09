@@ -86,6 +86,8 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
 
     @Test
     fun `skal opprette oppgave med BID prefix nar journalpost mottatt uten oppgave`() {
+        val geografiskEnhet = "4812"
+        stubHentGeografiskEnhet(geografiskEnhet)
         stubHentOppgave(emptyList())
         stubOpprettOppgave()
         stubHentPerson(PERSON_IDENT_3)
@@ -104,7 +106,7 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
                 assertThat(journalpost.enhet).isEqualTo("4833")
             }
 
-            verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+            verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
             verifyOppgaveNotEndret()
         }
     }
