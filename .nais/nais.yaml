@@ -67,8 +67,6 @@ spec:
       value: {{ kafka-topic-oppgave-opprettet }}
     - name: FEATURE_ENABLED
       value: {{ feature-toggle }}
-    - name: SCHEDULER_MAX_RETRY
-      value: "20"
   gcp:
     sqlInstances:
       - name: {{ database.dbname }}
