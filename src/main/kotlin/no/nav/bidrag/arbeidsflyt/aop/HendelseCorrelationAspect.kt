@@ -19,6 +19,12 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
     }
 
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.hendelse.KafkaDLQRetryScheduler.processMessages(..))")
+    fun schedulerCorrelationIdToThread(joinPoint: JoinPoint) {
+        val correlationId = CorrelationId.generateTimestamped("dl_kafka_scheduler").get()
+        MDC.put(CORRELATION_ID, correlationId)
+    }
+
     @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapJournalpostHendelse(..)) && args(hendelse)")
     fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
         try {
@@ -45,7 +51,12 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     }
 
     @After(value = "execution(* no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService.*(..))")
-    fun clearCorrelationIdFromBehandleHendelseService(joinPoint: JoinPoint) {
+    fun clearCorrelationIdFromScheduler(joinPoint: JoinPoint) {
+        MDC.clear()
+    }
+
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.hendelse.KafkaDLQRetryScheduler.*(..))")
+    fun clearSchedulerCorrelationId(joinPoint: JoinPoint) {
         MDC.clear()
     }
 }

@@ -28,6 +28,9 @@ class BehandleHendelseService(private val geografiskEnhetService: GeografiskEnhe
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
+
+        // Eldre feilede meldinger med samme journalpostid kan ignoreres da det er alltid siste melding som gjelder
+        persistenceService.slettFeiledeMeldingerMedJournalpostId(journalpostHendelse.journalpostId)
     }
 
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse){

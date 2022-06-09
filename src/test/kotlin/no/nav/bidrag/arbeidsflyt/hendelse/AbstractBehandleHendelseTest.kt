@@ -64,7 +64,7 @@ abstract class AbstractBehandleHendelseTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
     }
 
-    fun stubOpprettOppgave(oppgaveId: Long = OPPGAVE_ID_1){
+    fun stubOpprettOppgave(oppgaveId: Long = OPPGAVE_ID_1, status: HttpStatus = HttpStatus.OK){
         val responseBody = OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -73,7 +73,7 @@ abstract class AbstractBehandleHendelseTest {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )
-        stubFor(post("/oppgave/api/v1/oppgaver/").willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(responseBody))))
+        stubFor(post("/oppgave/api/v1/oppgaver/").willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(responseBody))))
     }
 
     fun stubEndreOppgave(){

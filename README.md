@@ -13,10 +13,21 @@ Hvis oppgave er lukket men journalposten ikke er journalført vil arbeidsflyt au
 
 ### Database og Kafka
 Arbeidsflyt lagrer journalposter med status mottatt og åpne journalføringsoppgaver i databasen. Dette brukes for å sjekke status på journalposten og for å kunne sjekke om en oppgave er endret fra journalføringsoppgave til noe annet.
-Denne informasjonen brukes da for å bestemme om en ny journalføringsoppgave skal opprettes eller ikke.
-#### Prosessering av feilede meldinger (DLQ)
-All feilede (etter 10 forsøk) kafka meldinger lagres i tabellen `dead_letter_kafka`. Scheduler i klassen [KafkaDLQRetryScheduler](src/main/kotlin/no/nav/bidrag/arbeidsflyt/hendelse/KafkaDLQRetryScheduler.kt) sjekker hver 30.min for rader med `retry=true` og prøver å prosessere feilede meldinger på nytt.
-Alle meldinger som feiler vil lagres med `retry=false` som betyr at retry må manuelt settes til true for at arbeidsflyt skal prøve å prosessere melding på nytt.
+Denne informasjonen brukes da for å bestemme om en ny journalføringsoppgave skal opprettes eller ikke. 
+
+Journalpost slettes fra `journalpost` tabellen hvis journalpost ikke lenger har status mottatt eller ikke lenger har tema BID/FAR. Dette vil føre til at det ikke vil sjekkes for om journalposten mangler journalføringsoppgave eller ikke.
+
+Hvis en journalføringsoppgave skal lukkes uten at journalpost er journalført/endret tema må journalpost slettes fra `journalpost` tabellen. 
+Ellers vil arbeidsflyt opprette ny journalføringsoppgave med engang journalføringsoppgaven lukkes.
+
+#### Feilhåndtering
+Alle kafka topics (opprett-oppgave, endret-oppgave, bidrag.journalpost) har samme feilhåndtering. Hvis behandling av melding feiler vil meldingen forsøkes å behandles på nytt X antall ganger med eksponensiell backoff policy. X er en miljøvariabel `KAFKA_MAX_RETRY` som er satt i [application.yaml](src/main/resources/application.yaml). Denne er satt nå til 15.
+Hvis behandlingen av melding fortsatt feiler etter X antall forsøk vil meldingen lagres i `dead_letter_kafka` tabellen og kafka lytteren vil fortsette å lese neste melding i topicen.
+
+##### Prosessering av feilede meldinger (DLQ)
+All feilede kafka meldinger lagres i tabellen `dead_letter_kafka`. Scheduler i klassen [KafkaDLQRetryScheduler](src/main/kotlin/no/nav/bidrag/arbeidsflyt/hendelse/KafkaDLQRetryScheduler.kt) sjekker hver 30.min for rader med `retry=true` og prøver å prosessere feilede meldinger på nytt.
+Hvis prosessering av melding feiler vil `retry_count` inkrementeres med 1. Hvis `retry_count` er høyere enn `SCHEDULER_MAX_RETRY` som er satt i [application.yaml](src/main/resources/application.yaml) vil `retry` settes til `false`
+Retry må manuelt settes til true og `retry_count=0` for at arbeidsflyt skal prøve å prosessere melding på nytt.
 
 Følg denne guiden for å koble deg til databasen https://doc.nais.io/persistence/postgres/#personal-database-access 
 ### Bygg og kjør applikasjon

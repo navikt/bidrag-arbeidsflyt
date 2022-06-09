@@ -55,10 +55,10 @@ fun createOppgave(oppgaveId: Long,
     )
 }
 
-fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false, retryCount: Int = 0): DLQKafka {
+fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false, retryCount: Int = 0, messageKey: String = "JOARK-$JOURNALPOST_ID_1"): DLQKafka {
     return DLQKafka(
         topicName = topicName,
-        messageKey = "JOARK-$JOURNALPOST_ID_1",
+        messageKey = messageKey,
         payload = payload,
         retry = retry,
         retryCount = retryCount

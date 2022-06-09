@@ -21,8 +21,8 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3)
         val journalpostHendelse1 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
         val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_2")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse1), retry = true))
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = false))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse1), retry = true, messageKey = journalpostHendelse1.journalpostId))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = false, messageKey = journalpostHendelse2.journalpostId))
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(2)

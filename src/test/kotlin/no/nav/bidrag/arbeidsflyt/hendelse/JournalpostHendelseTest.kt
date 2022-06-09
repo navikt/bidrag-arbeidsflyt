@@ -13,6 +13,7 @@ import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
+import no.nav.bidrag.arbeidsflyt.utils.createDLQKafka
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
@@ -326,5 +327,28 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyHentPersonKalt(0)
+    }
+
+    @Test
+    fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`(){
+        stubHentOppgaveContaining(listOf())
+        stubHentPerson()
+        stubHentGeografiskEnhet(enhet = "1234")
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
+        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
+
+        val dlqMessagesBefore = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessagesBefore.size).isEqualTo(2)
+
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+        assertThat(dlqMessagesAfter.size).isEqualTo(0)
     }
 }
