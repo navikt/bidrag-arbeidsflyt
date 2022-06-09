@@ -7,5 +7,8 @@ interface DLQKafkaRepository: CrudRepository<DLQKafka, Long> {
 
     fun findByTopicName(topicName: String): List<DLQKafka>
     fun findByRetryTrue(): List<DLQKafka>
+    fun findByRetryTrueOrderByCreatedTimestampAsc(): List<DLQKafka>
+
+    fun deleteByMessageKey(key: String)
     override fun findAll(): List<DLQKafka>
 }

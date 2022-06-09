@@ -56,7 +56,7 @@ import javax.sql.DataSource
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
 @EnableScheduling
 @EnableRetry
-@EnableSchedulerLock(defaultLockAtMostFor = "20m")
+@EnableSchedulerLock(defaultLockAtMostFor = "10m")
 class HendelseConfiguration {
     companion object {
         @JvmStatic
@@ -75,9 +75,9 @@ class HendelseConfiguration {
 
     @Bean
     fun journalpostHendelseListener(
-        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService
+        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService, persistenceService: PersistenceService
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
-        jsonMapperService, behandleHendelseService
+        jsonMapperService,  behandleHendelseService, persistenceService
     )
 
     @Bean

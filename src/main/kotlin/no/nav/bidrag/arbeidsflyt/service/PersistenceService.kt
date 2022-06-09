@@ -107,6 +107,24 @@ class PersistenceService(
         }
     }
 
+    @Transactional
+    fun slettFeiledeMeldingerMedOppgaveid(oppgaveid: Long){
+        try {
+            dlqKafkaRepository.deleteByMessageKey(oppgaveid.toString())
+        } catch (e: Exception){
+            LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med oppgaveid $oppgaveid", e)
+        }
+    }
+
+    @Transactional
+    fun slettFeiledeMeldingerMedJournalpostId(journalpostId: String){
+        try {
+            dlqKafkaRepository.deleteByMessageKey(journalpostId)
+        } catch (e: Exception){
+            LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med journalpostid $journalpostId", e)
+        }
+    }
+
     fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse){
         journalpostRepository.findByJournalpostId(journalpostId)
             .ifPresentOrElse({

@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.persistence.entity
 
+import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -26,5 +27,8 @@ data class DLQKafka (
     var retry: Boolean? = false,
 
     @Column(name = "retry_count")
-    var retryCount: Int = 0
+    var retryCount: Int = 0,
+
+    @Column(name = "opprettet_timestamp")
+    var createdTimestamp: LocalDateTime = LocalDateTime.now()
 )

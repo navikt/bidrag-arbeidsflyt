@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.PojoJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,9 +20,11 @@ class TestConfiguration {
     @Profile("!$PROFILE_KAFKA_TEST&!local")
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService,
-        behandleHendelseService: BehandleHendelseService
+        behandleHendelseService: BehandleHendelseService,
+        persistenceService: PersistenceService
     ): JournalpostHendelseListener = PojoJournalpostHendelseListener(
         jsonMapperService,
+        persistenceService,
         behandleHendelseService
     )
 }

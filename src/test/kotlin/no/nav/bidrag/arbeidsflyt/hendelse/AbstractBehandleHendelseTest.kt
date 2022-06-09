@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
+import com.github.tomakehurst.wiremock.stubbing.Scenario
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -64,7 +65,7 @@ abstract class AbstractBehandleHendelseTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
     }
 
-    fun stubOpprettOppgave(oppgaveId: Long = OPPGAVE_ID_1){
+    fun stubOpprettOppgave(oppgaveId: Long = OPPGAVE_ID_1, status: HttpStatus = HttpStatus.OK){
         val responseBody = OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -73,7 +74,7 @@ abstract class AbstractBehandleHendelseTest {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )
-        stubFor(post("/oppgave/api/v1/oppgaver/").willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(responseBody))))
+        stubFor(post("/oppgave/api/v1/oppgaver/").willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(responseBody))))
     }
 
     fun stubEndreOppgave(){
@@ -96,9 +97,14 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(stub)
     }
 
-    fun stubHentPerson(personId: String = PERSON_IDENT_1, aktorId: String = AKTOER_ID, status: HttpStatus = HttpStatus.OK){
-        stubFor(get(urlMatching("/person.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, aktorId)))))
+    fun stubHentPerson(personId: String = PERSON_IDENT_1, aktorId: String = AKTOER_ID, status: HttpStatus = HttpStatus.OK, scenarioState: String? = null, nextScenario: String? = null){
+        stubFor(get(urlMatching("/person.*"))
+                .inScenario("Hent person response")
+                .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
+                .willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, aktorId))))
+            .willSetStateTo(nextScenario))
     }
+
 
     fun stubHentGeografiskEnhet(enhet: String = ENHET_4806){
         stubFor(get(urlMatching("/organisasjon.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(

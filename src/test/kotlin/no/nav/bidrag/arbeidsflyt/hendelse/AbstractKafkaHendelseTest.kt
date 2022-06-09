@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.Producer
+import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.DisplayName
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -34,8 +35,10 @@ abstract class AbstractKafkaHendelseTest: AbstractBehandleHendelseTest(){
         return consumer
     }
 
-    fun configureProducer(): Producer<Int, String>? {
-        val producerProps: Map<String, Any> = HashMap(KafkaTestUtils.producerProps(embeddedKafkaBroker))
-        return DefaultKafkaProducerFactory<Int, String>(producerProps).createProducer()
+    fun configureProducer(): Producer<String, String>? {
+        val props = KafkaTestUtils.producerProps(embeddedKafkaBroker)
+        props.replace("key.serializer", StringSerializer::class.java)
+        val producerProps: Map<String, Any> = HashMap(props)
+        return DefaultKafkaProducerFactory<String, String>(producerProps).createProducer()
     }
 }

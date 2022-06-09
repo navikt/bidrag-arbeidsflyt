@@ -1,10 +1,13 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.bidrag.arbeidsflyt.PROFILE_KAFKA_TEST
 import no.nav.bidrag.arbeidsflyt.PROFILE_NAIS
-import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
-import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
+import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
+import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.DependsOn
@@ -13,15 +16,15 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 
 
-
-
 @Service
 @DependsOn("oppgaveKafkaListenerContainerFactory")
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])
 class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val jsonMapperService: JsonMapperService,
-    private val featureToggle: FeatureToggle
+    private val featureToggle: FeatureToggle,
+    private val persistenceService: PersistenceService,
+    private val meterRegistry: MeterRegistry
 ) {
     companion object {
         @JvmStatic
@@ -44,6 +47,7 @@ class OppgaveHendelseListener(
                     "versjon ${oppgaveEndretHendelse.versjon}, " +
                     "og status ${oppgaveEndretHendelse.status}")
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
+            persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveEndretHendelse.id)
         }
     }
 
@@ -60,6 +64,20 @@ class OppgaveHendelseListener(
                     "opprettetAv ${oppgaveOpprettetHendelse.opprettetAv}, " +
                     "og status ${oppgaveOpprettetHendelse.status}")
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
+            measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse)
         }
+    }
+
+    fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveHendelse){
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave){
+            meterRegistry.counter(
+                "jfr_oppgave_opprettet",
+                "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
+                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
+                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
+                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
+            ).increment()
+        }
+
     }
 }
