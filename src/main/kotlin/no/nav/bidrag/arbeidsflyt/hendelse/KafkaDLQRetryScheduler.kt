@@ -25,24 +25,22 @@ class KafkaDLQRetryScheduler(
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(KafkaDLQRetryScheduler::class.java)
-
-        private val MAX_RETRY = 10
-
-        private val FIXED_DELAY =  TimeUnit.HOURS.toMillis(1L)
     }
 
+    @Value("\${SCHEDULER_MAX_RETRY:10}")
+    lateinit var maxRetry: Number
     @Value("\${TOPIC_OPPGAVE_ENDRET}")
-    lateinit var topicOppgaveEndret: String;
+    lateinit var topicOppgaveEndret: String
     @Value("\${TOPIC_JOURNALPOST}")
-    lateinit var topicJournalpost: String;
+    lateinit var topicJournalpost: String
 
-    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.MINUTES, initialDelay = 20)
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
     @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
     @Transactional
     fun processMessages(){
 
         val messages = dlqKafkaRepository.findByRetryTrue()
-        LOGGER.info("KafkaDLQRetryScheduler fant ${messages.size} meldinger som skal prosesseres")
+        LOGGER.info("KafkaDLQRetryScheduler fant ${messages.size} meldinger som skal prosesseres. MAX_RETRY=$maxRetry")
 
         messages.stream().forEach {
             try {
@@ -52,8 +50,8 @@ class KafkaDLQRetryScheduler(
             } catch (e: Exception){
                 LOGGER.error("Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}", e)
                 it.retryCount += 1
-                if (it.retryCount > MAX_RETRY){
-                    LOGGER.error("Har prossert melding med (dead_letter_kafka) id ${it.id} ${it.retryCount} ganger hvor MAX_RETRY=$MAX_RETRY. Stopper reproessering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt", e)
+                if (it.retryCount >= maxRetry.toInt()){
+                    LOGGER.error("Har prossesert dead_letter_kafka melding med id ${it.id} - ${it.retryCount} ganger hvor MAX_RETRY=$maxRetry. Stopper reprossesering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt", e)
                     it.retry = false
                 }
                 dlqKafkaRepository.save(it)

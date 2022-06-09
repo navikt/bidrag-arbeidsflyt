@@ -320,6 +320,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
