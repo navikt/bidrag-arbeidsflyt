@@ -85,6 +85,7 @@ class HendelseConfiguration {
         LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
         val backoffStrategy = ExponentialBackOffWithMaxRetries(maxRetries)
         backoffStrategy.multiplier = 2.0
+        backoffStrategy.maxInterval = 1200000L // 20 minutes
         val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
