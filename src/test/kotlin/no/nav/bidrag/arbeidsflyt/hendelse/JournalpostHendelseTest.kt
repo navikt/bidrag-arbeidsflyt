@@ -2,18 +2,18 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
-import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
+import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
-import no.nav.bidrag.arbeidsflyt.utils.createDLQKafka
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpServerErrorException
 
 internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -132,9 +131,55 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`(){
+    fun `skal opprette oppgave med geografisk enhet og aktorid`(){
+        val enhet = "4812"
+        val aktorid = "123213123213213"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
+        stubHentGeografiskEnhet(enhet)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.fnr = "123213"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+            assertThat(journalpost.status).isEqualTo("M")
+            assertThat(journalpost.tema).isEqualTo("BID")
+            assertThat(journalpost.enhet).isEqualTo("4833")
+        }
+
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"","\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt()
+        verifyHentPersonKalt()
+    }
+
+    @Test
+    fun `skal ikke opprette oppgave hvis hent geografisk enhet feiler`(){
+        val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+
+        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse)  }
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt()
+    }
+
+    @Test
+    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`(){
+        val enhet = "4812"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -149,7 +194,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.enhet).isEqualTo("4833")
         }
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
 
@@ -157,6 +202,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave med uten prefix nar Joark journalpost mottat uten oppgave`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
 
@@ -173,6 +219,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         }
 
         verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
             "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
@@ -186,6 +233,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave med tema BID selv om journalpost har tema FAR`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
         journalpostHendelse.fagomrade = "FAR"
@@ -203,6 +251,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         }
 
         verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
             "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
@@ -296,7 +345,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyHentPersonKalt()
-        verifyHentGeografiskEnhetKalt()
+        verifyHentGeografiskEnhetKalt(0)
         verifyOppgaveOpprettetWith( "\"aktoerId\":null")
     }
 
@@ -311,7 +360,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.aktorId = null
         journalpostHendelse.fnr = "123123123"
 
-        assertThrows<HentGeografiskEnhetFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
+        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
     }
 
     @Test

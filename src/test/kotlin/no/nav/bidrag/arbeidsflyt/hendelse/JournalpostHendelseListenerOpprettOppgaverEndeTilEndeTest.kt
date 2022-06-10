@@ -4,6 +4,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
+import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.model.Journalstatus
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -38,6 +39,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     fun `skal opprette oppgave når Bidrag journalposten er mottatt og det finnes en aktor på hendelsen`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
         val enhetsNummer = "4806"
+        val enhetsNummerOrganisasjon = "4812"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -50,7 +52,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
 
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
-
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(GeografiskTilknytningResponse::class.java)))
+            .thenReturn(ResponseEntity.ok(GeografiskTilknytningResponse(enhetsNummerOrganisasjon, enhetsNummerOrganisasjon)))
         val journalpostId = "BID-2525"
         val aktoerId = "1234567890100"
 
@@ -62,7 +65,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade": "BID",
-              "enhet": "${enhetsNummer}",
+              "enhet": "${enhetsNummerOrganisasjon}",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -84,6 +87,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     fun `skal opprette oppgave når Joark journalposten er mottatt og det finnes en aktor på hendelsen`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
         val enhetsNummer = "4806"
+        val enhetsNummerGeo = "4812"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -97,6 +101,9 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
 
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(GeografiskTilknytningResponse::class.java)))
+            .thenReturn(ResponseEntity.ok(GeografiskTilknytningResponse(enhetsNummerGeo, enhetsNummerGeo)))
+
         val journalpostId = "JOARK-2525"
         val aktoerId = "1234567890100"
 
@@ -108,7 +115,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade": "BID",
-              "enhet": "${enhetsNummer}",
+              "enhet": "${enhetsNummerGeo}",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -138,7 +145,11 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     @Test
     fun `skal opprette oppgave ved hendelse uten journalpost prefix`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
-
+        val journalpostId = "2525"
+        val journalpostIdMedPrefix = "BID-$journalpostId"
+        val aktoerId = "1234567890100"
+        val enhetsNummer = "4806"
+        val enhetsNummerGeo = "4806"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -149,10 +160,10 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
 
-        val journalpostId = "2525"
-        val journalpostIdMedPrefix = "BID-$journalpostId"
-        val aktoerId = "1234567890100"
-        val enhetsNummer = "4806"
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(GeografiskTilknytningResponse::class.java)))
+            .thenReturn(ResponseEntity.ok(GeografiskTilknytningResponse(enhetsNummerGeo, enhetsNummerGeo)))
+
+
         // kafka hendelse
         journalpostHendelseListener.lesHendelse(
             """
@@ -161,7 +172,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade": "BID",
-              "enhet": "$enhetsNummer",
+              "enhet": "$enhetsNummerGeo",
               "sporing": {
                 "correlationId": "abc"
               }
@@ -183,6 +194,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
     fun `skal opprette oppgaver med tema FAR`() {
         val oppgaveData = OppgaveData(id = 1L, versjon = 1)
         val enhetsNummer = "4806"
+        val enhetsNummerGeo = "4806"
         // when/then søk etter oppgave
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(OppgaveSokResponse::class.java))).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 0)) // opprinnelig søk gir ingen treff på oppgaver
@@ -196,6 +208,9 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
 
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(GeografiskTilknytningResponse::class.java)))
+            .thenReturn(ResponseEntity.ok(GeografiskTilknytningResponse(enhetsNummerGeo, enhetsNummerGeo)))
+
         val journalpostId = "JOARK-2525"
         val aktoerId = "1234567890100"
         val tema = "FAR"
@@ -208,7 +223,7 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
               "aktorId": "$aktoerId",
               "journalstatus": "${Journalstatus.MOTTATT}",
               "fagomrade":"$tema",
-              "enhet": "$enhetsNummer",
+              "enhet": "$enhetsNummerGeo",
               "sporing": {
                 "correlationId": "abc"
               }

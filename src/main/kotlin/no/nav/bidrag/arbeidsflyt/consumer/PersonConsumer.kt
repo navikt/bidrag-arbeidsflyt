@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
-import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
@@ -25,7 +25,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         private val LOGGER = LoggerFactory.getLogger(DefaultPersonConsumer::class.java)
     }
     @Cacheable(PERSON_CACHE, unless = "#ident==null||#result==null")
-    @Retryable(value = [HentGeografiskEnhetFeiletTekniskException::class], maxAttempts = 10, backoff = Backoff(delay = 1000, maxDelay = 10000, multiplier = 2.0))
+    @Retryable(value = [HentArbeidsfordelingFeiletTekniskException::class], maxAttempts = 10, backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0))
     override fun hentPerson(ident: String?): Optional<HentPersonResponse> {
         if (ident == null){
             return Optional.empty()
@@ -51,7 +51,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
                 SECURE_LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
                 throw HentPersonFeiletFunksjoneltException("Det skjedde en feil ved henting av person $ident", statusException)
             }
-            throw HentGeografiskEnhetFeiletTekniskException("Det skjedde en teknisk feil ved henting av person $ident", statusException)
+            throw HentArbeidsfordelingFeiletTekniskException("Det skjedde en teknisk feil ved henting av person $ident", statusException)
         }
 
     }

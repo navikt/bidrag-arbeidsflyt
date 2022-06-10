@@ -117,10 +117,10 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
         this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: journalpost.enhet
     }
 
-    constructor(journalpostHendelse: JournalpostHendelse): this(journalpostHendelse.journalpostMedBareBIDprefix){
+    constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDprefix){
         this.aktoerId = journalpostHendelse.aktorId
         this.tema = "BID" // Kan ikke opprette JFR med tema FAR
-        this.tildeltEnhetsnr = journalpostHendelse.enhet
+        this.tildeltEnhetsnr = tildeltEnhetsnr
     }
 
     constructor(oppgaveData: OppgaveData): this(oppgaveData.journalpostId!!){

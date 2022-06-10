@@ -20,6 +20,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     @Test
     fun `should process and delete message with retry value true`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         stubHentPerson(PERSON_IDENT_3)
         val journalpostHendelse1 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
         val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_2")
@@ -75,6 +76,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     @Test
     fun `should process messages ascending by created date`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.OK, nextScenario = "FAIL")
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.INTERNAL_SERVER_ERROR, scenarioState = "FAIL")
 
