@@ -78,7 +78,7 @@ fun  createJournalpost(journalpostId: String, status: String = "M", enhet: Strin
 fun createOppgaveHendelse(
     id: Long,
     journalpostId: String = "123213",
-    tildeltEnhetsnr: String = "9999",
+    tildeltEnhetsnr: String? = "9999",
     statuskategori: Oppgavestatuskategori = Oppgavestatuskategori.AAPEN,
     status: OppgaveStatus = OppgaveStatus.OPPRETTET,
     oppgavetype: String = OPPGAVETYPE_JFR,

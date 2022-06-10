@@ -60,7 +60,7 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost){
-        val journalforendeEnhet = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
+        val journalforendeEnhet = oppgaveHendelse.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
         oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, journalforendeEnhet))
     }
 
