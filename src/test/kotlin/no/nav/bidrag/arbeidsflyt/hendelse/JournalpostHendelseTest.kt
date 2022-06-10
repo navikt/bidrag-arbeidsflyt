@@ -345,7 +345,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyHentPersonKalt()
-        verifyHentGeografiskEnhetKalt()
+        verifyHentGeografiskEnhetKalt(0)
         verifyOppgaveOpprettetWith( "\"aktoerId\":null")
     }
 
