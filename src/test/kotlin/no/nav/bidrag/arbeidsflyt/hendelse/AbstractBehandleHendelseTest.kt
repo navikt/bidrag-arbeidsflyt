@@ -26,6 +26,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cloud.contract.verifier.converter.YamlContract.ValueMatcher
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -106,8 +107,8 @@ abstract class AbstractBehandleHendelseTest {
     }
 
 
-    fun stubHentGeografiskEnhet(enhet: String = ENHET_4806){
-        stubFor(get(urlMatching("/organisasjon.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(
+    fun stubHentGeografiskEnhet(enhet: String = ENHET_4806, status: HttpStatus = HttpStatus.OK){
+        stubFor(get(urlMatching("/organisasjon.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(
             GeografiskTilknytningResponse(enhet, "Enhetnavn")
         ))))
     }

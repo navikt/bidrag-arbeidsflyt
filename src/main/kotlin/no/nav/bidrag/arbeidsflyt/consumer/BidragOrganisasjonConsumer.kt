@@ -3,8 +3,8 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.CacheConfig
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
-import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletFunksjoneltException
-import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletFunksjoneltException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.apache.logging.log4j.util.Strings
 import org.slf4j.LoggerFactory
@@ -20,11 +20,11 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
 
     companion object {
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(DefaultPersonConsumer::class.java)
+        private val LOGGER = LoggerFactory.getLogger(BidragOrganisasjonConsumer::class.java)
     }
     @Cacheable(CacheConfig.GEOGRAFISK_ENHET_CACHE, unless = "#result==null")
-    @Retryable(value = [HentGeografiskEnhetFeiletTekniskException::class], maxAttempts = 10, backoff = Backoff(delay = 1000, maxDelay = 10000, multiplier = 2.0))
-    open fun hentGeografiskEnhet(personId: String): Optional<String> {
+    @Retryable(value = [HentArbeidsfordelingFeiletTekniskException::class], maxAttempts = 10, backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0))
+    open fun hentArbeidsfordeling(personId: String): Optional<String> {
         if (Strings.isEmpty(personId)) {
             return Optional.empty()
         }
@@ -39,11 +39,11 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
             return Optional.ofNullable(response.body?.enhetIdent)
         } catch (e: HttpStatusCodeException){
             if (e.statusCode.is4xxClientError){
-                LOGGER.error("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
-                SECURE_LOGGER.error("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
-                throw HentGeografiskEnhetFeiletFunksjoneltException("Det skjedde en feil ved henting av geografisk enhet for person $personId", e)
+                LOGGER.error("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
+                SECURE_LOGGER.error("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
+                throw HentArbeidsfordelingFeiletFunksjoneltException("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
             }
-            throw HentGeografiskEnhetFeiletTekniskException("Det skjedde en teknisk feil ved henting av geografisk enhet for person $personId", e)
+            throw HentArbeidsfordelingFeiletTekniskException("Det skjedde en teknisk feil ved henting av arbeidsfordeling for person $personId", e)
         }
 
     }

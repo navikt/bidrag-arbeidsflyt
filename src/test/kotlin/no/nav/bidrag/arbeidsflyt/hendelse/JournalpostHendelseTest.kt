@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
-import no.nav.bidrag.arbeidsflyt.model.HentGeografiskEnhetFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
@@ -14,7 +14,6 @@ import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
-import no.nav.bidrag.arbeidsflyt.utils.createDLQKafka
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpServerErrorException
 
 internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -133,12 +131,15 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med geografisk enhet fra organisasjon`(){
+    fun `skal opprette oppgave med geografisk enhet og aktorid`(){
         val enhet = "4812"
+        val aktorid = "123213123213213"
         stubHentOppgave(emptyList())
-        stubHentPerson(PERSON_IDENT_3)
+        stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.fnr = "123213"
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -152,8 +153,25 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.enhet).isEqualTo("4833")
         }
 
-        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"","\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt()
+        verifyHentPersonKalt()
+    }
+
+    @Test
+    fun `skal ikke opprette oppgave hvis hent geografisk enhet feiler`(){
+        val enhet = "4812"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+
+        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse)  }
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt()
     }
 
     @Test
@@ -342,7 +360,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.aktorId = null
         journalpostHendelse.fnr = "123123123"
 
-        assertThrows<HentGeografiskEnhetFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
+        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
     }
 
     @Test
