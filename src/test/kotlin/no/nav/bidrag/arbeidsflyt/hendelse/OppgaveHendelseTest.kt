@@ -111,6 +111,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave med BID prefix nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
@@ -132,6 +133,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, fristFerdigstillelse = LocalDate.of(2020, 2, 1))
 
@@ -142,7 +144,8 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave med frist neste dag`(){
-            stubHentOppgave(
+        stubHentGeografiskEnhet()
+        stubHentOppgave(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -232,6 +235,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost er mottatt`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
 
