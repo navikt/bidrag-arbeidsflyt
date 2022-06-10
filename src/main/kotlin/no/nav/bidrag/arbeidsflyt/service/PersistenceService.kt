@@ -8,7 +8,6 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
-import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Optional
@@ -18,8 +17,7 @@ import javax.transaction.Transactional
 class PersistenceService(
     private val oppgaveRepository: OppgaveRepository,
     private val dlqKafkaRepository: DLQKafkaRepository,
-    private val journalpostRepository: JournalpostRepository,
-    private val featureToggle: FeatureToggle
+    private val journalpostRepository: JournalpostRepository
 ) {
 
     companion object {
@@ -91,10 +89,6 @@ class PersistenceService(
 
     @Transactional
     fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
-        if (!featureToggle.isFeatureEnabled(FeatureToggle.Feature.LAGRE_JOURNALPOST)){
-            return
-        }
-
         val journalpostId = if (journalpostHendelse.erJoarkJournalpost()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
 
 

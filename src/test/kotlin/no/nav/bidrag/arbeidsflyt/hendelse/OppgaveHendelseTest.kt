@@ -111,14 +111,31 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave med BID prefix nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, tildeltEnhetsnr = "4812")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
-        verifyOppgaveOpprettetWith("\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"4812\"", "\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt(0)
     }
+
+    @Test
+    fun `skal hente geografisk enhet hvis oppgave ikke har tildelt enhetsnr`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4816")
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, tildeltEnhetsnr = null)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"4816\"", "\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt(1)
+    }
+
 
     @Test
     fun `skal opprette oppgave nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`(){
@@ -132,17 +149,20 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         )))
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, fristFerdigstillelse = LocalDate.of(2020, 2, 1))
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
         verifyOppgaveOpprettetWith("\"fristFerdigstillelse\":\"2020-02-01\"", "\"aktoerId\":\"$AKTOER_ID\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"$JOURNALPOST_ID_1\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyHentGeografiskEnhetKalt(0)
     }
 
     @Test
     fun `skal opprette oppgave med frist neste dag`(){
-            stubHentOppgave(
+        stubHentGeografiskEnhet()
+        stubHentOppgave(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -177,6 +197,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
                 "\"prioritet\":\"HOY\"",
                 "\"tema\":\"BID\""
             )
+        verifyHentGeografiskEnhetKalt(0)
     }
 
     @Test
@@ -232,6 +253,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost er mottatt`(){
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
 

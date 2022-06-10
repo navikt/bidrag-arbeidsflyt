@@ -7,7 +7,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
-import no.nav.bidrag.arbeidsflyt.utils.FeatureToggle
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.DependsOn
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service
 class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val jsonMapperService: JsonMapperService,
-    private val featureToggle: FeatureToggle,
     private val persistenceService: PersistenceService,
     private val meterRegistry: MeterRegistry
 ) {
@@ -35,7 +33,7 @@ class OppgaveHendelseListener(
     fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
-        if (oppgaveEndretHendelse.erTemaBIDEllerFAR() && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
+        if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
             LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
                     "oppgaveId ${oppgaveEndretHendelse.id}," +
                     "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
@@ -55,7 +53,7 @@ class OppgaveHendelseListener(
     fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
-        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave && featureToggle.isFeatureEnabled(FeatureToggle.Feature.KAFKA_OPPGAVE)) {
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
             LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "oppgaveId ${oppgaveOpprettetHendelse.id}," +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +

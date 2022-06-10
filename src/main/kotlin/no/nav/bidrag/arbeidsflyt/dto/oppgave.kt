@@ -109,12 +109,12 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
 
     var aktoerId: String? = null
     var bnr: String? = null
-    constructor(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost): this(oppgaveHendelse.journalpostId!!){
+    constructor(oppgaveHendelse: OppgaveHendelse, tildeltEnhetsnr: String): this(oppgaveHendelse.journalpostId!!){
         this.aktoerId = oppgaveHendelse.hentAktoerId
         this.bnr = oppgaveHendelse.hentBnr
         this.tema = oppgaveHendelse.tema ?: this.tema
         this.fristFerdigstillelse = if(oppgaveHendelse.fristFerdigstillelse!=null) formatterDatoForOppgave(oppgaveHendelse.fristFerdigstillelse) else this.fristFerdigstillelse
-        this.tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: journalpost.enhet
+        this.tildeltEnhetsnr = tildeltEnhetsnr
     }
 
     constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDprefix){

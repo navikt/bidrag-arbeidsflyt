@@ -28,6 +28,7 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
     @Test
     fun `skal mappe og behandle oppgave endret hendelse`() {
         stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
         testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
