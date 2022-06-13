@@ -32,8 +32,10 @@ class BehandleHendelseService(private val arbeidsfordelingService: Arbeidsfordel
 
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse){
         if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()){
+            LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
             personConsumer.hentPerson(journalpostHendelse.fnr)
                 .ifPresent { journalpostHendelse.aktorId = it.aktoerId }
+            SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${journalpostHendelse.aktorId} og fnr ${journalpostHendelse.fnr}")
         }
     }
 }
