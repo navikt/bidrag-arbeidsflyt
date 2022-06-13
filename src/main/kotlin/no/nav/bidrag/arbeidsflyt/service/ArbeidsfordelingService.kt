@@ -20,7 +20,6 @@ class ArbeidsfordelingService(private val organisasjonConsumer: BidragOrganisasj
             return DEFAULT_ENHET
         }
 
-        SECURE_LOGGER.info("Henter arbeidsfordeling for personId $personId")
         val arbeidsfordeling = organisasjonConsumer.hentArbeidsfordeling(personId)
         if (arbeidsfordeling.isEmpty){
             SECURE_LOGGER.warn("Fant ingen arbeidsfordeling for person $personId, bruker enhet $DEFAULT_ENHET")
