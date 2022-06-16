@@ -41,6 +41,8 @@ class OppgaveHendelseListener(
                     "oppgavetype ${oppgaveEndretHendelse.oppgavetype}, " +
                     "opprettetAv ${oppgaveEndretHendelse.opprettetAv}, " +
                     "endretAv ${oppgaveEndretHendelse.endretAv}, " +
+                    "saksreferanse ${oppgaveEndretHendelse.saksreferanse}, " +
+                    "fristFerdigstillelse ${oppgaveEndretHendelse.fristFerdigstillelse}, " +
                     "tilordnetRessurs ${oppgaveEndretHendelse.tilordnetRessurs}, " +
                     "versjon ${oppgaveEndretHendelse.versjon}, " +
                     "og status ${oppgaveEndretHendelse.status}")
@@ -60,6 +62,11 @@ class OppgaveHendelseListener(
                     "tema ${oppgaveOpprettetHendelse.tema}, " +
                     "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype}, " +
                     "opprettetAv ${oppgaveOpprettetHendelse.opprettetAv}, " +
+                    "tildeltEnhetsnr ${oppgaveOpprettetHendelse.tildeltEnhetsnr}, " +
+                    "opprettetAvEnhetsnr ${oppgaveOpprettetHendelse.opprettetAvEnhetsnr}, " +
+                    "versjon ${oppgaveOpprettetHendelse.versjon}, " +
+                    "saksreferanse ${oppgaveOpprettetHendelse.saksreferanse}, " +
+                    "fristFerdigstillelse ${oppgaveOpprettetHendelse.fristFerdigstillelse}, " +
                     "og status ${oppgaveOpprettetHendelse.status}")
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
             measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse)
