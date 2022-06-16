@@ -40,6 +40,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT){
+                SECURE_LOGGER.warn("Fant ingen person for ident $ident")
                 return Optional.empty()
             }
 
