@@ -146,7 +146,7 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
     override fun toString() = "${javaClass.simpleName}: ${fieldsWithValues()}"
 
     private fun fieldsWithValues(): String {
-        return StringBuilder("")
+        return StringBuilder()
             .append(fieldToString("journalpostId", journalpostId))
             .append(fieldToString("aktorId", aktoerId))
             .append(fieldToString("bnr", bnr))
