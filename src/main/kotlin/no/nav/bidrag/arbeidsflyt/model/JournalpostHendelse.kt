@@ -25,7 +25,7 @@ data class JournalpostHendelse(
     internal fun harJournalpostIdBIDPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("BID")
     internal fun erJoarkJournalpost() = harJournalpostIdPrefix() && journalpostId.startsWith("JOARK")
     internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
-    internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo() else "ukjent saksbehandler"
+    internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo(sporing?.enhetsnummer) else "ukjent saksbehandler"
 
     fun printSummary() = "{journalpostId=$journalpostId,fagomrade=$fagomrade,enhet=$enhet,saksbehandlerEnhet=${sporing?.enhetsnummer},journalstatus=$journalstatus....}"
 }
@@ -36,6 +36,6 @@ data class Sporingsdata(
     var saksbehandlersNavn: String? = null,
     var enhetsnummer: String? = null
 ) {
-    internal fun lagSaksbehandlerInfo() = if (brukerident == null) "ukjent saksbehandler" else hentBrukeridentMedSaksbehandler()
-    private fun hentBrukeridentMedSaksbehandler() = if (saksbehandlersNavn == null) brukerident!! else "$brukerident, $saksbehandlersNavn"
+    internal fun lagSaksbehandlerInfo(enhetsnummer: String?) = if (brukerident == null) "ukjent saksbehandler" else hentBrukeridentMedSaksbehandler(enhetsnummer)
+    private fun hentBrukeridentMedSaksbehandler(enhetsnummer: String?) = if (saksbehandlersNavn == null) brukerident!! else "$saksbehandlersNavn ($brukerident, ${enhetsnummer?:""})"
 }
