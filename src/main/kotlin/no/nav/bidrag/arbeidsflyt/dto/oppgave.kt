@@ -254,8 +254,13 @@ class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgave
 
 class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
     override var tilordnetRessurs: String? = ""
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String) : this(nyttEnhetsnummer) {
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
+                "${"· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
+                "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+                (oppgaveDataForHendelse.beskrivelse ?: "")
     }
 }
 

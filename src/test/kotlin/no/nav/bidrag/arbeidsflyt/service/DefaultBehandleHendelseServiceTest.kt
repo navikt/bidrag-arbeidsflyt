@@ -114,7 +114,7 @@ internal class DefaultBehandleHendelseServiceTest {
             patchOppgaveRequest = eq(
                 OverforOppgaveRequest(
                     oppgaveDataForHendelse = OppgaveDataForHendelse(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
-                    nyttEnhetsnummer = nyttEnhetsnummer
+                    nyttEnhetsnummer = nyttEnhetsnummer, "Z99999"
                 )
             ),
             endretAvEnhetsnummer = anyOrNull()

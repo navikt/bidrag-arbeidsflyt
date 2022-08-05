@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.EndreTemaOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
@@ -10,7 +9,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
-import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -52,7 +50,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaverForHendelse.dataForHendelse.forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na")
+                patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na", journalpostHendelse.hentSaksbehandlerInfo())
             )
         }
     }

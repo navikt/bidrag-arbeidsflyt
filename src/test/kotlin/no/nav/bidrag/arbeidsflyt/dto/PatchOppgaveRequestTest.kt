@@ -44,16 +44,17 @@ internal class PatchOppgaveRequestTest {
         val opprinneligOppgave = OppgaveDataForHendelse(
             OppgaveData(status = "AAPEN", tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         )
-        val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812")
+        val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812", "Z999999")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
         val expectedValue = "" +
                 "{\"tildeltEnhetsnr\":\"4812\"," +
                 "\"id\":1," +
                 "\"versjon\":2," +
-                "\"tilordnetRessurs\":\"\"" +
-                 "}"
+                "\"tilordnetRessurs\":\"\""
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
+        assertThat(stringValue).`as`("Expected json string value").contains("Oppgave overført fra enhet 007 til 4812")
+        assertThat(stringValue).`as`("Expected json string value").contains("Saksbehandler endret fra Z999999 til ikke valgt")
     }
 
     @Test
