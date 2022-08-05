@@ -25,7 +25,7 @@
     <token-support.version>2.0.8</token-support.version>
     <springframework-cloud.version>3.1.0</springframework-cloud.version>
     <squareup-okhttp3.version>4.9.2</squareup-okhttp3.version>
-    <shedlock.version>4.36.0</shedlock.version>
+    <shedlock.version>4.37.0</shedlock.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -142,7 +142,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>5.6.9.Final</version>
+      <version>5.6.10.Final</version>
     </dependency>
     <!-- Database -->
     <dependency>
