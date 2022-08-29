@@ -286,4 +286,32 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyOppgaveNotOpprettet()
     }
+
+    @Test
+    fun `Skal overfore oppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "4806", "9999")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave tildelt enhet journalforende enhet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+    }
 }

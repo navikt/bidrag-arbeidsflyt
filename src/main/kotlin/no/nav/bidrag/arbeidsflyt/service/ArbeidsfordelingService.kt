@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragOrganisasjonConsumer
+import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -29,6 +30,11 @@ class ArbeidsfordelingService(private val organisasjonConsumer: BidragOrganisasj
         val geografiskEnhet = arbeidsfordeling.get()
         SECURE_LOGGER.info("Hentet arbeidsfordeling $geografiskEnhet for person $personId")
         return geografiskEnhet
+    }
+
+    fun hentBidragJournalforendeEnheter(): List<EnhetResponse> {
+        return organisasjonConsumer.hentJournalforendeEnheter()
+
     }
 
 }

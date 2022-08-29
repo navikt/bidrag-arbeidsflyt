@@ -1,11 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.*
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
@@ -53,6 +49,13 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
                 patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na", journalpostHendelse.hentSaksbehandlerInfo())
             )
         }
+    }
+
+    internal fun overforOppgaver(oppgaveHendelse: OppgaveHendelse, overforTilEnhet: String) {
+        oppgaveConsumer.endreOppgave(
+            endretAvEnhetsnummer = "9999",
+            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "bidrag-arbeidsflyt (Automatisk jobb)")
+        )
     }
 
     internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
