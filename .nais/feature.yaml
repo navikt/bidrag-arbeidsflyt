@@ -17,5 +17,4 @@ database:
   dbname: bidrag-arbeidsflyt-feature
   autoResize: false
 ingresses:
-  - https://bidrag-arbeidsflyt-feature.dev.adeo.no
   - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no
