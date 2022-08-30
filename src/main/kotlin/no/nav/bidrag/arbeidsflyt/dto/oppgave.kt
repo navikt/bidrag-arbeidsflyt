@@ -273,7 +273,7 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
                 "${"· Oppgave overført fra enhet ${oppgaveHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
-                "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+                "${"· Saksbehandler endret fra ${oppgaveHendelse.tilordnetRessurs} til ikke valgt"}\r\n\r\n" +
                 (oppgaveHendelse.beskrivelse ?: "")
     }
 }
