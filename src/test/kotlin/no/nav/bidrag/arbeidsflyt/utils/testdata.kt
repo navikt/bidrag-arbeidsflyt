@@ -85,7 +85,9 @@ fun createOppgaveHendelse(
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
     identVerdi: String = AKTOER_ID,
+    beskrivelse: String? = null,
     fnr: String = PERSON_IDENT_1,
+    tilordnetRessurs: String? = null,
     identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
     fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
 ): OppgaveHendelse {
@@ -93,12 +95,14 @@ fun createOppgaveHendelse(
     return OppgaveHendelse(
         id = id,
         versjon = 1,
+        tilordnetRessurs = tilordnetRessurs,
         journalpostId = journalpostId,
         tildeltEnhetsnr = tildeltEnhetsnr,
         status = status,
         oppgavetype = oppgavetype,
         statuskategori = statuskategori,
         tema = tema,
+        beskrivelse = beskrivelse,
         ident = ident,
         opprettetTidspunkt = CREATED_TIME,
         endretTidspunkt = CREATED_TIME,

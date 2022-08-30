@@ -54,7 +54,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     internal fun overforOppgaver(oppgaveHendelse: OppgaveHendelse, overforTilEnhet: String) {
         oppgaveConsumer.endreOppgave(
             endretAvEnhetsnummer = "9999",
-            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "bidrag-arbeidsflyt (Automatisk jobb)")
+            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "Automatisk jobb")
         )
     }
 
