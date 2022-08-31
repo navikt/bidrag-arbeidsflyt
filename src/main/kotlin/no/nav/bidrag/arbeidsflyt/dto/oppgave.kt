@@ -194,6 +194,11 @@ sealed class PatchOppgaveRequest {
         versjon = oppgaveDataForHendelse.versjon
     }
 
+    protected fun leggTilObligatoriskeVerdier(oppgaveHendelse: OppgaveHendelse) {
+        id = oppgaveHendelse.id
+        versjon = oppgaveHendelse.versjon
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -261,6 +266,15 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
                 "${"· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
                 "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
                 (oppgaveDataForHendelse.beskrivelse ?: "")
+    }
+
+    constructor(oppgaveHendelse: OppgaveHendelse, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
+        leggTilObligatoriskeVerdier(oppgaveHendelse)
+        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
+                "${"· Oppgave overført fra enhet ${oppgaveHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
+                (if (!oppgaveHendelse.tilordnetRessurs.isNullOrEmpty()) "${"· Saksbehandler endret fra ${oppgaveHendelse.tilordnetRessurs} til ikke valgt"}\r\n\r\n" else "") +
+                (oppgaveHendelse.beskrivelse ?: "")
     }
 }
 

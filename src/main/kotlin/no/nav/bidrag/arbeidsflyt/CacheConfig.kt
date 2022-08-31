@@ -16,6 +16,7 @@ class CacheConfig {
     companion object {
         const val PERSON_CACHE = "PERSON_CACHE"
         const val GEOGRAFISK_ENHET_CACHE = "GEOGRAFISK_ENHET_CACHE"
+        const val JOURNALFORENDE_ENHET_CACHE = "JOURNALFORENDE_ENHET_CACHE"
     }
 
     @Bean
@@ -23,6 +24,7 @@ class CacheConfig {
         val caffeineCacheManager = CaffeineCacheManager()
         caffeineCacheManager.registerCustomCache(PERSON_CACHE, Caffeine.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build())
         caffeineCacheManager.registerCustomCache(GEOGRAFISK_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build())
+        caffeineCacheManager.registerCustomCache(JOURNALFORENDE_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build())
         return caffeineCacheManager;
     }
 

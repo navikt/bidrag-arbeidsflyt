@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
+import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
@@ -78,13 +79,15 @@ fun  createJournalpost(journalpostId: String, status: String = "M", enhet: Strin
 fun createOppgaveHendelse(
     id: Long,
     journalpostId: String = "123213",
-    tildeltEnhetsnr: String? = "9999",
+    tildeltEnhetsnr: String? = "4806",
     statuskategori: Oppgavestatuskategori = Oppgavestatuskategori.AAPEN,
     status: OppgaveStatus = OppgaveStatus.OPPRETTET,
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
     identVerdi: String = AKTOER_ID,
+    beskrivelse: String? = null,
     fnr: String = PERSON_IDENT_1,
+    tilordnetRessurs: String? = null,
     identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
     fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
 ): OppgaveHendelse {
@@ -92,12 +95,14 @@ fun createOppgaveHendelse(
     return OppgaveHendelse(
         id = id,
         versjon = 1,
+        tilordnetRessurs = tilordnetRessurs,
         journalpostId = journalpostId,
         tildeltEnhetsnr = tildeltEnhetsnr,
         status = status,
         oppgavetype = oppgavetype,
         statuskategori = statuskategori,
         tema = tema,
+        beskrivelse = beskrivelse,
         ident = ident,
         opprettetTidspunkt = CREATED_TIME,
         endretTidspunkt = CREATED_TIME,
@@ -161,4 +166,13 @@ fun oppgaveDataResponse(): List<OppgaveData> {
             tema = "BID",
             tildeltEnhetsnr = "4833"
         ))
+}
+
+fun createJournalforendeEnheterResponse(): List<EnhetResponse>{
+    return arrayListOf<EnhetResponse>(EnhetResponse("2103", "Nav vikafossen"),
+        EnhetResponse("4817", "NAV Familie- og pensjonsytelser Steinkjer"),
+        EnhetResponse("4833", "NAV Familie- og pensjonsytelser Oslo 1"),
+        EnhetResponse("4806", "NAV Familie- og pensjonsytelser Drammen"),
+        EnhetResponse("4812", "NAV Familie- og pensjonsytelser Bergen")
+        )
 }

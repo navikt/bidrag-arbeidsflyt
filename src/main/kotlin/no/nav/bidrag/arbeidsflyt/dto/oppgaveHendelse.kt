@@ -7,6 +7,7 @@ import java.time.ZonedDateTime
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
     val id: Long,
+    val versjon: Int,
     val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
@@ -19,7 +20,6 @@ data class OppgaveHendelse(
     val behandlingstema: String? = null,
     val oppgavetype: String? = null,
     val behandlingstype: String? = null,
-    val versjon: Int? = null,
     val status: OppgaveStatus? = null,
     val statuskategori: Oppgavestatuskategori? = null,
     val endretAv: String? = null,
