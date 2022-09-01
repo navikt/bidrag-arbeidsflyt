@@ -288,7 +288,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    @Disabled
     fun `Skal overfore oppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
@@ -304,7 +303,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    @Disabled
     fun `Skal overfore oppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet og fjerne saksbehandler tilknytning`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
@@ -321,7 +319,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    @Disabled
     fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave tildelt enhet journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
