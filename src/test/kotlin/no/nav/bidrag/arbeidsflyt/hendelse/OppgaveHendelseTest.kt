@@ -331,4 +331,17 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
         verifyOppgaveNotOpprettet()
     }
+
+    @Test
+    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave tildelt enhet er fagpost`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "2950", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+    }
 }
