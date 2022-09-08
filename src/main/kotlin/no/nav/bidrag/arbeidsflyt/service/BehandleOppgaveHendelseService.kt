@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 var ENHET_FAGPOST="2950"
+var ENHET_IT_AVDELINGEN="2990"
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
@@ -49,7 +50,7 @@ class BehandleOppgaveHendelseService(
     }
 
     fun erJournalforendeEnhet(enhetNr: String?): Boolean {
-        val ignoreEnhet = listOf(ENHET_FAGPOST)
+        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN)
        return if (enhetNr != null) ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter().any { it.enhetIdent == enhetNr } else false
     }
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {
