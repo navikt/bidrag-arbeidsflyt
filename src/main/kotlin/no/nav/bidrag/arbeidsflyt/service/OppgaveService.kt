@@ -33,7 +33,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
     internal fun finnAapneJournalforingOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
         val oppgaveSokRequest = OppgaveSokRequest()
-            .brukJournalforingSomOppgaveType()
             .leggTilJournalpostId(journalpostId)
 
         return OppgaverForHendelse(
