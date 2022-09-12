@@ -35,7 +35,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
     }
 
     fun brukJournalforingSomOppgaveType(): OppgaveSokRequest {
-        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
+        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.JFR)
     }
 
     fun leggTilJournalpostId(journalpostId: String): OppgaveSokRequest {
