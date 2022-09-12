@@ -32,7 +32,7 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
             .filter { it.beskrivelse?.contains(journalpostId) == false }
     }
 
-    fun harOppdatertBehandleDokumentOppgaveForSaker(journalpostId: String, saker: List<String>): Boolean {
+    fun harBehandleDokumentOppgaveForSaker(journalpostId: String, saker: List<String>): Boolean {
         val sakerSomSkalEndres = hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostId)
 
         val sakerSomSkalOpprettesNyBehandleDokumentOppgave = hentSakerSomKreverNyBehandleDokumentOppgave(saker)
