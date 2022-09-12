@@ -61,8 +61,8 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
 
         val overforOppgaveRequest = OverforOppgaveRequest(
             OppgaveDataForHendelse(
-                OppgaveData(tildeltEnhetsnr = "1010", id = 6)
-            ), "1010", "Z9999"
+                OppgaveData(tildeltEnhetsnr = "1001", id = 6)
+            ), "1010", "ukjent saksbehandler"
         )
 
         overforOppgaveRequest.endretAvEnhetsnr = "1234"

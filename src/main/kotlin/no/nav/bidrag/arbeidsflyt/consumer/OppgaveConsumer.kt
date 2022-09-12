@@ -31,7 +31,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         LOGGER.info("søk opp åpne oppgaver på en journalpost: $parameters")
 
         val oppgaveSokResponseEntity = restTemplate.exchange(
-            "$OPPGAVE_CONTEXT?$parameters",
+            "$OPPGAVE_CONTEXT$parameters",
             HttpMethod.GET,
             null,
             OppgaveSokResponse::class.java

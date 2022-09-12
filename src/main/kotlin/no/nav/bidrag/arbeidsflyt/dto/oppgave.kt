@@ -83,7 +83,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
     }
 
     fun hentParametre(): String {
-        return "/$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+        return "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
     }
 }
 
