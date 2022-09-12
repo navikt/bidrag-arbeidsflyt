@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
@@ -31,6 +32,7 @@ internal class JournalpostHendelseListenerOverforOppgaverEndeTilEndeTest {
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
     @Test
+    @Disabled
     fun `skal endre oppgavens enhet`() {
 
         // when/then - finner en oppgave når en søker etter oppgaver basert på journalpost Id
