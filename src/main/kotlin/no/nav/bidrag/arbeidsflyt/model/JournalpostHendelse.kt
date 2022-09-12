@@ -1,41 +1,17 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-data class JournalpostHendelse(
-    var journalpostId: String = "na",
-    var bnr: String? = null,
-    var aktorId: String? = null,
-    var fnr: String? = null,
-    var fagomrade: String? = null,
-    var enhet: String? = null,
-    var journalstatus: String? = null,
-    var sporing: Sporingsdata? = null
-) {
-    private val erMottattStatus get() = Journalstatus.MOTTATT == journalstatus
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Journalstatus
+import java.time.LocalDate
 
-    internal val erEksterntFagomrade get() = fagomrade != null && (fagomrade != Fagomrade.BIDRAG && fagomrade != Fagomrade.FARSKAP)
-    internal val erMottaksregistrert get() = erMottattStatus
-    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix()) journalpostId.split('-')[1] else journalpostId
-    internal val journalpostMedBareBIDprefix get() = if (harJournalpostIdBIDPrefix()) journalpostId else journalpostIdUtenPrefix
+data class JournalpostHendelseIntern(val journalpostHendelse: JournalpostHendelse) {
 
-    internal fun erJournalstatusEndretTilIkkeMottatt() = journalstatus != null && !erMottattStatus
-    internal fun harEnhet() = enhet != null
-    internal fun harAktorId() = aktorId != null
-    internal fun harBnr() = bnr != null
-    internal fun harJournalpostIdPrefix() = journalpostId.contains("-")
-    internal fun harJournalpostIdBIDPrefix() = harJournalpostIdPrefix() && journalpostId.startsWith("BID")
-    internal fun erJoarkJournalpost() = harJournalpostIdPrefix() && journalpostId.startsWith("JOARK")
-    internal fun hentEndretAvEnhetsnummer() = if (sporing?.enhetsnummer != null) sporing!!.enhetsnummer else enhet
-    internal fun hentSaksbehandlerInfo() = if (sporing != null) sporing!!.lagSaksbehandlerInfo(sporing?.enhetsnummer) else "ukjent saksbehandler"
+    val erJournalfort get() = Journalstatus.JOURNALFORT == journalpostHendelse.journalstatus
+    val harSaker get() = journalpostHendelse.sakstilknytninger?.isNotEmpty() == true
+    fun erJournalstatusEndretTilIkkeMottatt() = journalpostHendelse.journalstatus != null && !journalpostHendelse.erMottattStatus
 
-    fun printSummary() = "{journalpostId=$journalpostId,fagomrade=$fagomrade,enhet=$enhet,saksbehandlerEnhet=${sporing?.enhetsnummer},journalstatus=$journalstatus....}"
-}
+    val saker get() = journalpostHendelse.sakstilknytninger ?: emptyList()
+    val journalpostId get() = journalpostHendelse.journalpostId
 
-data class Sporingsdata(
-    var correlationId: String? = null,
-    var brukerident: String? = null,
-    var saksbehandlersNavn: String? = null,
-    var enhetsnummer: String? = null
-) {
-    internal fun lagSaksbehandlerInfo(enhetsnummer: String?) = if (brukerident == null) "ukjent saksbehandler" else hentBrukeridentMedSaksbehandler(enhetsnummer)
-    private fun hentBrukeridentMedSaksbehandler(enhetsnummer: String?) = if (saksbehandlersNavn == null) brukerident!! else "$saksbehandlersNavn ($brukerident, ${enhetsnummer?:""})"
+    val erJournalfortIdag get(): Boolean = erJournalfort && journalpostHendelse.journalfortDato?.equals(LocalDate.now()) == true
 }

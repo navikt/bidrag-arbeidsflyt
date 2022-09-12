@@ -6,11 +6,11 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Sporingsdata
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId

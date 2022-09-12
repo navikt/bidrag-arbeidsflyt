@@ -1,10 +1,9 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -12,40 +11,82 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private const val PARAM_JOURNALPOST_ID = "journalpostId={id}"
-private const val PARAMS_100_APNE_OPPGAVER = "tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
-private const val PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS = "$PARAM_JOURNALPOST_ID&journalpostId={prefix}-{id}&journalpostId={prefix}-{id}:{id}"
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+private val NORSK_DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+private const val PARAMETER_JOURNALPOST_ID = "journalpostId"
+private const val PARAMETER_OPPGAVE_TYPE = "oppgavetype"
+private const val PARAMETER_SAKSREFERANSE = "saksreferanse"
+private const val PARAMETER_TEMA = "tema"
+private const val PARAMETER_JOURNALPOSTID = "journalpostId"
 
 fun formatterDatoForOppgave(date: LocalDate): String{
     return date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
 }
 
-data class OppgaveSokRequest(val journalpostId: String) {
+data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilder()) {
 
-    fun hentParametre(): String {
-        if (harJournalpostIdPrefiks()) {
-            val prefix = hentPrefiks()
-            val idWithoutPrefix = hentJournalpostIdUtenPrefiks()
-
-            return "$PARAMS_100_APNE_OPPGAVER&${
-                PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
-                    .replace("{prefix}", prefix)
-                    .replace("{id}", idWithoutPrefix)
-            }"
-        }
-
-        return "$PARAMS_100_APNE_OPPGAVER&${
-            PARAMS_JOURNALPOST_ID_MED_OG_UTEN_PREFIKS
-                .replace("{prefix}", "BID")
-                .replace("{id}", journalpostId)
-        }"
+    fun brukBehandlingSomOppgaveType(): OppgaveSokRequest {
+        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
     }
 
-    private fun harJournalpostIdPrefiks() = journalpostId.contains("-")
-    private fun hentJournalpostIdUtenPrefiks() = if (harJournalpostIdPrefiks()) journalpostId.split('-')[1] else journalpostId
-    private fun hentPrefiks() = journalpostId.split('-')[0]
+    fun brukVurderDokumentSomOppgaveType(): OppgaveSokRequest {
+        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
+    }
+
+    fun brukJournalforingSomOppgaveType(): OppgaveSokRequest {
+        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
+    }
+
+    fun leggTilJournalpostId(journalpostId: String): OppgaveSokRequest {
+        leggTilParameter(PARAMETER_JOURNALPOSTID, journalpostId)
+        if (harJournalpostIdPrefiks(journalpostId)) {
+            val prefix = hentPrefiks(journalpostId)
+            val idWithoutPrefix = hentJournalpostIdUtenPrefiks(journalpostId)
+            leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}")
+            leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}:${idWithoutPrefix}")
+        } else {
+            leggTilParameter(PARAMETER_JOURNALPOSTID, "BID-${journalpostId}")
+            leggTilParameter(PARAMETER_JOURNALPOSTID, "BID-${journalpostId}:${journalpostId}")
+        }
+
+        return this
+    }
+    fun leggTilFagomrade(fagomrade: String): OppgaveSokRequest {
+        return leggTilParameter(PARAMETER_TEMA, fagomrade)
+    }
+
+    fun leggTilSaksreferanse(saksnummer: String?): OppgaveSokRequest {
+        leggTilParameter(PARAMETER_SAKSREFERANSE, saksnummer)
+        return this
+    }
+
+    fun leggTilSaksreferanser(saksnummere: List<String>): OppgaveSokRequest {
+        saksnummere.forEach { leggTilParameter(PARAMETER_SAKSREFERANSE, it) }
+        return this
+    }
+
+    private fun harJournalpostIdPrefiks(journalpostId: String) = journalpostId.contains("-")
+    private fun hentJournalpostIdUtenPrefiks(journalpostId: String) = if (harJournalpostIdPrefiks(journalpostId)) journalpostId.split('-')[1] else journalpostId
+    private fun hentPrefiks(journalpostId: String) = journalpostId.split('-')[0]
+
+    private fun leggTilParameter(navn: String?, verdi: Any?): OppgaveSokRequest {
+        if (parametre.isEmpty()) {
+            parametre.append('?')
+        } else {
+            parametre.append('&')
+        }
+
+        parametre.append(navn).append('=').append(verdi)
+
+        return this
+    }
+
+    fun hentParametre(): String {
+        return "/$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+    }
 }
+
 
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
@@ -96,51 +137,26 @@ data class OppgaveData(
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
-    // Default verdier
-    var beskrivelse: String = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)"
-    var oppgavetype: String = "JFR"
-    var opprettetAvEnhetsnr: String = "9999"
-    var prioritet: String = Prioritet.HOY.name
-    var tildeltEnhetsnr: String? = "4833"
-    var tema: String? = "BID"
-    var aktivDato: String = formatterDatoForOppgave(LocalDate.now())
-    var fristFerdigstillelse: String = formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())
-
-    var aktoerId: String? = null
+sealed class OpprettOppgaveRequest(
+    var beskrivelse: String,
+    var oppgavetype: OppgaveType = OppgaveType.JFR,
+    var opprettetAvEnhetsnr: String = "9999",
+    var prioritet: String = Prioritet.HOY.name,
+    var tema: String = "BID",
+    var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
+    var fristFerdigstillelse: String = formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag()),
+    open var tildeltEnhetsnr: String? = null,
+    open val saksreferanse: String? = null,
+    open val journalpostId: String? = null,
+    open val tilordnetRessurs: String? = null,
+    open val aktoerId: String? = null,
     var bnr: String? = null
-    constructor(oppgaveHendelse: OppgaveHendelse, tildeltEnhetsnr: String): this(oppgaveHendelse.journalpostId!!){
-        this.aktoerId = oppgaveHendelse.hentAktoerId
-        this.bnr = oppgaveHendelse.hentBnr
-        this.tema = oppgaveHendelse.tema ?: this.tema
-        this.fristFerdigstillelse = if(oppgaveHendelse.fristFerdigstillelse!=null) formatterDatoForOppgave(oppgaveHendelse.fristFerdigstillelse) else this.fristFerdigstillelse
-        this.tildeltEnhetsnr = tildeltEnhetsnr
-    }
-
-    constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDprefix){
-        this.aktoerId = journalpostHendelse.aktorId
-        this.tema = "BID" // Kan ikke opprette JFR med tema FAR
-        this.tildeltEnhetsnr = tildeltEnhetsnr
-    }
-
-    constructor(oppgaveData: OppgaveData): this(oppgaveData.journalpostId!!){
-        this.aktoerId = oppgaveData.aktoerId
-        this.bnr = oppgaveData.bnr
-        this.tema = oppgaveData.tema ?: this.tema
-        this.tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
-    }
-
-    constructor(journalpostId: String, aktoerId: String? = null, tema: String? = "BID", tildeltEnhetsnr: String? = "4833"): this(journalpostId){
-        this.aktoerId = aktoerId
-        this.tema = tema
-        this.tildeltEnhetsnr = tildeltEnhetsnr
-    }
-
+){
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
-        return HttpEntity<OpprettJournalforingsOppgaveRequest>(this, headers)
+        return HttpEntity<OpprettOppgaveRequest>(this, headers)
     }
 
     override fun toString() = "${javaClass.simpleName}: ${fieldsWithValues()}"
@@ -153,33 +169,80 @@ data class OpprettJournalforingsOppgaveRequest(var journalpostId: String) {
             .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
             .append(fieldToString("fristFerdigstillelse", fristFerdigstillelse))
             .append(fieldToString("aktivDato", aktivDato))
-            .append(fieldToString("oppgavetype", oppgavetype))
+            .append(fieldToString("oppgavetype", oppgavetype.name))
             .append(fieldToString("prioritet", prioritet))
             .append(fieldToString("tema", tema))
             .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
             .append(fieldToString("beskrivelse", beskrivelse))
+            .append(fieldToString("tilordnetRessurs", tilordnetRessurs))
+            .append(fieldToString("saksreferanse", saksreferanse))
             .toString()
     }
 
     private fun fieldToString(fieldName: String, value: String?) = if (value != null) "$fieldName=$value," else ""
 }
 
+data class OpprettBehandleDokumentOppgaveRequest(
+    override var aktoerId: String?,
+    override var journalpostId: String,
+    override var saksreferanse: String,
+    private var tittel: String,
+    private var dokumentDato: LocalDate?,
+    private var sporingsdata: no.nav.bidrag.dokument.dto.Sporingsdata
+): OpprettOppgaveRequest(
+    beskrivelse = lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now()),
+    oppgavetype = OppgaveType.BEH_SAK,
+    opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
+    tildeltEnhetsnr = sporingsdata.enhetsnummer,
+    tilordnetRessurs = sporingsdata.brukerident
+)
+@Suppress("unused") // used by jackson...
+data class OpprettJournalforingsOppgaveRequest(override var journalpostId: String, override var aktoerId: String?): OpprettOppgaveRequest(
+    beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
+    oppgavetype = OppgaveType.JFR,
+) {
+    constructor(oppgaveHendelse: OppgaveHendelse, tildeltEnhetsnr: String): this(oppgaveHendelse.journalpostId!!, oppgaveHendelse.hentAktoerId){
+        this.bnr = oppgaveHendelse.hentBnr
+        this.tema = oppgaveHendelse.tema ?: this.tema
+        this.fristFerdigstillelse = if(oppgaveHendelse.fristFerdigstillelse!=null) formatterDatoForOppgave(oppgaveHendelse.fristFerdigstillelse) else this.fristFerdigstillelse
+        this.tildeltEnhetsnr = tildeltEnhetsnr
+    }
+
+    constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDprefix, journalpostHendelse.aktorId){
+        this.tema = "BID" // Kan ikke opprette JFR med tema FAR
+        this.tildeltEnhetsnr = tildeltEnhetsnr
+    }
+
+    constructor(oppgaveData: OppgaveData): this(oppgaveData.journalpostId!!, oppgaveData.aktoerId){
+        this.bnr = oppgaveData.bnr
+        this.tema = oppgaveData.tema ?: this.tema
+        this.tildeltEnhetsnr = oppgaveData.tildeltEnhetsnr
+    }
+
+    constructor(journalpostId: String, aktoerId: String? = null, tema: String = "BID", tildeltEnhetsnr: String = "4833"): this(journalpostId, aktoerId) {
+        this.aktoerId = aktoerId
+        this.tema = tema
+        this.tildeltEnhetsnr = tildeltEnhetsnr
+    }
+}
+
 /**
  * Påkrevde data for en oppgave som skal patches i oppgave api
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-sealed class PatchOppgaveRequest {
-    var id: Long = -1
-    var versjon: Int = -1
-    open var aktoerId: String? = null
-    open var endretAvEnhetsnr: String? = null
-    open var oppgavetype: String? = null
-    open var prioritet: String? = null
-    open var status: String? = null
-    open var tema: String? = null
-    open var tildeltEnhetsnr: String? = null
-    open var tilordnetRessurs: String? = null
+open class PatchOppgaveRequest(
+    var id: Long = -1,
+    var versjon: Int = -1,
+    open var aktoerId: String? = null,
+    open var endretAvEnhetsnr: String? = null,
+    open var oppgavetype: String? = null,
+    open var prioritet: String? = null,
+    open var status: String? = null,
+    open var tema: String? = null,
+    open var tildeltEnhetsnr: String? = null,
+    open var tilordnetRessurs: String? = null,
     open var beskrivelse: String? = null
+){
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
     fun somHttpEntity(): HttpEntity<*> {
@@ -197,39 +260,6 @@ sealed class PatchOppgaveRequest {
     protected fun leggTilObligatoriskeVerdier(oppgaveHendelse: OppgaveHendelse) {
         id = oppgaveHendelse.id
         versjon = oppgaveHendelse.versjon
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PatchOppgaveRequest
-
-        if (id != other.id) return false
-        if (aktoerId != other.aktoerId) return false
-        if (endretAvEnhetsnr != other.endretAvEnhetsnr) return false
-        if (oppgavetype != other.oppgavetype) return false
-        if (prioritet != other.prioritet) return false
-        if (status != other.status) return false
-        if (tema != other.tema) return false
-        if (tildeltEnhetsnr != other.tildeltEnhetsnr) return false
-        if (versjon != other.versjon) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + aktoerId.hashCode()
-        result = 31 * result + endretAvEnhetsnr.hashCode()
-        result = 31 * result + (oppgavetype?.hashCode() ?: 0)
-        result = 31 * result + prioritet.hashCode()
-        result = 31 * result + (status?.hashCode() ?: 0)
-        result = 31 * result + tema.hashCode()
-        result = 31 * result + (tildeltEnhetsnr?.hashCode() ?: 0)
-        result = 31 * result + versjon
-
-        return result
     }
 
     override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
@@ -256,6 +286,19 @@ class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgave
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
+
+class EndreForNyttDokumentRequest(): PatchOppgaveRequest(){
+
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostHendelse: JournalpostHendelse) : this() {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        this.beskrivelse =  "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${journalpostHendelse.hentSaksbehandlerInfo()} ---\r\n" +
+                "\u00B7 ${lagDokumentOppgaveTittel("Nytt dokument", journalpostHendelse.tittel?:"", journalpostHendelse.dokumentDato!!)}\r\n" +
+                "\u00B7 ${lagDokumenterVedlagtBeskrivelse(journalpostHendelse.journalpostId)}\r\n\r\n" +
+                "${oppgaveDataForHendelse.beskrivelse}"
+    }
+
+}
+
 
 class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
     override var tilordnetRessurs: String? = ""
@@ -327,3 +370,13 @@ enum class OppgaveStatus {
 enum class Oppgavestatuskategori {
     AAPEN, AVSLUTTET
 }
+
+enum class OppgaveType {
+    BEH_SAK,
+    VUR,
+    JFR
+}
+internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
+    "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_TIDSSTEMPEL_FORMAT)}"
+internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) =
+    "·Dokumenter vedlagt: ${journalpostId}"

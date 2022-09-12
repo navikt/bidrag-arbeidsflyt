@@ -74,7 +74,7 @@ class BehandleOppgaveHendelseService(
     }
 
     fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
-        val aapneOppgaveAPI = oppgaveService.finnAapneOppgaverForJournalpost(journalpostId)
+        val aapneOppgaveAPI = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(journalpostId)
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 

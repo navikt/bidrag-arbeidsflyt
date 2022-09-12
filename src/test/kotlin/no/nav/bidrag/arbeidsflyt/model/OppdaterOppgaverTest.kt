@@ -6,6 +6,8 @@ import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Sporingsdata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -58,7 +60,7 @@ internal class OppdaterOppgaverTest {
         ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
 
         oppdaterOppgaver = OppdaterOppgaver(
-            journalpostHendelse = journalpostHendelse,
+            journalpostHendelseIntern = JournalpostHendelseIntern(journalpostHendelse),
             oppgaveService = oppgaveService,
             arbeidsfordelingService = arbeidsfordelingService
         )

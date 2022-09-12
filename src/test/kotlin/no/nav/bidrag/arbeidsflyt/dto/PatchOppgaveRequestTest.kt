@@ -59,7 +59,7 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere OpprettOppgaveRequest`() {
-        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest("1234", "123213","BID", "4812")
+        val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest("1234", "123213")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(opprettOppgaveRequest)
 
         assertThat(stringValue).`as`("Expected json string value")

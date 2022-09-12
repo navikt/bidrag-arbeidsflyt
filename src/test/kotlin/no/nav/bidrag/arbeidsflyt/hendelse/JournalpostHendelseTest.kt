@@ -3,7 +3,6 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
@@ -16,6 +15,7 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

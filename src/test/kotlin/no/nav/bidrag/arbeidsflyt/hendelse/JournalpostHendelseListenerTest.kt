@@ -1,8 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
-import no.nav.bidrag.arbeidsflyt.model.Sporingsdata
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Sporingsdata
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.verify

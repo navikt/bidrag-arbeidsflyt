@@ -1,11 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
-import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.*
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
@@ -20,7 +16,7 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest, endretAvEnhetsnummer: String? = null)
-    fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse
+    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
@@ -78,21 +74,21 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
     }
 
-    override fun opprettOppgave(opprettJournalforingsOppgaveRequest: OpprettJournalforingsOppgaveRequest): OppgaveDataForHendelse {
+    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse {
         try {
-            SECURE_LOGGER.info("Oppretter oppgave med verdi $opprettJournalforingsOppgaveRequest")
+            SECURE_LOGGER.info("Oppretter oppgave med verdi $opprettOppgaveRequest")
             val responseEntity = restTemplate.exchange(
                 OPPGAVE_CONTEXT,
                 HttpMethod.POST,
-                opprettJournalforingsOppgaveRequest.somHttpEntity(),
+                opprettOppgaveRequest.somHttpEntity(),
                 OppgaveData::class.java
             )
 
-            LOGGER.info("Opprettet oppgave ${responseEntity.body?.id} med type ${opprettJournalforingsOppgaveRequest.oppgavetype} og journalpostId ${opprettJournalforingsOppgaveRequest.journalpostId}")
+            LOGGER.info("Opprettet oppgave ${responseEntity.body?.id} med type ${opprettOppgaveRequest.oppgavetype} og journalpostId ${opprettOppgaveRequest.journalpostId}")
             return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
         } catch (e: HttpStatusCodeException){
             if (e.statusCode == HttpStatus.BAD_REQUEST){
-                throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke opprette oppgave for journalpost ${opprettJournalforingsOppgaveRequest.journalpostId}. Feilet med feilmelding ${e.message}", e)
+                throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke opprette oppgave for journalpost ${opprettOppgaveRequest.journalpostId}. Feilet med feilmelding ${e.message}", e)
             }
 
             throw e

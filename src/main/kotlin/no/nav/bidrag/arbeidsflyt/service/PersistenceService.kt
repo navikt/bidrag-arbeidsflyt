@@ -1,13 +1,13 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Optional
@@ -92,7 +92,7 @@ class PersistenceService(
         val journalpostId = if (journalpostHendelse.erJoarkJournalpost()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
 
 
-        if (!journalpostHendelse.erMottaksregistrert || journalpostHendelse.erEksterntFagomrade){
+        if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade){
             deleteJournalpost(journalpostId)
             LOGGER.info("Slettet journalpost $journalpostId fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.journalstatus}, fagomrade=${journalpostHendelse.fagomrade})")
         } else {
