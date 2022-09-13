@@ -43,6 +43,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
         if (harJournalpostIdPrefiks(journalpostId)) {
             val prefix = hentPrefiks(journalpostId)
             val idWithoutPrefix = hentJournalpostIdUtenPrefiks(journalpostId)
+            leggTilParameter(PARAMETER_JOURNALPOSTID, idWithoutPrefix)
             leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}")
             leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}:${idWithoutPrefix}")
         } else {
@@ -158,28 +159,6 @@ sealed class OpprettOppgaveRequest(
 
         return HttpEntity<OpprettOppgaveRequest>(this, headers)
     }
-
-    override fun toString() = "${javaClass.simpleName}: ${fieldsWithValues()}"
-
-    private fun fieldsWithValues(): String {
-        return StringBuilder()
-            .append(fieldToString("journalpostId", journalpostId))
-            .append(fieldToString("aktorId", aktoerId))
-            .append(fieldToString("bnr", bnr))
-            .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
-            .append(fieldToString("fristFerdigstillelse", fristFerdigstillelse))
-            .append(fieldToString("aktivDato", aktivDato))
-            .append(fieldToString("oppgavetype", oppgavetype.name))
-            .append(fieldToString("prioritet", prioritet))
-            .append(fieldToString("tema", tema))
-            .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
-            .append(fieldToString("beskrivelse", beskrivelse))
-            .append(fieldToString("tilordnetRessurs", tilordnetRessurs))
-            .append(fieldToString("saksreferanse", saksreferanse))
-            .toString()
-    }
-
-    private fun fieldToString(fieldName: String, value: String?) = if (value != null) "$fieldName=$value," else ""
 }
 
 data class OpprettBehandleDokumentOppgaveRequest(
