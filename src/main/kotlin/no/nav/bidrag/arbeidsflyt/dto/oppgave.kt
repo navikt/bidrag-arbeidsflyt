@@ -379,4 +379,4 @@ enum class OppgaveType {
 internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
     "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"
 internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) =
-    "·Dokumenter vedlagt: ${journalpostId}"
+    "Dokumenter vedlagt: $journalpostId"
