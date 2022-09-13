@@ -4,23 +4,14 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
-import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
-import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
-import no.nav.bidrag.arbeidsflyt.utils.DateUtils
-import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
-import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
-import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.utils.*
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import java.time.LocalDate
 
 internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
@@ -376,5 +367,217 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyHentPersonKalt(0)
+    }
+
+    @Test
+    fun `skal oppdatere og opprette behandle dokument oppgave`(){
+        val sakMedOppgave = "123123"
+        val sakUtenOppgave = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(
+            OppgaveData(
+                id = OPPGAVE_ID_5,
+                versjon = 1,
+                journalpostId = JOURNALPOST_ID_4_NEW,
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave
+            )
+        ), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave(OPPGAVE_ID_5)
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveEndretWith(1, "$OPPGAVE_ID_5", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
+        verifyOppgaveEndretWith(1, "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2")
+        verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
+        verifyOppgaveOpprettetWith("BEH_SAK",
+            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "\"saksreferanse\":\"3344444\"",
+            "\"tilordnetRessurs\":\"Z12312312\"",
+            "\"journalpostId\":\"$JOURNALPOST_ID_2\""
+        )
+    }
+
+    @Test
+    fun `skal oppdatere og opprette behandle dokument oppgave med BID journalpost`(){
+        val sakMedOppgave = "123123"
+        val sakUtenOppgave = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(
+            OppgaveData(
+                id = OPPGAVE_ID_1,
+                versjon = 1,
+                journalpostId = "BID-$JOURNALPOST_ID_1",
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave
+            )
+        ), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave(OPPGAVE_ID_1)
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveEndretWith(1, "$OPPGAVE_ID_1", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
+        verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
+        verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
+        verifyOppgaveOpprettetWith("BEH_SAK",
+            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "\"saksreferanse\":\"3344444\"",
+            "\"tilordnetRessurs\":\"Z12312312\"",
+            "\"journalpostId\":\"BID-$JOURNALPOST_ID_2\""
+        )
+    }
+
+    @Test
+    fun `skal ikke oppdatere behandle dokument oppgave hvis inneholder journalpost`(){
+        val sakMedOppgave = "123123"
+        val sakMedOppgave2 = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(
+            OppgaveData(
+                id = OPPGAVE_ID_2,
+                versjon = 1,
+                journalpostId = JOURNALPOST_ID_4_NEW,
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave
+            ),
+            OppgaveData(
+                id = OPPGAVE_ID_1,
+                versjon = 1,
+                journalpostId = JOURNALPOST_ID_2,
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave2
+            )
+        ), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave()
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `skal ikke oppdatere behandle dokument oppgave hvis inneholder BID journalpost`(){
+        val sakMedOppgave = "123123"
+        val sakMedOppgave2 = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(
+            OppgaveData(
+                id = OPPGAVE_ID_2,
+                versjon = 1,
+                journalpostId = "BID-$JOURNALPOST_ID_1",
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave
+            ),
+            OppgaveData(
+                id = OPPGAVE_ID_1,
+                versjon = 1,
+                journalpostId = "BID-$JOURNALPOST_ID_2",
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave2
+            )
+        ), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave()
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
     }
 }

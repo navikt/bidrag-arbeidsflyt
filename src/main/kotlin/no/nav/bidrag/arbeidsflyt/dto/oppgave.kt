@@ -83,7 +83,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
     }
 
     fun hentParametre(): String {
-        return "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+        return "$parametre&tema=BID&tema=FAR&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
     }
 }
 
@@ -377,6 +377,6 @@ enum class OppgaveType {
     JFR
 }
 internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
-    "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_TIDSSTEMPEL_FORMAT)}"
+    "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"
 internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) =
     "·Dokumenter vedlagt: ${journalpostId}"

@@ -6,6 +6,8 @@ import java.time.LocalDate
 
 data class JournalpostHendelseIntern(val journalpostHendelse: JournalpostHendelse) {
 
+    val harTittel get() = journalpostHendelse.tittel != null
+    val harDokumentDato get() = journalpostHendelse.dokumentDato != null
     val erJournalfort get() = Journalstatus.JOURNALFORT == journalpostHendelse.journalstatus
     val harSaker get() = journalpostHendelse.sakstilknytninger?.isNotEmpty() == true
     fun erJournalstatusEndretTilIkkeMottatt() = journalpostHendelse.journalstatus != null && !journalpostHendelse.erMottattStatus

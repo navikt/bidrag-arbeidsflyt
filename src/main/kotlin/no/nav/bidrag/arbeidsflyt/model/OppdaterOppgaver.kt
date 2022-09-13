@@ -80,8 +80,9 @@ class OppdaterOppgaver(
     fun opprettEllerEndreBehandleDokumentOppgaver(): OppdaterOppgaver {
         if (journalpostHendelseIntern.erJournalfortIdag && journalpostHendelseIntern.harSaker){
             val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelseIntern.saker, journalpostHendelse.fagomrade)
-            if (!behandlingsOppgaver.harBehandleDokumentOppgaveForSaker(journalpostHendelseIntern.journalpostId, journalpostHendelseIntern.saker)) {
+            if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostHendelseIntern.journalpostId, journalpostHendelseIntern.saker)) {
                 LOGGER.info("En journalført journalpost skal ha oppdatert behandle dokument oppgaver for saker. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
+                validerGyldigDataForBehandleDokument()
                 oppgaveService.opprettEllerEndreBehandleDokumentOppgaver(journalpostHendelse, behandlingsOppgaver)
                 finnOppdaterteOppgaverForHendelse = true
             }
@@ -89,6 +90,11 @@ class OppdaterOppgaver(
 
 
         return this
+    }
+
+    private fun validerGyldigDataForBehandleDokument() {
+        if (!journalpostHendelseIntern.harTittel) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler tittel")
+        if (!journalpostHendelseIntern.harDokumentDato) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler dokument dato")
     }
 
     fun ferdigstillJournalforingsoppgaver(): OppdaterOppgaver {

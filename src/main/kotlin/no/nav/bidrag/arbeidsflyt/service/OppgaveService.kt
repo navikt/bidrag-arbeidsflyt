@@ -77,7 +77,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun opprettEllerEndreBehandleDokumentOppgaver(journalpostHendelse: JournalpostHendelse, behandlingsOppgaver: OppgaverForHendelse) {
-        val oppgaverSomSkalEndres = behandlingsOppgaver.hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostHendelse.journalpostId)
+        val oppgaverSomSkalEndres = behandlingsOppgaver.hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostHendelse.journalpostIdUtenPrefix)
         endreForNyttDokument(journalpostHendelse, oppgaverSomSkalEndres)
 
         val sakerSomKreverNyBehandleDokumentOppgave = behandlingsOppgaver.hentSakerSomKreverNyBehandleDokumentOppgave(journalpostHendelse.sakstilknytninger ?: emptyList())
@@ -89,7 +89,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun opprettBehandleDokumentOppgaveForSaker(journalpostHendelse: JournalpostHendelse, saker: List<String>){
-        LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: {}", saker.size)
+        LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: ${saker.size} for saker $saker")
         saker.forEach{
             LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
             opprettBehandleDokumentOppgave(OpprettBehandleDokumentOppgaveRequest(
