@@ -167,9 +167,12 @@ data class OpprettBehandleDokumentOppgaveRequest(
     override var saksreferanse: String,
     private var tittel: String,
     private var dokumentDato: LocalDate?,
+    private var saksbehandlersInfo: String,
     private var sporingsdata: no.nav.bidrag.dokument.dto.Sporingsdata
 ): OpprettOppgaveRequest(
-    beskrivelse = lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now()),
+    beskrivelse =
+            lagBeskrivelseHeader(saksbehandlersInfo) +
+            lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now()),
     oppgavetype = OppgaveType.BEH_SAK,
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
     tildeltEnhetsnr = sporingsdata.enhetsnummer,
@@ -359,3 +362,7 @@ internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: 
     "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"
 internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) =
     "Dokumenter vedlagt: $journalpostId"
+internal fun lagBeskrivelseHeader(saksbehandlersInfo: String): String {
+    val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+    return "--- $dateFormatted $saksbehandlersInfo ---\r\n"
+}

@@ -98,7 +98,8 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
                 aktoerId = journalpostHendelse.aktorId,
                 tittel = journalpostHendelse.tittel!!,
                 dokumentDato = journalpostHendelse.dokumentDato,
-                sporingsdata = journalpostHendelse.sporing!!
+                sporingsdata = journalpostHendelse.sporing!!,
+                saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo()
             ))
         }
     }

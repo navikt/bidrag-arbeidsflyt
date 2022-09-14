@@ -95,6 +95,7 @@ class OppdaterOppgaver(
     private fun validerGyldigDataForBehandleDokument() {
         if (!journalpostHendelseIntern.harTittel) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler tittel")
         if (!journalpostHendelseIntern.harDokumentDato) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler dokument dato")
+        if (!journalpostHendelseIntern.harSporingsdataEnhet) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler enhetsnummer")
     }
 
     fun ferdigstillJournalforingsoppgaver(): OppdaterOppgaver {
