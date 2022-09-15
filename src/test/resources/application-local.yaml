@@ -32,10 +32,9 @@ server.port: 9999
 spring:
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+  datasource.url: jdbc:h2:mem:default;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
-  jpa.defer-datasource-initialization: true
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
