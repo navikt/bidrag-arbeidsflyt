@@ -78,7 +78,7 @@ class OppdaterOppgaver(
     }
 
     fun opprettEllerEndreBehandleDokumentOppgaver(): OppdaterOppgaver {
-        if (journalpostHendelse.erJournalfortIdag && journalpostHendelse.harSaker){
+        if (journalpostHendelse.erJournalfort && journalpostHendelse.erJournalfortIdag && journalpostHendelse.harSaker){
             val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelse.saker, journalpostHendelse.fagomrade)
             if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostHendelse.journalpostId, journalpostHendelse.saker)) {
                 LOGGER.info("En journalført journalpost skal ha oppdatert behandle dokument oppgaver for saker. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")

@@ -45,7 +45,6 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
             val prefix = hentPrefiks(journalpostId)
             val idWithoutPrefix = hentJournalpostIdUtenPrefiks(journalpostId)
             leggTilParameter(PARAMETER_JOURNALPOSTID, idWithoutPrefix)
-            leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}")
             leggTilParameter(PARAMETER_JOURNALPOSTID, "${prefix}-${idWithoutPrefix}:${idWithoutPrefix}")
         } else {
             leggTilParameter(PARAMETER_JOURNALPOSTID, "BID-${journalpostId}")
@@ -85,7 +84,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
     }
 
     fun hentParametre(): String {
-        return "$parametre&tema=BID&tema=FAR&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+        return "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
     }
 }
 
