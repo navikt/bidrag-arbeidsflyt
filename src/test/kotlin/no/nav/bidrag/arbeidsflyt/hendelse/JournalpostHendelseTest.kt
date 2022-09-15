@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.*
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
@@ -421,7 +422,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal oppdatere og opprette behandle dokument oppgave med BID journalpost`(){
+    fun `skal oppdatere og opprette behandle sak oppgave med BID journalpost`(){
         val sakMedOppgave = "123123"
         val sakUtenOppgave = "3344444"
         stubHentOppgaveContaining(emptyList())
@@ -472,7 +473,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle dokument oppgave hvis inneholder journalpost`(){
+    fun `skal ikke oppdatere behandle sak oppgave hvis beskrivelse inneholder journalpostid`(){
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())
@@ -527,7 +528,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle dokument oppgave hvis inneholder BID journalpost`(){
+    fun `skal ikke oppdatere behandle sak oppgave hvis beskrivelse inneholder BID journalpostId`(){
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())

@@ -1,6 +1,9 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.model.erEksterntFagomrade
+import no.nav.bidrag.arbeidsflyt.model.erMottattStatus
+import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
@@ -18,7 +21,7 @@ class PersistenceService(
     private val oppgaveRepository: OppgaveRepository,
     private val dlqKafkaRepository: DLQKafkaRepository,
     private val journalpostRepository: JournalpostRepository
-) {
+){
 
     companion object {
         @JvmStatic

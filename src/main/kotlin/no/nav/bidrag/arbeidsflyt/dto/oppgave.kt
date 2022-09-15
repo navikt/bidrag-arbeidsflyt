@@ -10,6 +10,7 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import no.nav.bidrag.arbeidsflyt.model.*
 
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 private val NORSK_DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy")
@@ -190,7 +191,7 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
         this.tildeltEnhetsnr = tildeltEnhetsnr
     }
 
-    constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDprefix, journalpostHendelse.aktorId){
+    constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String): this(journalpostHendelse.journalpostMedBareBIDPrefix, journalpostHendelse.aktorId){
         this.tema = "BID" // Kan ikke opprette JFR med tema FAR
         this.tildeltEnhetsnr = tildeltEnhetsnr
     }

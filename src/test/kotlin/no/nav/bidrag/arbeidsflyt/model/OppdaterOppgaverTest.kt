@@ -60,7 +60,7 @@ internal class OppdaterOppgaverTest {
         ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
 
         oppdaterOppgaver = OppdaterOppgaver(
-            journalpostHendelseIntern = JournalpostHendelseIntern(journalpostHendelse),
+            journalpostHendelse = journalpostHendelse,
             oppgaveService = oppgaveService,
             arbeidsfordelingService = arbeidsfordelingService
         )

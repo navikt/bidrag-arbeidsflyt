@@ -5,6 +5,8 @@ import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.*
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
+import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
+import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -94,7 +96,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
             opprettBehandleDokumentOppgave(OpprettBehandleDokumentOppgaveRequest(
                 saksreferanse = it,
-                journalpostId = journalpostHendelse.journalpostMedBareBIDprefix,
+                journalpostId = journalpostHendelse.journalpostMedBareBIDPrefix,
                 aktoerId = journalpostHendelse.aktorId,
                 tittel = journalpostHendelse.tittel!!,
                 dokumentDato = journalpostHendelse.dokumentDato,
