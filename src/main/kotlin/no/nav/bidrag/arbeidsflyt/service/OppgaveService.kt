@@ -18,7 +18,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    internal fun finnBehandlingsoppgaverForSaker(saker: List<String>, tema: String?): OppgaverForHendelse {
+    internal fun finnBehandlingsoppgaverForSaker(saker: List<String>, tema: String? = null): OppgaverForHendelse {
         val oppgaveSokRequest = OppgaveSokRequest()
             .brukBehandlingSomOppgaveType()
             .leggTilSaksreferanser(saker)
