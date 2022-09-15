@@ -26,7 +26,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal lagre journalpost`() {
+    fun `skal lagre journalpost fra hendelse hvis status mottatt`() {
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -45,7 +45,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
 
     @Test
-    fun `skal endre journalpost`() {
+    fun `skal oppdatere journalpost lagret i databasen`() {
         stubHentOppgave(listOf(OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -74,7 +74,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal slette journalpost fra databasen hvis status ikke er M`() {
+    fun `skal slette journalpost fra databasen hvis status ikke er mottatt`() {
         stubHentOppgave(listOf(OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -123,7 +123,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med geografisk enhet og aktorid`(){
+    fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`(){
         val enhet = "4812"
         val aktorid = "123213123213213"
         stubHentOppgave(emptyList())
@@ -152,7 +152,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke opprette oppgave hvis hent geografisk enhet feiler`(){
+    fun `skal ikke opprette journalforingsoppgave hvis hent geografisk enhet feiler`(){
         val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
@@ -167,7 +167,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med BID prefix nar journalpost mottat uten oppgave`(){
+    fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave`(){
         val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
@@ -191,7 +191,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med uten prefix nar Joark journalpost mottat uten oppgave`(){
+    fun `skal opprette oppgave med uten prefix nar Joark journalpost med status mottatt ikke har jfr oppgave`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -218,6 +218,51 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "\"opprettetAvEnhetsnr\":\"9999\"",
             "\"prioritet\":\"HOY\"",
             "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal ikke opprette journalforingsoppgave nar Bidrag journalpost med status mottatt har jfr oppgave`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = "BID-$JOURNALPOST_ID_4_NEW",
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
+        val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveNotEndret()
+    }
+
+
+    @Test
+    fun `skal ikke opprette oppgave nar Joark journalpost med status mottatt har jfr oppgave`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_4_NEW,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet()
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveNotOpprettet()
         verifyOppgaveNotEndret()
     }
 
@@ -473,7 +518,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle sak oppgave hvis beskrivelse inneholder journalpostid`(){
+    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder journalpostid`(){
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())
@@ -528,7 +573,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle sak oppgave hvis beskrivelse inneholder BID journalpostId`(){
+    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder BID journalpostId`(){
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())

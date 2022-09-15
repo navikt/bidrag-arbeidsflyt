@@ -10,8 +10,8 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableAspectJAutoProxy
-@ActiveProfiles(value = [PROFILE_KAFKA_TEST, "local"])
-@Profile("local")
+@ActiveProfiles(value = [PROFILE_KAFKA_TEST])
+@Profile("test")
 class BidragArbeidsflytTest
 
 fun main(args: Array<String>) {
