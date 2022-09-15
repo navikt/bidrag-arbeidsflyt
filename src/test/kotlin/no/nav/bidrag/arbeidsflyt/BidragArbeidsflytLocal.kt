@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile
 class BidragArbeidsflytLocal
 
 fun main(args: Array<String>) {
-    val app = SpringApplication(BidragArbeidsflytTest::class.java)
+    val app = SpringApplication(BidragArbeidsflytLocal::class.java)
     app.setAdditionalProfiles(PROFILE_KAFKA_TEST, PROFILE_NAIS, "live", "local")
     app.run(*args)
 }
