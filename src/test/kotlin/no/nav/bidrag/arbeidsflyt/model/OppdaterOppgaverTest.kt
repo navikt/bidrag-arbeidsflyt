@@ -6,6 +6,8 @@ import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Sporingsdata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

@@ -6,14 +6,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.annotation.Profile
+import org.springframework.test.context.ActiveProfiles
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableAspectJAutoProxy
-@Profile("local")
-class BidragArbeidsflytLocal
+@ActiveProfiles(value = [PROFILE_KAFKA_TEST])
+@Profile("test")
+class BidragArbeidsflytTest
 
 fun main(args: Array<String>) {
-    val app = SpringApplication(BidragArbeidsflytLocal::class.java)
-    app.setAdditionalProfiles(PROFILE_KAFKA_TEST, PROFILE_NAIS, "live", "local")
+    val app = SpringApplication(BidragArbeidsflytTest::class.java)
     app.run(*args)
 }

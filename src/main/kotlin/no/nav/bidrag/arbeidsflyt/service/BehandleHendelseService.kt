@@ -2,8 +2,8 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -28,6 +28,7 @@ class BehandleHendelseService(private val arbeidsfordelingService: Arbeidsfordel
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
+            .opprettEllerEndreBehandleDokumentOppgaver()
     }
 
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse){

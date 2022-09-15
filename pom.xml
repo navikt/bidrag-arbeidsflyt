@@ -26,6 +26,7 @@
     <springframework-cloud.version>3.1.0</springframework-cloud.version>
     <squareup-okhttp3.version>4.9.2</squareup-okhttp3.version>
     <shedlock.version>4.37.0</shedlock.version>
+    <bidrag-dokument-dto.version>1.5.10</bidrag-dokument-dto.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -70,6 +71,11 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>no.nav.bidrag.dokument</groupId>
+      <artifactId>bidrag-dokument-dto</artifactId>
+      <version>${bidrag-dokument-dto.version}</version>
+    </dependency>
     <dependency>
       <groupId>net.javacrumbs.shedlock</groupId>
       <artifactId>shedlock-spring</artifactId>
