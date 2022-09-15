@@ -38,11 +38,12 @@ class BehandleOppgaveHendelseService(
     }
 
     fun overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse: OppgaveHendelse) {
-        if (oppgaveHendelse.erAapenJournalforingsoppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)) {
+        val erIkkeJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
+        if (oppgaveHendelse.erAapenJournalforingsoppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && erIkkeJournalforendeEnhet) {
             overforOppgaveTilJournalforendeEnhet(oppgaveHendelse)
         }
 
-        if (oppgaveHendelse.erAapenBehandleDokumentOppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)) {
+        if (oppgaveHendelse.erAapenBehandleDokumentOppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && erIkkeJournalforendeEnhet) {
             LOGGER.info("Oppgave ${oppgaveHendelse.id} er type ${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. ")
         }
     }
