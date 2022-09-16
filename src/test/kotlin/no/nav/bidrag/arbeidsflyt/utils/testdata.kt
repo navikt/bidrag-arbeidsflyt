@@ -9,6 +9,7 @@ import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Sporingsdata
 import java.time.LocalDate
@@ -125,8 +126,10 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z12312312", saksbehandlersNavn = "Navn Navnesen")
-    )
+        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z12312312", saksbehandlersNavn = "Navn Navnesen"),
+        hendelseType = HendelseType.ENDRING,
+        journalposttype = "I"
+        )
 }
 
 fun oppgaveDataResponse(): List<OppgaveData> {

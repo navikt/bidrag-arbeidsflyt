@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskExceptio
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.*
+import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -450,6 +451,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
         journalpostHendelse.aktorId = "123213213"
         journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -467,7 +469,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal oppdatere og opprette behandle sak oppgave med BID journalpost`(){
+    fun `skal oppdatere og opprette behandle dokument oppgave med BID journalpost`(){
         val sakMedOppgave = "123123"
         val sakUtenOppgave = "3344444"
         stubHentOppgaveContaining(emptyList())
@@ -501,6 +503,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
         journalpostHendelse.aktorId = "123213213"
         journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -515,6 +518,39 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "\"tilordnetRessurs\":\"Z12312312\"",
             "\"journalpostId\":\"BID-$JOURNALPOST_ID_2\""
         )
+    }
+
+    @Test
+    fun `skal ikke oppdatere behandle dokument oppgave hvis hendelsetype ENDRING`(){
+        val sakMedOppgave = "123123"
+        val sakMedOppgave2 = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave()
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.ENDRING
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
     }
 
     @Test
@@ -563,6 +599,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
         journalpostHendelse.aktorId = "123213213"
         journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
