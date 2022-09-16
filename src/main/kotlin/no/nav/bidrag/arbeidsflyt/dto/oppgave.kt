@@ -159,6 +159,26 @@ sealed class OpprettOppgaveRequest(
 
         return HttpEntity<OpprettOppgaveRequest>(this, headers)
     }
+
+    override fun toString() = "${javaClass.simpleName}(${fieldsWithValues()})"
+
+    private fun fieldsWithValues(): String {
+        return StringBuilder("")
+            .append(fieldToString("beskrivelse", beskrivelse))
+            .append(fieldToString("oppgavetype", oppgavetype?.name))
+            .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
+            .append(fieldToString("prioritet", prioritet))
+            .append(fieldToString("tema", tema))
+            .append(fieldToString("aktivDato", aktivDato))
+            .append(fieldToString("fristFerdigstillelse", fristFerdigstillelse))
+            .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
+            .append(fieldToString("saksreferanse", saksreferanse))
+            .append(fieldToString("journalpostId", journalpostId))
+            .append(fieldToString("aktoerId", aktoerId))
+            .append(fieldToString("bnr", bnr))
+            .toString().removeSuffix(", ")
+    }
+
 }
 
 data class OpprettBehandleDokumentOppgaveRequest(
@@ -177,7 +197,11 @@ data class OpprettBehandleDokumentOppgaveRequest(
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
     tildeltEnhetsnr = sporingsdata.enhetsnummer,
     tilordnetRessurs = sporingsdata.brukerident
-)
+){
+    override fun toString(): String {
+        return super.toString()
+    }
+}
 @Suppress("unused") // used by jackson...
 data class OpprettJournalforingsOppgaveRequest(override var journalpostId: String, override var aktoerId: String?): OpprettOppgaveRequest(
     beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
@@ -205,6 +229,10 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
         this.aktoerId = aktoerId
         this.tema = tema
         this.tildeltEnhetsnr = tildeltEnhetsnr
+    }
+
+    override fun toString(): String {
+        return super.toString()
     }
 }
 
@@ -366,3 +394,5 @@ internal fun lagBeskrivelseHeader(saksbehandlersInfo: String): String {
     val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
     return "--- $dateFormatted $saksbehandlersInfo ---\r\n"
 }
+
+private fun fieldToString(fieldName: String, value: String?) = if (value != null) "$fieldName=$value, " else ""
