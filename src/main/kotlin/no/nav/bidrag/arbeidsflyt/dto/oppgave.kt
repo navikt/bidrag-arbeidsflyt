@@ -183,7 +183,7 @@ sealed class OpprettOppgaveRequest(
 
 data class OpprettBehandleDokumentOppgaveRequest(
     override var aktoerId: String?,
-    override var journalpostId: String,
+    private var _journalpostId: String,
     override var saksreferanse: String,
     private var tittel: String,
     private var dokumentDato: LocalDate?,
@@ -192,7 +192,8 @@ data class OpprettBehandleDokumentOppgaveRequest(
 ): OpprettOppgaveRequest(
     beskrivelse =
             lagBeskrivelseHeader(saksbehandlersInfo) +
-            lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now()),
+            "\u00B7 ${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n"+
+            "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
     oppgavetype = OppgaveType.BEH_SAK,
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
     tildeltEnhetsnr = sporingsdata.enhetsnummer,

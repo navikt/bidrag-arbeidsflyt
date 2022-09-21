@@ -303,10 +303,26 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal overfore oppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet og fjerne saksbehandler tilknytning`(){
+    fun `Skal overfore journalforingsoppgave til journalforende enhet hvis oppgave ikke er paa journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(1, "En annen beskrivelse")
+        verifyOppgaveEndretWith(1, "Saksbehandler endret fra z99123 til ikke valgt")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal overfore Vurder dokument oppgave til journalforende enhet hvis oppgave ikke er paa journalforende enhet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -323,6 +339,20 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave ikke tilhorer journalforende enhet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN)
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 

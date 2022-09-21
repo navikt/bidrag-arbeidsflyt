@@ -425,10 +425,9 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_5,
                 versjon = 1,
-                journalpostId = JOURNALPOST_ID_4_NEW,
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-12312321",
                 tema = "BID",
                 tildeltEnhetsnr = "4806",
                 saksreferanse = sakMedOppgave
@@ -461,10 +460,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
         verifyOppgaveOpprettetWith("BEH_SAK",
-            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "· Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "· Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"Z12312312\"",
-            "\"journalpostId\":\"$JOURNALPOST_ID_2\""
+            "\"journalpostId\":null"
         )
     }
 
@@ -477,10 +477,9 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_1,
                 versjon = 1,
-                journalpostId = "BID-$JOURNALPOST_ID_1",
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
                 tema = "BID",
                 tildeltEnhetsnr = "4806",
                 saksreferanse = sakMedOppgave
@@ -513,10 +512,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
         verifyOppgaveOpprettetWith("BEH_SAK",
-            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "· Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "· Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"Z12312312\"",
-            "\"journalpostId\":\"BID-$JOURNALPOST_ID_2\""
+            "\"journalpostId\":null"
         )
     }
 
@@ -562,7 +562,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_2,
                 versjon = 1,
-                journalpostId = JOURNALPOST_ID_4_NEW,
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
                 beskrivelse = "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
@@ -573,10 +572,9 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_1,
                 versjon = 1,
-                journalpostId = JOURNALPOST_ID_2,
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
                 tema = "BID",
                 tildeltEnhetsnr = "4806",
                 saksreferanse = sakMedOppgave2
@@ -618,7 +616,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_2,
                 versjon = 1,
-                journalpostId = "BID-$JOURNALPOST_ID_1",
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
                 beskrivelse = "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
@@ -629,10 +626,9 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             OppgaveData(
                 id = OPPGAVE_ID_1,
                 versjon = 1,
-                journalpostId = "BID-$JOURNALPOST_ID_2",
                 aktoerId = AKTOER_ID,
                 oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n",
                 tema = "BID",
                 tildeltEnhetsnr = "4806",
                 saksreferanse = sakMedOppgave2
@@ -655,6 +651,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
         journalpostHendelse.aktorId = "123213213"
         journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
