@@ -460,8 +460,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
         verifyOppgaveOpprettetWith("BEH_SAK",
-            "· Behandle dokument (Ny tittel) mottatt 02.01.2020",
-            "· Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
+            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"Z12312312\"",
             "\"journalpostId\":null"
@@ -512,8 +512,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
         verifyOppgaveOpprettetWith("BEH_SAK",
-            "· Behandle dokument (Ny tittel) mottatt 02.01.2020",
-            "· Dokumenter vedlagt: BID-142312",
+            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"Z12312312\"",
             "\"journalpostId\":null"

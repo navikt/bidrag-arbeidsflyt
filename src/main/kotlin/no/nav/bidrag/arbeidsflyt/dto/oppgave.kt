@@ -192,7 +192,7 @@ data class OpprettBehandleDokumentOppgaveRequest(
 ): OpprettOppgaveRequest(
     beskrivelse =
             lagBeskrivelseHeader(saksbehandlersInfo) +
-            "\u00B7 ${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n"+
+            "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n"+
             "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
     oppgavetype = OppgaveType.BEH_SAK,
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
