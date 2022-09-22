@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -65,7 +66,7 @@ class OppdaterOppgaver(
     fun opprettJournalforingsoppgave(): OppdaterOppgaver {
         finnOppgaverForHendelse()
 
-        if (!journalpostHendelse.erEksterntFagomrade && journalpostHendelse.erMottaksregistrert && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
+        if (!journalpostHendelse.erEksterntFagomrade && journalpostHendelse.erMottattStatus && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
             val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId)
@@ -74,6 +75,27 @@ class OppdaterOppgaver(
         }
 
         return this
+    }
+
+    fun opprettEllerEndreBehandleDokumentOppgaver(): OppdaterOppgaver {
+        if (journalpostHendelse.erJournalfort && journalpostHendelse.erHendelseTypeJournalforing() && journalpostHendelse.harSaker){
+            val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelse.saker)
+            if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostHendelse.journalpostId, journalpostHendelse.saker)) {
+                LOGGER.info("En journalført journalpost skal ha oppdatert behandle dokument oppgaver for saker. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
+                validerGyldigDataForBehandleDokument()
+                oppgaveService.opprettEllerEndreBehandleDokumentOppgaver(journalpostHendelse, behandlingsOppgaver)
+                finnOppdaterteOppgaverForHendelse = true
+            }
+        }
+
+
+        return this
+    }
+
+    private fun validerGyldigDataForBehandleDokument() {
+        if (!journalpostHendelse.harTittel) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler tittel")
+        if (!journalpostHendelse.harDokumentDato) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler dokument dato")
+        if (!journalpostHendelse.harSporingsdataEnhet) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler enhetsnummer")
     }
 
     fun ferdigstillJournalforingsoppgaver(): OppdaterOppgaver {
@@ -93,7 +115,7 @@ class OppdaterOppgaver(
 
     private fun finnOppgaverForHendelse() {
         if (finnOppdaterteOppgaverForHendelse) {
-            oppgaverForHendelse = oppgaveService.finnOppgaverForHendelse(journalpostHendelse)
+            oppgaverForHendelse = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(journalpostHendelse.journalpostId)
             finnOppdaterteOppgaverForHendelse = false
         }
     }
