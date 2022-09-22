@@ -3,11 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.github.tomakehurst.wiremock.client.WireMock.patch
-import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.stubFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
@@ -15,12 +11,7 @@ import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
-import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
-import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
-import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
-import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
-import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
+import no.nav.bidrag.arbeidsflyt.utils.*
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -51,6 +42,7 @@ abstract class AbstractBehandleHendelseTest {
         stubOpprettOppgave()
         stubEndreOppgave()
         stubHentOppgave()
+        stubHentJournalforendeEnheter()
     }
 
     @AfterEach
@@ -108,13 +100,23 @@ abstract class AbstractBehandleHendelseTest {
 
 
     fun stubHentGeografiskEnhet(enhet: String = ENHET_4806, status: HttpStatus = HttpStatus.OK){
-        stubFor(get(urlMatching("/organisasjon.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(
+        stubFor(get(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/geografisktilknytning.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(
             GeografiskTilknytningResponse(enhet, "Enhetnavn")
         ))))
     }
 
+    fun stubHentJournalforendeEnheter(){
+        stubFor(get(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(
+            createJournalforendeEnheterResponse()
+        ))))
+    }
+
     fun verifyHentGeografiskEnhetKalt(antall: Int = 1){
-        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/organisasjon.*")))
+        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/geografisktilknytning.*")))
+    }
+
+    fun verifyHentJournalforendeEnheterKalt(antall: Int = 1){
+        WireMock.verify(antall, WireMock.getRequestedFor(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")))
     }
     fun verifyHentPersonKalt(antall: Int = 1){
         WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/person.*")))

@@ -7,6 +7,7 @@ import java.time.ZonedDateTime
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OppgaveHendelse(
     val id: Long,
+    val versjon: Int,
     val endretAvEnhetsnr: String? = null,
     val tildeltEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
@@ -19,7 +20,6 @@ data class OppgaveHendelse(
     val behandlingstema: String? = null,
     val oppgavetype: String? = null,
     val behandlingstype: String? = null,
-    val versjon: Int? = null,
     val status: OppgaveStatus? = null,
     val statuskategori: Oppgavestatuskategori? = null,
     val endretAv: String? = null,
@@ -44,11 +44,13 @@ data class OppgaveHendelse(
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
     fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
     fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
+    fun erAapenBehandleDokumentOppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
     fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
 
     internal val erStatusKategoriAapen get() = statuskategori == Oppgavestatuskategori.AAPEN
     internal val erStatusKategoriAvsluttet get() = statuskategori == Oppgavestatuskategori.AVSLUTTET
-    internal val erJournalforingOppgave get() = oppgavetype == "JFR"
+    internal val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
+    internal val erBehandleDokumentOppgave get() = oppgavetype == OppgaveType.BEH_SAK.name
     internal val hasJournalpostId get() = journalpostId != null
     internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")

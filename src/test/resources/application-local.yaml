@@ -9,7 +9,7 @@ OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
 PERSON_SCOPE: dev-fss.bidrag.bidrag-person-feature
 ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon-feature
 AZURE_APP_CLIENT_SECRET: changme
-AZURE_APP_CLIENT_ID: changeme
+AZURE_APP_CLIENT_ID: 98a4c9b5-4ace-4759-b8f6-905d4765b125
 AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
 AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
@@ -28,11 +28,11 @@ NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
 FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
-
+server.port: 9999
 spring:
   flyway.enabled: false
   datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:default
+  datasource.url: jdbc:h2:mem:default;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
   kafka:

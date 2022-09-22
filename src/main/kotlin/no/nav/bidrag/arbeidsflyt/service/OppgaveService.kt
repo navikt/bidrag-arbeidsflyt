@@ -1,14 +1,13 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
-import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.model.JournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.dto.*
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
+import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
+import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
+import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -19,8 +18,14 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    internal fun finnAapneOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostId)
+    internal fun finnBehandlingsoppgaverForSaker(saker: List<String>, tema: String? = null): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest()
+            .brukBehandlingSomOppgaveType()
+            .leggTilSaksreferanser(saker)
+
+        if (tema!=null){
+            oppgaveSokRequest.leggTilFagomrade(tema)
+        }
 
         return OppgaverForHendelse(
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
@@ -28,8 +33,9 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         )
     }
 
-    internal fun finnOppgaverForHendelse(journalpostHendelse: JournalpostHendelse): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest(journalpostHendelse.journalpostId)
+    internal fun finnAapneJournalforingOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
+        val oppgaveSokRequest = OppgaveSokRequest()
+            .leggTilJournalpostId(journalpostId)
 
         return OppgaverForHendelse(
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
@@ -55,12 +61,61 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
+    internal fun overforOppgaver(oppgaveHendelse: OppgaveHendelse, overforTilEnhet: String) {
+        oppgaveConsumer.endreOppgave(
+            endretAvEnhetsnummer = "9999",
+            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "Automatisk jobb")
+        )
+    }
+
     internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             LOGGER.info("Ferdigstiller oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
                 patchOppgaveRequest = FerdigstillOppgaveRequest(it)
+            )
+        }
+    }
+
+    internal fun opprettEllerEndreBehandleDokumentOppgaver(journalpostHendelse: JournalpostHendelse, behandlingsOppgaver: OppgaverForHendelse) {
+        val oppgaverSomSkalEndres = behandlingsOppgaver.hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostHendelse.journalpostIdUtenPrefix)
+        endreForNyttDokument(journalpostHendelse, oppgaverSomSkalEndres)
+
+        val sakerSomKreverNyBehandleDokumentOppgave = behandlingsOppgaver.hentSakerSomKreverNyBehandleDokumentOppgave(journalpostHendelse.sakstilknytninger ?: emptyList())
+        opprettBehandleDokumentOppgaveForSaker(journalpostHendelse, sakerSomKreverNyBehandleDokumentOppgave)
+    }
+
+    internal fun opprettBehandleDokumentOppgave(opprettBehandleDokumentOppgaveRequest: OpprettBehandleDokumentOppgaveRequest){
+        oppgaveConsumer.opprettOppgave(opprettBehandleDokumentOppgaveRequest)
+    }
+
+    internal fun opprettBehandleDokumentOppgaveForSaker(journalpostHendelse: JournalpostHendelse, saker: List<String>){
+        LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: ${saker.size} for saker $saker")
+        saker.forEach{
+            LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
+            opprettBehandleDokumentOppgave(OpprettBehandleDokumentOppgaveRequest(
+                saksreferanse = it,
+                journalpostId = journalpostHendelse.journalpostMedBareBIDPrefix,
+                aktoerId = journalpostHendelse.aktorId,
+                tittel = journalpostHendelse.tittel!!,
+                dokumentDato = journalpostHendelse.dokumentDato,
+                sporingsdata = journalpostHendelse.sporing!!,
+                saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo()
+            ))
+        }
+    }
+    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveDataForHendelse>){
+        LOGGER.info("Antall behandle dokument oppgaver som skal oppdateres: {}", oppgaver.size)
+
+        for (oppgaveData in oppgaver) {
+            val request = EndreForNyttDokumentRequest(oppgaveData, journalpostHendelse)
+            oppgaveConsumer.endreOppgave(request)
+            LOGGER.info("Endret beskrivelse for oppgave {}", oppgaveData.id)
+            SECURE_LOGGER.info(
+                "Endret beskrivelse for oppgave {} med beskrivelse: {}",
+                oppgaveData.id,
+                request.beskrivelse
             )
         }
     }
