@@ -47,7 +47,7 @@ class BehandleOppgaveHendelseService(
 
     fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveHendelse){
         val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
-        LOGGER.info("Oppgave ${oppgaveHendelse.id} er ${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
+        LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppgaveService.overforOppgaver(oppgaveHendelse, tildeltEnhetsnr)
     }
 
