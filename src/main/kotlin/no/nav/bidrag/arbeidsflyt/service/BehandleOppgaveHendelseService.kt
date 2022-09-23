@@ -38,19 +38,16 @@ class BehandleOppgaveHendelseService(
     }
 
     fun overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse: OppgaveHendelse) {
-        val erIkkeJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
-        if (oppgaveHendelse.erAapenJournalforingsoppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && erIkkeJournalforendeEnhet) {
+        val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
+        val tilhorerOppgaveTypeJournalforendeEnhet = oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
+        if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
             overforOppgaveTilJournalforendeEnhet(oppgaveHendelse)
-        }
-
-        if (oppgaveHendelse.erAapenBehandleDokumentOppgave() && oppgaveHendelse.erTemaBIDEllerFAR() && erIkkeJournalforendeEnhet) {
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} er type ${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. ")
         }
     }
 
     fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveHendelse){
         val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
-        LOGGER.info("Oppgave ${oppgaveHendelse.id} er journalføringsoppgave med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
+        LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppgaveService.overforOppgaver(oppgaveHendelse, tildeltEnhetsnr)
     }
 
