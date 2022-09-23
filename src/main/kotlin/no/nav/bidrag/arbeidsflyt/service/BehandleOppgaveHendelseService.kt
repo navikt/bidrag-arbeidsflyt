@@ -38,9 +38,9 @@ class BehandleOppgaveHendelseService(
     }
 
     fun overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse: OppgaveHendelse) {
-        val erIkkeJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
+        val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
         val tilhorerOppgaveTypeJournalforendeEnhet = oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
-        if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && erIkkeJournalforendeEnhet) {
+        if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
             overforOppgaveTilJournalforendeEnhet(oppgaveHendelse)
         }
     }
