@@ -55,7 +55,7 @@ class OppgaveHendelseListener(
     fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
-        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR()) {
             LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
                     "oppgaveId ${oppgaveOpprettetHendelse.id}," +
                     "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +

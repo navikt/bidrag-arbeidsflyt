@@ -26,7 +26,9 @@ class BehandleOppgaveHendelseService(
     }
 
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
+        if (oppgaveHendelse.erJournalforingOppgave){
+            persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
+        }
 
         if (oppgaveHendelse.hasJournalpostId){
             endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
@@ -71,8 +73,10 @@ class BehandleOppgaveHendelseService(
         val oppgaver = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(oppgaveHendelse.journalpostId!!)
         val oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
         if (oppgaver.harJournalforingsoppgaver()){
+            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status mottatt. Journalposten har allerede journalføringsoppgave med tema BID. Ferdigstiller oppgave.")
             oppdaterOppgave.ferdigstill()
         } else {
+            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status mottatt. Endrer oppgave til journalføringsoppgave")
             oppdaterOppgave.medOppgavetype(OppgaveType.JFR)
         }
         oppgaveService.oppdaterOppgave(oppdaterOppgave)
