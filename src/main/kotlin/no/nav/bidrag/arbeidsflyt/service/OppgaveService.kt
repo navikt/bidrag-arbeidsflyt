@@ -53,6 +53,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
+    internal fun oppdaterOppgave(oppdaterOppgave: OppdaterOppgave){
+        oppgaveConsumer.endreOppgave(oppdaterOppgave)
+    }
+
     internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
         oppgaverForHendelse.dataForHendelse.forEach {
             oppgaveConsumer.endreOppgave(

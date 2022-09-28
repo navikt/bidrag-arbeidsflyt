@@ -3,9 +3,11 @@ azure:
   oppgave: oppgave.prod-fss-pub.nais.io
   person: bidrag-person.prod-fss-pub.nais.io
   organisasjon: bidrag-organisasjon.prod-fss-pub.nais.io
+  dokument: bidrag-dokument.prod-fss-pub.nais.io
   oppgave_clientid: prod-fss.oppgavehandtering.oppgave
   person_clientid: prod-fss.bidrag.bidrag-person
   organisasjon_clientid: prod-fss.bidrag.bidrag-organisasjon
+  dokument_clientid: prod-fss.bidrag.bidrag-dokument
 kafka:
   pool: nav-prod
   bootstrap_servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443

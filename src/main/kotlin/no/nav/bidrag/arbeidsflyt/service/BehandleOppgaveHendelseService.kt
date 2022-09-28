@@ -1,7 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -13,7 +16,8 @@ var ENHET_IT_AVDELINGEN="2990"
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
     var oppgaveService: OppgaveService,
-    var arbeidsfordelingService: ArbeidsfordelingService
+    var arbeidsfordelingService: ArbeidsfordelingService,
+    var journalpostService: JournalpostService
 ) {
 
     companion object {
@@ -29,6 +33,7 @@ class BehandleOppgaveHendelseService(
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         if (oppgaveHendelse.hasJournalpostId){
             overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse)
+            endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
         } else {
             LOGGER.debug("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
@@ -45,14 +50,26 @@ class BehandleOppgaveHendelseService(
         }
     }
 
+    fun endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse: OppgaveHendelse){
+        val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
+        if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostMedPrefix!!)){
+            endreOppgaveTypeTilJournalforing(oppgaveHendelse)
+        }
+    }
+
     fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveHendelse){
         val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
         LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppgaveService.overforOppgaver(oppgaveHendelse, tildeltEnhetsnr)
     }
 
+    fun endreOppgaveTypeTilJournalforing(oppgaveHendelse: OppgaveHendelse){
+        val oppdaterOppgave = OppdaterOppgave(oppgaveHendelse).medOppgavetype(OppgaveType.JFR)
+        oppgaveService.oppdaterOppgave(oppdaterOppgave)
+    }
+
     fun erJournalforendeEnhet(enhetNr: String?): Boolean {
-        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN)
+       val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN)
        return if (enhetNr != null) ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter().any { it.enhetIdent == enhetNr } else false
     }
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {

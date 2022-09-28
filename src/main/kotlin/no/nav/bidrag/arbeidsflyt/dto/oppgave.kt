@@ -256,7 +256,7 @@ open class PatchOppgaveRequest(
 ){
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
-    fun somHttpEntity(): HttpEntity<*> {
+    open fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
@@ -290,6 +290,58 @@ open class PatchOppgaveRequest(
     }
 
     private fun fieldToString(fieldName: String, value: String?) = if (value != null) ",$fieldName=$value" else ""
+}
+
+class OppdaterOppgave(): PatchOppgaveRequest(){
+
+    private var saksbehandlerInfo: String = "Automatisk jobb"
+    private var nyBeskrivelse: String? = null
+    private var oppgaveHendelse: OppgaveHendelse? = null
+    private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
+    constructor(oppgaveHendelse: OppgaveHendelse, saksbehandlersInfo: String? = null) : this() {
+        leggTilObligatoriskeVerdier(oppgaveHendelse)
+        this.oppgaveHendelse = oppgaveHendelse
+        this.saksbehandlerInfo = saksbehandlersInfo ?: this.saksbehandlerInfo
+        this.beskrivelse = oppgaveHendelse.beskrivelse ?: ""
+        this.endretAvEnhetsnr = "9999"
+    }
+
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, saksbehandlersInfo: String? = null) : this() {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        this.oppgaveDataForHendelse = oppgaveDataForHendelse
+        this.saksbehandlerInfo = saksbehandlersInfo ?: this.saksbehandlerInfo
+        this.beskrivelse = oppgaveHendelse?.beskrivelse ?: ""
+        this.endretAvEnhetsnr = "9999"
+    }
+
+    fun medOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
+        leggTilBeskrivelse("\u00B7 Oppgavetype endret fra ${oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype} til $nyOppgavetype\r\n")
+        oppgavetype = nyOppgavetype.name
+        tilordnetRessurs = ""
+        return this
+    }
+
+    private fun leggTilBeskrivelse(_beskrivelse: String){
+        if (this.nyBeskrivelse == null){
+            this.nyBeskrivelse = ""
+        }
+
+        this.nyBeskrivelse += _beskrivelse
+    }
+
+    private fun oppdaterBeskrivelse(){
+        if (nyBeskrivelse != null){
+            this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${this.saksbehandlerInfo} ---\r\n" +
+                    "${this.nyBeskrivelse}\r\n\r\n"+
+                    this.beskrivelse
+        }
+    }
+
+    override fun somHttpEntity(): HttpEntity<*> {
+        this.oppdaterBeskrivelse()
+        return super.somHttpEntity()
+    }
+
 }
 
 class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {

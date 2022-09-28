@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.dokument.dto.Fagomrade
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Journalstatus
@@ -23,3 +24,4 @@ val JournalpostHendelse.journalpostIdUtenPrefix get() = if (harJournalpostIdPref
 val JournalpostHendelse.journalpostMedBareBIDPrefix get() = if (erBidragJournalpost()) journalpostId else journalpostIdUtenPrefix
 val JournalpostHendelse.journalpostMedPrefix get() = if (harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 val JournalpostHendelse.erJournalfortIdag get(): Boolean = erJournalfort && journalfortDato?.equals(LocalDate.now()) == true
+val OppgaveHendelse.journalpostMedPrefix get() = if (journalpostId == null) null else if (harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"

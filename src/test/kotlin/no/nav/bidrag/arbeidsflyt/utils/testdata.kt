@@ -10,7 +10,10 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.dokument.dto.HendelseType
+import no.nav.bidrag.dokument.dto.JournalpostDto
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.dokument.dto.Journalstatus
 import no.nav.bidrag.dokument.dto.Sporingsdata
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -132,6 +135,14 @@ fun createJournalpostHendelse(
         )
 }
 
+fun journalpostResponse(journalStatus: String = Journalstatus.JOURNALFORT): JournalpostResponse {
+    return JournalpostResponse(
+        journalpost = JournalpostDto(
+            journalpostId = JOURNALPOST_ID_1,
+            journalstatus = journalStatus
+        )
+    )
+}
 fun oppgaveDataResponse(): List<OppgaveData> {
     return listOf(  OppgaveData(
         id = OPPGAVE_ID_1,

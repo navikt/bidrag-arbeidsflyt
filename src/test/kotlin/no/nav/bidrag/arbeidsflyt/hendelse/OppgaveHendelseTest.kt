@@ -21,6 +21,8 @@ import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -322,6 +324,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     fun `Skal overfore Vurder dokument oppgave til journalforende enhet hvis oppgave ikke er paa journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
+        stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -374,4 +377,25 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
         verifyOppgaveNotOpprettet()
     }
+
+    @Test
+    fun `Skal endre vurder dokument oppgavetype til journalforing hvis journalpost status mottatt`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(null, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(null, "En annen beskrivelse")
+        verifyOppgaveEndretWith(null, "Saksbehandler endret fra z99123 til ikke valgt")
+        verifyOppgaveEndretWith(null, "Oppgavetype endret fra VUR til JFR")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
+
+
 }
