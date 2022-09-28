@@ -73,7 +73,7 @@ Når du starter applikasjon må følgende miljøvariabler settes
 Bruk `kcat` til å sende meldinger til kafka topic. Feks
 
 ````bash
-kcat -b localhost:9092 -t bidrag-journalpost -P -K:
+kcat -b 0.0.0.0:9092 -t bidrag-journalpost -P -K:
 ````
 og lim inn eks:
 ```bash
@@ -83,3 +83,12 @@ BID-2121212121:{"journalpostId":"BID-2121212121","aktorId":"2889800801806","fago
 JOARK-12345678:{"journalpostId":"JOARK-12345678","fnr":"17478549350","fagomrade":"BID","enhet":"4806","journalstatus":"M","sporing":{"brukerident":"z992903","correlationId":"localtest"}}
 ```
 og deretter trykk Ctrl+D. Da vil meldingen bli sendt til topic bidrag-journalpost
+
+For oppgave 
+````bash
+kcat -b 0.0.0.0:9092 -t bidrag-opprettet -P
+````
+og lim inn eks:
+```bash
+{"id": 351382364, "tildeltEnhetsnr": "4806", "opprettetAvEnhetsnr": "4806",  "journalpostId": "573782796", "aktoerId": "2578652659686", "beskrivelse": "Test kopier dokumenter til Bidrag", "tema": "BID", "oppgavetype": "VUR", "versjon": 1, "opprettetAv": "srvbisys", "prioritet": "HOY", "status": "OPPRETTET"}
+```

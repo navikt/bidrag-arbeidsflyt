@@ -37,7 +37,7 @@ class BehandleOppgaveHendelseService(
 
     @Transactional
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.hasJournalpostId){
+        if (oppgaveHendelse.hasJournalpostId && oppgaveHendelse.erStatusKategoriAapen){
             overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse)
             endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
