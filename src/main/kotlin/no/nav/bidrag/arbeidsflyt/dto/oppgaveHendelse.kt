@@ -58,4 +58,5 @@ data class OppgaveHendelse(
     internal val hentIdent get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.folkeregisterident else ident?.verdi
     internal val hentBnr get() = if (ident?.identType == OppgaveIdentType.BNR) ident.verdi else null
     internal val hentAktoerId get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.verdi else null
+    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
 }

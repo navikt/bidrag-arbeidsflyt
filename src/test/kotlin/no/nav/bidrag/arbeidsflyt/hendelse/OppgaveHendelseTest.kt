@@ -22,6 +22,7 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -379,7 +380,21 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal endre vurder dokument oppgavetype til journalforing hvis journalpost status mottatt`(){
+    fun `Skal endre vurder dokument oppgavetype til journalforing hvis journalpost status mottatt nar opprettet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyOppgaveEndretWith(null, "Oppgavetype endret fra VUR til JFR")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal endre vurder dokument oppgavetype til journalforing hvis journalpost status mottatt nar endret`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
@@ -397,5 +412,26 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotOpprettet()
     }
 
+    @Test
+    fun `Skal ferdigstille vurder dokument oppgave hvis journalpost status mottatt og har journalforingopppgave`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyOppgaveEndretWith(null, "\"status\":\"FERDIGSTILT\"")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
 
 }

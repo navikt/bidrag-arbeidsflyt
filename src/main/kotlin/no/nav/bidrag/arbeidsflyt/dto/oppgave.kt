@@ -314,6 +314,10 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         this.endretAvEnhetsnr = "9999"
     }
 
+    fun ferdigstill(): OppdaterOppgave{
+        status = "FERDIGSTILT"
+        return this
+    }
     fun medOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
         leggTilBeskrivelse("\u00B7 Oppgavetype endret fra ${oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype} til $nyOppgavetype\r\n")
         oppgavetype = nyOppgavetype.name

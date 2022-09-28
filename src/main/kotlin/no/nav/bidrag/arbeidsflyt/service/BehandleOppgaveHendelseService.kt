@@ -27,6 +27,10 @@ class BehandleOppgaveHendelseService(
 
     fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
         persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
+
+        if (oppgaveHendelse.hasJournalpostId){
+            endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
+        }
     }
 
     @Transactional
@@ -52,7 +56,7 @@ class BehandleOppgaveHendelseService(
 
     fun endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse: OppgaveHendelse){
         val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
-        if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostMedPrefix!!)){
+        if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)){
             endreOppgaveTypeTilJournalforing(oppgaveHendelse)
         }
     }
@@ -64,7 +68,13 @@ class BehandleOppgaveHendelseService(
     }
 
     fun endreOppgaveTypeTilJournalforing(oppgaveHendelse: OppgaveHendelse){
-        val oppdaterOppgave = OppdaterOppgave(oppgaveHendelse).medOppgavetype(OppgaveType.JFR)
+        val oppgaver = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(oppgaveHendelse.journalpostId!!)
+        val oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
+        if (oppgaver.harJournalforingsoppgaver()){
+            oppdaterOppgave.ferdigstill()
+        } else {
+            oppdaterOppgave.medOppgavetype(OppgaveType.JFR)
+        }
         oppgaveService.oppdaterOppgave(oppdaterOppgave)
     }
 
