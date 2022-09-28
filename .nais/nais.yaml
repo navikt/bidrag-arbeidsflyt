@@ -62,7 +62,7 @@ spec:
     - name: ORGANISASJON_SCOPE
       value: {{ azure.organisasjon_clientid }}
     - name: DOKUMENT_SCOPE
-      value: { { azure.dokument_clientid } }
+      value: {{ azure.dokument_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
     - name: TOPIC_OPPGAVE_ENDRET
