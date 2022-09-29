@@ -73,6 +73,7 @@ data class OppgaveHendelse(
             "versjon=${versjon}",
             "saksreferanse=${saksreferanse}",
             "fristFerdigstillelse=${fristFerdigstillelse}",
+            "tilordnetRessurs=${tilordnetRessurs}",
             "status=${status}"
         ).joinToString(", ")
 
