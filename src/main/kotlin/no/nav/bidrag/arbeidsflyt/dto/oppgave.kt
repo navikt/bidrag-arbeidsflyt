@@ -332,7 +332,7 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
     private fun oppdaterBeskrivelse(){
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret){
-            nyBeskrivelse += "\u00B7 Oppgavetype endret fra $oppgavetypeFraHendelse til $oppgavetype\r\n"
+            nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(oppgavetypeFraHendelse)} til ${OppgaveType.descriptionFrom(oppgavetype)}\r\n"
         }
 
         if (erEnhetEndret){
@@ -454,10 +454,17 @@ enum class Oppgavestatuskategori {
     AAPEN, AVSLUTTET
 }
 
-enum class OppgaveType {
-    BEH_SAK,
-    VUR,
-    JFR
+enum class OppgaveType(val description: String) {
+    BEH_SAK("Behandle sak"),
+    VUR("Vurder dokument"),
+    JFR("Journalføring");
+
+    companion object {
+        fun descriptionFrom(value: String?): String {
+            return OppgaveType.values().asList().find { it.name == value }?.description ?: value ?: "Ukjent"
+        }
+    }
+
 }
 internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
     "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"

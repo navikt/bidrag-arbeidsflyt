@@ -44,7 +44,7 @@ internal class OppdaterOppgaveTest {
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
-                "· Oppgavetype endret fra JFR til VUR\r\n" +
+                "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n" +
                 "· Saksbehandler endret fra $tilordnetRessurs til ikke valgt\r\n" +
                 "\r\n\r\n$existingBeskrivelse")
     }
@@ -60,7 +60,7 @@ internal class OppdaterOppgaveTest {
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
-                    "· Oppgavetype endret fra JFR til VUR\r\n" +
+                    "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n" +
                     "\r\n\r\n$existingBeskrivelse")
     }
 
@@ -74,7 +74,7 @@ internal class OppdaterOppgaveTest {
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
-                    "· Oppgavetype endret fra JFR til VUR\r\n\r\n\r\n")
+                    "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n\r\n\r\n")
     }
 
     @Test
