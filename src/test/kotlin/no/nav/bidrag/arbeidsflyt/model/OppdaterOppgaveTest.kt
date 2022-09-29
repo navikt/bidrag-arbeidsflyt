@@ -4,6 +4,8 @@ import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -17,11 +19,17 @@ import java.time.LocalDateTime
 internal class OppdaterOppgaveTest {
 
 
+    val localDateTimeMock = mockStatic(LocalDateTime::class.java, Mockito.CALLS_REAL_METHODS)
+
     @BeforeEach
     fun `mock time`(){
         val mockTime = LocalDateTime.parse("2022-09-10T01:00:00.00")
-        mockStatic(LocalDateTime::class.java, Mockito.CALLS_REAL_METHODS)
         `when`(LocalDateTime.now()).thenReturn(mockTime)
+    }
+
+    @AfterEach
+    fun `remove time mock`(){
+        localDateTimeMock.close()
     }
 
     @Test
@@ -81,7 +89,7 @@ internal class OppdaterOppgaveTest {
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
-                    "·Oppgave overført fra enhet 4888 til 4806\r\n" +
+                    "· Oppgave overført fra enhet 4888 til 4806\r\n" +
                     "· Saksbehandler endret fra $tilordnetRessurs til ikke valgt\r\n" +
                     "\r\n\r\n$existingBeskrivelse")
     }
