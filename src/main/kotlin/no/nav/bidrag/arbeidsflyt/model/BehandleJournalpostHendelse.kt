@@ -20,7 +20,6 @@ class BehandleJournalpostHendelse(
     }
 
     companion object {
-        @JvmStatic
         val LOGGER: Logger = LoggerFactory.getLogger(BehandleJournalpostHendelse::class.java)
     }
 

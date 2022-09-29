@@ -404,15 +404,6 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
                 "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
                 (oppgaveDataForHendelse.beskrivelse ?: "")
     }
-
-    constructor(oppgaveHendelse: OppgaveHendelse, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
-        leggTilObligatoriskeVerdier(oppgaveHendelse)
-        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
-        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-                "${"· Oppgave overført fra enhet ${oppgaveHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
-                (if (!oppgaveHendelse.tilordnetRessurs.isNullOrEmpty()) "${"· Saksbehandler endret fra ${oppgaveHendelse.tilordnetRessurs} til ikke valgt"}\r\n\r\n" else "") +
-                (oppgaveHendelse.beskrivelse ?: "")
-    }
 }
 
 class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveRequest() {

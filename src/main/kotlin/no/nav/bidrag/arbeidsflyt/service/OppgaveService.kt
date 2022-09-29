@@ -66,13 +66,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun overforOppgaver(oppgaveHendelse: OppgaveHendelse, overforTilEnhet: String) {
-        oppgaveConsumer.endreOppgave(
-            endretAvEnhetsnummer = "9999",
-            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "Automatisk jobb")
-        )
-    }
-
     internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             LOGGER.info("Ferdigstiller oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")

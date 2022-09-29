@@ -76,6 +76,5 @@ data class OppgaveHendelse(
             "tilordnetRessurs=${tilordnetRessurs}",
             "status=${status}"
         ).joinToString(", ")
-
     }
 }
