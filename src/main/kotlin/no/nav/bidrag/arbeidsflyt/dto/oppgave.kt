@@ -122,7 +122,7 @@ data class OppgaveData(
     val statuskategori: Oppgavestatuskategori? = null,
     var endretTidspunkt: String? = null,
     var prioritet: String? = null,
-    var status: String? = null,
+    var status: OppgaveStatus? = null,
     var metadata: Map<String, String>? = null
 ) {
     fun somOppgaveForHendelse() = OppgaveDataForHendelse(
@@ -296,15 +296,7 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
 
     private var _hasChanged: Boolean = false
     private var saksbehandlerInfo: String = "Automatisk jobb"
-    private var oppgaveHendelse: OppgaveHendelse? = null
     private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
-    constructor(oppgaveHendelse: OppgaveHendelse, saksbehandlersInfo: String? = null) : this() {
-        leggTilObligatoriskeVerdier(oppgaveHendelse)
-        this.oppgaveHendelse = oppgaveHendelse
-        this.saksbehandlerInfo = saksbehandlersInfo ?: this.saksbehandlerInfo
-        this.endretAvEnhetsnr = "9999"
-    }
-
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, saksbehandlersInfo: String? = null) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         this.oppgaveDataForHendelse = oppgaveDataForHendelse
@@ -338,7 +330,7 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
     private fun oppdaterBeskrivelse() {
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret) {
-            nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(oppgavetypeFraHendelse)} til ${
+            nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
                 OppgaveType.descriptionFrom(
                     oppgavetype
                 )
@@ -346,17 +338,17 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         }
 
         if (erEnhetEndret) {
-            nyBeskrivelse += "\u00B7 Oppgave overført fra enhet $tildeltEnhetFraHendelse til $tildeltEnhetsnr\r\n"
+            nyBeskrivelse += "\u00B7 Oppgave overført fra enhet $eksisterendeTildeltEnhet til $tildeltEnhetsnr\r\n"
         }
 
         if (erTilordnetRessursEndretFraValgtTilIkkeValgt) {
-            nyBeskrivelse += "\u00B7 Saksbehandler endret fra $tilordnetRessursFraHendelse til ikke valgt\r\n"
+            nyBeskrivelse += "\u00B7 Saksbehandler endret fra $eksisterendeTilordnetRessurs til ikke valgt\r\n"
         }
 
         if (nyBeskrivelse.isNotEmpty()) {
             this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${this.saksbehandlerInfo} ---\r\n" +
                     "${nyBeskrivelse}\r\n\r\n"+
-                    beskrivelseFraHendelse
+                    eksisterendeBeskrivelse
         }
     }
 
@@ -365,13 +357,13 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         return super.somHttpEntity()
     }
 
-    private val beskrivelseFraHendelse get() = oppgaveHendelse?.beskrivelse ?: oppgaveDataForHendelse?.beskrivelse ?: ""
-    private val tilordnetRessursFraHendelse get() = oppgaveHendelse?.tilordnetRessurs ?: oppgaveDataForHendelse?.tilordnetRessurs
-    private val tildeltEnhetFraHendelse get() = oppgaveHendelse?.tildeltEnhetsnr ?: oppgaveDataForHendelse?.tildeltEnhetsnr
-    private val oppgavetypeFraHendelse get() = oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype
-    private val erOppgavetypeEndret get() = oppgavetype != null && (oppgavetypeFraHendelse) != oppgavetype
-    private val erTilordnetRessursEndretFraValgtTilIkkeValgt get() = tilordnetRessursFraHendelse?.isNotEmpty() == true && tilordnetRessurs?.isEmpty() == true
-    private val erEnhetEndret get() = tildeltEnhetsnr != null && (tildeltEnhetFraHendelse) != tildeltEnhetsnr
+    private val eksisterendeBeskrivelse get() = oppgaveDataForHendelse?.beskrivelse ?: ""
+    private val eksisterendeTilordnetRessurs get() = oppgaveDataForHendelse?.tilordnetRessurs
+    private val eksisterendeTildeltEnhet get() = oppgaveDataForHendelse?.tildeltEnhetsnr
+    private val eksisterendeOppgavetype get() = oppgaveDataForHendelse?.oppgavetype
+    private val erOppgavetypeEndret get() = oppgavetype != null && (eksisterendeOppgavetype) != oppgavetype
+    private val erTilordnetRessursEndretFraValgtTilIkkeValgt get() = eksisterendeTilordnetRessurs?.isNotEmpty() == true && tilordnetRessurs?.isEmpty() == true
+    private val erEnhetEndret get() = tildeltEnhetsnr != null && (eksisterendeTildeltEnhet) != tildeltEnhetsnr
 
 }
 

@@ -11,7 +11,7 @@ internal class PatchOppgaveRequestTest {
     @Test
     fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
         val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = "AAPEN", tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         )
 
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
@@ -24,7 +24,7 @@ internal class PatchOppgaveRequestTest {
     @Test
     fun `skal serialisere FerdigstillOppgaveRequest`() {
         val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = "AAPEN", tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         )
 
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave)
@@ -42,7 +42,7 @@ internal class PatchOppgaveRequestTest {
     @Test
     fun `skal serialisere OverforOppgaveRequest`() {
         val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = "AAPEN", tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
         )
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812", "Z999999")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)

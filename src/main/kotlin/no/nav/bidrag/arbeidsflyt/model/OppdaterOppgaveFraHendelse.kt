@@ -19,15 +19,15 @@ import org.springframework.stereotype.Component
 class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingService, var journalpostService: JournalpostService, var oppgaveService: OppgaveService) {
 
     lateinit var oppdaterOppgave: OppdaterOppgave
-    lateinit var oppgaveHendelse: OppgaveHendelse
+    lateinit var oppgaveHendelse: OppgaveDataForHendelse
 
     companion object {
         val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaveFraHendelse::class.java)
     }
 
     fun behandle(_oppgaveHendelse: OppgaveHendelse): OppdaterOppgaveFraHendelse{
-        oppdaterOppgave = OppdaterOppgave(_oppgaveHendelse)
-        oppgaveHendelse = _oppgaveHendelse
+        oppgaveHendelse = OppgaveDataForHendelse(_oppgaveHendelse)
+        oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
         return this
     }
 
@@ -48,19 +48,19 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
         return this
     }
 
-    fun utfor(){
+    fun utfor(endretAvEnhetsnummer: String? = null){
         if (oppdaterOppgave.hasChanged()){
-            oppgaveService.oppdaterOppgave(oppdaterOppgave)
+            oppgaveService.oppdaterOppgave(oppdaterOppgave, endretAvEnhetsnummer)
         }
     }
 
-    private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveHendelse){
-        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
+    private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveDataForHendelse){
+        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.ident)
         LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr)
     }
 
-    private fun endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse: OppgaveHendelse){
+    private fun endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse: OppgaveDataForHendelse){
         val oppgaver = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(oppgaveHendelse.journalpostId!!)
         if (oppgaver.harJournalforingsoppgaver()){
             LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Journalposten har allerede en journalføringsoppgave med tema BID. Ferdigstiller oppgave.")
