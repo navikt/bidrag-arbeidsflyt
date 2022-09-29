@@ -104,7 +104,7 @@ internal class OppdaterOppgaveTest {
 
         oppdaterOppgave.somHttpEntity()
 
-        assertThat(oppdaterOppgave.beskrivelse).isEqualTo(existingBeskrivelse)
+        assertThat(oppdaterOppgave.beskrivelse).isNull()
     }
 
     @Test

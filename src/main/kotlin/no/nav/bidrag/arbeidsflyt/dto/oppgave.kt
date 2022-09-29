@@ -357,7 +357,7 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         return super.somHttpEntity()
     }
 
-    private val beskrivelseFraHendelse get() = oppgaveHendelse?.beskrivelse ?: oppgaveDataForHendelse?.beskrivelse
+    private val beskrivelseFraHendelse get() = oppgaveHendelse?.beskrivelse ?: oppgaveDataForHendelse?.beskrivelse ?: ""
     private val tilordnetRessursFraHendelse get() = oppgaveHendelse?.tilordnetRessurs ?: oppgaveDataForHendelse?.tilordnetRessurs
     private val tildeltEnhetFraHendelse get() = oppgaveHendelse?.tildeltEnhetsnr ?: oppgaveDataForHendelse?.tildeltEnhetsnr
     private val oppgavetypeFraHendelse get() = oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype
