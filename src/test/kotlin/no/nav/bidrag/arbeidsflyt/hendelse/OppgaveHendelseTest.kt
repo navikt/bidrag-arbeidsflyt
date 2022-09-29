@@ -404,7 +404,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
-        verifyOppgaveEndretWith(null, "Oppgavetype endret fra VUR til JFR")
+        verifyOppgaveEndretWith(null, "Oppgavetype endret fra Vurder dokument til Journalføring")
         verifyDokumentHentet()
         verifyOppgaveNotOpprettet()
     }
@@ -436,7 +436,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(null, "Oppgave overført fra enhet 9999 til 4806")
         verifyOppgaveEndretWith(null, "En annen beskrivelse")
         verifyOppgaveEndretWith(null, "Saksbehandler endret fra z99123 til ikke valgt")
-        verifyOppgaveEndretWith(null, "Oppgavetype endret fra VUR til JFR")
+        verifyOppgaveEndretWith(null, "Oppgavetype endret fra Vurder dokument til Journalføring")
         verifyDokumentHentet()
         verifyOppgaveNotOpprettet()
     }
