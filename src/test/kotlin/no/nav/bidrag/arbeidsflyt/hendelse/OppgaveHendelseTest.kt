@@ -25,6 +25,8 @@ import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
@@ -36,7 +38,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
-
     @Autowired
     lateinit var behandleOppgaveHendelseService: BehandleOppgaveHendelseService
 
@@ -421,7 +422,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
-        verifyOppgaveEndretWith(null, "Oppgavetype endret fra Vurder dokument til Journalføring")
+        verifyOppgaveEndretWith(null, "Automatisk jobb ---\\r\\n· Oppgavetype endret fra Vurder dokument til Journalføring\\r\\n· Oppgave overført fra enhet 9999 til 4806\\r\\n· Saksbehandler endret fra z99123 til ikke valgt\\r\\n\\r\\n\\r\\nEn annen beskrivelse")
         verifyDokumentHentet()
         verifyOppgaveNotOpprettet()
     }

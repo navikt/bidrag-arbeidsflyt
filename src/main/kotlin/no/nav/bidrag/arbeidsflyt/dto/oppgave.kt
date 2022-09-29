@@ -294,6 +294,7 @@ open class PatchOppgaveRequest(
 
 class OppdaterOppgave(): PatchOppgaveRequest(){
 
+    private var _hasChanged: Boolean = false
     private var saksbehandlerInfo: String = "Automatisk jobb"
     private var oppgaveHendelse: OppgaveHendelse? = null
     private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
@@ -313,18 +314,25 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
 
     fun ferdigstill(): OppdaterOppgave{
         status = "FERDIGSTILT"
+        _hasChanged = true
         return this
     }
     fun endreOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
         oppgavetype = nyOppgavetype.name
         tilordnetRessurs = ""
+        _hasChanged = true
         return this
     }
 
     fun overforTilEnhet(nyTildeltEnhetsnr: String): OppdaterOppgave{
         tildeltEnhetsnr = nyTildeltEnhetsnr
         tilordnetRessurs = ""
+        _hasChanged = true
         return this
+    }
+
+    fun hasChanged(): Boolean {
+        return _hasChanged
     }
 
     private fun oppdaterBeskrivelse() {

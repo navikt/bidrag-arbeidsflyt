@@ -7,7 +7,7 @@ import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class OppdaterOppgaver(
+class BehandleJournalpostHendelse(
     private val journalpostHendelse: JournalpostHendelse,
     private val oppgaveService: OppgaveService,
     private val arbeidsfordelingService: ArbeidsfordelingService
@@ -21,10 +21,10 @@ class OppdaterOppgaver(
 
     companion object {
         @JvmStatic
-        val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaver::class.java)
+        val LOGGER: Logger = LoggerFactory.getLogger(BehandleJournalpostHendelse::class.java)
     }
 
-    fun oppdaterEksterntFagomrade(): OppdaterOppgaver {
+    fun oppdaterEksterntFagomrade(): BehandleJournalpostHendelse {
         if (journalpostHendelse.erEksterntFagomrade) {
             LOGGER.info("Endring til eksternt fagområde av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
@@ -39,7 +39,7 @@ class OppdaterOppgaver(
         return this
     }
 
-    fun oppdaterEndretEnhetsnummer(): OppdaterOppgaver {
+    fun oppdaterEndretEnhetsnummer(): BehandleJournalpostHendelse {
         finnOppgaverForHendelse()
 
         if (oppgaverForHendelse.erEndringAvTildeltEnhetsnummer(journalpostHendelse)) {
@@ -51,7 +51,7 @@ class OppdaterOppgaver(
         return this
     }
 
-    fun oppdaterOppgaveMedAktoerId(): OppdaterOppgaver {
+    fun oppdaterOppgaveMedAktoerId(): BehandleJournalpostHendelse {
         finnOppgaverForHendelse()
 
         if (oppgaverForHendelse.erEndringAvAktoerId(journalpostHendelse)) {
@@ -63,7 +63,7 @@ class OppdaterOppgaver(
         return this
     }
 
-    fun opprettJournalforingsoppgave(): OppdaterOppgaver {
+    fun opprettJournalforingsoppgave(): BehandleJournalpostHendelse {
         finnOppgaverForHendelse()
 
         if (!journalpostHendelse.erEksterntFagomrade && journalpostHendelse.erMottattStatus && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
@@ -77,7 +77,7 @@ class OppdaterOppgaver(
         return this
     }
 
-    fun opprettEllerEndreBehandleDokumentOppgaver(): OppdaterOppgaver {
+    fun opprettEllerEndreBehandleDokumentOppgaver(): BehandleJournalpostHendelse {
         if (journalpostHendelse.erJournalfort && journalpostHendelse.erHendelseTypeJournalforing() && journalpostHendelse.harSaker){
             val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelse.saker)
             if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostHendelse.journalpostId, journalpostHendelse.saker)) {
@@ -98,7 +98,7 @@ class OppdaterOppgaver(
         if (!journalpostHendelse.harSporingsdataEnhet) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler enhetsnummer")
     }
 
-    fun ferdigstillJournalforingsoppgaver(): OppdaterOppgaver {
+    fun ferdigstillJournalforingsoppgaver(): BehandleJournalpostHendelse {
         finnOppgaverForHendelse()
 
         if (journalpostHendelse.erJournalstatusEndretTilIkkeMottatt() && oppgaverForHendelse.harJournalforingsoppgaver()) {
