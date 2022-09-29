@@ -59,4 +59,22 @@ data class OppgaveHendelse(
     internal val hentBnr get() = if (ident?.identType == OppgaveIdentType.BNR) ident.verdi else null
     internal val hentAktoerId get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.verdi else null
     internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
+
+    override fun toString(): String {
+        return listOf(
+            "journalpostId=${journalpostId}",
+            "oppgaveId=${id}",
+            "statuskategori=${statuskategori}",
+            "tema=${tema}",
+            "oppgavetype=${oppgavetype}",
+            "opprettetAv=${opprettetAv}",
+            "tildeltEnhetsnr=${tildeltEnhetsnr}",
+            "opprettetAvEnhetsnr=${opprettetAvEnhetsnr}",
+            "versjon=${versjon}",
+            "saksreferanse=${saksreferanse}",
+            "fristFerdigstillelse=${fristFerdigstillelse}",
+            "status=${status}"
+        ).joinToString(", ")
+
+    }
 }

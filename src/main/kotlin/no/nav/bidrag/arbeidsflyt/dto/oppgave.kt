@@ -295,7 +295,6 @@ open class PatchOppgaveRequest(
 class OppdaterOppgave(): PatchOppgaveRequest(){
 
     private var saksbehandlerInfo: String = "Automatisk jobb"
-    private var nyBeskrivelse: String? = null
     private var oppgaveHendelse: OppgaveHendelse? = null
     private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
     constructor(oppgaveHendelse: OppgaveHendelse, saksbehandlersInfo: String? = null) : this() {
@@ -318,25 +317,35 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         status = "FERDIGSTILT"
         return this
     }
-    fun medOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
-        leggTilBeskrivelse("\u00B7 Oppgavetype endret fra ${oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype} til $nyOppgavetype\r\n")
+    fun endreOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
         oppgavetype = nyOppgavetype.name
         tilordnetRessurs = ""
         return this
     }
 
-    private fun leggTilBeskrivelse(_beskrivelse: String){
-        if (this.nyBeskrivelse == null){
-            this.nyBeskrivelse = ""
-        }
-
-        this.nyBeskrivelse += _beskrivelse
+    fun overforTilEnhet(nyTildeltEnhetsnr: String): OppdaterOppgave{
+        tildeltEnhetsnr = nyTildeltEnhetsnr
+        tilordnetRessurs = ""
+        return this
     }
 
     private fun oppdaterBeskrivelse(){
-        if (nyBeskrivelse != null){
+        var nyBeskrivelse = ""
+        if (erOppgavetypeEndret){
+            nyBeskrivelse += "\u00B7 Oppgavetype endret fra $oppgavetypeFraHendelse til $oppgavetype\r\n"
+        }
+
+        if (erEnhetEndret){
+            nyBeskrivelse += "\u00B7 Oppgave overført fra enhet $tildeltEnhetFraHendelse til $tildeltEnhetsnr\r\n"
+        }
+
+        if (erTilordnetRessursEndretFraValgtTilIkkeValgt){
+            nyBeskrivelse += "\u00B7 Saksbehandler endret fra $tilordnetRessursFraHendelse til ikke valgt\r\n"
+        }
+
+        if (nyBeskrivelse.isNotEmpty()){
             this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${this.saksbehandlerInfo} ---\r\n" +
-                    "${this.nyBeskrivelse}\r\n\r\n"+
+                    "${nyBeskrivelse}\r\n\r\n"+
                     this.beskrivelse
         }
     }
@@ -345,6 +354,13 @@ class OppdaterOppgave(): PatchOppgaveRequest(){
         this.oppdaterBeskrivelse()
         return super.somHttpEntity()
     }
+
+    private val tilordnetRessursFraHendelse get() = oppgaveHendelse?.tilordnetRessurs ?: oppgaveDataForHendelse?.tilordnetRessurs
+    private val tildeltEnhetFraHendelse get() = oppgaveHendelse?.tildeltEnhetsnr ?: oppgaveDataForHendelse?.tildeltEnhetsnr
+    private val oppgavetypeFraHendelse get() = oppgaveHendelse?.oppgavetype ?: oppgaveDataForHendelse?.oppgavetype
+    private val erOppgavetypeEndret get() = oppgavetype != null && (oppgavetypeFraHendelse) != oppgavetype
+    private val erTilordnetRessursEndretFraValgtTilIkkeValgt get() = tilordnetRessursFraHendelse?.isNotEmpty() == true && tilordnetRessurs?.isEmpty() == true
+    private val erEnhetEndret get() = tildeltEnhetsnr != null && (tildeltEnhetFraHendelse) != tildeltEnhetsnr
 
 }
 

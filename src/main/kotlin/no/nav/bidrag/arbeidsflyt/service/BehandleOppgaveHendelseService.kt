@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -31,15 +30,15 @@ class BehandleOppgaveHendelseService(
         }
 
         if (oppgaveHendelse.hasJournalpostId){
-            endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
+            endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt(oppgaveHendelse)
         }
     }
 
     @Transactional
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.hasJournalpostId && oppgaveHendelse.erStatusKategoriAapen){
+        if (oppgaveHendelse.hasJournalpostId){
             overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse)
-            endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse)
+            endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt(oppgaveHendelse)
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
         } else {
             LOGGER.debug("Oppgave ${oppgaveHendelse.id} har ingen journalpostid. Stopper videre behandling.")
@@ -56,10 +55,10 @@ class BehandleOppgaveHendelseService(
         }
     }
 
-    fun endreVurderDokumentOppgaveTilJournalforendeHvisJournalpostHarStatusMottatt(oppgaveHendelse: OppgaveHendelse){
+    fun endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
         val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)){
-            endreOppgaveTypeTilJournalforing(oppgaveHendelse)
+            endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse)
         }
     }
 
@@ -69,7 +68,7 @@ class BehandleOppgaveHendelseService(
         oppgaveService.overforOppgaver(oppgaveHendelse, tildeltEnhetsnr)
     }
 
-    fun endreOppgaveTypeTilJournalforing(oppgaveHendelse: OppgaveHendelse){
+    fun endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse: OppgaveHendelse){
         val oppgaver = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(oppgaveHendelse.journalpostId!!)
         val oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
         if (oppgaver.harJournalforingsoppgaver()){
@@ -77,7 +76,7 @@ class BehandleOppgaveHendelseService(
             oppdaterOppgave.ferdigstill()
         } else {
             LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Endrer oppgave til journalføringsoppgave")
-            oppdaterOppgave.medOppgavetype(OppgaveType.JFR)
+            oppdaterOppgave.endreOppgavetype(OppgaveType.JFR)
         }
         oppgaveService.oppdaterOppgave(oppdaterOppgave)
     }

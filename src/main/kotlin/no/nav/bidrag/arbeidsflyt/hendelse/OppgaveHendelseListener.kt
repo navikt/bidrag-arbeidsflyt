@@ -34,18 +34,7 @@ class OppgaveHendelseListener(
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
         if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
-            LOGGER.info("Mottatt oppgave endret hendelse med journalpostId ${oppgaveEndretHendelse.journalpostId}, " +
-                    "oppgaveId ${oppgaveEndretHendelse.id}," +
-                    "statuskategori ${oppgaveEndretHendelse.statuskategori}, " +
-                    "tema ${oppgaveEndretHendelse.tema}, " +
-                    "oppgavetype ${oppgaveEndretHendelse.oppgavetype}, " +
-                    "opprettetAv ${oppgaveEndretHendelse.opprettetAv}, " +
-                    "endretAv ${oppgaveEndretHendelse.endretAv}, " +
-                    "saksreferanse ${oppgaveEndretHendelse.saksreferanse}, " +
-                    "fristFerdigstillelse ${oppgaveEndretHendelse.fristFerdigstillelse}, " +
-                    "tilordnetRessurs ${oppgaveEndretHendelse.tilordnetRessurs}, " +
-                    "versjon ${oppgaveEndretHendelse.versjon}, " +
-                    "og status ${oppgaveEndretHendelse.status}")
+            LOGGER.info("Mottatt oppgave endret hendelse $oppgaveEndretHendelse")
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
             persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveEndretHendelse.id)
         }
@@ -56,18 +45,7 @@ class OppgaveHendelseListener(
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR()) {
-            LOGGER.info("Mottatt oppgave opprettet hendelse med journalpostId ${oppgaveOpprettetHendelse.journalpostId}, " +
-                    "oppgaveId ${oppgaveOpprettetHendelse.id}," +
-                    "statuskategori ${oppgaveOpprettetHendelse.statuskategori}, " +
-                    "tema ${oppgaveOpprettetHendelse.tema}, " +
-                    "oppgavetype ${oppgaveOpprettetHendelse.oppgavetype}, " +
-                    "opprettetAv ${oppgaveOpprettetHendelse.opprettetAv}, " +
-                    "tildeltEnhetsnr ${oppgaveOpprettetHendelse.tildeltEnhetsnr}, " +
-                    "opprettetAvEnhetsnr ${oppgaveOpprettetHendelse.opprettetAvEnhetsnr}, " +
-                    "versjon ${oppgaveOpprettetHendelse.versjon}, " +
-                    "saksreferanse ${oppgaveOpprettetHendelse.saksreferanse}, " +
-                    "fristFerdigstillelse ${oppgaveOpprettetHendelse.fristFerdigstillelse}, " +
-                    "og status ${oppgaveOpprettetHendelse.status}")
+            LOGGER.info("Mottatt oppgave opprettet hendelse $oppgaveOpprettetHendelse")
             behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveOpprettetHendelse)
             measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse)
         }
