@@ -362,8 +362,25 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
         verifyOppgaveNotOpprettet()
     }
+
     @Test
-    fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet`(){
+    fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar opprettet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(1, "En annen beskrivelse")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar endret`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost()

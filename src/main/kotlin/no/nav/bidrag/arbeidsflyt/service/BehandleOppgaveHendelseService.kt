@@ -30,6 +30,7 @@ class BehandleOppgaveHendelseService(
         }
 
         if (oppgaveHendelse.hasJournalpostId){
+            overforOppgaveTilJournalforendeHvisIkkeJournalforende(oppgaveHendelse)
             endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt(oppgaveHendelse)
         }
     }
@@ -98,7 +99,7 @@ class BehandleOppgaveHendelseService(
                 run {
                     if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
                         LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
-                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse, it)
+                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
                     }
                 }
             },
@@ -110,7 +111,7 @@ class BehandleOppgaveHendelseService(
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 
-    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse, journalpost: Journalpost){
+    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
         val tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
         oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, tildeltEnhetsnr))
     }
