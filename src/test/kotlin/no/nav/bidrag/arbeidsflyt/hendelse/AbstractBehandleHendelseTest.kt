@@ -12,6 +12,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.utils.*
+import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -78,6 +79,10 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))))
     }
 
+    fun stubHentJournalpost(journalpostResponse: JournalpostResponse = journalpostResponse()){
+        stubFor(get(urlMatching("/dokument/bidrag-dokument/journal/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(journalpostResponse))))
+    }
+
     fun stubHentOppgaveError(){
         stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())))
     }
@@ -112,40 +117,44 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyHentGeografiskEnhetKalt(antall: Int = 1){
-        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/geografisktilknytning.*")))
+        verify(antall, getRequestedFor(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/geografisktilknytning.*")))
     }
 
     fun verifyHentJournalforendeEnheterKalt(antall: Int = 1){
-        WireMock.verify(antall, WireMock.getRequestedFor(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")))
+        verify(antall, getRequestedFor(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")))
     }
     fun verifyHentPersonKalt(antall: Int = 1){
-        WireMock.verify(antall, WireMock.getRequestedFor(urlMatching("/person.*")))
+        verify(antall, getRequestedFor(urlMatching("/person.*")))
     }
     fun verifyOppgaveNotOpprettet(){
-        WireMock.verify(0, WireMock.postRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/")))
+        verify(0, WireMock.postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/")))
     }
 
     fun verifyOppgaveNotEndret(){
-        WireMock.verify(0, WireMock.patchRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/.*")))
+        verify(0, WireMock.patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
     }
 
     fun verifyOppgaveOpprettetWith(vararg contains: String){
-        val requestPattern = WireMock.postRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/"))
+        val requestPattern = WireMock.postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
                 ContainsPattern(contain)
             )
         }
-        WireMock.verify(1, requestPattern)
+        verify(1, requestPattern)
+    }
+
+    fun verifyDokumentHentet(count: Int? = 1){
+        verify(count ?: 1, getRequestedFor(urlMatching("/dokument/bidrag-dokument/journal/.*")))
     }
 
     fun verifyOppgaveEndretWith(count: Int? = null, vararg contains: String){
-        val requestPattern = WireMock.patchRequestedFor(WireMock.urlMatching("/oppgave/api/v1/oppgaver/.*"))
+        val requestPattern = WireMock.patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
                 ContainsPattern(contain)
             )
         }
-        if (count != null) WireMock.verify(count, requestPattern) else WireMock.verify(requestPattern)
+        if (count != null) verify(count, requestPattern) else verify(requestPattern)
     }
 }

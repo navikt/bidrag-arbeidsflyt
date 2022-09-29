@@ -6,7 +6,6 @@ import no.nav.bidrag.arbeidsflyt.dto.*
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
-import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service
 @Service
 class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     companion object {
-        @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
@@ -53,6 +51,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
+    internal fun oppdaterOppgave(oppdaterOppgave: OppdaterOppgave, endretAvEnhetsnummer: String? = null){
+        oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
+    }
+
     internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
         oppgaverForHendelse.dataForHendelse.forEach {
             oppgaveConsumer.endreOppgave(
@@ -60,13 +62,6 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
                 patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na", journalpostHendelse.hentSaksbehandlerInfo())
             )
         }
-    }
-
-    internal fun overforOppgaver(oppgaveHendelse: OppgaveHendelse, overforTilEnhet: String) {
-        oppgaveConsumer.endreOppgave(
-            endretAvEnhetsnummer = "9999",
-            patchOppgaveRequest = OverforOppgaveRequest(oppgaveHendelse, overforTilEnhet, "Automatisk jobb")
-        )
     }
 
     internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {

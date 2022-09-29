@@ -122,7 +122,7 @@ data class OppgaveData(
     val statuskategori: Oppgavestatuskategori? = null,
     var endretTidspunkt: String? = null,
     var prioritet: String? = null,
-    var status: String? = null,
+    var status: OppgaveStatus? = null,
     var metadata: Map<String, String>? = null
 ) {
     fun somOppgaveForHendelse() = OppgaveDataForHendelse(
@@ -256,7 +256,7 @@ open class PatchOppgaveRequest(
 ){
 
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/${id}".replace("//", "/")
-    fun somHttpEntity(): HttpEntity<*> {
+    open fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
@@ -292,6 +292,81 @@ open class PatchOppgaveRequest(
     private fun fieldToString(fieldName: String, value: String?) = if (value != null) ",$fieldName=$value" else ""
 }
 
+class OppdaterOppgave(): PatchOppgaveRequest(){
+
+    private var _hasChanged: Boolean = false
+    private var saksbehandlerInfo: String = "Automatisk jobb"
+    private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
+    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, saksbehandlersInfo: String? = null) : this() {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        this.oppgaveDataForHendelse = oppgaveDataForHendelse
+        this.saksbehandlerInfo = saksbehandlersInfo ?: this.saksbehandlerInfo
+        this.endretAvEnhetsnr = "9999"
+    }
+
+    fun ferdigstill(): OppdaterOppgave{
+        status = "FERDIGSTILT"
+        _hasChanged = true
+        return this
+    }
+    fun endreOppgavetype(nyOppgavetype: OppgaveType): OppdaterOppgave {
+        oppgavetype = nyOppgavetype.name
+        tilordnetRessurs = ""
+        _hasChanged = true
+        return this
+    }
+
+    fun overforTilEnhet(nyTildeltEnhetsnr: String): OppdaterOppgave{
+        tildeltEnhetsnr = nyTildeltEnhetsnr
+        tilordnetRessurs = ""
+        _hasChanged = true
+        return this
+    }
+
+    fun hasChanged(): Boolean {
+        return _hasChanged
+    }
+
+    private fun oppdaterBeskrivelse() {
+        var nyBeskrivelse = ""
+        if (erOppgavetypeEndret) {
+            nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
+                OppgaveType.descriptionFrom(
+                    oppgavetype
+                )
+            }\r\n"
+        }
+
+        if (erEnhetEndret) {
+            nyBeskrivelse += "\u00B7 Oppgave overført fra enhet $eksisterendeTildeltEnhet til $tildeltEnhetsnr\r\n"
+        }
+
+        if (erTilordnetRessursEndretFraValgtTilIkkeValgt) {
+            nyBeskrivelse += "\u00B7 Saksbehandler endret fra $eksisterendeTilordnetRessurs til ikke valgt\r\n"
+        }
+
+        if (nyBeskrivelse.isNotEmpty()) {
+            this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${this.saksbehandlerInfo} ---\r\n" +
+                    "${nyBeskrivelse}\r\n\r\n"+
+                    eksisterendeBeskrivelse
+        }
+    }
+
+    override fun somHttpEntity(): HttpEntity<*> {
+        this.oppdaterBeskrivelse()
+        return super.somHttpEntity()
+    }
+
+    private val eksisterendeBeskrivelse get() = oppgaveDataForHendelse?.beskrivelse ?: ""
+    private val eksisterendeTilordnetRessurs get() = oppgaveDataForHendelse?.tilordnetRessurs
+    private val eksisterendeTildeltEnhet get() = oppgaveDataForHendelse?.tildeltEnhetsnr
+    private val eksisterendeOppgavetype get() = oppgaveDataForHendelse?.oppgavetype
+    private val erOppgavetypeEndret get() = oppgavetype != null && (eksisterendeOppgavetype) != oppgavetype
+    private val erTilordnetRessursEndretFraValgtTilIkkeValgt get() = eksisterendeTilordnetRessurs?.isNotEmpty() == true && tilordnetRessurs?.isEmpty() == true
+    private val erEnhetEndret get() = tildeltEnhetsnr != null && (eksisterendeTildeltEnhet) != tildeltEnhetsnr
+
+}
+
 class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
@@ -320,15 +395,6 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
                 "${"· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
                 "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
                 (oppgaveDataForHendelse.beskrivelse ?: "")
-    }
-
-    constructor(oppgaveHendelse: OppgaveHendelse, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
-        leggTilObligatoriskeVerdier(oppgaveHendelse)
-        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
-        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-                "${"· Oppgave overført fra enhet ${oppgaveHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
-                (if (!oppgaveHendelse.tilordnetRessurs.isNullOrEmpty()) "${"· Saksbehandler endret fra ${oppgaveHendelse.tilordnetRessurs} til ikke valgt"}\r\n\r\n" else "") +
-                (oppgaveHendelse.beskrivelse ?: "")
     }
 }
 
@@ -382,10 +448,17 @@ enum class Oppgavestatuskategori {
     AAPEN, AVSLUTTET
 }
 
-enum class OppgaveType {
-    BEH_SAK,
-    VUR,
-    JFR
+enum class OppgaveType(val description: String) {
+    BEH_SAK("Behandle sak"),
+    VUR("Vurder dokument"),
+    JFR("Journalføring");
+
+    companion object {
+        fun descriptionFrom(value: String?): String {
+            return OppgaveType.values().asList().find { it.name == value }?.description ?: value ?: "Ukjent"
+        }
+    }
+
 }
 internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
     "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"

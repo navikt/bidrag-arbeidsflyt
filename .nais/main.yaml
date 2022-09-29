@@ -3,9 +3,11 @@ azure:
   oppgave: oppgave.dev-fss-pub.nais.io
   person: bidrag-person.dev-fss-pub.nais.io
   organisasjon: bidrag-organisasjon.dev-fss-pub.nais.io
+  dokument: bidrag-dokument.dev-fss-pub.nais.io
   oppgave_clientid: dev-fss.oppgavehandtering.oppgave
   person_clientid: dev-fss.bidrag.bidrag-person
   organisasjon_clientid: dev-fss.bidrag.bidrag-organisasjon
+  dokument_clientid: dev-fss.bidrag.bidrag-dokument
 kafka:
   pool: nav-dev
   bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443

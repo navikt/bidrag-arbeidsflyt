@@ -30,7 +30,7 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest
 @DisplayName("OppdaterOppgaver")
 @ActiveProfiles("test")
-internal class OppdaterOppgaverTest {
+internal class BehandleJournalpostHendelseTest {
 
     private val enhetsnummerFraSporingsdata = "1001"
 
@@ -44,7 +44,7 @@ internal class OppdaterOppgaverTest {
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
 
-    private lateinit var oppdaterOppgaver: OppdaterOppgaver
+    private lateinit var behandleJournalpostHendelse: BehandleJournalpostHendelse
     private val journalpostHendelse = JournalpostHendelse(sporing = Sporingsdata(enhetsnummer = enhetsnummerFraSporingsdata))
 
     @BeforeEach
@@ -59,7 +59,7 @@ internal class OppdaterOppgaverTest {
             )
         ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
 
-        oppdaterOppgaver = OppdaterOppgaver(
+        behandleJournalpostHendelse = BehandleJournalpostHendelse(
             journalpostHendelse = journalpostHendelse,
             oppgaveService = oppgaveService,
             arbeidsfordelingService = arbeidsfordelingService
@@ -74,7 +74,7 @@ internal class OppdaterOppgaverTest {
             .thenReturn(ResponseEntity.ok(OppgaveData()))
 
         // then
-        oppdaterOppgaver.oppdaterEksterntFagomrade()
+        behandleJournalpostHendelse.oppdaterEksterntFagomrade()
 
         val patchEntityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
 
@@ -99,7 +99,7 @@ internal class OppdaterOppgaverTest {
             .thenReturn(ResponseEntity.ok(OppgaveData()))
 
         // then
-        oppdaterOppgaver.oppdaterEndretEnhetsnummer()
+        behandleJournalpostHendelse.oppdaterEndretEnhetsnummer()
 
         val patchEntityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
 

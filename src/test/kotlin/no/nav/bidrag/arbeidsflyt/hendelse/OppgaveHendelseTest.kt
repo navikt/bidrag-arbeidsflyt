@@ -21,7 +21,12 @@ import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
+import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyInt
@@ -33,7 +38,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
-
     @Autowired
     lateinit var behandleOppgaveHendelseService: BehandleOppgaveHendelseService
 
@@ -288,7 +292,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal overfore oppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet`(){
+    fun `Skal overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
@@ -299,11 +303,12 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyHentJournalforendeEnheterKalt()
         verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
         verifyOppgaveEndretWith(1, "En annen beskrivelse")
+        verifyOppgaveEndretWith(0, "Saksbehandler endret fra z99123 til ikke valgt")
         verifyOppgaveNotOpprettet()
     }
 
     @Test
-    fun `Skal overfore journalforingsoppgave til journalforende enhet hvis oppgave ikke er paa journalforende enhet`(){
+    fun `Skal overfore journalforingsoppgave til journalforende enhet og fjerne tilordnetressurs hvis oppgave ikke er knyttet til journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
@@ -319,23 +324,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal overfore Vurder dokument oppgave til journalforende enhet hvis oppgave ikke er paa journalforende enhet`(){
-        stubHentOppgave(emptyList())
-        stubHentGeografiskEnhet("4806")
-        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
-
-        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
-
-
-        verifyHentJournalforendeEnheterKalt()
-        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
-        verifyOppgaveEndretWith(1, "En annen beskrivelse")
-        verifyOppgaveEndretWith(1, "Saksbehandler endret fra z99123 til ikke valgt")
-        verifyOppgaveNotOpprettet()
-    }
-
-    @Test
-    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave tildelt enhet journalforende enhet`(){
+    fun `Skal ikke overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt journalforende enhet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
@@ -349,7 +338,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave ikke tilhorer journalforende enhet`(){
+    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgavetype ikke tilhorer journalforende enhet (er ikke JFR eller VUR)`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN)
@@ -363,7 +352,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgave tildelt enhet er fagpost`(){
+    fun `Skal ikke overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt enhet er fagpost`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "2950", statuskategori = Oppgavestatuskategori.AAPEN)
@@ -374,4 +363,138 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
         verifyOppgaveNotOpprettet()
     }
+
+    @Test
+    fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar opprettet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(1, "En annen beskrivelse")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar endret`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(1, "En annen beskrivelse")
+        verifyOppgaveEndretWith(1, "Saksbehandler endret fra z99123 til ikke valgt")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal ikke overfore vurderdokument oppgave til journalforende enhet hvis oppgave tildelt journalforende enhet ved opprettet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
+        stubHentJournalpost()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+        verifyDokumentHentet()
+    }
+
+    @Test
+    fun `Skal ikke overfore vurderdokument oppgave til journalforende enhet hvis oppgave tildelt journalforende enhet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet()
+        stubHentJournalpost()
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+        verifyDokumentHentet()
+    }
+
+    @Test
+    fun `Skal endre vurderdokument oppgavetype til journalforing hvis journalpost status mottatt etter oppgave opprettet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyOppgaveEndretWith(null, "Automatisk jobb ---\\r\\n· Oppgavetype endret fra Vurder dokument til Journalføring\\r\\n· Oppgave overført fra enhet 9999 til 4806\\r\\n· Saksbehandler endret fra z99123 til ikke valgt\\r\\n\\r\\n\\r\\nEn annen beskrivelse")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal ikke hente journalpost hvis vurderdokument er avsluttet`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AVSLUTTET, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyOppgaveNotEndret()
+        verifyDokumentHentet(0)
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal endre vurderdokument oppgavetype til journalforing hvis journalpost status mottatt ved endring`(){
+        stubHentOppgave(emptyList())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(null, "Oppgave overført fra enhet 9999 til 4806")
+        verifyOppgaveEndretWith(null, "En annen beskrivelse")
+        verifyOppgaveEndretWith(null, "Saksbehandler endret fra z99123 til ikke valgt")
+        verifyOppgaveEndretWith(null, "Oppgavetype endret fra Vurder dokument til Journalføring")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal ferdigstille vurder dokument oppgave hvis journalpost status mottatt og har journalforingopppgave`(){
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(Journalstatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyOppgaveEndretWith(null, "\"status\":\"FERDIGSTILT\"")
+        verifyDokumentHentet()
+        verifyOppgaveNotOpprettet()
+    }
+
 }

@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
-import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaver
+import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -22,7 +22,7 @@ class BehandleHendelseService(private val arbeidsfordelingService: Arbeidsfordel
 
         persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse)
 
-        OppdaterOppgaver(journalpostHendelse, oppgaveService, arbeidsfordelingService)
+        BehandleJournalpostHendelse(journalpostHendelse, oppgaveService, arbeidsfordelingService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
             .oppdaterOppgaveMedAktoerId()

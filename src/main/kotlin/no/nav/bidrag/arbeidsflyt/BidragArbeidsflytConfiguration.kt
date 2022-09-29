@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt
 import net.javacrumbs.shedlock.core.LockProvider
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock
+import no.nav.bidrag.arbeidsflyt.consumer.BidragDokumentConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.BidragOrganisasjonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultOppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
@@ -187,6 +188,16 @@ class ArbeidsflytConfiguration {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$organisasjonUrl/bidrag-organisasjon")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("organisasjon"))
         return BidragOrganisasjonConsumer(restTemplate)
+    }
+
+    @Bean
+    fun bidragDokumentConsumer(
+        @Value("\${BIDRAG_DOKUMENT_URL}") dokumentUrl: String,
+        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+    ): BidragDokumentConsumer {
+        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$dokumentUrl/bidrag-dokument")
+        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("dokument"))
+        return BidragDokumentConsumer(restTemplate)
     }
 
     @Bean
