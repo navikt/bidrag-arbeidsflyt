@@ -21,6 +21,9 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
     lateinit var oppdaterOppgave: OppdaterOppgave
     lateinit var oppgaveHendelse: OppgaveHendelse
 
+    init {
+        LOGGER.info("Init bean")
+    }
     companion object {
         val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaveFraHendelse::class.java)
     }
@@ -31,7 +34,7 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
         return this
     }
 
-    fun overforOppgaveTilJournalforendeHvisIkkeJournalforende(): OppdaterOppgaveFraHendelse {
+    fun overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende(): OppdaterOppgaveFraHendelse {
         val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
         val tilhorerOppgaveTypeJournalforendeEnhet = oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
         if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
@@ -40,7 +43,7 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
         return this
     }
 
-    fun endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt(): OppdaterOppgaveFraHendelse{
+    fun endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt(): OppdaterOppgaveFraHendelse{
         val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)){
             endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse)

@@ -30,8 +30,8 @@ class BehandleOppgaveHendelseService(
 
         if (oppgaveHendelse.hasJournalpostId){
             oppdaterOppgaveFraHendelse(oppgaveHendelse)
-                .overforOppgaveTilJournalforendeHvisIkkeJournalforende()
-                .endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt()
+                .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
+                .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
                 .utfor()
         }
     }
@@ -40,8 +40,8 @@ class BehandleOppgaveHendelseService(
     fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
         if (oppgaveHendelse.hasJournalpostId){
             oppdaterOppgaveFraHendelse(oppgaveHendelse)
-                .overforOppgaveTilJournalforendeHvisIkkeJournalforende()
-                .endreVurderDokumentOppgaveTilJournalforingHvisJournalpostMottatt()
+                .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
+                .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
                 .utfor()
             opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse)
         } else {
