@@ -21,9 +21,6 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
     lateinit var oppdaterOppgave: OppdaterOppgave
     lateinit var oppgaveHendelse: OppgaveHendelse
 
-    init {
-        LOGGER.info("Init bean")
-    }
     companion object {
         val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaveFraHendelse::class.java)
     }
