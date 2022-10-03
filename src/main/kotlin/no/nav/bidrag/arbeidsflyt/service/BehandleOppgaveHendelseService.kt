@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 
 var ENHET_FAGPOST="2950"
 var ENHET_IT_AVDELINGEN="2990"
+var ENHET_YTELSE="2830"
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
