@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
 import no.nav.bidrag.arbeidsflyt.service.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.service.ENHET_IT_AVDELINGEN
+import no.nav.bidrag.arbeidsflyt.service.ENHET_YTELSE
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.Logger
@@ -72,7 +73,7 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
     }
 
     private fun erJournalforendeEnhet(enhetNr: String?): Boolean {
-        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN)
+        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE)
         return if (enhetNr != null) ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter().any { it.enhetIdent == enhetNr } else false
     }
 }
