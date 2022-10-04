@@ -132,6 +132,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
         journalpostHendelse.aktorId = null
+        journalpostHendelse.enhet = null
         journalpostHendelse.fnr = "123213"
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -143,7 +144,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
+            assertThat(journalpost.enhet).isEqualTo("UKJENT")
         }
 
         verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"","\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
@@ -159,6 +160,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.enhet = null
 
         assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse)  }
 
@@ -168,12 +170,13 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave`(){
+    fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave og enhet er null`(){
         val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.enhet = null
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -184,11 +187,37 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
+            assertThat(journalpost.enhet).isEqualTo("UKJENT")
         }
 
         verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal opprette journalforingsoppgave med journalpost enhet hvis BID journalpost`(){
+        val enhet = "4949"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet("1111")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.enhet = enhet
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
+            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
+            assertThat(journalpost.status).isEqualTo("M")
+            assertThat(journalpost.tema).isEqualTo("BID")
+            assertThat(journalpost.enhet).isEqualTo(enhet)
+        }
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt(0)
     }
 
     @Test

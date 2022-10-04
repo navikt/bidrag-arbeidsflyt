@@ -24,3 +24,4 @@ val JournalpostHendelse.journalpostIdUtenPrefix get() = if (harJournalpostIdPref
 val JournalpostHendelse.journalpostMedBareBIDPrefix get() = if (erBidragJournalpost()) journalpostId else journalpostIdUtenPrefix
 val JournalpostHendelse.journalpostMedPrefix get() = if (harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 val JournalpostHendelse.erJournalfortIdag get(): Boolean = erJournalfort && journalfortDato?.equals(LocalDate.now()) == true
+val JournalpostHendelse.hasEnhet get(): Boolean = !enhet.isNullOrEmpty()
