@@ -79,8 +79,8 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))))
     }
 
-    fun stubHentJournalpost(journalpostResponse: JournalpostResponse = journalpostResponse()){
-        stubFor(get(urlMatching("/dokument/bidrag-dokument/journal/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(journalpostResponse))))
+    fun stubHentJournalpost(journalpostResponse: JournalpostResponse = journalpostResponse(), status: HttpStatus = HttpStatus.OK){
+        stubFor(get(urlMatching("/dokument/bidrag-dokument/journal/.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(journalpostResponse))))
     }
 
     fun stubHentOppgaveError(){

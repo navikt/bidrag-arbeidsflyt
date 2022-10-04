@@ -135,11 +135,13 @@ fun createJournalpostHendelse(
         )
 }
 
-fun journalpostResponse(journalStatus: String = Journalstatus.JOURNALFORT): JournalpostResponse {
+fun journalpostResponse(journalpostId: String = JOURNALPOST_ID_1, journalStatus: String = Journalstatus.JOURNALFORT, journalforendeEnhet: String = "4833", tema: String = "BID"): JournalpostResponse {
     return JournalpostResponse(
         journalpost = JournalpostDto(
-            journalpostId = JOURNALPOST_ID_1,
-            journalstatus = journalStatus
+            journalpostId = journalpostId,
+            journalstatus = journalStatus,
+            journalforendeEnhet = journalforendeEnhet,
+            fagomrade = tema
         )
     )
 }

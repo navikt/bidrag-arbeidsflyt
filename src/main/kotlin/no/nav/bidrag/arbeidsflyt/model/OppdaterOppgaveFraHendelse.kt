@@ -43,9 +43,11 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
 
     fun endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt(): OppdaterOppgaveFraHendelse{
         val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
-        if (erVurderDokumentOppgaveMedJournalpost && journalpostService.erJournalpostStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)){
-            endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse)
+        if (erVurderDokumentOppgaveMedJournalpost) {
+            journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
+                .ifPresent { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse) }
         }
+
         return this
     }
 
