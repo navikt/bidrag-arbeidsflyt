@@ -68,7 +68,7 @@ class BehandleJournalpostHendelse(
         if (!journalpostHendelse.erEksterntFagomrade && journalpostHendelse.erMottattStatus && oppgaverForHendelse.harIkkeJournalforingsoppgave()) {
             LOGGER.info("En mottaksregistert journalpost uten journalføringsoppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
 
-            val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId)
+            val tildeltEnhetsnr = hentArbeidsfordeling()
             oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(journalpostHendelse, tildeltEnhetsnr))
             finnOppdaterteOppgaverForHendelse = true
         }
@@ -91,6 +91,12 @@ class BehandleJournalpostHendelse(
         return this
     }
 
+    fun hentArbeidsfordeling(): String {
+        if (journalpostHendelse.erBidragJournalpost() && journalpostHendelse.hasEnhet){
+            return journalpostHendelse.enhet!!
+        }
+        return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId)
+    }
     private fun validerGyldigDataForBehandleDokument() {
         if (!journalpostHendelse.harTittel) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler tittel")
         if (!journalpostHendelse.harDokumentDato) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler dokument dato")
