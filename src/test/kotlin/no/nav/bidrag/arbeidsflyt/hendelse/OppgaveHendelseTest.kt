@@ -438,7 +438,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     fun `Skal endre vurderdokument oppgavetype til journalforing hvis journalpost status mottatt etter oppgave opprettet`(){
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet("4806")
-        stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT))
+        stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT, tema = "BAR"))
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
