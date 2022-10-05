@@ -253,10 +253,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
 
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
 
-        try {
-            behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
-            fail("Should throw")
-        } catch (e: Exception){ }
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
         verifyOppgaveNotOpprettet()
     }
