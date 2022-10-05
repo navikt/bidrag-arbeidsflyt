@@ -41,7 +41,8 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
             return Optional.ofNullable(response.body)
         } catch (e: HttpStatusCodeException) {
             if (HttpStatus.NOT_FOUND == e.statusCode){
-                LOGGER.info("Fant ikke journalpost $journalpostId")
+                // Should not happen in production. Logging error to be notified
+                LOGGER.error("Fant ikke journalpost $journalpostId")
                 return Optional.empty()
             }
 

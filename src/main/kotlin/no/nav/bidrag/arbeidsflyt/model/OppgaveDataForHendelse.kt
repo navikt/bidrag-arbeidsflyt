@@ -71,5 +71,7 @@ data class OppgaveDataForHendelse(
     internal val hasJournalpostId get() = journalpostId != null
     internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
-    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
+//    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
+
+    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 }
