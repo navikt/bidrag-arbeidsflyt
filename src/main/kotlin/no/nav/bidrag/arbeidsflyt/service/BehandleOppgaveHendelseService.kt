@@ -66,6 +66,7 @@ class BehandleOppgaveHendelseService(
     fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
         if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId!!)) {
             journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
+                .filter { it.erBidragFagomrade }
                 .ifPresentOrElse({
                     run {
                             LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")

@@ -20,7 +20,7 @@ class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsu
     fun hentJournalpostMedStatusMottatt(journalpostId: String): Optional<JournalpostResponse> {
         val journalpost = bidragDokumentConsumer.hentJournalpost(journalpostId)
         LOGGER.info("Hentet journalpost $journalpostId fra bidrag-dokument")
-        return journalpost.filter{ it.erBidragFagomrade }.filter { it.journalpost?.journalstatus == Journalstatus.MOTTATT }
+        return journalpost.filter { it.journalpost?.journalstatus == Journalstatus.MOTTATT }
     }
 
 }
