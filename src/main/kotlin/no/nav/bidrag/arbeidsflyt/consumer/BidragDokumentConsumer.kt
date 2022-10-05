@@ -40,6 +40,11 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
 
             return Optional.ofNullable(response.body)
         } catch (e: HttpStatusCodeException) {
+            if (HttpStatus.NOT_FOUND == e.statusCode){
+                LOGGER.info("Fant ikke journalpost $journalpostId")
+                return Optional.empty()
+            }
+
             val errorMessage = "Det skjedde en feil ved henting av journalpost $journalpostId"
             if (e.statusCode.is4xxClientError) {
                 LOGGER.error(errorMessage, e)
