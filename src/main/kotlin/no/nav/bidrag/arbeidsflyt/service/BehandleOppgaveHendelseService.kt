@@ -15,6 +15,7 @@ var ENHET_YTELSE="2830"
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
     var oppgaveService: OppgaveService,
+    var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: ArbeidsfordelingService
 ) {
@@ -63,17 +64,17 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
-        // Antar at Bidrag journlpost lagres med BID- prefix i databasen og oppgaven
-        persistenceService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostId!!)
-            .ifPresentOrElse({
-                run {
-                    if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId)) {
-                        LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
-                        opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
+        if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId!!)) {
+            journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
+                .filter { it.erBidragFagomrade }
+                .ifPresentOrElse({
+                    run {
+                            LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
+                            opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
                     }
-                }
-            },
-            { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") })
+                },
+                { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") })
+        }
     }
 
     fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
