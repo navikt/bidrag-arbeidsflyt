@@ -8,6 +8,16 @@ import org.mockito.kotlin.eq
 class JournalpostHendelseExtensionsTest {
 
     @Test
+    fun `should get fnr with no spaces`(){
+        val jpHendelse = JournalpostHendelse(
+            journalpostId = "38837926",
+            fnr = "123213 123123 12323"
+        )
+
+        assertThat(jpHendelse.fnrNoSpaces).isEqualTo("12321312312312323")
+    }
+
+    @Test
     fun `should get journalpostId with BID prefix`(){
         val jpHendelse = JournalpostHendelse(
             journalpostId = "38837926"
