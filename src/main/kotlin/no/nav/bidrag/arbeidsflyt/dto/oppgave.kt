@@ -451,7 +451,8 @@ enum class Oppgavestatuskategori {
 enum class OppgaveType(val description: String) {
     BEH_SAK("Behandle sak"),
     VUR("Vurder dokument"),
-    JFR("Journalføring");
+    JFR("Journalføring"),
+    VURD_HENV("Vurder henvendelse");
 
     companion object {
         fun descriptionFrom(value: String?): String {

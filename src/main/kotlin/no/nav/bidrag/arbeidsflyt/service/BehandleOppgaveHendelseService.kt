@@ -35,6 +35,11 @@ class BehandleOppgaveHendelseService(
                 .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
                 .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
                 .utfor()
+        } else {
+            oppdaterOppgaveFraHendelse(oppgaveHendelse)
+                .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
+                .endreVurderDokumentOppgaveTypeTilVurderHenvendelseHvisIngenJournalpost()
+                .utfor()
         }
     }
 
