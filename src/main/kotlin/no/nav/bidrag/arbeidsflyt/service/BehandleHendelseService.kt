@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.service
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.fnrNoSpaces
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -34,7 +35,7 @@ class BehandleHendelseService(private val arbeidsfordelingService: Arbeidsfordel
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse){
         if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()){
             LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
-            personConsumer.hentPerson(journalpostHendelse.fnr)
+            personConsumer.hentPerson(journalpostHendelse.fnrNoSpaces)
                 .ifPresent { journalpostHendelse.aktorId = it.aktoerId }
             SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${journalpostHendelse.aktorId} og fnr ${journalpostHendelse.fnr}")
         }
