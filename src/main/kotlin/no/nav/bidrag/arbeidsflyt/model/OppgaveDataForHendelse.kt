@@ -68,7 +68,7 @@ data class OppgaveDataForHendelse(
     internal val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
     internal val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
     internal val erBehandleDokumentOppgave get() = oppgavetype == OppgaveType.BEH_SAK.name
-    internal val hasJournalpostId get() = journalpostId != null
+    internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
     internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
     internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
 //    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"

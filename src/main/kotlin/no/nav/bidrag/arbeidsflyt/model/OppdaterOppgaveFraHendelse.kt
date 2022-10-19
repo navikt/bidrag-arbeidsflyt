@@ -51,6 +51,16 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingSe
         return this
     }
 
+    fun endreVurderDokumentOppgaveTypeTilVurderHenvendelseHvisIngenJournalpost(): OppdaterOppgaveFraHendelse{
+        val erVurderDokumentOppgaveUtenJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && !oppgaveHendelse.hasJournalpostId
+        if (erVurderDokumentOppgaveUtenJournalpost) {
+            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}")
+            oppdaterOppgave.endreOppgavetype(OppgaveType.VURD_HENV)
+        }
+
+        return this
+    }
+
     fun utfor(endretAvEnhetsnummer: String? = null){
         if (oppdaterOppgave.hasChanged()){
             oppgaveService.oppdaterOppgave(oppdaterOppgave, endretAvEnhetsnummer)
