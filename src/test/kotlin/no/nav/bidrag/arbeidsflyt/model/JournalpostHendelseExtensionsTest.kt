@@ -11,7 +11,7 @@ class JournalpostHendelseExtensionsTest {
     fun `should get fnr with no spaces`(){
         val jpHendelse = JournalpostHendelse(
             journalpostId = "38837926",
-            fnr = "123213 123123 12323"
+            fnr = "123213 123123 12323!!"
         )
 
         assertThat(jpHendelse.fnrNoSpaces).isEqualTo("12321312312312323")

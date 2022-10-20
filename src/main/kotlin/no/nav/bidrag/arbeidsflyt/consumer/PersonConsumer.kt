@@ -47,8 +47,13 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             return Optional.ofNullable(response.body)
 
         } catch (statusException: HttpStatusCodeException){
-            if (statusException.statusCode.is4xxClientError){
+            if (statusException.statusCode == HttpStatus.BAD_REQUEST){
                 LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
+                return Optional.empty()
+            }
+
+            if (statusException.statusCode.is4xxClientError){
+                LOGGER.error("Det skjedde en feil ved henting av person", statusException)
                 SECURE_LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
                 throw HentPersonFeiletFunksjoneltException("Det skjedde en feil ved henting av person $ident", statusException)
             }
