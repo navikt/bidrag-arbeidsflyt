@@ -147,6 +147,25 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet er nedlagt`(){
+        val enhet = "2101"
+        val geografiskEnhet = "4806"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(geografiskEnhet)
+        stubHentEnhet(enhet, true)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW, enhet = enhet)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
     fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`(){
         val enhet = "4812"
         val aktorid = "123213123213213"

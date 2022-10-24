@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
@@ -38,7 +38,7 @@ internal class BehandleJournalpostHendelseTest {
     private lateinit var oppgaveService: OppgaveService
 
     @Autowired
-    private lateinit var arbeidsfordelingService: ArbeidsfordelingService
+    private lateinit var arbeidsfordelingService: OrganisasjonService
 
     @MockBean
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate

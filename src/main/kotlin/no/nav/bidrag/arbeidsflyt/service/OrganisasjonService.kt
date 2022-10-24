@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class ArbeidsfordelingService(private val organisasjonConsumer: BidragOrganisasjonConsumer) {
+class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonConsumer) {
 
     companion object {
         private val DEFAULT_ENHET = "4833"
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(ArbeidsfordelingService::class.java)
+        private val LOGGER = LoggerFactory.getLogger(OrganisasjonService::class.java)
     }
 
     fun hentArbeidsfordeling(personId: String?): String {
@@ -34,7 +34,18 @@ class ArbeidsfordelingService(private val organisasjonConsumer: BidragOrganisasj
 
     fun hentBidragJournalforendeEnheter(): List<EnhetResponse> {
         return organisasjonConsumer.hentJournalforendeEnheter()
+    }
 
+    fun erEnhetNedlagt(enhet: String?): Boolean {
+        if (enhet.isNullOrEmpty()){
+            return false
+        }
+        return try {
+            organisasjonConsumer.hentEnhetInfo(enhet).filter{ it.erNedlagt() }.isPresent
+        } catch (e: Exception){
+            LOGGER.warn("Hent enhetinfo feilet. Går videre med antagelse at enhet ikke er nedlagt.", e)
+            false
+        }
     }
 
 }
