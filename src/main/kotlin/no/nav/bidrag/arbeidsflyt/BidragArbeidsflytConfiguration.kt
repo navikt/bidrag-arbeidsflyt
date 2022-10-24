@@ -13,6 +13,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaRetryListener
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
+import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
@@ -80,7 +81,6 @@ class HendelseConfiguration {
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
         jsonMapperService,  behandleHendelseService, persistenceService
     )
-
     @Bean
     fun defaultErrorHandler(@Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int, persistenceService: PersistenceService): DefaultErrorHandler? {
         LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
@@ -100,7 +100,7 @@ class HendelseConfiguration {
             persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}", retryableException)
         }, backoffStrategy)
         errorHandler.setRetryListeners(KafkaRetryListener())
-        errorHandler.addNotRetryableExceptions(OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
+        errorHandler.addNotRetryableExceptions(HentPersonFeiletFunksjoneltException::class.java, OpprettOppgaveFeiletFunksjoneltException::class.java, EndreOppgaveFeiletFunksjoneltException::class.java)
         return errorHandler
     }
 
