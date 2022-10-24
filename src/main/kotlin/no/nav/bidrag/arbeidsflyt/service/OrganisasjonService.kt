@@ -36,15 +36,16 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
         return organisasjonConsumer.hentJournalforendeEnheter()
     }
 
-    fun erEnhetNedlagt(enhet: String?): Boolean {
+    fun enhetEksistererOgErAktiv(enhet: String?): Boolean {
         if (enhet.isNullOrEmpty()){
-            return false
+            return true
         }
         return try {
-            organisasjonConsumer.hentEnhetInfo(enhet).filter{ it.erNedlagt() }.isPresent
+            val enhetResponse =  organisasjonConsumer.hentEnhetInfo(enhet)
+            !(enhetResponse.isEmpty || enhetResponse.filter{ it.erNedlagt() }.isPresent)
         } catch (e: Exception){
-            LOGGER.warn("Hent enhetinfo feilet. Går videre med antagelse at enhet ikke er nedlagt.", e)
-            false
+            LOGGER.warn("Hent enhetinfo feilet. Går videre med antagelse at enhet finnes og ikke er nedlagt.", e)
+            true
         }
     }
 
