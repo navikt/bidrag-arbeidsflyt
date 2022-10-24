@@ -126,6 +126,10 @@ abstract class AbstractBehandleHendelseTest {
     fun verifyHentPersonKalt(antall: Int = 1){
         verify(antall, getRequestedFor(urlMatching("/person.*")))
     }
+
+    fun verifyHentPersonKaltMedFnr(fnr: String){
+        verify(1, getRequestedFor(urlEqualTo("/person/bidrag-person/informasjon/$fnr")))
+    }
     fun verifyOppgaveNotOpprettet(){
         verify(0, WireMock.postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/")))
     }

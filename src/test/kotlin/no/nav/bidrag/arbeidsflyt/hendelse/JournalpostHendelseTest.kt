@@ -124,6 +124,29 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `skal behandle hendelse med ugyldig fnr`(){
+        val enhet = "4812"
+        val aktorid = "123213123213213"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
+        stubHentGeografiskEnhet(enhet)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+        journalpostHendelse.aktorId = null
+        journalpostHendelse.enhet = null
+        journalpostHendelse.fnr = "123213!!!??+++ 444"
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        assertThat(journalpostOptional.isPresent).isTrue
+
+        verifyOppgaveOpprettetWith()
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt()
+        verifyHentPersonKaltMedFnr("123213444")
+    }
+
+    @Test
     fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`(){
         val enhet = "4812"
         val aktorid = "123213123213213"

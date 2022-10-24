@@ -25,4 +25,3 @@ val JournalpostHendelse.journalpostMedBareBIDPrefix get() = if (erBidragJournalp
 val JournalpostHendelse.journalpostMedPrefix get() = if (harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 val JournalpostHendelse.erJournalfortIdag get(): Boolean = erJournalfort && journalfortDato?.equals(LocalDate.now()) == true
 val JournalpostHendelse.hasEnhet get(): Boolean = !enhet.isNullOrEmpty()
-val JournalpostHendelse.fnrNoSpaces get(): String? = fnr?.replace("\\s".toRegex(), "")
