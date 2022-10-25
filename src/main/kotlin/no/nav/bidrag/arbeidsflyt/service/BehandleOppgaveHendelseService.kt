@@ -17,7 +17,7 @@ class BehandleOppgaveHendelseService(
     var oppgaveService: OppgaveService,
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
-    var arbeidsfordelingService: ArbeidsfordelingService
+    var arbeidsfordelingService: OrganisasjonService
 ) {
 
     companion object {

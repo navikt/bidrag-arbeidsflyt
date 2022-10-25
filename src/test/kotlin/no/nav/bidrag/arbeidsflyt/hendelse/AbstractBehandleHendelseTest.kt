@@ -10,6 +10,7 @@ import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.utils.*
 import no.nav.bidrag.dokument.dto.JournalpostResponse
@@ -110,6 +111,11 @@ abstract class AbstractBehandleHendelseTest {
         ))))
     }
 
+    fun stubHentEnhet(enhet: String = ENHET_4806, erNedlagt: Boolean = false, status: HttpStatus = HttpStatus.OK){
+        stubFor(get(urlMatching("/organisasjon/bidrag-organisasjon/enhet/info/.*")).willReturn(aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(
+            EnhetResponse(enhet, "Enhetnavn", if (erNedlagt) "NEDLAGT" else "AKTIV")
+        ))))
+    }
     fun stubHentJournalforendeEnheter(){
         stubFor(get(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(
             createJournalforendeEnheterResponse()

@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
-import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.service.ENHET_IT_AVDELINGEN
 import no.nav.bidrag.arbeidsflyt.service.ENHET_YTELSE
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Scope(SCOPE_PROTOTYPE)
-class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: ArbeidsfordelingService, var journalpostService: JournalpostService, var oppgaveService: OppgaveService) {
+class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonService, var journalpostService: JournalpostService, var oppgaveService: OppgaveService) {
 
     lateinit var oppdaterOppgave: OppdaterOppgave
     lateinit var oppgaveHendelse: OppgaveDataForHendelse

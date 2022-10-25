@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.service.ArbeidsfordelingService
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.Logger
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 class BehandleJournalpostHendelse(
     private val journalpostHendelse: JournalpostHendelse,
     private val oppgaveService: OppgaveService,
-    private val arbeidsfordelingService: ArbeidsfordelingService
+    private val arbeidsfordelingService: OrganisasjonService
 ) {
     private var finnOppdaterteOppgaverForHendelse = true
     private lateinit var oppgaverForHendelse: OppgaverForHendelse
@@ -93,7 +93,11 @@ class BehandleJournalpostHendelse(
 
     fun hentArbeidsfordeling(): String {
         if (journalpostHendelse.erBidragJournalpost() && journalpostHendelse.hasEnhet){
-            return journalpostHendelse.enhet!!
+            val enhetEksitererOgErAktiv = arbeidsfordelingService.enhetEksistererOgErAktiv(journalpostHendelse.enhet)
+            return if (!enhetEksitererOgErAktiv) {
+                LOGGER.warn("Enhet ${journalpostHendelse.enhet} eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
+                arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId)
+            } else journalpostHendelse.enhet!!
         }
         return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId)
     }

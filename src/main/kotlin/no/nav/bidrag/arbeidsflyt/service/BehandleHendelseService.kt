@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class BehandleHendelseService(private val arbeidsfordelingService: ArbeidsfordelingService, private val oppgaveService: OppgaveService, private val persistenceService: PersistenceService, private val personConsumer: PersonConsumer) {
+class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonService, private val oppgaveService: OppgaveService, private val persistenceService: PersistenceService, private val personConsumer: PersonConsumer) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)

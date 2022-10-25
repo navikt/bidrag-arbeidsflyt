@@ -1,6 +1,10 @@
 package no.nav.bidrag.arbeidsflyt
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.RemovalListener
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
+import no.nav.bidrag.arbeidsflyt.utils.CacheEvictBeforeWorkingHours
+import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCacheManager
@@ -13,18 +17,26 @@ import java.util.concurrent.TimeUnit
 @EnableCaching
 @Profile(value = [PROFILE_NAIS, "local"])
 class CacheConfig {
+
     companion object {
         const val PERSON_CACHE = "PERSON_CACHE"
         const val GEOGRAFISK_ENHET_CACHE = "GEOGRAFISK_ENHET_CACHE"
         const val JOURNALFORENDE_ENHET_CACHE = "JOURNALFORENDE_ENHET_CACHE"
+        const val ENHET_INFO_CACHE = "ENHET_INFO_CACHE"
+        private val LOGGER = LoggerFactory.getLogger(CacheConfig::class.java)
     }
 
     @Bean
     fun cacheManager(): CacheManager {
         val caffeineCacheManager = CaffeineCacheManager()
-        caffeineCacheManager.registerCustomCache(PERSON_CACHE, Caffeine.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build())
-        caffeineCacheManager.registerCustomCache(GEOGRAFISK_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build())
+        caffeineCacheManager.registerCustomCache(PERSON_CACHE, Caffeine.newBuilder()
+            .evictionListener<Any, Any>{ k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
+            .expireAfter(CacheEvictBeforeWorkingHours()).build())
+        caffeineCacheManager.registerCustomCache(GEOGRAFISK_ENHET_CACHE, Caffeine.newBuilder()
+            .evictionListener<Any, Any>{ k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
+            .expireAfter(CacheEvictBeforeWorkingHours()).build())
         caffeineCacheManager.registerCustomCache(JOURNALFORENDE_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build())
+        caffeineCacheManager.registerCustomCache(ENHET_INFO_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
         return caffeineCacheManager;
     }
 

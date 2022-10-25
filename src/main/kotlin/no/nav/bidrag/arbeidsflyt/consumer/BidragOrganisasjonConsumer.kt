@@ -83,4 +83,24 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
 
         return response.body ?: emptyList()
     }
+
+    @Cacheable(CacheConfig.ENHET_INFO_CACHE, unless = "#result==null")
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
+    )
+    open fun hentEnhetInfo(enhet: String): Optional<EnhetResponse> {
+        val response = restTemplate.exchange(
+            "/enhet/info/$enhet",
+            HttpMethod.GET,
+            null,
+            EnhetResponse::class.java)
+
+        if (response.statusCode == HttpStatus.NO_CONTENT) {
+            return Optional.empty()
+        }
+
+        return Optional.ofNullable(response.body)
+    }
 }
