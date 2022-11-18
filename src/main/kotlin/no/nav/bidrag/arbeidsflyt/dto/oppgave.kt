@@ -197,7 +197,7 @@ data class OpprettBehandleDokumentOppgaveRequest(
     oppgavetype = OppgaveType.BEH_SAK,
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
     tildeltEnhetsnr = sporingsdata.enhetsnummer,
-    tilordnetRessurs = sporingsdata.brukerident
+    tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident
 ){
     override fun toString(): String {
         return super.toString()
