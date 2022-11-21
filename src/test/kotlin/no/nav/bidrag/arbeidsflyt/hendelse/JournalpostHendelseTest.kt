@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.*
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.dokument.dto.Sporingsdata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -534,7 +535,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
-            "\"tilordnetRessurs\":\"Z12312312\"",
+            "\"tilordnetRessurs\":\"Z994977\"",
             "\"journalpostId\":null"
         )
     }
@@ -586,7 +587,60 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
-            "\"tilordnetRessurs\":\"Z12312312\"",
+            "\"tilordnetRessurs\":\"Z994977\"",
+            "\"journalpostId\":null"
+        )
+    }
+
+    @Test
+    fun `skal ikke sette tilordenetressurs hvis lengre enn 7 tegn`(){
+        val sakMedOppgave = "123123"
+        val sakUtenOppgave = "3344444"
+        stubHentOppgaveContaining(emptyList())
+        stubHentOppgaveContaining(listOf(
+            OppgaveData(
+                id = OPPGAVE_ID_1,
+                versjon = 1,
+                aktoerId = AKTOER_ID,
+                oppgavetype = "BEH_SAK",
+                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
+                tema = "BID",
+                tildeltEnhetsnr = "4806",
+                saksreferanse = sakMedOppgave
+            )
+        ), Pair("oppgavetype", "BEH_SAK"))
+
+        stubHentPerson()
+        stubOpprettOppgave(OPPGAVE_ID_1)
+        stubEndreOppgave()
+        stubHentGeografiskEnhet(enhet = "1234")
+
+        val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
+        val journalpostHendelse = createJournalpostHendelse(
+            journalpostId = journalpostIdMedJoarkPrefix
+        )
+        journalpostHendelse.sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen")
+        journalpostHendelse.journalstatus = "J"
+        journalpostHendelse.tittel = "Ny tittel"
+        journalpostHendelse.journalfortDato = LocalDate.now()
+        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
+        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
+        journalpostHendelse.aktorId = "123213213"
+        journalpostHendelse.fnr = "123123123"
+        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyHentPersonKalt(0)
+
+        verifyOppgaveEndretWith(1, "$OPPGAVE_ID_1", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
+        verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
+        verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
+        verifyOppgaveOpprettetWith("BEH_SAK",
+            "Behandle dokument (Ny tittel) mottatt 02.01.2020",
+            "Dokumenter vedlagt: BID-142312",
+            "\"saksreferanse\":\"3344444\"",
+            "\"tilordnetRessurs\":null",
             "\"journalpostId\":null"
         )
     }

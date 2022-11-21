@@ -129,7 +129,7 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z12312312", saksbehandlersNavn = "Navn Navnesen"),
+        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z994977", saksbehandlersNavn = "Navn Navnesen"),
         hendelseType = HendelseType.ENDRING,
         journalposttype = "I"
         )
