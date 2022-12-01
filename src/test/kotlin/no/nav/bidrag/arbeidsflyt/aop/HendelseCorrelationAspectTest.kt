@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -39,7 +40,7 @@ internal class HendelseCorrelationAspectTest {
             get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
                 aResponse()
                     .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .withStatus(wiremock.org.apache.http.HttpStatus.SC_OK)
+                    .withStatus(HttpStatus.OK.value())
                     .withBody(oppgaveSokResponse)
             )
         )
