@@ -55,9 +55,10 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
         val dlqMessagesBefore = testDataGenerator.hentDlKafka()
         assertThat(dlqMessagesBefore.size).isEqualTo(2)
 
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
+        val hendelseString = objectMapper.writeValueAsString(journalpostHendelse.copy(
+            aktorId = "123213213",
+            fnr = "123123123"
+        ))
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
@@ -93,8 +94,7 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
         stubOpprettOppgave()
         stubHentEnhet()
         stubHentPerson(PERSON_IDENT_3)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.enhet = geografiskEnhet
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = geografiskEnhet)
         val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 

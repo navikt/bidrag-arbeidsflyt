@@ -29,24 +29,24 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
     )
-    open fun hentArbeidsfordeling(personId: String): Optional<String> {
+    open fun hentArbeidsfordeling(personId: String, behandlingstema: String? = null): String? {
         if (Strings.isEmpty(personId)) {
-            return Optional.empty()
+            return null
         }
 
         try {
             val response = restTemplate.exchange(
-                "/arbeidsfordeling/enhetsliste/geografisktilknytning/$personId",
+                "/arbeidsfordeling/enhetsliste/geografisktilknytning/$personId${behandlingstema.let { "?behandlingstema=$it" }}",
                 HttpMethod.GET,
                 null,
                 GeografiskTilknytningResponse::class.java
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {
-                return Optional.empty()
+                return null
             }
 
-            return Optional.ofNullable(response.body?.enhetIdent)
+            return response.body?.enhetIdent
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode.is4xxClientError) {
                 LOGGER.error("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)

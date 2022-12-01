@@ -15,19 +15,18 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
         private val LOGGER = LoggerFactory.getLogger(OrganisasjonService::class.java)
     }
 
-    fun hentArbeidsfordeling(personId: String?): String {
+    fun hentArbeidsfordeling(personId: String?, behandlingstema: String? = null): String {
         if (personId.isNullOrEmpty()){
             LOGGER.warn("hentArbeidsfordeling: Personid mangler, bruker enhet $DEFAULT_ENHET")
             return DEFAULT_ENHET
         }
 
-        val arbeidsfordeling = organisasjonConsumer.hentArbeidsfordeling(personId)
-        if (arbeidsfordeling.isEmpty){
+        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(personId)
+        if (geografiskEnhet.isNullOrEmpty()){
             SECURE_LOGGER.warn("Fant ingen arbeidsfordeling for person $personId, bruker enhet $DEFAULT_ENHET")
             return DEFAULT_ENHET
         }
 
-        val geografiskEnhet = arbeidsfordeling.get()
         SECURE_LOGGER.info("Hentet arbeidsfordeling $geografiskEnhet for person $personId")
         return geografiskEnhet
     }

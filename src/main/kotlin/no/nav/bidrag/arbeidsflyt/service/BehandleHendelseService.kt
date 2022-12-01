@@ -19,11 +19,11 @@ class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonS
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
         SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
-        populerMedAktoerIdHvisMangler(journalpostHendelse)
+       val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
 
-        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse)
+        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelseMedAktorId)
 
-        BehandleJournalpostHendelse(journalpostHendelse, oppgaveService, arbeidsfordelingService)
+        BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
             .oppdaterOppgaveMedAktoerId()
@@ -32,12 +32,15 @@ class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonS
             .opprettEllerEndreBehandleDokumentOppgaver()
     }
 
-    fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse){
+    fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse): JournalpostHendelse {
         if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()){
             LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
-            personConsumer.hentPerson(journalpostHendelse.fnr?.numericOnly())
-                .ifPresent { journalpostHendelse.aktorId = it.aktoerId }
-            SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${journalpostHendelse.aktorId} og fnr ${journalpostHendelse.fnr}")
+            return personConsumer.hentPerson(journalpostHendelse.fnr?.numericOnly())?.let {
+                SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${journalpostHendelse.aktorId} og fnr ${journalpostHendelse.fnr}")
+                journalpostHendelse.copy(aktorId = it.aktoerId)
+            } ?: journalpostHendelse
         }
+        return journalpostHendelse
     }
+
 }
