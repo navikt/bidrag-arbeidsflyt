@@ -50,7 +50,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
         } catch (e: HttpStatusCodeException) {
             val errorMessage = "Det skjedde en feil ved henting av arbeidsfordeling for person $personId og behandlingstema=$behandlingstema"
             LOGGER.error(errorMessage, e)
-            if (e.statusCode == HttpStatus.BAD_REQUEST && !behandlingstema.isNullOrEmpty()){
+            if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null){
                 LOGGER.warn("Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId")
                 return hentArbeidsfordeling(personId)
             }
