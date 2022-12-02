@@ -26,40 +26,39 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
     @Cacheable(CacheConfig.GEOGRAFISK_ENHET_CACHE, unless = "#result==null")
     @Retryable(
         value = [HentArbeidsfordelingFeiletTekniskException::class],
-        maxAttempts = 10,
-        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, maxDelay = 10000, multiplier = 2.0)
     )
-    open fun hentArbeidsfordeling(personId: String): Optional<String> {
-        if (Strings.isEmpty(personId)) {
-            return Optional.empty()
+    open fun hentArbeidsfordeling(personId: String, behandlingstema: String? = null): String? {
+        if (personId.isEmpty()) {
+            return null
         }
 
         try {
             val response = restTemplate.exchange(
-                "/arbeidsfordeling/enhetsliste/geografisktilknytning/$personId",
+                "/arbeidsfordeling/enhetsliste/geografisktilknytning/$personId${behandlingstema?.let { "?behandlingstema=$it" }?:""}",
                 HttpMethod.GET,
                 null,
                 GeografiskTilknytningResponse::class.java
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {
-                return Optional.empty()
+                return null
             }
 
-            return Optional.ofNullable(response.body?.enhetIdent)
+            return response.body?.enhetIdent
         } catch (e: HttpStatusCodeException) {
-            if (e.statusCode.is4xxClientError) {
-                LOGGER.error("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
-                SECURE_LOGGER.error("Det skjedde en feil ved henting av arbeidsfordeling for person $personId", e)
-                throw HentArbeidsfordelingFeiletFunksjoneltException(
-                    "Det skjedde en feil ved henting av arbeidsfordeling for person $personId",
-                    e
-                )
+            val errorMessage = "Det skjedde en feil ved henting av arbeidsfordeling for person $personId og behandlingstema=$behandlingstema"
+            LOGGER.error(errorMessage, e)
+            if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null){
+                LOGGER.warn("Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId")
+                return hentArbeidsfordeling(personId)
             }
-            throw HentArbeidsfordelingFeiletTekniskException(
-                "Det skjedde en teknisk feil ved henting av arbeidsfordeling for person $personId",
-                e
-            )
+            if (e.statusCode.is4xxClientError) {
+                SECURE_LOGGER.error(errorMessage, e)
+                throw HentArbeidsfordelingFeiletFunksjoneltException(errorMessage, e)
+            }
+            throw HentArbeidsfordelingFeiletTekniskException(errorMessage, e)
         }
 
     }

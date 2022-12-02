@@ -132,9 +132,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.aktorId = null
-        journalpostHendelse.enhet = null
-        journalpostHendelse.fnr = "123213!!!??+++ 444"
+            .copy(
+                aktorId = null,
+                enhet = null,
+                fnr = "123213!!!??+++ 444"
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -174,9 +176,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.aktorId = null
-        journalpostHendelse.enhet = null
-        journalpostHendelse.fnr = "123213"
+            .copy(
+                aktorId = null,
+                enhet = null,
+                fnr = "123213"
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -202,8 +206,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.enhet = null
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = null)
 
         assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse)  }
 
@@ -218,8 +221,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.enhet = null
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = null)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -243,8 +245,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet("1111")
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        journalpostHendelse.enhet = enhet
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = enhet)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -345,8 +346,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.fagomrade = "FAR"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "FAR")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -384,8 +384,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         )))
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.fagomrade = "EKSTERN"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -415,8 +414,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         )), Pair("tema", "EKSTERN"))
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.fagomrade = "EKSTERN"
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -432,8 +430,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.aktorId = null
-        journalpostHendelse.fnr = "123123123"
+            .copy(
+                aktorId = null,
+                fnr = "123123123"
+             )
+
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -449,8 +450,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.aktorId = null
-        journalpostHendelse.fnr = "123123123"
+            .copy(
+                aktorId = null,
+                fnr = "123123123"
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -467,8 +470,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.aktorId = null
-        journalpostHendelse.fnr = "123123123"
+            .copy(
+                aktorId = null,
+                fnr = "123123123"
+            )
 
         assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
     }
@@ -480,8 +485,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
+            .copy(
+                aktorId = "123213213",
+                fnr = "123123123"
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -514,15 +521,16 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+            fnr = "123123123",
+            hendelseType = HendelseType.JOURNALFORING
         )
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -566,15 +574,16 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+            fnr = "123123123",
+            hendelseType = HendelseType.JOURNALFORING
         )
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -618,16 +627,17 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen"),
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+            fnr = "123123123",
+            hendelseType = HendelseType.JOURNALFORING
         )
-        journalpostHendelse.sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen")
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -660,15 +670,16 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+            fnr = "123123123",
+            hendelseType = HendelseType.ENDRING
         )
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.ENDRING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -714,15 +725,16 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+            fnr = "123123123",
+            hendelseType = HendelseType.JOURNALFORING
         )
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -768,15 +780,16 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
         val journalpostHendelse = createJournalpostHendelse(
             journalpostId = journalpostIdMedJoarkPrefix
+        ).copy(
+            aktorId = "123213213",
+            journalstatus = "J",
+            tittel = "Ny tittel",
+            journalfortDato = LocalDate.now(),
+            dokumentDato = LocalDate.parse("2020-01-02"),
+            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+            fnr = "123123123",
+            hendelseType = HendelseType.JOURNALFORING
         )
-        journalpostHendelse.journalstatus = "J"
-        journalpostHendelse.tittel = "Ny tittel"
-        journalpostHendelse.journalfortDato = LocalDate.now()
-        journalpostHendelse.dokumentDato = LocalDate.parse("2020-01-02")
-        journalpostHendelse.sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2)
-        journalpostHendelse.aktorId = "123213213"
-        journalpostHendelse.fnr = "123123123"
-        journalpostHendelse.hendelseType = HendelseType.JOURNALFORING
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 

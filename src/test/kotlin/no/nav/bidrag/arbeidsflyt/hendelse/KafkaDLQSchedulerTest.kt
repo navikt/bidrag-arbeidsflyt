@@ -81,11 +81,15 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.INTERNAL_SERVER_ERROR, scenarioState = "FAIL")
 
         val journalpostHendelseOld = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+            .copy(
+                aktorId = null,
+                fnr = "24444444"
+            )
         val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-        journalpostHendelse2.aktorId = null
-        journalpostHendelse2.fnr = "13213213"
-        journalpostHendelseOld.aktorId = null
-        journalpostHendelseOld.fnr = "24444444"
+            .copy(
+                aktorId = null,
+                fnr = "13213213"
+            )
         testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = true, retryCount = 1, timestamp = LocalDateTime.now(), messageKey = journalpostHendelse2.journalpostId))
         testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelseOld), retry = true, retryCount = 1, timestamp = LocalDateTime.now().minusDays(1), messageKey = journalpostHendelseOld.journalpostId))
 
