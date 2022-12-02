@@ -21,13 +21,13 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
             return DEFAULT_ENHET
         }
 
-        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(personId)
+        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(personId, behandlingstema)
         if (geografiskEnhet.isNullOrEmpty()){
-            SECURE_LOGGER.warn("Fant ingen arbeidsfordeling for person $personId, bruker enhet $DEFAULT_ENHET")
+            SECURE_LOGGER.warn("Fant ingen arbeidsfordeling for person $personId og behandlingstema=$behandlingstema, bruker enhet $DEFAULT_ENHET")
             return DEFAULT_ENHET
         }
 
-        SECURE_LOGGER.info("Hentet arbeidsfordeling $geografiskEnhet for person $personId")
+        SECURE_LOGGER.info("Hentet arbeidsfordeling $geografiskEnhet for person $personId og behandlingstema=$behandlingstema")
         return geografiskEnhet
     }
 
