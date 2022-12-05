@@ -14,7 +14,6 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVETYPE_JFR
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
@@ -273,7 +272,6 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     @Test
     fun `skal ikke opprette oppgave nar oppgave endret fra JFR til BEH_SAK og oppgave ikke er lagret databasen`(){
         stubHentOppgave(emptyList())
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1, status = "J"))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)

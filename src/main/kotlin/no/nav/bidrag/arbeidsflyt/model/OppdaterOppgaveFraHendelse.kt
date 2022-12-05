@@ -45,7 +45,7 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
         val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost) {
             journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
-                .ifPresent { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse) }
+                ?.apply { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse) }
         }
 
         return this

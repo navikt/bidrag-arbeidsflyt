@@ -21,8 +21,6 @@ class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonS
 
        val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
 
-        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelseMedAktorId)
-
         BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()

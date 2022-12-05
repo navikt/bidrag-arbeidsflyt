@@ -71,14 +71,11 @@ class BehandleOppgaveHendelseService(
     fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
         if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId!!)) {
             journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
-                .filter { it.erBidragFagomrade }
-                .ifPresentOrElse({
-                    run {
+                .takeIf { it?.erBidragFagomrade == true }
+                ?.run {
                             LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
                             opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
-                    }
-                },
-                { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") })
+                } ?: run  { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") }
         }
     }
 

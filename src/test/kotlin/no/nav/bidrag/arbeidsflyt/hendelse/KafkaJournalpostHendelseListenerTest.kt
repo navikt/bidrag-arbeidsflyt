@@ -21,27 +21,6 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
     private val topic: String? = null
 
     @Test
-    fun `skal lagre journalpost i databasen`() {
-        stubHentPerson(PERSON_IDENT_3)
-        val journalpostHendelse = createJournalpostHendelse(JOURNALPOST_ID_1)
-        val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
-        configureProducer()?.send(ProducerRecord(topic, hendelseString))
-
-        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
-            testDataGenerator.hentJournalpost(JOURNALPOST_ID_1).isPresent
-            val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_1)
-            assertThat(journalpostOptional.isPresent).isTrue
-
-            assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-                assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_1)
-                assertThat(journalpost.status).isEqualTo("M")
-                assertThat(journalpost.tema).isEqualTo("BID")
-                assertThat(journalpost.enhet).isEqualTo("4833")
-            }
-        }
-    }
-
-    @Test
     fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`(){
         stubHentOppgaveContaining(listOf())
         stubHentPerson()
@@ -99,15 +78,6 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
-            val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpostOptional.isPresent).isTrue
-
-            assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-                assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-                assertThat(journalpost.status).isEqualTo("M")
-                assertThat(journalpost.tema).isEqualTo("BID")
-                assertThat(journalpost.enhet).isEqualTo(geografiskEnhet)
-            }
 
             verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
             verifyOppgaveNotEndret()

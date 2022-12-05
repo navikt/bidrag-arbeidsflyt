@@ -2,21 +2,15 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
-import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
-import no.nav.bidrag.arbeidsflyt.utils.OPPGAVETYPE_JFR
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.kotlin.await
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import java.util.concurrent.TimeUnit
@@ -54,7 +48,6 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
     @Test
     fun `skal lagre hendelse i dead letter repository ved feil`() {
         stubHentOppgaveError()
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
