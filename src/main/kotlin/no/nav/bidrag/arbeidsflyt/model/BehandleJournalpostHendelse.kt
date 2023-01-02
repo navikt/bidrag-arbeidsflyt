@@ -97,7 +97,7 @@ class BehandleJournalpostHendelse(
             val erJournalførendeEnhet = arbeidsfordelingService.erJournalførendeEnhet(journalpostHendelse.enhet)
             val erGyldigEnhet = enhetEksitererOgErAktiv && erJournalførendeEnhet
             return if (!erGyldigEnhet) {
-                LOGGER.warn("Enhet ${journalpostHendelse.enhet} eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
+                LOGGER.warn("Enhet ${journalpostHendelse.enhet} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
                 arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
             } else journalpostHendelse.enhet!!
         }
