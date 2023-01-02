@@ -241,9 +241,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette journalforingsoppgave med journalpost enhet hvis BID journalpost`(){
-        val enhet = "4949"
+        val enhet = "4833"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
+        stubHentJournalforendeEnheter()
         stubHentGeografiskEnhet("1111")
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = enhet)
 
@@ -265,12 +266,49 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `skal opprette journalforingsoppgave med journalpost enhet hvis Joark journalpost`(){
+        val enhet = "4833"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentJournalforendeEnheter()
+        stubHentGeografiskEnhet("1111")
+        stubHentEnhet()
+        val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_4_NEW", enhet = enhet)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt(0)
+    }
+
+    @Test
+    fun `skal opprette journalforingsoppgave med arbeidsfordeling hvis hendelse enhet ikke er journalførende`(){
+        val enhet = "4343"
+        val arbeisfordelingEnhet = "4833"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentJournalforendeEnheter()
+        stubHentGeografiskEnhet(arbeisfordelingEnhet)
+        stubHentEnhet()
+        val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_4_NEW", enhet = enhet)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$arbeisfordelingEnhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveNotEndret()
+        verifyHentGeografiskEnhetKalt(1)
+    }
+
+    @Test
     fun `skal opprette oppgave med uten prefix nar Joark journalpost med status mottatt ikke har jfr oppgave`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
+        stubHentEnhet()
+        stubHentJournalforendeEnheter()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -281,7 +319,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
+            assertThat(journalpost.enhet).isEqualTo("4806")
         }
 
         verifyOppgaveOpprettetWith(
@@ -345,8 +383,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
+        stubHentEnhet()
+        stubHentJournalforendeEnheter()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "FAR")
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806).copy(fagomrade = "FAR")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -357,7 +397,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
             assertThat(journalpost.status).isEqualTo("M")
             assertThat(journalpost.tema).isEqualTo("FAR")
-            assertThat(journalpost.enhet).isEqualTo("4833")
+            assertThat(journalpost.enhet).isEqualTo("4806")
         }
 
         verifyOppgaveOpprettetWith(
@@ -427,9 +467,10 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val aktorId = "123213213213123"
         stubHentOppgaveContaining(listOf())
         stubHentPerson(aktorId = aktorId)
+        stubHentEnhet()
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = null)
             .copy(
                 aktorId = null,
                 fnr = "123123123"

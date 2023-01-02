@@ -45,6 +45,8 @@ internal class KafkaJournalpostHendelseListenerTest: AbstractKafkaHendelseTest()
     fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`(){
         stubHentOppgaveContaining(listOf())
         stubHentPerson()
+        stubHentJournalforendeEnheter()
+        stubHentEnhet()
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
