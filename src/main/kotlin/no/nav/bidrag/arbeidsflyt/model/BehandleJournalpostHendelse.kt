@@ -100,7 +100,7 @@ class BehandleJournalpostHendelse(
                 LOGGER.warn("Enhet ${journalpostHendelse.enhet} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
                 arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
             } else {
-                LOGGER.info("Bruker enhet ${journalpostHendelse.enhet} fra hendelsen i arbeidsfordelingen.")
+                LOGGER.info("Bruker enhet ${journalpostHendelse.enhet} fra hendelsen ved arbeidsfordelingen.")
                 journalpostHendelse.enhet!!
             }
         }
