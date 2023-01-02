@@ -99,7 +99,10 @@ class BehandleJournalpostHendelse(
             return if (!erGyldigEnhet) {
                 LOGGER.warn("Enhet ${journalpostHendelse.enhet} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
                 arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
-            } else journalpostHendelse.enhet!!
+            } else {
+                LOGGER.info("Bruker enhet ${journalpostHendelse.enhet} fra hendelsen ved arbeidsfordelingen.")
+                journalpostHendelse.enhet!!
+            }
         }
         return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
     }
