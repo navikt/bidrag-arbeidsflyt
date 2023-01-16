@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 var ENHET_FAGPOST="2950"
 var ENHET_IT_AVDELINGEN="2990"
 var ENHET_YTELSE="2830"
+
+val OppgaveHendelse.tilhorerFagpost get() = tildeltEnhetsnr == ENHET_FAGPOST
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
@@ -63,7 +65,7 @@ class BehandleOppgaveHendelseService(
             .behandle(oppgaveHendelse)
     }
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgaveHendelse: OppgaveHendelse) {
-        if (oppgaveHendelse.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse)) {
+        if (!oppgaveHendelse.tilhorerFagpost && (oppgaveHendelse.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse))) {
             opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse)
         }
     }

@@ -24,7 +24,7 @@ import java.util.Collections
 abstract class AbstractKafkaHendelseTest: AbstractBehandleHendelseTest(){
 
     @Autowired
-    var embeddedKafkaBroker: EmbeddedKafkaBroker? = null
+    lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker
 
     fun configureConsumer(topic: String): Consumer<Int, String>? {
         val consumerProps = KafkaTestUtils.consumerProps("testGroup", "true", embeddedKafkaBroker)

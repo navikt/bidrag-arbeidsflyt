@@ -14,6 +14,8 @@ data class OppgaveDataForHendelse(
     val bnr: String? = null,
     val aktorId: String? = null,
     val journalpostId: String? = null,
+    val behandlingstype: String? = null,
+    val behandlingstema: String? = null,
     val oppgavetype: String? = null,
     val tema: String? = null,
     val tildeltEnhetsnr: String? = null,

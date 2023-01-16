@@ -4,9 +4,11 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.UpdateOppgaveAfterOpprettRequest
+import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.model.Journalstatus
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -20,6 +22,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
@@ -46,7 +49,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         ).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(oppgaveData))) // neste søk gir oppgave for patch av jpId
         )
-
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(object : ParameterizedTypeReference<List<EnhetResponse>>() {})))
+            .thenReturn(ResponseEntity.ok(createJournalforendeEnheterResponse()))
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(ResponseEntity.ok("OK"))
 
@@ -100,7 +104,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
 
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
-
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(object : ParameterizedTypeReference<List<EnhetResponse>>() {})))
+            .thenReturn(ResponseEntity.ok(createJournalforendeEnheterResponse()))
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(GeografiskTilknytningResponse::class.java)))
             .thenReturn(ResponseEntity.ok(GeografiskTilknytningResponse(enhetsNummerGeo, enhetsNummerGeo)))
 
@@ -156,7 +161,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         ).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(oppgaveData))) // neste søk gir oppgave for patch av jpId
         )
-
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(object : ParameterizedTypeReference<List<EnhetResponse>>() {})))
+            .thenReturn(ResponseEntity.ok(createJournalforendeEnheterResponse()))
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(oppgaveData))
 
@@ -201,7 +207,8 @@ internal class JournalpostHendelseListenerOpprettOppgaverEndeTilEndeTest {
         ).thenReturn(
             ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(oppgaveData))) // neste søk gir oppgave for patch av jpId
         )
-
+        whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(object : ParameterizedTypeReference<List<EnhetResponse>>() {})))
+            .thenReturn(ResponseEntity.ok(createJournalforendeEnheterResponse()))
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(String::class.java)))
             .thenReturn(ResponseEntity.ok("OK"))
 

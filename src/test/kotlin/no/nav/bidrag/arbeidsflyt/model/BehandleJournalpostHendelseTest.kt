@@ -44,9 +44,13 @@ internal class BehandleJournalpostHendelseTest {
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
 
-    private lateinit var behandleJournalpostHendelse: BehandleJournalpostHendelse
     private val journalpostHendelse = JournalpostHendelse(sporing = Sporingsdata(enhetsnummer = enhetsnummerFraSporingsdata))
 
+    fun hentBehandleJournalpostTjeneste(journalpostHendelse: JournalpostHendelse) = BehandleJournalpostHendelse(
+        journalpostHendelse = journalpostHendelse,
+        oppgaveService = oppgaveService,
+        arbeidsfordelingService = arbeidsfordelingService
+    )
     @BeforeEach
     fun `init OppdaterOppgaver med oppgavesøk`() {
 
@@ -58,23 +62,15 @@ internal class BehandleJournalpostHendelseTest {
                 eq(OppgaveSokResponse::class.java)
             )
         ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
-
-        behandleJournalpostHendelse = BehandleJournalpostHendelse(
-            journalpostHendelse = journalpostHendelse,
-            oppgaveService = oppgaveService,
-            arbeidsfordelingService = arbeidsfordelingService
-        )
     }
 
     @Test
     fun `skal sette endretAvEnhetsnummer når oppdatering av eksternt fagområde gjøres`() {
-        journalpostHendelse.fagomrade = "IKKE_BIDRAG"
-
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(OppgaveData()))
 
         // then
-        behandleJournalpostHendelse.oppdaterEksterntFagomrade()
+        hentBehandleJournalpostTjeneste(journalpostHendelse.copy(fagomrade = "IKKE_BIDRAG")).oppdaterEksterntFagomrade()
 
         val patchEntityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
 
@@ -93,13 +89,12 @@ internal class BehandleJournalpostHendelseTest {
 
     @Test
     fun `skal sette endretAvEnhetsnummer når oppdatering av enhetsnummer gjøres`() {
-        journalpostHendelse.enhet = "1234"
 
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(OppgaveData()))
 
-        // then
-        behandleJournalpostHendelse.oppdaterEndretEnhetsnummer()
+
+        hentBehandleJournalpostTjeneste(journalpostHendelse.copy(enhet = "1234")).oppdaterEndretEnhetsnummer()
 
         val patchEntityCaptor = ArgumentCaptor.forClass(HttpEntity::class.java)
 
