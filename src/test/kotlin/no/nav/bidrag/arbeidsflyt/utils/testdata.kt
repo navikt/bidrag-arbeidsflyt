@@ -108,7 +108,7 @@ fun createOppgaveHendelse(
 fun createJournalpostHendelse(
     journalpostId: String,
     status: String = "M",
-    enhet: String = "4833",
+    enhet: String? = "4833",
     fagomrade: String = "BID",
     aktorId: String = AKTOER_ID,
     sporingEnhet: String = "4833"

@@ -152,7 +152,7 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med frist neste dag`(){
+    fun `skal opprette oppgave med frist neste dag hvis JFR lukket og journalpost har status MOTTATT`(){
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         stubHentOppgave(
@@ -175,7 +175,8 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
                 fnr = PERSON_IDENT_1,
                 status = OppgaveStatus.FERDIGSTILT,
                 statuskategori = Oppgavestatuskategori.AVSLUTTET,
-                fristFerdigstillelse = null
+                fristFerdigstillelse = null,
+                oppgavetype = OPPGAVETYPE_JFR
             )
 
             behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -189,6 +190,41 @@ class OppgaveHendelseTest: AbstractBehandleHendelseTest() {
                 "\"prioritet\":\"HOY\"",
                 "\"tema\":\"BID\""
             )
+        verifyHentGeografiskEnhetKalt(0)
+    }
+
+    @Test
+    fun `skal ikke opprette oppgave hvis JFR lukket av fagpost selv om journalpost har status MOTTATT`(){
+        stubHentGeografiskEnhet()
+        stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
+        val oppgaveHendelse = createOppgaveHendelse(
+            OPPGAVE_ID_1,
+            journalpostId = JOURNALPOST_ID_1,
+            fnr = PERSON_IDENT_1,
+            status = OppgaveStatus.FERDIGSTILT,
+            statuskategori = Oppgavestatuskategori.AVSLUTTET,
+            fristFerdigstillelse = null,
+            oppgavetype = OPPGAVETYPE_JFR,
+            tildeltEnhetsnr = "2950"
+        )
+
+        behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
+
+        verifyOppgaveNotOpprettet()
         verifyHentGeografiskEnhetKalt(0)
     }
 

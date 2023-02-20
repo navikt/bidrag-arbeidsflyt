@@ -35,6 +35,10 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
         return organisasjonConsumer.hentJournalforendeEnheter()
     }
 
+    fun erJournalførendeEnhet(enhet: String?): Boolean {
+        return hentBidragJournalforendeEnheter().any { it.enhetIdent == enhet }
+    }
+
     fun enhetEksistererOgErAktiv(enhet: String?): Boolean {
         if (enhet.isNullOrEmpty()){
             return true
