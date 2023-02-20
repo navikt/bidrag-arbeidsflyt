@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.service
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
+import no.nav.bidrag.arbeidsflyt.model.isForsendelse
 import no.nav.bidrag.arbeidsflyt.utils.numericOnly
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
@@ -20,6 +21,11 @@ class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonS
         SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
 
        val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
+
+        if (journalpostHendelse.isForsendelse){
+            LOGGER.info("Ignorer journalpostHendelse med id ${journalpostHendelse.journalpostId}. Hendelsen gjelder forsendelse")
+            return
+        }
 
         BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService)
             .oppdaterEksterntFagomrade()

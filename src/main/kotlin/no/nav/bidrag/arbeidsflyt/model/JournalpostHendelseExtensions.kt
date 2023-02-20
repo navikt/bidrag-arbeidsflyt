@@ -12,6 +12,7 @@ import java.time.LocalDate
 val BID_JP_RANGE: Range<Long> = Range.between(18900000L, 40000000L)
 fun isBidJournalpostId(jpId: String) = (StringUtils.isNumeric(jpId) && BID_JP_RANGE.contains(jpId.toLong()))
 fun JournalpostHendelse.erJournalstatusEndretTilIkkeMottatt() = journalstatus != null && !erMottattStatus
+val JournalpostHendelse.isForsendelse get() = journalpostId.startsWith("BIF")
 val JournalpostHendelse.harSaker get() = sakstilknytninger?.isNotEmpty() == true
 val JournalpostHendelse.erMottattStatus get() = Journalstatus.MOTTATT == journalstatus
 val JournalpostHendelse.erEksterntFagomrade get() = fagomrade != null && (fagomrade != Fagomrade.BIDRAG && fagomrade != Fagomrade.FARSKAP)
