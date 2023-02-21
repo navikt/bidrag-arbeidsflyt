@@ -83,8 +83,9 @@ jobs:
           echo "INGRESS_CUCUMBER=https://bidrag-cucumber-cloud-feature.ekstern.dev.nav.no" >> $GITHUB_ENV
       - run: |
           curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
                --request POST \
-               --data '{"tags":["@arbeidsflyt-opprett-oppgave"],"testUsername":"z992903","noContextPathForApps":["oppgave"],"ingressesForApps":[
+               --data '{"tags":["@arbeidsflyt-opprett-oppgave"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
                    "${{ env.INGRESS_OPPGAVE }}@oppgave"
                  ]}' \
                ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
@@ -107,8 +108,9 @@ jobs:
           echo "INGRESS_CUCUMBER=https://bidrag-cucumber-cloud-feature.ekstern.dev.nav.no" >> $GITHUB_ENV
       - run: |
           curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
                --request POST \
-               --data '{"tags":["@arbeidsflyt-endre-fagomrade"],"testUsername":"z992903","noContextPathForApps":["oppgave"],"ingressesForApps":[
+               --data '{"tags":["@arbeidsflyt-endre-fagomrade"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
                    "${{ env.INGRESS_OPPGAVE }}@oppgave"
                  ]}' \
                ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
@@ -131,8 +133,9 @@ jobs:
           echo "INGRESS_CUCUMBER=https://bidrag-cucumber-cloud-feature.ekstern.dev.nav.no" >> $GITHUB_ENV
       - run: |
           curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
                --request POST \
-               --data '{"tags":["@arbeidsflyt-overfor-til-annen-enhet"],"testUsername":"z992903","noContextPathForApps":["oppgave"],"ingressesForApps":[
+               --data '{"tags":["@arbeidsflyt-overfor-til-annen-enhet"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
                    "${{ env.INGRESS_OPPGAVE }}@oppgave"
                  ]}' \
                ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
@@ -155,8 +158,9 @@ jobs:
           echo "INGRESS_CUCUMBER=https://bidrag-cucumber-cloud-feature.ekstern.dev.nav.no" >> $GITHUB_ENV
       - run: |
           curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
                --request POST \
-               --data '{"tags":["@arbeidsflyt-journalforing"],"testUsername":"z992903","noContextPathForApps":["oppgave"],"ingressesForApps":[
+               --data '{"tags":["@arbeidsflyt-journalforing"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
                    "${{ env.INGRESS_OPPGAVE }}@oppgave"
                  ]}' \
                ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
