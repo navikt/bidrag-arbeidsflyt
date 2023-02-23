@@ -1,10 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.utils
 
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
-import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -13,8 +11,6 @@ import java.util.Optional
 @Component
 class TestDataGenerator {
 
-    @Autowired
-    lateinit var journalpostRepository: JournalpostRepository
     @Autowired
     lateinit var oppgaveRepository: OppgaveRepository
     @Autowired
@@ -27,10 +23,6 @@ class TestDataGenerator {
         return oppgaveRepository.findById(oppgaveId)
     }
 
-    fun hentJournalpost(journalpostId: String): Optional<Journalpost> {
-        return journalpostRepository.findByJournalpostId(journalpostId)
-    }
-
     fun opprettDLQMelding(dlqKafka: DLQKafka){
         dlqKafkaRepository.save(dlqKafka)
     }
@@ -38,13 +30,8 @@ class TestDataGenerator {
         oppgaveRepository.save(oppgave)
     }
 
-    fun opprettJournalpost(journalpost: Journalpost){
-        journalpostRepository.save(journalpost)
-    }
-
     fun deleteAll(){
         dlqKafkaRepository.deleteAll()
-        journalpostRepository.deleteAll()
         oppgaveRepository.deleteAll()
     }
     

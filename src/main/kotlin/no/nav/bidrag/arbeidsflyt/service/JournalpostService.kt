@@ -17,10 +17,10 @@ class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsu
         private val LOGGER = LoggerFactory.getLogger(JournalpostService::class.java)
     }
 
-    fun hentJournalpostMedStatusMottatt(journalpostId: String): Optional<JournalpostResponse> {
+    fun hentJournalpostMedStatusMottatt(journalpostId: String): JournalpostResponse? {
         val journalpost = bidragDokumentConsumer.hentJournalpost(journalpostId)
         LOGGER.info("Hentet journalpost $journalpostId fra bidrag-dokument")
-        return journalpost.filter { it.journalpost?.journalstatus == Journalstatus.MOTTATT }
+        return journalpost.takeIf { it?.journalpost?.journalstatus == Journalstatus.MOTTATT }
     }
 
 }

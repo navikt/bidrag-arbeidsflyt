@@ -9,7 +9,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonService, private val oppgaveService: OppgaveService, private val persistenceService: PersistenceService, private val personConsumer: PersonConsumer) {
+class BehandleHendelseService(
+    private val arbeidsfordelingService: OrganisasjonService,
+    private val oppgaveService: OppgaveService,
+    private val personConsumer: PersonConsumer
+) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
@@ -18,10 +22,11 @@ class BehandleHendelseService(private val arbeidsfordelingService: OrganisasjonS
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
         SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
-
-       val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
-
-        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelseMedAktorId)
+        if (journalpostHendelse.erForsendelse()){
+            LOGGER.info("Ignorer journalpostHendelse med id ${journalpostHendelse.journalpostId}. Hendelsen gjelder forsendelse")
+            return
+        }
+        val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
 
         BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService)
             .oppdaterEksterntFagomrade()

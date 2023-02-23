@@ -3,16 +3,10 @@ package no.nav.bidrag.arbeidsflyt.hendelse.featuretoggle
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.hendelse.AbstractKafkaHendelseTest
-import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
-import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.assertj.core.api.Assertions
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -31,7 +25,6 @@ class FeatureToggleLagreOgOppgaveHendelse: AbstractKafkaHendelseTest() {
     @Test
     fun `skal ikke mappe og behandle oppgave endret hendelse`() {
         val oppgaveId = 239999L
-        testDataGenerator.opprettJournalpost(createJournalpost(JOURNALPOST_ID_1))
         val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
@@ -40,19 +33,5 @@ class FeatureToggleLagreOgOppgaveHendelse: AbstractKafkaHendelseTest() {
         await.atLeast(3, TimeUnit.SECONDS)
 
         verifyOppgaveNotOpprettet()
-    }
-
-
-    @Test
-    fun `skal lagre journalpost i databasen`() {
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-        val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
-        configureProducer()?.send(ProducerRecord(topicJournalpost, hendelseString))
-
-        await.atLeast(3, TimeUnit.SECONDS)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        Assertions.assertThat(journalpostOptional.isPresent).isFalse
-
     }
 }

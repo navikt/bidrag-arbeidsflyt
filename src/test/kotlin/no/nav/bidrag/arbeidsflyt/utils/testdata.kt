@@ -7,7 +7,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
-import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostDto
@@ -68,15 +67,6 @@ fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", ret
         retry = retry,
         retryCount = retryCount,
         createdTimestamp = timestamp
-    )
-}
-
-fun  createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", tema: String = "BID"): Journalpost {
-    return Journalpost(
-        journalpostId = journalpostId,
-        status = status,
-        enhet = enhet,
-        tema = tema
     )
 }
 

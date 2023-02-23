@@ -28,103 +28,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal lagre journalpost fra hendelse hvis status mottatt`() {
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-
-        behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4833")
-        }
-        verifyOppgaveNotOpprettet()
-    }
-
-
-    @Test
-    fun `skal oppdatere journalpost lagret i databasen`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, enhet = "1234", sporingEnhet = "1234")
-
-        behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_1)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("1234")
-        }
-
-        verifyOppgaveNotOpprettet()
-        verifyOppgaveEndretWith(1, "\"tildeltEnhetsnr\":\"1234\"", "\"endretAvEnhetsnr\":\"1234\"")
-    }
-
-    @Test
-    fun `skal slette journalpost fra databasen hvis status ikke er mottatt`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
-        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
-        val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
-        assertThat(journalpostOptionalBefore.isPresent).isTrue
-
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
-
-        behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptionalAfter = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
-        assertThat(journalpostOptionalAfter.isPresent).isFalse
-
-        verifyOppgaveNotOpprettet()
-        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")
-    }
-
-    @Test
-    fun `skal ikke lagre eller journalpost hvis status ikke er M og ikke finnes`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
-
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
-
-        behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptionalAfter = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
-        assertThat(journalpostOptionalAfter.isPresent).isFalse
-
-        verifyOppgaveNotOpprettet()
-        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")
-    }
-
-    @Test
     fun `skal behandle hendelse med ugyldig fnr`(){
         val enhet = "4812"
         val aktorid = "123213123213213"
@@ -139,9 +42,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
 
         verifyOppgaveOpprettetWith()
         verifyOppgaveNotEndret()
@@ -160,9 +60,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW, enhet = enhet)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
 
         verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"")
         verifyOppgaveNotEndret()
@@ -183,16 +80,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("UKJENT")
-        }
 
         verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"","\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
@@ -225,16 +112,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("UKJENT")
-        }
-
         verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
     }
@@ -249,16 +126,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = enhet)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo(enhet)
-        }
 
         verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
@@ -311,16 +178,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_4_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("BID")
-            assertThat(journalpost.enhet).isEqualTo("4806")
-        }
 
         verifyOppgaveOpprettetWith(
             "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
@@ -389,16 +246,6 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806).copy(fagomrade = "FAR")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
-
-        val journalpostOptional = testDataGenerator.hentJournalpost(JOURNALPOST_ID_4_NEW)
-        assertThat(journalpostOptional.isPresent).isTrue
-
-        assertThat(journalpostOptional).hasValueSatisfying { journalpost ->
-            assertThat(journalpost.journalpostId).isEqualTo(JOURNALPOST_ID_4_NEW)
-            assertThat(journalpost.status).isEqualTo("M")
-            assertThat(journalpost.tema).isEqualTo("FAR")
-            assertThat(journalpost.enhet).isEqualTo("4806")
-        }
 
         verifyOppgaveOpprettetWith(
             "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
