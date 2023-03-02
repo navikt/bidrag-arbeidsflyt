@@ -2,12 +2,14 @@ package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.CacheConfig
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
+import no.nav.bidrag.arbeidsflyt.dto.HentEnhetRequest
 import no.nav.bidrag.arbeidsflyt.model.*
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.apache.logging.log4j.util.Strings
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
@@ -36,9 +38,9 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
 
         try {
             val response = restTemplate.exchange(
-                "/arbeidsfordeling/enhetsliste/geografisktilknytning/$personId${behandlingstema?.let { "?behandlingstema=$it" }?:""}",
-                HttpMethod.GET,
-                null,
+                "/arbeidsfordeling/enhet/geografisktilknytning",
+                HttpMethod.POST,
+                HttpEntity(HentEnhetRequest(ident = personId, behandlingstema = behandlingstema, tema = "BID")),
                 GeografiskTilknytningResponse::class.java
             )
 
@@ -50,7 +52,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
         } catch (e: HttpStatusCodeException) {
             val errorMessage = "Det skjedde en feil ved henting av arbeidsfordeling for person $personId og behandlingstema=$behandlingstema"
             LOGGER.error(errorMessage, e)
-            if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null){
+            if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null) {
                 LOGGER.warn("Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId")
                 return hentArbeidsfordeling(personId)
             }
@@ -94,7 +96,8 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
             "/enhet/info/$enhet",
             HttpMethod.GET,
             null,
-            EnhetResponse::class.java)
+            EnhetResponse::class.java
+        )
 
         if (response.statusCode == HttpStatus.NO_CONTENT) {
             return Optional.empty()
