@@ -14,6 +14,6 @@ class BidragArbeidsflytLocal
 
 fun main(args: Array<String>) {
     val app = SpringApplication(BidragArbeidsflytLocal::class.java)
-    app.setAdditionalProfiles(PROFILE_KAFKA_TEST, PROFILE_NAIS, "live", "local")
+    app.setAdditionalProfiles(PROFILE_KAFKA_TEST, PROFILE_NAIS, "live", "local", "lokal-nais-secrets")
     app.run(*args)
 }
