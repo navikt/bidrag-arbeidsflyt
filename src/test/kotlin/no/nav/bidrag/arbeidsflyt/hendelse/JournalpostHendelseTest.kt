@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
+import no.nav.bidrag.arbeidsflyt.model.ENHET_FARSKAP
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
@@ -57,6 +58,22 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(geografiskEnhet)
         stubHentEnhet(enhet, true)
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW, enhet = enhet)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"")
+        verifyOppgaveNotEndret()
+    }
+
+    @Test
+    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet ikke finnes`(){
+        val enhet = "2101"
+        val geografiskEnhet = "4806"
+        stubHentOppgave(emptyList())
+        stubHentPerson(PERSON_IDENT_3)
+        stubHentGeografiskEnhet(geografiskEnhet)
+        stubHentEnhet(enhet, status = HttpStatus.NO_CONTENT)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW, enhet = enhet)
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -236,7 +253,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med tema BID selv om journalpost har tema FAR`(){
+    fun `skal opprette oppgave på enhet 4860 hvis journalpost har tema FAR`(){
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -248,7 +265,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyOppgaveOpprettetWith(
-            "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
+            "\"tildeltEnhetsnr\":\"$ENHET_FARSKAP\"",
             "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",

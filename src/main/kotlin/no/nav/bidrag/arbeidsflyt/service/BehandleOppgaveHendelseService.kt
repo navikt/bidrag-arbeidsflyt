@@ -2,15 +2,12 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
-var ENHET_FAGPOST="2950"
-var ENHET_IT_AVDELINGEN="2990"
-var ENHET_YTELSE="2830"
 
 val OppgaveHendelse.tilhorerFagpost get() = tildeltEnhetsnr == ENHET_FAGPOST
 @Service
@@ -97,7 +94,7 @@ class BehandleOppgaveHendelseService(
         }
 
         val prevOppgaveState = persistenceService.hentJournalforingOppgave(oppgaveHendelse.id)
-        if (prevOppgaveState.isPresent && prevOppgaveState.get().erJournalforingOppgave()){
+        if (prevOppgaveState?.erJournalforingOppgave() == true){
             LOGGER.info("Oppgavetype for oppgave ${oppgaveHendelse.id} er endret fra JFR til ${oppgaveHendelse.oppgavetype}")
             return true
         }

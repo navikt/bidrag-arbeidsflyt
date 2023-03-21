@@ -7,7 +7,6 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.Optional
 import javax.transaction.Transactional
 
 @Service
@@ -21,8 +20,8 @@ class PersistenceService(
         private val LOGGER = LoggerFactory.getLogger(PersistenceService::class.java)
     }
 
-    fun hentJournalforingOppgave(oppgaveId: Long): Optional<Oppgave> {
-        return oppgaveRepository.findByOppgaveId(oppgaveId).filter { it.erJournalforingOppgave() }
+    fun hentJournalforingOppgave(oppgaveId: Long): Oppgave? {
+        return oppgaveRepository.findByOppgaveId(oppgaveId)?.takeIf { it.erJournalforingOppgave() }
     }
 
     @Transactional

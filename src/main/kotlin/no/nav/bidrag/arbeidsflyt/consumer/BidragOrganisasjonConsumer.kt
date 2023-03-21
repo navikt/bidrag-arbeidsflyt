@@ -91,7 +91,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
         maxAttempts = 3,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
     )
-    open fun hentEnhetInfo(enhet: String): Optional<EnhetResponse> {
+    open fun hentEnhetInfo(enhet: String): EnhetResponse? {
         val response = restTemplate.exchange(
             "/enhet/info/$enhet",
             HttpMethod.GET,
@@ -99,10 +99,6 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
             EnhetResponse::class.java
         )
 
-        if (response.statusCode == HttpStatus.NO_CONTENT) {
-            return Optional.empty()
-        }
-
-        return Optional.ofNullable(response.body)
+        return if (response.statusCode == HttpStatus.NO_CONTENT) null else response.body
     }
 }

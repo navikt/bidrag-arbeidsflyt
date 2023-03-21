@@ -4,9 +4,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
-import no.nav.bidrag.arbeidsflyt.service.ENHET_FAGPOST
-import no.nav.bidrag.arbeidsflyt.service.ENHET_IT_AVDELINGEN
-import no.nav.bidrag.arbeidsflyt.service.ENHET_YTELSE
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.Logger

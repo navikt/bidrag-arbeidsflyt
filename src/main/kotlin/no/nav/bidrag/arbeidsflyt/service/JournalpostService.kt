@@ -6,7 +6,6 @@ import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.Optional
 
 internal val JournalpostResponse.erBidragFagomrade get(): Boolean = journalpost?.fagomrade == Fagomrade.BIDRAG || journalpost?.fagomrade == Fagomrade.FARSKAP
 @Service

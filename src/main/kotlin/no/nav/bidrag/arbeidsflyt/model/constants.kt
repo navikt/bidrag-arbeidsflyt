@@ -19,3 +19,9 @@ object Token {
 const val CORRELATION_ID = "correlationId"
 const val JOURNALFORINGSOPPGAVE = "JFR"
 const val AOUTH2_JWT_REGISTRATION = "bidrag-arbeidsflyt"
+
+
+const val ENHET_FAGPOST="2950"
+const val ENHET_IT_AVDELINGEN="2990"
+const val ENHET_YTELSE="2830"
+const val ENHET_FARSKAP="4860"

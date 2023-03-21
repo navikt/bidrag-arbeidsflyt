@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpStatusCodeException
-import java.util.Optional
 
 
 open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTemplate) {
