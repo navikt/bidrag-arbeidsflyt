@@ -44,8 +44,8 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
             return true
         }
         return try {
-            val enhetResponse =  organisasjonConsumer.hentEnhetInfo(enhet)
-            !(enhetResponse.isEmpty || enhetResponse.filter{ it.erNedlagt() }.isPresent)
+            val response = organisasjonConsumer.hentEnhetInfo(enhet)
+            !(response == null || response.erNedlagt())
         } catch (e: Exception){
             LOGGER.warn("Hent enhetinfo feilet. Går videre med antagelse at enhet finnes og ikke er nedlagt.", e)
             true

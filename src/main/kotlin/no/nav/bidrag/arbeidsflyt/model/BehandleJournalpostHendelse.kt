@@ -92,6 +92,11 @@ class BehandleJournalpostHendelse(
     }
 
     fun hentArbeidsfordeling(): String {
+        val tema = journalpostHendelse.tema ?: journalpostHendelse.fagomrade
+        if (tema == Fagomrade.FARSKAP){
+            LOGGER.info("Journalposthendelse med journalpostId ${journalpostHendelse.journalpostId} har tema FAR. Bruker enhet $ENHET_FARSKAP ved arbeidsfordeling")
+            return ENHET_FARSKAP
+        }
         if (journalpostHendelse.hasEnhet){
             val enhetEksitererOgErAktiv = arbeidsfordelingService.enhetEksistererOgErAktiv(journalpostHendelse.enhet)
             val erJournalførendeEnhet = arbeidsfordelingService.erJournalførendeEnhet(journalpostHendelse.enhet)
