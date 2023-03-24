@@ -15,7 +15,9 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: {{ azure.oppgave }}
+      {{#each outbound-access-hosts}}
+          - host: {{this}}
+      {{/each}}
   image: {{ image }}
   kafka:
     pool: {{ kafka.pool }}

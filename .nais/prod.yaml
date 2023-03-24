@@ -20,3 +20,8 @@ database:
   autoResize: true
 ingresses:
   - https://bidrag-arbeidsflyt.intern.nav.no
+outbound-access-hosts:
+   - bidrag-dokument.prod-fss-pub.nais.io
+   - bidrag-person.prod-fss-pub.nais.io
+   - oppgave.prod-fss-pub.nais.io
+   - bidrag-organisasjon.prod-fss-pub.nais.io

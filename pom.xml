@@ -34,7 +34,18 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
+  <repositories>
+    <repository>
+      <id>github</id>
+      <name>GitHub felles Apache Maven Packages for navikt</name>
+      <url>https://maven.pkg.github.com/navikt/maven-release/</url>
+    </repository>
+    <repository>
+      <id>confluent</id>
+      <name>Confluent kafka</name>
+      <url>https://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
   <dependencyManagement>
     <dependencies>
       <!-- snyk reported vulnerabilities -->
