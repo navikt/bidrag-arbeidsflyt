@@ -21,22 +21,19 @@ class HendelseController(var behandleHendelseService: BehandleHendelseService, v
 
     // Simulate kafka message on journalpost hendelse
     @PostMapping("/journalpost")
-    fun simulateJournalpostHendelse(@RequestBody journalpostHendelse: JournalpostHendelse){
+    fun simulateJournalpostHendelse(@RequestBody journalpostHendelse: JournalpostHendelse) {
         CorrelationId.existing("test fra bidrag")
         behandleHendelseService.behandleHendelse(journalpostHendelse)
     }
 
     @PostMapping("/oppgave")
-    fun simulateOppgaveHendelse(@RequestBody oppgave: String){
+    fun simulateOppgaveHendelse(@RequestBody oppgave: String) {
         CorrelationId.existing("test fra bidrag")
-        var oppgave = jsonMapperService.mapOppgaveHendelse(oppgave);
-
+        var oppgave = jsonMapperService.mapOppgaveHendelse(oppgave)
     }
 
     @GetMapping("/")
     fun simulateOppgaveHendelse(): List<DLQKafka> {
         return dlqKafkaRepository.findAll()
-
     }
-
 }

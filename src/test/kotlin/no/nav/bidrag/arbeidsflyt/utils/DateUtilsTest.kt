@@ -16,37 +16,36 @@ internal class DateUtilsTest {
         private const val NORWEGIAN_HOLIDAY = "2021-05-17"
     }
 
-
     @Test
-    fun `should return next workday from saturday`(){
+    fun `should return next workday from saturday`() {
         val candidate = LocalDate.parse(SATURDAY)
         val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
         assertThat(result.toString()).isEqualTo(MONDAY)
     }
 
     @Test
-    fun `should return next workday from sunday`(){
+    fun `should return next workday from sunday`() {
         val candidate = LocalDate.parse(SUNDAY)
         val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
         assertThat(result.toString()).isEqualTo(MONDAY)
     }
 
     @Test
-    fun `should return next workday from a workday`(){
+    fun `should return next workday from a workday`() {
         val candidate = LocalDate.parse(TUESDAY)
         val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
-        assertThat(result.toString()).isEqualTo(candidate.plusDays(1).toString());
+        assertThat(result.toString()).isEqualTo(candidate.plusDays(1).toString())
     }
 
     @Test
-    fun `should return next workday after easter`(){
+    fun `should return next workday after easter`() {
         val candidate = LocalDate.parse(DAY_BEFORE_EASTER)
         val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
         assertThat(result.toString()).isEqualTo(WORKDAY_AFTER_EASTER)
     }
 
     @Test
-    fun `should skip norwegian holiday as working day`(){
+    fun `should skip norwegian holiday as working day`() {
         val norwegianHoliday = LocalDate.parse(NORWEGIAN_HOLIDAY)
         val candidate = norwegianHoliday.minusDays(1)
         val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)

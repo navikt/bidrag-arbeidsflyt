@@ -1,8 +1,6 @@
 package no.nav.bidrag.arbeidsflyt
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.benmanes.caffeine.cache.RemovalListener
-import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.utils.CacheEvictBeforeWorkingHours
 import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
@@ -29,15 +27,20 @@ class CacheConfig {
     @Bean
     fun cacheManager(): CacheManager {
         val caffeineCacheManager = CaffeineCacheManager()
-        caffeineCacheManager.registerCustomCache(PERSON_CACHE, Caffeine.newBuilder()
-            .evictionListener<Any, Any>{ k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-            .expireAfter(CacheEvictBeforeWorkingHours()).build())
-        caffeineCacheManager.registerCustomCache(GEOGRAFISK_ENHET_CACHE, Caffeine.newBuilder()
-            .evictionListener<Any, Any>{ k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-            .expireAfter(CacheEvictBeforeWorkingHours()).build())
+        caffeineCacheManager.registerCustomCache(
+            PERSON_CACHE,
+            Caffeine.newBuilder()
+                .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
+                .expireAfter(CacheEvictBeforeWorkingHours()).build()
+        )
+        caffeineCacheManager.registerCustomCache(
+            GEOGRAFISK_ENHET_CACHE,
+            Caffeine.newBuilder()
+                .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
+                .expireAfter(CacheEvictBeforeWorkingHours()).build()
+        )
         caffeineCacheManager.registerCustomCache(JOURNALFORENDE_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build())
         caffeineCacheManager.registerCustomCache(ENHET_INFO_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
-        return caffeineCacheManager;
+        return caffeineCacheManager
     }
-
 }

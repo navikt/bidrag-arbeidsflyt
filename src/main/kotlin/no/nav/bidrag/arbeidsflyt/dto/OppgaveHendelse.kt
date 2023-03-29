@@ -33,7 +33,7 @@ data class OppgaveHendelse(
     val opprettetTidspunkt: ZonedDateTime? = null,
     val ferdigstiltTidspunkt: ZonedDateTime? = null,
     val endretTidspunkt: ZonedDateTime? = null
-){
+) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Ident(
@@ -61,23 +61,23 @@ data class OppgaveHendelse(
     internal val hentAktoerId get() = if (ident?.identType == OppgaveIdentType.AKTOERID) ident.verdi else null
 //    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty()) journalpostId else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
 
-    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
+    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if (isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 
     override fun toString(): String {
         return listOf(
-            "journalpostId=${journalpostId}",
-            "oppgaveId=${id}",
-            "statuskategori=${statuskategori}",
-            "tema=${tema}",
-            "oppgavetype=${oppgavetype}",
-            "opprettetAv=${opprettetAv}",
-            "tildeltEnhetsnr=${tildeltEnhetsnr}",
-            "opprettetAvEnhetsnr=${opprettetAvEnhetsnr}",
-            "versjon=${versjon}",
-            "saksreferanse=${saksreferanse}",
-            "fristFerdigstillelse=${fristFerdigstillelse}",
-            "tilordnetRessurs=${tilordnetRessurs}",
-            "status=${status}"
+            "journalpostId=$journalpostId",
+            "oppgaveId=$id",
+            "statuskategori=$statuskategori",
+            "tema=$tema",
+            "oppgavetype=$oppgavetype",
+            "opprettetAv=$opprettetAv",
+            "tildeltEnhetsnr=$tildeltEnhetsnr",
+            "opprettetAvEnhetsnr=$opprettetAvEnhetsnr",
+            "versjon=$versjon",
+            "saksreferanse=$saksreferanse",
+            "fristFerdigstillelse=$fristFerdigstillelse",
+            "tilordnetRessurs=$tilordnetRessurs",
+            "status=$status"
         ).joinToString(", ")
     }
 }

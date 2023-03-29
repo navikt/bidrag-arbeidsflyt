@@ -6,7 +6,7 @@ import org.junit.Test
 internal class StringUtilsTest {
 
     @Test
-    fun shouldRemoveNonNumericCharacters(){
+    fun shouldRemoveNonNumericCharacters() {
         assertThat("asda123asda".numericOnly()).isEqualTo("123")
         assertThat("1232132!".numericOnly()).isEqualTo("1232132")
         assertThat("123213 213213".numericOnly()).isEqualTo("123213213213")

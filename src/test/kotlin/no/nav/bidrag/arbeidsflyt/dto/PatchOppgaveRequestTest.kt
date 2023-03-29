@@ -31,10 +31,10 @@ internal class PatchOppgaveRequestTest {
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
 
         val expectedValue = "{" +
-                "\"status\":\"FERDIGSTILT\"," +
-                "\"id\":1," +
-                "\"versjon\":2" +
-                "}"
+            "\"status\":\"FERDIGSTILT\"," +
+            "\"id\":1," +
+            "\"versjon\":2" +
+            "}"
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
@@ -47,10 +47,10 @@ internal class PatchOppgaveRequestTest {
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812", "Z999999")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
         val expectedValue = "" +
-                "{\"tildeltEnhetsnr\":\"4812\"," +
-                "\"id\":1," +
-                "\"versjon\":2," +
-                "\"tilordnetRessurs\":\"\""
+            "{\"tildeltEnhetsnr\":\"4812\"," +
+            "\"id\":1," +
+            "\"versjon\":2," +
+            "\"tilordnetRessurs\":\"\""
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
         assertThat(stringValue).`as`("Expected json string value").contains("Oppgave overført fra enhet 007 til 4812")

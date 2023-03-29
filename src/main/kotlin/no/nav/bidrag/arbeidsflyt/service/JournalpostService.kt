@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 internal val JournalpostResponse.erBidragFagomrade get(): Boolean = journalpost?.fagomrade == Fagomrade.BIDRAG || journalpost?.fagomrade == Fagomrade.FARSKAP
+
 @Service
 class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsumer) {
 
@@ -21,5 +22,4 @@ class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsu
         LOGGER.info("Hentet journalpost $journalpostId fra bidrag-dokument")
         return journalpost.takeIf { it?.journalpost?.journalstatus == Journalstatus.MOTTATT }
     }
-
 }

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 class JournalpostHendelseExtensionsTest {
 
     @Test
-    fun `should get journalpostId with BID prefix`(){
+    fun `should get journalpostId with BID prefix`() {
         val jpHendelse = JournalpostHendelse(
             journalpostId = "38837926"
         )
@@ -21,7 +21,7 @@ class JournalpostHendelseExtensionsTest {
     }
 
     @Test
-    fun `should get journalpostId with JOARK prefix`(){
+    fun `should get journalpostId with JOARK prefix`() {
         val jpHendelse1 = JournalpostHendelse(
             journalpostId = "573781136"
         )

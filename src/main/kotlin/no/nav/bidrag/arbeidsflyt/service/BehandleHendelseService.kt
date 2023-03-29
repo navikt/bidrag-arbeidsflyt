@@ -22,7 +22,7 @@ class BehandleHendelseService(
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
         SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
-        if (journalpostHendelse.erForsendelse()){
+        if (journalpostHendelse.erForsendelse()) {
             LOGGER.info("Ignorer journalpostHendelse med id ${journalpostHendelse.journalpostId}. Hendelsen gjelder forsendelse")
             return
         }
@@ -38,7 +38,7 @@ class BehandleHendelseService(
     }
 
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse): JournalpostHendelse {
-        if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()){
+        if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()) {
             LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
             return personConsumer.hentPerson(journalpostHendelse.fnr?.numericOnly())?.let {
                 SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${journalpostHendelse.aktorId} og fnr ${journalpostHendelse.fnr}")
@@ -47,5 +47,4 @@ class BehandleHendelseService(
         }
         return journalpostHendelse
     }
-
 }

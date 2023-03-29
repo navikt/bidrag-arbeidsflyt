@@ -11,7 +11,6 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpStatusCodeException
 
-
 open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTemplate) {
 
     companion object {
@@ -25,7 +24,6 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
     )
     open fun hentJournalpost(journalpostId: String): JournalpostResponse? {
-
         try {
             val response = restTemplate.exchange(
                 "/journal/$journalpostId",
@@ -39,7 +37,7 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
 
             return response.body
         } catch (e: HttpStatusCodeException) {
-            if (HttpStatus.NOT_FOUND == e.statusCode){
+            if (HttpStatus.NOT_FOUND == e.statusCode) {
                 // Should not happen in production. Logging error to be notified
                 LOGGER.error("Fant ikke journalpost $journalpostId")
                 return null
@@ -52,6 +50,5 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
             }
             throw HentJournalpostFeiletTekniskException(errorMessage, e)
         }
-
     }
 }

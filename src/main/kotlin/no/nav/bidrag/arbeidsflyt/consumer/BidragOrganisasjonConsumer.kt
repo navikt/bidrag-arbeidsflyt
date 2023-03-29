@@ -3,9 +3,12 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.CacheConfig
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.HentEnhetRequest
-import no.nav.bidrag.arbeidsflyt.model.*
+import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
+import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletFunksjoneltException
+import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
+import no.nav.bidrag.arbeidsflyt.model.HentJournalforendeEnheterFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import org.apache.logging.log4j.util.Strings
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
@@ -15,8 +18,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpStatusCodeException
-import java.util.*
-
 
 open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTemplate) {
 
@@ -62,7 +63,6 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
             }
             throw HentArbeidsfordelingFeiletTekniskException(errorMessage, e)
         }
-
     }
 
     @Cacheable(CacheConfig.JOURNALFORENDE_ENHET_CACHE, unless = "#result==null")
@@ -76,7 +76,8 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
             "/arbeidsfordeling/enhetsliste/journalforende",
             HttpMethod.GET,
             null,
-            object : ParameterizedTypeReference<List<EnhetResponse>>() {})
+            object : ParameterizedTypeReference<List<EnhetResponse>>() {}
+        )
 
         if (response.statusCode == HttpStatus.NO_CONTENT) {
             throw HentJournalforendeEnheterFeiletFunksjoneltException("Fant ingen journalforende enheter")

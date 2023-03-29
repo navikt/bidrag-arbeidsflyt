@@ -13,7 +13,7 @@ import javax.transaction.Transactional
 class PersistenceService(
     private val oppgaveRepository: OppgaveRepository,
     private val dlqKafkaRepository: DLQKafkaRepository
-){
+) {
 
     companion object {
         @JvmStatic
@@ -25,28 +25,30 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreDLQKafka(topic: String, key: String?, payload: String, retry: Boolean = true){
+    fun lagreDLQKafka(topic: String, key: String?, payload: String, retry: Boolean = true) {
         try {
-            dlqKafkaRepository.save(DLQKafka(
-                messageKey = key ?: "UKJENT",
-                topicName = topic,
-                payload = payload,
-                retry = retry
-            ))
-        } catch (e: Exception){
+            dlqKafkaRepository.save(
+                DLQKafka(
+                    messageKey = key ?: "UKJENT",
+                    topicName = topic,
+                    payload = payload,
+                    retry = retry
+                )
+            )
+        } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved lagring av feilet kafka melding", e)
         }
     }
 
     @Transactional
-    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
-        if (!oppgaveHendelse.erJournalforingOppgave){
+    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse) {
+        if (!oppgaveHendelse.erJournalforingOppgave) {
             LOGGER.debug("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
             return
         }
         val oppgave = Oppgave(
             oppgaveId = oppgaveHendelse.id,
-            oppgavetype =  oppgaveHendelse.oppgavetype!!,
+            oppgavetype = oppgaveHendelse.oppgavetype!!,
             status = oppgaveHendelse.status?.name!!,
             journalpostId = oppgaveHendelse.journalpostId
         )
@@ -55,8 +57,8 @@ class PersistenceService(
     }
 
     @Transactional
-    fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.erAapenJournalforingsoppgave()){
+    fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveHendelse) {
+        if (oppgaveHendelse.erAapenJournalforingsoppgave()) {
             oppgaveRepository.findById(oppgaveHendelse.id)
                 .ifPresentOrElse({
                     LOGGER.info("Oppdaterer oppgave ${oppgaveHendelse.id} i databasen")
@@ -72,25 +74,23 @@ class PersistenceService(
                 LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
             }
         }
-
     }
 
     @Transactional
-    fun slettFeiledeMeldingerMedOppgaveid(oppgaveid: Long){
+    fun slettFeiledeMeldingerMedOppgaveid(oppgaveid: Long) {
         try {
             dlqKafkaRepository.deleteByMessageKey(oppgaveid.toString())
-        } catch (e: Exception){
+        } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med oppgaveid $oppgaveid", e)
         }
     }
 
     @Transactional
-    fun slettFeiledeMeldingerMedJournalpostId(journalpostId: String){
+    fun slettFeiledeMeldingerMedJournalpostId(journalpostId: String) {
         try {
             dlqKafkaRepository.deleteByMessageKey(journalpostId)
-        } catch (e: Exception){
+        } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med journalpostid $journalpostId", e)
         }
     }
-
 }

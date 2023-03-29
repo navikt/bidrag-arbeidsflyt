@@ -23,36 +23,33 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(DefaultPersonConsumer::class.java)
     }
+
     @Cacheable(PERSON_CACHE, unless = "#ident==null||#result==null")
     @Retryable(value = [HentArbeidsfordelingFeiletTekniskException::class], maxAttempts = 10, backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0))
     override fun hentPerson(ident: String?): HentPersonResponse? {
         if (ident == null) return null
 
         try {
-            val response =  restTemplate.exchange(
+            val response = restTemplate.exchange(
                 "/informasjon/$ident",
                 HttpMethod.GET,
                 null,
                 HentPersonResponse::class.java
             )
 
-            if (response.statusCode == HttpStatus.NO_CONTENT){
+            if (response.statusCode == HttpStatus.NO_CONTENT) {
                 SECURE_LOGGER.warn("Fant ingen person for ident $ident")
                 return null
             }
 
             return response.body
-
-        } catch (statusException: HttpStatusCodeException){
-            if (statusException.statusCode.is4xxClientError){
+        } catch (statusException: HttpStatusCodeException) {
+            if (statusException.statusCode.is4xxClientError) {
                 LOGGER.error("Det skjedde en feil ved henting av person", statusException)
                 SECURE_LOGGER.error("Det skjedde en feil ved henting av person $ident", statusException)
                 throw HentPersonFeiletFunksjoneltException("Det skjedde en feil ved henting av person $ident", statusException)
             }
             throw HentArbeidsfordelingFeiletTekniskException("Det skjedde en teknisk feil ved henting av person $ident", statusException)
         }
-
     }
-
-
 }

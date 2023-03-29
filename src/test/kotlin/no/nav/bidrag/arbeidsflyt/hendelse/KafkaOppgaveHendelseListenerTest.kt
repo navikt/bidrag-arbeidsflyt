@@ -15,8 +15,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import java.util.concurrent.TimeUnit
 
-
-internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
+internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
 
     @Value("\${TOPIC_OPPGAVE_ENDRET}")
     private val topicEndret: String? = null
@@ -31,7 +30,6 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
 
-
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
             verifyOppgaveOpprettetWith(
                 "\"oppgavetype\":\"JFR\"",
@@ -42,7 +40,6 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
             )
             verifyOppgaveNotEndret()
         }
-
     }
 
     @Test
@@ -53,11 +50,8 @@ internal class KafkaOppgaveHendelseListenerTest: AbstractKafkaHendelseTest() {
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
 
-
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
             assertThat(testDataGenerator.hentDlKafka().size).isEqualTo(1)
         }
-
     }
-
 }

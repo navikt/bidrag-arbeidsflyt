@@ -1,7 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.*
+import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JOURNALFORINGSOPPGAVE
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
@@ -114,7 +117,8 @@ internal class DefaultBehandleHendelseServiceTest {
             patchOppgaveRequest = eq(
                 OverforOppgaveRequest(
                     oppgaveDataForHendelse = OppgaveDataForHendelse(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
-                    nyttEnhetsnummer = nyttEnhetsnummer, "Z99999"
+                    nyttEnhetsnummer = nyttEnhetsnummer,
+                    "Z99999"
                 )
             ),
             endretAvEnhetsnummer = anyOrNull()

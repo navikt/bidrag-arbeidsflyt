@@ -2,7 +2,14 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
-import no.nav.bidrag.arbeidsflyt.dto.*
+import no.nav.bidrag.arbeidsflyt.dto.EndreForNyttDokumentRequest
+import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
+import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettBehandleDokumentOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
@@ -22,7 +29,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             .brukBehandlingSomOppgaveType()
             .leggTilSaksreferanser(saker)
 
-        if (tema!=null){
+        if (tema != null) {
             oppgaveSokRequest.leggTilFagomrade(tema)
         }
 
@@ -51,7 +58,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun oppdaterOppgave(oppdaterOppgave: OppdaterOppgave, endretAvEnhetsnummer: String? = null){
+    internal fun oppdaterOppgave(oppdaterOppgave: OppdaterOppgave, endretAvEnhetsnummer: String? = null) {
         oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
     }
 
@@ -82,26 +89,28 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         opprettBehandleDokumentOppgaveForSaker(journalpostHendelse, sakerSomKreverNyBehandleDokumentOppgave)
     }
 
-    internal fun opprettBehandleDokumentOppgave(opprettBehandleDokumentOppgaveRequest: OpprettBehandleDokumentOppgaveRequest){
+    internal fun opprettBehandleDokumentOppgave(opprettBehandleDokumentOppgaveRequest: OpprettBehandleDokumentOppgaveRequest) {
         oppgaveConsumer.opprettOppgave(opprettBehandleDokumentOppgaveRequest)
     }
 
-    internal fun opprettBehandleDokumentOppgaveForSaker(journalpostHendelse: JournalpostHendelse, saker: List<String>){
+    internal fun opprettBehandleDokumentOppgaveForSaker(journalpostHendelse: JournalpostHendelse, saker: List<String>) {
         LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: ${saker.size} for saker $saker")
-        saker.forEach{
+        saker.forEach {
             LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
-            opprettBehandleDokumentOppgave(OpprettBehandleDokumentOppgaveRequest(
-                saksreferanse = it,
-                _journalpostId = journalpostHendelse.journalpostMedPrefix,
-                aktoerId = journalpostHendelse.aktorId,
-                tittel = journalpostHendelse.tittel!!,
-                dokumentDato = journalpostHendelse.dokumentDato,
-                sporingsdata = journalpostHendelse.sporing!!,
-                saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo()
-            ))
+            opprettBehandleDokumentOppgave(
+                OpprettBehandleDokumentOppgaveRequest(
+                    saksreferanse = it,
+                    _journalpostId = journalpostHendelse.journalpostMedPrefix,
+                    aktoerId = journalpostHendelse.aktorId,
+                    tittel = journalpostHendelse.tittel!!,
+                    dokumentDato = journalpostHendelse.dokumentDato,
+                    sporingsdata = journalpostHendelse.sporing!!,
+                    saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo()
+                )
+            )
         }
     }
-    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveDataForHendelse>){
+    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveDataForHendelse>) {
         LOGGER.info("Antall behandle dokument oppgaver som skal oppdateres: {}", oppgaver.size)
 
         for (oppgaveData in oppgaver) {

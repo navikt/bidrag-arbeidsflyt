@@ -1,8 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -77,7 +77,7 @@ class BehandleJournalpostHendelse(
     }
 
     fun opprettEllerEndreBehandleDokumentOppgaver(): BehandleJournalpostHendelse {
-        if (journalpostHendelse.erJournalfort && journalpostHendelse.erHendelseTypeJournalforing() && journalpostHendelse.harSaker){
+        if (journalpostHendelse.erJournalfort && journalpostHendelse.erHendelseTypeJournalforing() && journalpostHendelse.harSaker) {
             val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelse.saker)
             if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostHendelse.journalpostId, journalpostHendelse.saker)) {
                 LOGGER.info("En journalført journalpost skal ha oppdatert behandle dokument oppgaver for saker. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
@@ -87,17 +87,16 @@ class BehandleJournalpostHendelse(
             }
         }
 
-
         return this
     }
 
     fun hentArbeidsfordeling(): String {
         val tema = journalpostHendelse.tema ?: journalpostHendelse.fagomrade
-        if (tema == Fagomrade.FARSKAP){
+        if (tema == Fagomrade.FARSKAP) {
             LOGGER.info("Journalposthendelse med journalpostId ${journalpostHendelse.journalpostId} har tema FAR. Bruker enhet $ENHET_FARSKAP ved arbeidsfordeling")
             return ENHET_FARSKAP
         }
-        if (journalpostHendelse.hasEnhet){
+        if (journalpostHendelse.hasEnhet) {
             val enhetEksitererOgErAktiv = arbeidsfordelingService.enhetEksistererOgErAktiv(journalpostHendelse.enhet)
             val erJournalførendeEnhet = arbeidsfordelingService.erJournalførendeEnhet(journalpostHendelse.enhet)
             val erGyldigEnhet = enhetEksitererOgErAktiv && erJournalførendeEnhet
