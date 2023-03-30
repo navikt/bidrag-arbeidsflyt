@@ -20,6 +20,7 @@ database:
   autoResize: false
 ingresses:
   - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no
+  - https://bidrag-arbeidsflyt-feature.intern.dev.nav.no
 outbound-access-hosts:
    - bidrag-dokument-feature.dev-fss-pub.nais.io
    - bidrag-person-feature.dev-fss-pub.nais.io
