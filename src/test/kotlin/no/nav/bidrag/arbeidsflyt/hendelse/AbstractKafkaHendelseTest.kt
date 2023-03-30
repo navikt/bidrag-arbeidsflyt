@@ -21,7 +21,7 @@ import java.util.Collections
 @ActiveProfiles(value = [PROFILE_KAFKA_TEST, PROFILE_TEST])
 @DisplayName("OppgaveEndretHendelseListenerTest")
 @EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9093", "port=9093"], topics = ["oppgave-endret", "oppgave-opprettet", "topic_journalpost"])
-abstract class AbstractKafkaHendelseTest: AbstractBehandleHendelseTest(){
+abstract class AbstractKafkaHendelseTest : AbstractBehandleHendelseTest() {
 
     @Autowired
     lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker

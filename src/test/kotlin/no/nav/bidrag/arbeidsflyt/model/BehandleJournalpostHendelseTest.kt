@@ -3,8 +3,8 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
+import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Sporingsdata
@@ -43,7 +43,6 @@ internal class BehandleJournalpostHendelseTest {
     @MockBean
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
-
     private val journalpostHendelse = JournalpostHendelse(sporing = Sporingsdata(enhetsnummer = enhetsnummerFraSporingsdata))
 
     fun hentBehandleJournalpostTjeneste(journalpostHendelse: JournalpostHendelse) = BehandleJournalpostHendelse(
@@ -51,9 +50,9 @@ internal class BehandleJournalpostHendelseTest {
         oppgaveService = oppgaveService,
         arbeidsfordelingService = arbeidsfordelingService
     )
+
     @BeforeEach
     fun `init OppdaterOppgaver med oppgavesøk`() {
-
         whenever(
             httpHeaderRestTemplateMock.exchange(
                 anyString(),
@@ -89,10 +88,8 @@ internal class BehandleJournalpostHendelseTest {
 
     @Test
     fun `skal sette endretAvEnhetsnummer når oppdatering av enhetsnummer gjøres`() {
-
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
             .thenReturn(ResponseEntity.ok(OppgaveData()))
-
 
         hentBehandleJournalpostTjeneste(journalpostHendelse.copy(enhet = "1234")).oppdaterEndretEnhetsnummer()
 

@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 
-
 @Service
 @DependsOn("oppgaveKafkaListenerContainerFactory")
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])
@@ -29,7 +28,7 @@ class OppgaveHendelseListener(
         private val LOGGER = LoggerFactory.getLogger(OppgaveHendelseListener::class.java)
     }
 
-    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
+    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
     fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
@@ -40,7 +39,7 @@ class OppgaveHendelseListener(
         }
     }
 
-    @KafkaListener(containerFactory="oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
+    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
     fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
 
@@ -51,8 +50,8 @@ class OppgaveHendelseListener(
         }
     }
 
-    fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveHendelse){
-        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave){
+    fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveHendelse) {
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
             meterRegistry.counter(
                 "jfr_oppgave_opprettet",
                 "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
@@ -61,6 +60,5 @@ class OppgaveHendelseListener(
                 "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
             ).increment()
         }
-
     }
 }

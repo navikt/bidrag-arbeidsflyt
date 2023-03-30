@@ -3,7 +3,15 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.patch
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.stubFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
@@ -12,14 +20,20 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
-import no.nav.bidrag.arbeidsflyt.utils.*
+import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
+import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
+import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
+import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
+import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
+import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.verifier.converter.YamlContract.ValueMatcher
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -129,7 +143,6 @@ abstract class AbstractBehandleHendelseTest {
                 .willSetStateTo(nextScenario)
         )
     }
-
 
     fun stubHentGeografiskEnhet(enhet: String = ENHET_4806, status: HttpStatus = HttpStatus.OK) {
         stubFor(

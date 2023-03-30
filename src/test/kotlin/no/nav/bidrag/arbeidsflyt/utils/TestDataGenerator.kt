@@ -13,6 +13,7 @@ class TestDataGenerator {
 
     @Autowired
     lateinit var oppgaveRepository: OppgaveRepository
+
     @Autowired
     lateinit var dlqKafkaRepository: DLQKafkaRepository
 
@@ -23,16 +24,15 @@ class TestDataGenerator {
         return oppgaveRepository.findById(oppgaveId)
     }
 
-    fun opprettDLQMelding(dlqKafka: DLQKafka){
+    fun opprettDLQMelding(dlqKafka: DLQKafka) {
         dlqKafkaRepository.save(dlqKafka)
     }
-    fun opprettOppgave(oppgave: Oppgave){
+    fun opprettOppgave(oppgave: Oppgave) {
         oppgaveRepository.save(oppgave)
     }
 
-    fun deleteAll(){
+    fun deleteAll() {
         dlqKafkaRepository.deleteAll()
         oppgaveRepository.deleteAll()
     }
-    
 }

@@ -14,7 +14,7 @@ import org.springframework.test.context.TestPropertySource
 import java.util.concurrent.TimeUnit
 
 @TestPropertySource(properties = ["FEATURE_ENABLED=NONE"])
-class FeatureToggleLagreOgOppgaveHendelse: AbstractKafkaHendelseTest() {
+class FeatureToggleLagreOgOppgaveHendelse : AbstractKafkaHendelseTest() {
 
     @Value("\${TOPIC_JOURNALPOST}")
     private val topicJournalpost: String? = null

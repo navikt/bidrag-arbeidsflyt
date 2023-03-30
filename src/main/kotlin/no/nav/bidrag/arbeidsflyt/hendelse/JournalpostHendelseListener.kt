@@ -10,7 +10,9 @@ interface JournalpostHendelseListener {
 }
 
 class KafkaJournalpostHendelseListener(
-    jsonMapperService: JsonMapperService, behandeHendelseService: BehandleHendelseService, persistenceService: PersistenceService
+    jsonMapperService: JsonMapperService,
+    behandeHendelseService: BehandleHendelseService,
+    persistenceService: PersistenceService
 ) : PojoJournalpostHendelseListener(jsonMapperService, persistenceService, behandeHendelseService) {
 
     @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"])

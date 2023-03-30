@@ -4,7 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.RetryListener
 
-class KafkaRetryListener: RetryListener {
+class KafkaRetryListener : RetryListener {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(KafkaRetryListener::class.java)

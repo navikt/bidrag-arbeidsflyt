@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 val OppgaveHendelse.tilhorerFagpost get() = tildeltEnhetsnr == ENHET_FAGPOST
+
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
@@ -24,12 +25,12 @@ class BehandleOppgaveHendelseService(
         private val LOGGER = LoggerFactory.getLogger(BehandleOppgaveHendelseService::class.java)
     }
 
-    fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.erJournalforingOppgave){
+    fun behandleOpprettOppgave(oppgaveHendelse: OppgaveHendelse) {
+        if (oppgaveHendelse.erJournalforingOppgave) {
             persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
         }
 
-        if (oppgaveHendelse.hasJournalpostId){
+        if (oppgaveHendelse.hasJournalpostId) {
             oppdaterOppgaveFraHendelse(oppgaveHendelse)
                 .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
                 .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
@@ -43,8 +44,8 @@ class BehandleOppgaveHendelseService(
     }
 
     @Transactional
-    fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse){
-        if (oppgaveHendelse.hasJournalpostId){
+    fun behandleEndretOppgave(oppgaveHendelse: OppgaveHendelse) {
+        if (oppgaveHendelse.hasJournalpostId) {
             oppdaterOppgaveFraHendelse(oppgaveHendelse)
                 .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
                 .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
@@ -67,14 +68,14 @@ class BehandleOppgaveHendelseService(
         }
     }
 
-    fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse){
+    fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgaveHendelse: OppgaveHendelse) {
         if (harIkkeAapneJournalforingsoppgaver(oppgaveHendelse.journalpostId!!)) {
             journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
                 .takeIf { it?.erBidragFagomrade == true }
                 ?.run {
-                            LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
-                            opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
-                } ?: run  { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") }
+                    LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
+                    opprettJournalforingOppgaveFraHendelse(oppgaveHendelse)
+                } ?: run { LOGGER.info("Journalpost ${oppgaveHendelse.journalpostId} som tilhører oppgave ${oppgaveHendelse.id} har ikke status MOTTATT. Stopper videre behandling.") }
         }
     }
 
@@ -83,23 +84,22 @@ class BehandleOppgaveHendelseService(
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 
-    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse){
+    fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse) {
         val tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
         oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, tildeltEnhetsnr))
     }
 
     fun erOppgavetypeEndretFraJournalforingTilAnnet(oppgaveHendelse: OppgaveHendelse): Boolean {
-        if(oppgaveHendelse.erJournalforingOppgave){
+        if (oppgaveHendelse.erJournalforingOppgave) {
             return false
         }
 
         val prevOppgaveState = persistenceService.hentJournalforingOppgave(oppgaveHendelse.id)
-        if (prevOppgaveState?.erJournalforingOppgave() == true){
+        if (prevOppgaveState?.erJournalforingOppgave() == true) {
             LOGGER.info("Oppgavetype for oppgave ${oppgaveHendelse.id} er endret fra JFR til ${oppgaveHendelse.oppgavetype}")
             return true
         }
 
         return false
-
     }
 }

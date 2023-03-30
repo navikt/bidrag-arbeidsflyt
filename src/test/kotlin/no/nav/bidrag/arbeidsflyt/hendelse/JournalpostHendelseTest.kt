@@ -6,7 +6,18 @@ import no.nav.bidrag.arbeidsflyt.model.ENHET_FARSKAP
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
-import no.nav.bidrag.arbeidsflyt.utils.*
+import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
+import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
+import no.nav.bidrag.arbeidsflyt.utils.DateUtils
+import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_2
+import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
+import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
+import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_2
+import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_5
+import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
+import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Sporingsdata
@@ -17,10 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
 
-internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
+internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Autowired
     lateinit var behandleHendelseService: BehandleHendelseService
+
     @Test
     fun `skal hente journalpostId fra prefikset journalpostId`() {
         val journalpostHendelse = JournalpostHendelse(journalpostId = "BID-101")
@@ -29,7 +41,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal behandle hendelse med ugyldig fnr`(){
+    fun `skal behandle hendelse med ugyldig fnr`() {
         val enhet = "4812"
         val aktorid = "123213123213213"
         stubHentOppgave(emptyList())
@@ -51,7 +63,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet er nedlagt`(){
+    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet er nedlagt`() {
         val enhet = "2101"
         val geografiskEnhet = "4806"
         stubHentOppgave(emptyList())
@@ -67,7 +79,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet ikke finnes`(){
+    fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet ikke finnes`() {
         val enhet = "2101"
         val geografiskEnhet = "4806"
         stubHentOppgave(emptyList())
@@ -83,7 +95,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`(){
+    fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`() {
         val enhet = "4812"
         val aktorid = "123213123213213"
         stubHentOppgave(emptyList())
@@ -98,21 +110,21 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"","\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"", "\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
         verifyOppgaveNotEndret()
         verifyHentGeografiskEnhetKalt()
         verifyHentPersonKalt()
     }
 
     @Test
-    fun `skal ikke opprette journalforingsoppgave hvis hent geografisk enhet feiler`(){
+    fun `skal ikke opprette journalforingsoppgave hvis hent geografisk enhet feiler`() {
         val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = null)
 
-        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse)  }
+        assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
 
         verifyOppgaveNotOpprettet()
         verifyOppgaveNotEndret()
@@ -120,7 +132,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave og enhet er null`(){
+    fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave og enhet er null`() {
         val enhet = "4812"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
@@ -134,7 +146,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med journalpost enhet hvis BID journalpost`(){
+    fun `skal opprette journalforingsoppgave med journalpost enhet hvis BID journalpost`() {
         val enhet = "4833"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
@@ -150,7 +162,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med journalpost enhet hvis Joark journalpost`(){
+    fun `skal opprette journalforingsoppgave med journalpost enhet hvis Joark journalpost`() {
         val enhet = "4833"
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
@@ -167,7 +179,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette journalforingsoppgave med arbeidsfordeling hvis hendelse enhet ikke er journalførende`(){
+    fun `skal opprette journalforingsoppgave med arbeidsfordeling hvis hendelse enhet ikke er journalførende`() {
         val enhet = "4343"
         val arbeisfordelingEnhet = "4833"
         stubHentOppgave(emptyList())
@@ -185,7 +197,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave med uten prefix nar Joark journalpost med status mottatt ikke har jfr oppgave`(){
+    fun `skal opprette oppgave med uten prefix nar Joark journalpost med status mottatt ikke har jfr oppgave`() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -203,21 +215,26 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",
             "\"prioritet\":\"HOY\"",
-            "\"tema\":\"BID\"")
+            "\"tema\":\"BID\""
+        )
         verifyOppgaveNotEndret()
     }
 
     @Test
-    fun `skal ikke opprette journalforingsoppgave nar Bidrag journalpost med status mottatt har jfr oppgave`(){
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = "BID-$JOURNALPOST_ID_4_NEW",
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
+    fun `skal ikke opprette journalforingsoppgave nar Bidrag journalpost med status mottatt har jfr oppgave`() {
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = "BID-$JOURNALPOST_ID_4_NEW",
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
@@ -229,18 +246,21 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveNotEndret()
     }
 
-
     @Test
-    fun `skal ikke opprette oppgave nar Joark journalpost med status mottatt har jfr oppgave`(){
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_4_NEW,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
+    fun `skal ikke opprette oppgave nar Joark journalpost med status mottatt har jfr oppgave`() {
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_4_NEW,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
@@ -253,7 +273,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal opprette oppgave på enhet 4860 hvis journalpost har tema FAR`(){
+    fun `skal opprette oppgave på enhet 4860 hvis journalpost har tema FAR`() {
         stubHentOppgave(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -271,21 +291,26 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",
             "\"prioritet\":\"HOY\"",
-            "\"tema\":\"BID\"")
+            "\"tema\":\"BID\""
+        )
         verifyOppgaveNotEndret()
     }
 
     @Test
-    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade`(){
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_4_NEW,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
+    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade`() {
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_4_NEW,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
@@ -297,25 +322,35 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade for Joark journalpost men JFR oppgave finnes fra for`(){
-        stubHentOppgaveContaining(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_4_NEW,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )), Pair("tema", "BID"))
-        stubHentOppgaveContaining(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_4_NEW,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "EKSTERN",
-            tildeltEnhetsnr = "4833"
-        )), Pair("tema", "EKSTERN"))
+    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade for Joark journalpost men JFR oppgave finnes fra for`() {
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_4_NEW,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            ),
+            Pair("tema", "BID")
+        )
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_4_NEW,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "EKSTERN",
+                    tildeltEnhetsnr = "4833"
+                )
+            ),
+            Pair("tema", "EKSTERN")
+        )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
@@ -327,7 +362,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal hente aktorid hvis mangler`(){
+    fun `skal hente aktorid hvis mangler`() {
         val aktorId = "123213213213123"
         stubHentOppgaveContaining(listOf())
         stubHentPerson(aktorId = aktorId)
@@ -338,18 +373,17 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
             .copy(
                 aktorId = null,
                 fnr = "123123123"
-             )
-
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         verifyHentPersonKalt()
         verifyHentGeografiskEnhetKalt()
-        verifyOppgaveOpprettetWith( "\"aktoerId\":\"$aktorId\"")
+        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorId\"")
     }
 
     @Test
-    fun `skal opprette oppgave med aktorid null hvis personid ikke funnet`(){
+    fun `skal opprette oppgave med aktorid null hvis personid ikke funnet`() {
         stubHentOppgaveContaining(listOf())
         stubHentPerson(status = HttpStatus.NO_CONTENT)
         stubHentGeografiskEnhet(enhet = "1234")
@@ -364,11 +398,11 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
 
         verifyHentPersonKalt()
         verifyHentGeografiskEnhetKalt(0)
-        verifyOppgaveOpprettetWith( "\"aktoerId\":null")
+        verifyOppgaveOpprettetWith("\"aktoerId\":null")
     }
 
     @Test
-    fun `skal feile behandle hendelse hvis hentperson feiler nar aktorid mangler`(){
+    fun `skal feile behandle hendelse hvis hentperson feiler nar aktorid mangler`() {
         val aktorId = "123213213213123"
         stubHentOppgaveContaining(listOf())
         stubHentPerson(aktorId = aktorId, status = HttpStatus.INTERNAL_SERVER_ERROR)
@@ -384,7 +418,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke hente person hvis aktorid ikke mangler`(){
+    fun `skal ikke hente person hvis aktorid ikke mangler`() {
         stubHentOppgaveContaining(listOf())
         stubHentPerson()
         stubHentGeografiskEnhet(enhet = "1234")
@@ -401,22 +435,25 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal oppdatere og opprette behandle dokument oppgave`(){
+    fun `skal oppdatere og opprette behandle dokument oppgave`() {
         val sakMedOppgave = "123123"
         val sakUtenOppgave = "3344444"
         stubHentOppgaveContaining(emptyList())
-        stubHentOppgaveContaining(listOf(
-            OppgaveData(
-                id = OPPGAVE_ID_5,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-12312321",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave
-            )
-        ), Pair("oppgavetype", "BEH_SAK"))
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_5,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-12312321",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave
+                )
+            ),
+            Pair("oppgavetype", "BEH_SAK")
+        )
 
         stubHentPerson()
         stubOpprettOppgave(OPPGAVE_ID_5)
@@ -444,7 +481,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "$OPPGAVE_ID_5", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
-        verifyOppgaveOpprettetWith("BEH_SAK",
+        verifyOppgaveOpprettetWith(
+            "BEH_SAK",
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
@@ -454,22 +492,25 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal oppdatere og opprette behandle dokument oppgave med BID journalpost`(){
+    fun `skal oppdatere og opprette behandle dokument oppgave med BID journalpost`() {
         val sakMedOppgave = "123123"
         val sakUtenOppgave = "3344444"
         stubHentOppgaveContaining(emptyList())
-        stubHentOppgaveContaining(listOf(
-            OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave
-            )
-        ), Pair("oppgavetype", "BEH_SAK"))
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave
+                )
+            ),
+            Pair("oppgavetype", "BEH_SAK")
+        )
 
         stubHentPerson()
         stubOpprettOppgave(OPPGAVE_ID_1)
@@ -497,7 +538,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "$OPPGAVE_ID_1", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
-        verifyOppgaveOpprettetWith("BEH_SAK",
+        verifyOppgaveOpprettetWith(
+            "BEH_SAK",
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
@@ -507,22 +549,25 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke sette tilordenetressurs hvis lengre enn 7 tegn`(){
+    fun `skal ikke sette tilordenetressurs hvis lengre enn 7 tegn`() {
         val sakMedOppgave = "123123"
         val sakUtenOppgave = "3344444"
         stubHentOppgaveContaining(emptyList())
-        stubHentOppgaveContaining(listOf(
-            OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave
-            )
-        ), Pair("oppgavetype", "BEH_SAK"))
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave
+                )
+            ),
+            Pair("oppgavetype", "BEH_SAK")
+        )
 
         stubHentPerson()
         stubOpprettOppgave(OPPGAVE_ID_1)
@@ -551,7 +596,8 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
         verifyOppgaveEndretWith(1, "$OPPGAVE_ID_1", "Nytt dokument (Ny tittel) mottatt 02.01.2020")
         verifyOppgaveEndretWith(1, "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2")
         verifyOppgaveEndretWith(1, "Behandle dokument (tittel) mottatt 05.05.2020")
-        verifyOppgaveOpprettetWith("BEH_SAK",
+        verifyOppgaveOpprettetWith(
+            "BEH_SAK",
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
@@ -561,7 +607,7 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle dokument oppgave hvis hendelsetype ENDRING`(){
+    fun `skal ikke oppdatere behandle dokument oppgave hvis hendelsetype ENDRING`() {
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())
@@ -595,32 +641,35 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder journalpostid`(){
+    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder journalpostid`() {
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())
-        stubHentOppgaveContaining(listOf(
-            OppgaveData(
-                id = OPPGAVE_ID_2,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_2,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave
+                ),
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave2
+                )
             ),
-            OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave2
-            )
-        ), Pair("oppgavetype", "BEH_SAK"))
+            Pair("oppgavetype", "BEH_SAK")
+        )
 
         stubHentPerson()
         stubOpprettOppgave()
@@ -650,32 +699,35 @@ internal class JournalpostHendelseTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder BID journalpostId`(){
+    fun `skal ikke oppdatere behandle dokument oppgave hvis beskrivelse inneholder BID journalpostId`() {
         val sakMedOppgave = "123123"
         val sakMedOppgave2 = "3344444"
         stubHentOppgaveContaining(emptyList())
-        stubHentOppgaveContaining(listOf(
-            OppgaveData(
-                id = OPPGAVE_ID_2,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave
+        stubHentOppgaveContaining(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_2,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave
+                ),
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "BEH_SAK",
+                    beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4806",
+                    saksreferanse = sakMedOppgave2
+                )
             ),
-            OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n",
-                tema = "BID",
-                tildeltEnhetsnr = "4806",
-                saksreferanse = sakMedOppgave2
-            )
-        ), Pair("oppgavetype", "BEH_SAK"))
+            Pair("oppgavetype", "BEH_SAK")
+        )
 
         stubHentPerson()
         stubOpprettOppgave()

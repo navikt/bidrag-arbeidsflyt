@@ -23,8 +23,8 @@ data class OppgaveDataForHendelse(
     val tilordnetRessurs: String? = null,
     val saksreferanse: String? = null,
     val statuskategori: Oppgavestatuskategori? = null,
-    val status: OppgaveStatus? = null,
-    ) {
+    val status: OppgaveStatus? = null
+) {
     constructor(oppgaveData: OppgaveData) : this(
         id = oppgaveData.id ?: -1,
         versjon = oppgaveData.versjon ?: -1,
@@ -42,7 +42,7 @@ data class OppgaveDataForHendelse(
         ident = oppgaveData.aktoerId
     )
 
-    constructor(oppgaveHendelse: OppgaveHendelse): this(
+    constructor(oppgaveHendelse: OppgaveHendelse) : this(
         id = oppgaveHendelse.id,
         versjon = oppgaveHendelse.versjon,
         tema = oppgaveHendelse.tema,
@@ -75,5 +75,5 @@ data class OppgaveDataForHendelse(
     internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
 //    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
 
-    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if(isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
+    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if (isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 }

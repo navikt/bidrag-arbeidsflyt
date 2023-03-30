@@ -53,7 +53,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import java.time.Duration
 import javax.sql.DataSource
 
-
 @Configuration
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS, "local"])
 @EnableScheduling
@@ -77,22 +76,27 @@ class HendelseConfiguration {
 
     @Bean
     fun journalpostHendelseListener(
-        jsonMapperService: JsonMapperService, behandleHendelseService: BehandleHendelseService, persistenceService: PersistenceService
+        jsonMapperService: JsonMapperService,
+        behandleHendelseService: BehandleHendelseService,
+        persistenceService: PersistenceService
     ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
-        jsonMapperService,  behandleHendelseService, persistenceService
+        jsonMapperService,
+        behandleHendelseService,
+        persistenceService
     )
+
     @Bean
     fun defaultErrorHandler(@Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int, persistenceService: PersistenceService): DefaultErrorHandler? {
         LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
         val backoffStrategy = ExponentialBackOffWithMaxRetries(maxRetries)
         backoffStrategy.multiplier = 2.0
         backoffStrategy.maxInterval = 1200000L // 20 minutes
-        val errorHandler =  DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
+        val errorHandler = DefaultErrorHandler({ rec: ConsumerRecord<*, *>, ex: Exception? ->
             val key = rec.key()
             val value = rec.value()
             val offset = rec.offset()
-            val topic =  rec.topic()
-            val partition =  rec.partition()
+            val topic = rec.topic()
+            val partition = rec.partition()
             val errorMessage = "Håndtering av Kafka melding feilet. Nøkkel $key, partition $partition, topic $topic og offset $offset. Melding som feilet: $value"
             LOGGER.error(errorMessage, ex)
             SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
@@ -109,24 +113,26 @@ class HendelseConfiguration {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
         factory.consumerFactory = oppgaveConsumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
-        //Retry consumer/listener even if authorization fails
+        // Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->
             container.containerProperties.setAuthExceptionRetryInterval(Duration.ofSeconds(10L))
         }
 
-        factory.setCommonErrorHandler(defaultErrorHandler);
-        return factory;
+        factory.setCommonErrorHandler(defaultErrorHandler)
+        return factory
     }
 
     @Bean
-    fun oppgaveConsumerFactory(@Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
-                        @Value("\${KAFKA_GROUP_ID}") groupId: String,
-                        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
-                        @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
-                        @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
-                        @Value("\${SERVICE_USER_USERNAME}") username: String,
-                        @Value("\${SERVICE_USER_PASSWORD}") password: String,
-                        environment: Environment): ConsumerFactory<Long, String> {
+    fun oppgaveConsumerFactory(
+        @Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
+        @Value("\${KAFKA_GROUP_ID}") groupId: String,
+        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
+        @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
+        @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
+        @Value("\${SERVICE_USER_USERNAME}") username: String,
+        @Value("\${SERVICE_USER_PASSWORD}") password: String,
+        environment: Environment
+    ): ConsumerFactory<Long, String> {
         val props = mutableMapOf<String, Any>()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
@@ -136,7 +142,7 @@ class HendelseConfiguration {
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
         props["spring.deserializer.value.delegate.class"] = StringDeserializer::class.java
-        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)){
+        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)) {
             props[SaslConfigs.SASL_JAAS_CONFIG] =
                 "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
             props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
@@ -163,7 +169,8 @@ class ArbeidsflytConfiguration {
     @Bean
     fun oppgaveConsumer(
         @Value("\${OPPGAVE_URL}") oppgaveUrl: String,
-        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+        restTemplate: HttpHeaderRestTemplate,
+        securityTokenService: SecurityTokenService
     ): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("oppgave"))
@@ -173,7 +180,8 @@ class ArbeidsflytConfiguration {
     @Bean
     fun personConsumer(
         @Value("\${PERSON_URL}") personUrl: String,
-        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+        restTemplate: HttpHeaderRestTemplate,
+        securityTokenService: SecurityTokenService
     ): PersonConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
@@ -183,7 +191,8 @@ class ArbeidsflytConfiguration {
     @Bean
     fun organisasjonConsumer(
         @Value("\${ORGANISASJON_URL}") organisasjonUrl: String,
-        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+        restTemplate: HttpHeaderRestTemplate,
+        securityTokenService: SecurityTokenService
     ): BidragOrganisasjonConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$organisasjonUrl/bidrag-organisasjon")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("organisasjon"))
@@ -193,7 +202,8 @@ class ArbeidsflytConfiguration {
     @Bean
     fun bidragDokumentConsumer(
         @Value("\${BIDRAG_DOKUMENT_URL}") dokumentUrl: String,
-        restTemplate: HttpHeaderRestTemplate, securityTokenService: SecurityTokenService
+        restTemplate: HttpHeaderRestTemplate,
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$dokumentUrl/bidrag-dokument")
         restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("dokument"))

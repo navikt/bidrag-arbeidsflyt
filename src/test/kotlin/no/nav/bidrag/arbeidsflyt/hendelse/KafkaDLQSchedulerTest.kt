@@ -11,14 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
-internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
+internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
 
     @Autowired
     lateinit var kafkaDLQRetryScheduler: KafkaDLQRetryScheduler
 
-
     @Test
-    fun `should process and delete message with retry value true`(){
+    fun `should process and delete message with retry value true`() {
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
         stubHentPerson(PERSON_IDENT_3)
@@ -40,7 +39,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `should set retry to false if processing fails after max retry`(){
+    fun `should set retry to false if processing fails after max retry`() {
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
         testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 19))
@@ -56,7 +55,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `should increment retry count if processing fails`(){
+    fun `should increment retry count if processing fails`() {
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
         testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 1))
@@ -74,7 +73,7 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `should process messages ascending by created date`(){
+    fun `should process messages ascending by created date`() {
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.OK, nextScenario = "FAIL")
@@ -103,5 +102,4 @@ internal class KafkaDLQSchedulerTest: AbstractBehandleHendelseTest() {
         assertThat(dlqMessagesAfter[0].payload).contains(journalpostHendelse2.fnr)
         verifyHentPersonKalt(2)
     }
-
 }
