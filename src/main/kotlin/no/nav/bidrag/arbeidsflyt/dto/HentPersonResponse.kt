@@ -6,5 +6,6 @@ data class HentPersonResponse(
 )
 
 data class PersonRequestDto(
-    val ident: String? = null
+    val ident: String,
+    val verdi: String = ident
 )
