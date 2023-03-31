@@ -76,7 +76,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = EndreMellomBidragFagomrader(it, journalpostHendelse.hentSaksbehandlerInfo(), fagomradeGammelt, fagomradeNy, saksbehandlerHarTilgang)
+                patchOppgaveRequest = EndreMellomBidragFagomrader(it, journalpostHendelse.hentSaksbehandlerInfo(), fagomradeGammelt, fagomradeNy, overførTilFellesbenk = !saksbehandlerHarTilgang)
             )
         }
     }
