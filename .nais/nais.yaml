@@ -14,6 +14,10 @@ spec:
     enabled: true
   accessPolicy:
     outbound:
+      rules:
+      {{#each outbound-access-apps}}
+          - application: {{this}}
+      {{/each}}
       external:
       {{#each outbound-access-hosts}}
           - host: {{this}}

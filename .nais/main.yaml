@@ -23,6 +23,8 @@ database:
 ingresses:
   - https://bidrag-arbeidsflyt.dev.intern.nav.no
   - https://bidrag-arbeidsflyt.intern.dev.nav.no
+outbound-access-apps:
+  - bidrag-tilgangskontroll
 outbound-access-hosts:
    - bidrag-dokument.dev-fss-pub.nais.io
    - bidrag-person.dev-fss-pub.nais.io

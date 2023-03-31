@@ -22,6 +22,8 @@ database:
   autoResize: true
 ingresses:
   - https://bidrag-arbeidsflyt.intern.nav.no
+outbound-access-apps:
+  - bidrag-tilgangskontroll
 outbound-access-hosts:
    - bidrag-dokument.prod-fss-pub.nais.io
    - bidrag-person.prod-fss-pub.nais.io
