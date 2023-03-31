@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
+import no.nav.bidrag.arbeidsflyt.dto.PersonRequestDto
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
@@ -42,7 +43,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             val response: ResponseEntity<PersonDto> = restTemplate.exchange(
                 "/informasjon",
                 HttpMethod.POST,
-                HttpEntity(PersonIdent(ident))
+                HttpEntity(PersonRequestDto(ident))
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {

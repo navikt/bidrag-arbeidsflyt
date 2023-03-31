@@ -40,9 +40,7 @@ class PersistenceService(
 
     @Transactional
     fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
-        val journalpostId = if (journalpostHendelse.erJoarkJournalpost()) journalpostHendelse.journalpostIdUtenPrefix else journalpostHendelse.journalpostId
-
-
+        val journalpostId = journalpostHendelse.journalpostId
         if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade){
             deleteJournalpost(journalpostId)
             LOGGER.info("Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.hentStatus()}, fagomrade=${journalpostHendelse.hentTema()})")

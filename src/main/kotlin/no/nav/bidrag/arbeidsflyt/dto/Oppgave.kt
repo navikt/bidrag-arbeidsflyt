@@ -407,12 +407,11 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n"
-        if (overførTilFellesbenk) {
+        this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
+        if (overførTilFellesbenk && !oppgaveDataForHendelse.tilordnetRessurs.isNullOrEmpty()) {
             this.tilordnetRessurs = ""
-            this.beskrivelse += "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
+            this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
         }
-
-        this.beskrivelse += "${"· Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
         this.beskrivelse += oppgaveDataForHendelse.beskrivelse ?: ""
     }
 

@@ -21,14 +21,13 @@ class BidragTIlgangskontrollConsumer(
     @Qualifier("azure") private val restTemplate: RestOperations
 ) : AbstractRestClient(restTemplate, "bidrag-tilgangskontroll") {
 
-    private fun createUri(path: String?) = UriComponentsBuilder.fromUri(url)
-        .path(path ?: "").build().toUri()
-
     @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0))
     @Cacheable(TILGANG_TEMA_CACHE)
     fun sjekkTilgangTema(tema: String, saksbehandlerIdent: String): Boolean {
+        val url = UriComponentsBuilder.fromUri(url)
+            .path("/api/tilgang/tema").queryParam("navIdent", saksbehandlerIdent).build()
         return try {
-            postForEntity(createUri("/api/tilgang/tema?navIdent=$saksbehandlerIdent"), tema) ?: false
+            postForEntity(url.toUri(), tema) ?: false
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.FORBIDDEN) return false
             throw e

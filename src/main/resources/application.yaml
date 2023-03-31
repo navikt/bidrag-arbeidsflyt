@@ -57,7 +57,7 @@ no.nav.security.jwt:
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       organisasjon:
-        resource-url: ${BIDRAG_ORGANISASJON_URL}
+        resource-url: ${ORGANISASJON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
         scope: api://${ORGANISASJON_SCOPE}/.default

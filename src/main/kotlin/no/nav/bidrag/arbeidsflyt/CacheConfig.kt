@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.bidrag.arbeidsflyt.utils.CacheEvictBeforeWorkingHours
+import no.nav.bidrag.commons.cache.InvaliderCacheFørStartenAvArbeidsdag
 import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -32,13 +32,13 @@ class CacheConfig {
             PERSON_CACHE,
             Caffeine.newBuilder()
                 .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-                .expireAfter(CacheEvictBeforeWorkingHours()).build()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build()
         )
         caffeineCacheManager.registerCustomCache(
             GEOGRAFISK_ENHET_CACHE,
             Caffeine.newBuilder()
                 .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-                .expireAfter(CacheEvictBeforeWorkingHours()).build()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build()
         )
         caffeineCacheManager.registerCustomCache(JOURNALFORENDE_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build())
         caffeineCacheManager.registerCustomCache(ENHET_INFO_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
