@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
 import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostDto
@@ -183,5 +184,14 @@ fun createJournalforendeEnheterResponse(): List<EnhetResponse> {
         EnhetResponse("4833", "NAV Familie- og pensjonsytelser Oslo 1"),
         EnhetResponse("4806", "NAV Familie- og pensjonsytelser Drammen"),
         EnhetResponse("4812", "NAV Familie- og pensjonsytelser Bergen")
+    )
+}
+
+fun createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", tema: String = "BID"): Journalpost {
+    return Journalpost(
+        journalpostId = journalpostId,
+        status = status,
+        enhet = enhet,
+        tema = tema
     )
 }

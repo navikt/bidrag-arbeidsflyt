@@ -1,10 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Sporingsdata
@@ -40,6 +42,12 @@ internal class BehandleJournalpostHendelseTest {
     @Autowired
     private lateinit var arbeidsfordelingService: OrganisasjonService
 
+    @Autowired
+    private lateinit var persistenceService: PersistenceService
+
+    @Autowired
+    private lateinit var bidragTIlgangskontrollConsumer: BidragTIlgangskontrollConsumer
+
     @MockBean
     private lateinit var httpHeaderRestTemplateMock: HttpHeaderRestTemplate
 
@@ -48,7 +56,8 @@ internal class BehandleJournalpostHendelseTest {
     fun hentBehandleJournalpostTjeneste(journalpostHendelse: JournalpostHendelse) = BehandleJournalpostHendelse(
         journalpostHendelse = journalpostHendelse,
         oppgaveService = oppgaveService,
-        arbeidsfordelingService = arbeidsfordelingService
+        arbeidsfordelingService = arbeidsfordelingService,
+        persistenceService,bidragTIlgangskontrollConsumer
     )
 
     @BeforeEach

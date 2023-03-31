@@ -57,6 +57,8 @@ spec:
   env:
     - name: OPPGAVE_URL
       value: https://{{ azure.oppgave }}
+    - name: BIDRAG_TILGANGSKONTROLL_URL
+      value: http://{{ azure.tilgangskontroll }}
     - name: PERSON_URL
       value: https://{{ azure.person }}
     - name: ORGANISASJON_URL
@@ -73,6 +75,8 @@ spec:
       value: {{ azure.organisasjon_clientid }}
     - name: DOKUMENT_SCOPE
       value: {{ azure.dokument_clientid }}
+    - name: TILGANGSKONTROLL_SCOPE
+      value: {{ azure.tilgangskontroll_clientid }}
     - name: TOPIC_JOURNALPOST
       value: {{ kafka-topic-journalpost }}
     - name: TOPIC_OPPGAVE_ENDRET

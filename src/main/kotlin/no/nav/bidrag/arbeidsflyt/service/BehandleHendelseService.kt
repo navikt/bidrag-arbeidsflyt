@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
+import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.utils.numericOnly
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Service
 class BehandleHendelseService(
     private val arbeidsfordelingService: OrganisasjonService,
     private val oppgaveService: OppgaveService,
-    private val personConsumer: PersonConsumer
+    private val personConsumer: PersonConsumer,
+    private val persistenceService: PersistenceService,
+    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer
 ) {
     companion object {
         @JvmStatic
@@ -28,13 +31,16 @@ class BehandleHendelseService(
         }
         val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
 
-        BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService)
+        BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService, persistenceService, tIlgangskontrollConsumer)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
+            .oppdaterEndringMellommBidragFagomrader()
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()
             .opprettEllerEndreBehandleDokumentOppgaver()
+
+        persistenceService.lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse)
     }
 
     fun populerMedAktoerIdHvisMangler(journalpostHendelse: JournalpostHendelse): JournalpostHendelse {

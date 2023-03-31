@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.service
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.dto.EndreForNyttDokumentRequest
+import no.nav.bidrag.arbeidsflyt.dto.EndreMellomBidragFagomrader
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
@@ -67,6 +68,15 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na", journalpostHendelse.hentSaksbehandlerInfo())
+            )
+        }
+    }
+
+    internal fun endreMellomBidragFagomrade(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse, fagomradeGammelt: String, fagomradeNy: String, saksbehandlerHarTilgang: Boolean) {
+        oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
+            oppgaveConsumer.endreOppgave(
+                endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
+                patchOppgaveRequest = EndreMellomBidragFagomrader(it, journalpostHendelse.hentSaksbehandlerInfo(), fagomradeGammelt, fagomradeNy, saksbehandlerHarTilgang)
             )
         }
     }

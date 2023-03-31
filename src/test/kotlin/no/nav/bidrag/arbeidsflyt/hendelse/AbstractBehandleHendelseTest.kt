@@ -54,6 +54,7 @@ abstract class AbstractBehandleHendelseTest {
     @BeforeEach
     fun init() {
         testDataGenerator.deleteAll()
+        stubHentTemaTilgang()
         stubHentPerson()
         stubOpprettOppgave()
         stubEndreOppgave()
@@ -124,6 +125,15 @@ abstract class AbstractBehandleHendelseTest {
                 .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))
         )
         stubFor(stub)
+    }
+
+    fun stubHentTemaTilgang(result: Boolean = true) {
+        stubFor(
+            post(urlMatching("/tilgangskontroll/api/tilgang/tema"))
+                .willReturn(
+                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString())
+                )
+        )
     }
 
     fun stubHentPerson(

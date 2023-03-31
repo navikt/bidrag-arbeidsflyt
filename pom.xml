@@ -20,14 +20,15 @@
     <kotlin.version>1.7.21</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-commons.version>0.7.4</bidrag-commons.version>
+    <bidrag-commons.version>0.7.43</bidrag-commons.version>
     <logback-encoder.version>7.3</logback-encoder.version>
     <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
     <token-support.version>2.1.9</token-support.version>
     <springframework-cloud.version>3.1.5</springframework-cloud.version>
     <squareup-okhttp3.version>4.10.0</squareup-okhttp3.version>
-    <shedlock.version>4.44.0</shedlock.version>
-    <bidrag-dokument-dto.version>1.6.20</bidrag-dokument-dto.version>
+    <shedlock.version>5.2.0</shedlock.version>
+    <bidrag-dokument-dto.version>1.6.31</bidrag-dokument-dto.version>
+    <kotlin-logging-jvm.version>3.0.4</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -107,6 +108,12 @@
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
       <version>${bidrag-commons.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging-jvm</artifactId>
+      <version>${kotlin-logging-jvm.version}</version>
     </dependency>
 
     <!-- spring-boot -->
@@ -231,6 +238,12 @@
     </dependency>
 
     <!-- test -->
+    <dependency>
+      <groupId>io.kotest</groupId>
+      <artifactId>kotest-assertions-core-jvm</artifactId>
+      <version>5.5.3</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility-kotlin</artifactId>

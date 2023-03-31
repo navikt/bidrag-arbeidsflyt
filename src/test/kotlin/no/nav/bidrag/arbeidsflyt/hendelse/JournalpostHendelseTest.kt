@@ -1,5 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.model.ENHET_FARSKAP
@@ -7,6 +10,7 @@ import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskExceptio
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
+import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
@@ -17,6 +21,7 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_2
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_5
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
+import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
@@ -754,5 +759,103 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         verifyOppgaveNotEndret()
         verifyOppgaveNotOpprettet()
+    }
+
+
+    @Test
+    fun `skal lagre journalpost fra hendelse hvis status mottatt`() {
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpost = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_3_NEW)
+        journalpost shouldNotBe null
+
+        assertSoftly {
+            journalpost!!.journalpostId shouldBe BID_JOURNALPOST_ID_3_NEW
+            journalpost.status shouldBe "MOTTATT"
+            journalpost.tema shouldBe "BID"
+            journalpost.enhet shouldBe "4833"
+        }
+        verifyOppgaveNotOpprettet()
+    }
+
+
+    @Test
+    fun `skal oppdatere journalpost lagret i databasen`() {
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, enhet = "1234", sporingEnhet = "1234")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpost = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        journalpost shouldNotBe null
+
+        assertSoftly {
+            journalpost!!.journalpostId shouldBe BID_JOURNALPOST_ID_1
+            journalpost.status shouldBe "MOTTATT"
+            journalpost.tema shouldBe "BID"
+            journalpost.enhet shouldBe "1234"
+        }
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveEndretWith(1, "\"tildeltEnhetsnr\":\"1234\"", "\"endretAvEnhetsnr\":\"1234\"")
+    }
+
+    @Test
+    fun `skal slette journalpost fra databasen hvis status ikke er mottatt`() {
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+        testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
+        val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        assertThat(journalpostOptionalBefore).isNotNull
+
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpostOptionalAfter = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        assertThat(journalpostOptionalAfter).isNull()
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")
+    }
+
+    @Test
+    fun `skal ikke lagre eller journalpost hvis status ikke er M og ikke finnes`() {
+        stubHentOppgave(listOf(OppgaveData(
+            id = OPPGAVE_ID_1,
+            versjon = 1,
+            journalpostId = JOURNALPOST_ID_1,
+            aktoerId = AKTOER_ID,
+            oppgavetype = "JFR",
+            tema = "BID",
+            tildeltEnhetsnr = "4833"
+        )))
+
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+
+        behandleHendelseService.behandleHendelse(journalpostHendelse)
+
+        val journalpost = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
+        journalpost shouldNotBe null
+
+        verifyOppgaveNotOpprettet()
+        verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")
     }
 }
