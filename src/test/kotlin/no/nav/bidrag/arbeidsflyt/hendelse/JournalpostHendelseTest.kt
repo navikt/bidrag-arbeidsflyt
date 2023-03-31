@@ -853,7 +853,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
         val journalpost = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
-        journalpost shouldNotBe null
+        journalpost shouldBe null
 
         verifyOppgaveNotOpprettet()
         verifyOppgaveEndretWith(1, "\"status\":\"FERDIGSTILT\"", "\"endretAvEnhetsnr\":\"1234\"")

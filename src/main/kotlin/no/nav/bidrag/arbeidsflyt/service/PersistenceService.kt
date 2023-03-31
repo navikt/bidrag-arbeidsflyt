@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.Optional
 import javax.transaction.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class PersistenceService(
@@ -34,9 +35,7 @@ class PersistenceService(
     }
 
     fun hentJournalpostMedStatusMottatt(journalpostId: String): Journalpost? {
-        val harJournalpostIdPrefiks = journalpostId.contains("-")
-        val journalpostIdUtenPrefiks = if (harJournalpostIdPrefiks) journalpostId.split('-')[1] else journalpostId
-        return journalpostRepository.findByJournalpostIdContaining(journalpostIdUtenPrefiks)?.takeIf { it.erStatusMottatt && it.erBidragFagomrade }
+        return journalpostRepository.findByJournalpostId(journalpostId)?.takeIf { it.erStatusMottatt && it.erBidragFagomrade }
     }
 
     @Transactional

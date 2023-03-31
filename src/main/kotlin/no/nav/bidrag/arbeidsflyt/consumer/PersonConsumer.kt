@@ -40,7 +40,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
 
         try {
             val response: ResponseEntity<PersonDto> = restTemplate.exchange(
-                "/informasjon/$ident",
+                "/informasjon",
                 HttpMethod.POST,
                 HttpEntity(PersonIdent(ident))
             )

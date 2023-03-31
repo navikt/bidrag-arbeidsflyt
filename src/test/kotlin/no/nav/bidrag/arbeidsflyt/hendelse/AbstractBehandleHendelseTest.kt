@@ -29,6 +29,7 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.domain.ident.PersonIdent
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -144,7 +145,7 @@ abstract class AbstractBehandleHendelseTest {
         nextScenario: String? = null
     ) {
         stubFor(
-            get(urlMatching("/person.*"))
+            post(urlMatching("/person.*"))
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
@@ -199,11 +200,11 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyHentPersonKalt(antall: Int = 1) {
-        verify(antall, getRequestedFor(urlMatching("/person.*")))
+        verify(antall, postRequestedFor(urlMatching("/person.*")))
     }
 
     fun verifyHentPersonKaltMedFnr(fnr: String) {
-        verify(1, getRequestedFor(urlEqualTo("/person/bidrag-person/informasjon/$fnr")))
+        verify(1, postRequestedFor(urlEqualTo("/person/bidrag-person/informasjon")).withRequestBody(ContainsPattern(fnr)))
     }
 
     fun verifyOppgaveNotOpprettet() {
