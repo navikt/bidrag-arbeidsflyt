@@ -60,6 +60,7 @@ abstract class AbstractBehandleHendelseTest {
         stubOpprettOppgave()
         stubEndreOppgave()
         stubHentOppgave()
+        stubHentTemaTilgang()
         stubHentJournalforendeEnheter()
     }
 
@@ -130,7 +131,7 @@ abstract class AbstractBehandleHendelseTest {
 
     fun stubHentTemaTilgang(result: Boolean = true) {
         stubFor(
-            post(urlMatching("/tilgangskontroll/api/tilgang/tema"))
+            post(urlMatching("/tilgangskontroll/api/tilgang/tema(.*)"))
                 .willReturn(
                     aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString())
                 )
