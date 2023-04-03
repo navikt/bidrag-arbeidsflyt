@@ -1,8 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
+import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,7 +12,9 @@ import org.slf4j.LoggerFactory
 class BehandleJournalpostHendelse(
     private val journalpostHendelse: JournalpostHendelse,
     private val oppgaveService: OppgaveService,
-    private val arbeidsfordelingService: OrganisasjonService
+    private val arbeidsfordelingService: OrganisasjonService,
+    private val persistenceService: PersistenceService,
+    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer
 ) {
     private var finnOppdaterteOppgaverForHendelse = true
     private lateinit var oppgaverForHendelse: OppgaverForHendelse
@@ -34,6 +38,32 @@ class BehandleJournalpostHendelse(
 
             finnOppdaterteOppgaverForHendelse = true
         }
+
+        return this
+    }
+
+    fun oppdaterOverførMellomBidragFagomrader(): BehandleJournalpostHendelse {
+        if (journalpostHendelse.erEksterntFagomrade || !journalpostHendelse.erMottattStatus) return this
+
+        val fagområdeNy = journalpostHendelse.hentTema() ?: return this
+        val journalpost = persistenceService.hentJournalpostMedStatusMottatt(journalpostHendelse.journalpostId)
+        val fagområdeGammelt = journalpost?.tema
+        val saksbehandlerIdent = journalpostHendelse.sporing?.brukerident
+
+        val harTilgangTilTema = saksbehandlerIdent?.let { tIlgangskontrollConsumer.sjekkTilgangTema(fagområdeNy, saksbehandlerIdent) } ?: true
+        val erEndringAvFagomrade = journalpost != null && journalpost.tema != fagområdeNy
+
+        if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()){
+            LOGGER.info("Endring fra fagområde ${fagområdeGammelt ?: "UKJENT"} til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema")
+            oppgaveService.endreMellomBidragFagomrade(
+                oppgaverForHendelse = oppgaverForHendelse,
+                journalpostHendelse,
+                fagområdeGammelt, fagområdeNy, harTilgangTilTema
+            )
+
+            finnOppdaterteOppgaverForHendelse = true
+        }
+
 
         return this
     }
@@ -91,7 +121,7 @@ class BehandleJournalpostHendelse(
     }
 
     fun hentArbeidsfordeling(): String {
-        val tema = journalpostHendelse.tema ?: journalpostHendelse.fagomrade
+        val tema = journalpostHendelse.hentTema()
         if (tema == Fagomrade.FARSKAP) {
             LOGGER.info("Journalposthendelse med journalpostId ${journalpostHendelse.journalpostId} har tema FAR. Bruker enhet $ENHET_FARSKAP ved arbeidsfordeling")
             return ENHET_FARSKAP

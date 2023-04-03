@@ -29,6 +29,7 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.domain.ident.PersonIdent
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -58,6 +59,7 @@ abstract class AbstractBehandleHendelseTest {
         stubOpprettOppgave()
         stubEndreOppgave()
         stubHentOppgave()
+        stubHentTemaTilgang()
         stubHentJournalforendeEnheter()
     }
 
@@ -126,6 +128,15 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(stub)
     }
 
+    fun stubHentTemaTilgang(result: Boolean = true) {
+        stubFor(
+            post(urlMatching("/tilgangskontroll/api/tilgang/tema(.*)"))
+                .willReturn(
+                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString())
+                )
+        )
+    }
+
     fun stubHentPerson(
         personId: String = PERSON_IDENT_1,
         aktorId: String = AKTOER_ID,
@@ -134,7 +145,7 @@ abstract class AbstractBehandleHendelseTest {
         nextScenario: String? = null
     ) {
         stubFor(
-            get(urlMatching("/person.*"))
+            post(urlMatching("/person/bidrag-person/informasjon"))
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
@@ -189,11 +200,14 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyHentPersonKalt(antall: Int = 1) {
-        verify(antall, getRequestedFor(urlMatching("/person.*")))
+        verify(antall, postRequestedFor(urlMatching("/person.*")))
+    }
+    fun verifySjekkTematilgangKalt(antall: Int = 1, saksbehandlerId: String) {
+        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/api/tilgang/tema?navIdent=$saksbehandlerId")))
     }
 
     fun verifyHentPersonKaltMedFnr(fnr: String) {
-        verify(1, getRequestedFor(urlEqualTo("/person/bidrag-person/informasjon/$fnr")))
+        verify(1, postRequestedFor(urlEqualTo("/person/bidrag-person/informasjon")).withRequestBody(ContainsPattern(fnr)))
     }
 
     fun verifyOppgaveNotOpprettet() {

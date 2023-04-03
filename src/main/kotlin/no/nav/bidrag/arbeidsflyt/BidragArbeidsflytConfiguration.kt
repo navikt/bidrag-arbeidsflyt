@@ -24,6 +24,7 @@ import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.core.env.Environment
@@ -162,7 +164,7 @@ class ArbeidsflytConfiguration {
     @Scope("prototype")
     fun restTemplate(): HttpHeaderRestTemplate {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate(HttpComponentsClientHttpRequestFactory())
-        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() }
+        httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER) { CorrelationId.fetchCorrelationIdForThread() ?: "bidrag-arbeidsflyt" }
         return httpHeaderRestTemplate
     }
 
@@ -173,7 +175,7 @@ class ArbeidsflytConfiguration {
         securityTokenService: SecurityTokenService
     ): OppgaveConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
-        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("oppgave"))
+        restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("oppgave"))
         return DefaultOppgaveConsumer(restTemplate)
     }
 
@@ -184,7 +186,7 @@ class ArbeidsflytConfiguration {
         securityTokenService: SecurityTokenService
     ): PersonConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
-        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("person"))
+        restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("person"))
         return DefaultPersonConsumer(restTemplate)
     }
 
@@ -195,7 +197,7 @@ class ArbeidsflytConfiguration {
         securityTokenService: SecurityTokenService
     ): BidragOrganisasjonConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$organisasjonUrl/bidrag-organisasjon")
-        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("organisasjon"))
+        restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("organisasjon"))
         return BidragOrganisasjonConsumer(restTemplate)
     }
 
@@ -206,7 +208,7 @@ class ArbeidsflytConfiguration {
         securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         restTemplate.uriTemplateHandler = RootUriTemplateHandler("$dokumentUrl/bidrag-dokument")
-        restTemplate.interceptors.add(securityTokenService.serviceUserAuthTokenInterceptor("dokument"))
+        restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("dokument"))
         return BidragDokumentConsumer(restTemplate)
     }
 

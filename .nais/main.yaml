@@ -1,5 +1,6 @@
 name: bidrag-arbeidsflyt
 azure:
+  tilgangskontroll: bidrag-tilgangskontroll
   oppgave: oppgave.dev-fss-pub.nais.io
   person: bidrag-person.dev-fss-pub.nais.io
   organisasjon: bidrag-organisasjon.dev-fss-pub.nais.io
@@ -8,6 +9,7 @@ azure:
   person_clientid: dev-fss.bidrag.bidrag-person
   organisasjon_clientid: dev-fss.bidrag.bidrag-organisasjon
   dokument_clientid: dev-fss.bidrag.bidrag-dokument
+  tilgangskontroll_clientid: dev-gcp.bidrag.bidrag-tilgangskontroll
 kafka:
   pool: nav-dev
   bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
@@ -21,6 +23,8 @@ database:
 ingresses:
   - https://bidrag-arbeidsflyt.dev.intern.nav.no
   - https://bidrag-arbeidsflyt.intern.dev.nav.no
+outbound-access-apps:
+  - bidrag-tilgangskontroll
 outbound-access-hosts:
    - bidrag-dokument.dev-fss-pub.nais.io
    - bidrag-person.dev-fss-pub.nais.io
