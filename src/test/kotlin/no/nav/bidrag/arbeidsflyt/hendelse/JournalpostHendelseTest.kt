@@ -494,7 +494,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
-            "\"tilordnetRessurs\":\"Z994977\"",
+            "\"tilordnetRessurs\":\"$SAKSBEHANDLER_ID\"",
             "\"journalpostId\":null"
         )
     }
@@ -551,7 +551,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "Behandle dokument (Ny tittel) mottatt 02.01.2020",
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
-            "\"tilordnetRessurs\":\"Z994977\"",
+            "\"tilordnetRessurs\":\"$SAKSBEHANDLER_ID\"",
             "\"journalpostId\":null"
         )
     }

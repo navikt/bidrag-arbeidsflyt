@@ -145,7 +145,7 @@ abstract class AbstractBehandleHendelseTest {
         nextScenario: String? = null
     ) {
         stubFor(
-            post(urlMatching("/person/informasjon"))
+            post(urlMatching("/person/bidrag-person/informasjon"))
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
