@@ -72,7 +72,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         }
     }
 
-    internal fun endreMellomBidragFagomrade(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse, fagomradeGammelt: String, fagomradeNy: String, saksbehandlerHarTilgang: Boolean) {
+    internal fun endreMellomBidragFagomrade(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse, fagomradeGammelt: String? = null, fagomradeNy: String, saksbehandlerHarTilgang: Boolean) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),

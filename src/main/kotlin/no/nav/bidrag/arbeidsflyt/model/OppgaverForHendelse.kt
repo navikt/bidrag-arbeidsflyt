@@ -21,6 +21,9 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
         return !harJournalforingsoppgaver()
     }
 
+    fun erJournalforingsoppgaverTildeltSaksbehandler(): Boolean {
+        return hentJournalforingsOppgaver().any { !it.tilordnetRessurs.isNullOrEmpty() }
+    }
     fun harJournalforingsoppgaver() = dataForHendelse.isNotEmpty() && dataForHendelse
         .stream().anyMatch { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 

@@ -43,14 +43,18 @@ class BehandleJournalpostHendelse(
     }
 
     fun oppdaterEndringMellommBidragFagomrader(): BehandleJournalpostHendelse {
+        if (journalpostHendelse.erEksterntFagomrade || !journalpostHendelse.erMottattStatus) return this
+
         val fagområdeNy = journalpostHendelse.hentTema() ?: return this
         val journalpost = persistenceService.hentJournalpostMedStatusMottatt(journalpostHendelse.journalpostId)
-        if (journalpost != null && !journalpostHendelse.erEksterntFagomrade && journalpost.tema != fagområdeNy) {
-            val fagområdeGammelt = journalpost.tema
-            val saksbehandlerIdent = journalpostHendelse.sporing?.brukerident
-            val harTilgangTilTema = saksbehandlerIdent?.let { tIlgangskontrollConsumer.sjekkTilgangTema(fagområdeNy, saksbehandlerIdent) } ?: true
-            LOGGER.info("Endring fra fagområde $fagområdeGammelt til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema")
+        val fagområdeGammelt = journalpost?.tema
+        val saksbehandlerIdent = journalpostHendelse.sporing?.brukerident
 
+        val harTilgangTilTema = saksbehandlerIdent?.let { tIlgangskontrollConsumer.sjekkTilgangTema(fagområdeNy, saksbehandlerIdent) } ?: true
+        val erEndringAvFagomrade = journalpost != null && journalpost.tema != fagområdeNy
+
+        if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()){
+            LOGGER.info("Endring fra fagområde ${fagområdeGammelt ?: "UKJENT"} til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema")
             oppgaveService.endreMellomBidragFagomrade(
                 oppgaverForHendelse = oppgaverForHendelse,
                 journalpostHendelse,
@@ -59,6 +63,7 @@ class BehandleJournalpostHendelse(
 
             finnOppdaterteOppgaverForHendelse = true
         }
+
 
         return this
     }

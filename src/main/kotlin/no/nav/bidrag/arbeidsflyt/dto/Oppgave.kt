@@ -400,14 +400,15 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
     constructor(
         oppgaveDataForHendelse: OppgaveDataForHendelse,
         saksbehandlersInfo: String,
-        fagomradeGammelt: String,
+        fagomradeGammelt: String? = null,
         fagomradeNy: String,
         overførTilFellesbenk: Boolean = false
     ) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n"
-        this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
+        if (fagomradeGammelt.isNullOrEmpty()) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)}"}\r\n\r\n"
+        else if (fagomradeGammelt != fagomradeNy) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
         if (overførTilFellesbenk && !oppgaveDataForHendelse.tilordnetRessurs.isNullOrEmpty()) {
             this.tilordnetRessurs = ""
             this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
@@ -416,7 +417,7 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
     }
 
     private fun tilFagområdeBeskrivelse(fagomrade: String): String{
-        return if (fagomrade == Fagomrade.FARSKAP) "Farskap" else if (fagomrade == Fagomrade.BIDRAG) "Bidrag" else fagomrade
+        return if (fagomrade == Fagomrade.FARSKAP) "Foreldreskap" else if (fagomrade == Fagomrade.BIDRAG) "Bidrag" else fagomrade
     }
 }
 
