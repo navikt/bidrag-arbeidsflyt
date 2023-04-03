@@ -34,7 +34,7 @@ class BehandleHendelseService(
         BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService, persistenceService, tIlgangskontrollConsumer)
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
-            .oppdaterEndringMellommBidragFagomrader()
+            .oppdaterOverførMellomBidragFagomrader()
             .oppdaterOppgaveMedAktoerId()
             .opprettJournalforingsoppgave()
             .ferdigstillJournalforingsoppgaver()

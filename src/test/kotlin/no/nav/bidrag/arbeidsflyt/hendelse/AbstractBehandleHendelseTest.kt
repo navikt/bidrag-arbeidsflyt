@@ -55,7 +55,6 @@ abstract class AbstractBehandleHendelseTest {
     @BeforeEach
     fun init() {
         testDataGenerator.deleteAll()
-        stubHentTemaTilgang()
         stubHentPerson()
         stubOpprettOppgave()
         stubEndreOppgave()
@@ -146,7 +145,7 @@ abstract class AbstractBehandleHendelseTest {
         nextScenario: String? = null
     ) {
         stubFor(
-            post(urlMatching("/person.*"))
+            post(urlMatching("/person/informasjon"))
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
@@ -202,6 +201,9 @@ abstract class AbstractBehandleHendelseTest {
 
     fun verifyHentPersonKalt(antall: Int = 1) {
         verify(antall, postRequestedFor(urlMatching("/person.*")))
+    }
+    fun verifySjekkTematilgangKalt(antall: Int = 1, saksbehandlerId: String) {
+        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/api/tilgang/tema?navIdent=$saksbehandlerId")))
     }
 
     fun verifyHentPersonKaltMedFnr(fnr: String) {

@@ -42,7 +42,7 @@ class BehandleJournalpostHendelse(
         return this
     }
 
-    fun oppdaterEndringMellommBidragFagomrader(): BehandleJournalpostHendelse {
+    fun oppdaterOverførMellomBidragFagomrader(): BehandleJournalpostHendelse {
         if (journalpostHendelse.erEksterntFagomrade || !journalpostHendelse.erMottattStatus) return this
 
         val fagområdeNy = journalpostHendelse.hentTema() ?: return this

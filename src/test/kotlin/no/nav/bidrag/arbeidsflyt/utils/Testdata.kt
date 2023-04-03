@@ -46,6 +46,8 @@ var CREATED_TIME = ZonedDateTime.parse("2007-12-03T10:15:30+01:00[Europe/Paris]"
 
 var ENHET_4833 = "4833"
 var ENHET_4806 = "4806"
+
+val SAKSBEHANDLER_ID = "Z994999"
 fun createOppgave(
     oppgaveId: Long,
     journalpostId: String = JOURNALPOST_ID_1,
@@ -120,7 +122,7 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = "Z994977", saksbehandlersNavn = "Navn Navnesen"),
+        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = SAKSBEHANDLER_ID, saksbehandlersNavn = "Navn Navnesen"),
         hendelseType = HendelseType.ENDRING,
         journalposttype = "I"
     )
