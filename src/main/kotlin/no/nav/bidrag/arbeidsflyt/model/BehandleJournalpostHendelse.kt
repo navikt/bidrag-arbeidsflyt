@@ -121,7 +121,7 @@ class BehandleJournalpostHendelse(
     }
 
     fun hentArbeidsfordeling(): String {
-        val tema = journalpostHendelse.tema ?: journalpostHendelse.fagomrade
+        val tema = journalpostHendelse.hentTema()
         if (tema == Fagomrade.FARSKAP) {
             LOGGER.info("Journalposthendelse med journalpostId ${journalpostHendelse.journalpostId} har tema FAR. Bruker enhet $ENHET_FARSKAP ved arbeidsfordeling")
             return ENHET_FARSKAP

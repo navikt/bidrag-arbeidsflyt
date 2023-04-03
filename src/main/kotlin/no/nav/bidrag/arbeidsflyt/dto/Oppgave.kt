@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
+import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
 import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.springframework.http.HttpEntity
@@ -414,10 +415,6 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
             this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
         }
         this.beskrivelse += oppgaveDataForHendelse.beskrivelse ?: ""
-    }
-
-    private fun tilFagområdeBeskrivelse(fagomrade: String): String{
-        return if (fagomrade == Fagomrade.FARSKAP) "Foreldreskap" else if (fagomrade == Fagomrade.BIDRAG) "Bidrag" else fagomrade
     }
 }
 
