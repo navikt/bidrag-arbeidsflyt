@@ -47,8 +47,8 @@ class BehandleHendelseService(
         if (journalpostHendelse.aktorId.isNullOrEmpty() && !journalpostHendelse.fnr.isNullOrEmpty()) {
             LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
             return personConsumer.hentPerson(journalpostHendelse.fnr?.numericOnly())?.let {
-                SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${it.aktørId} og fnr ${journalpostHendelse.fnr}")
-                journalpostHendelse.copy(aktorId = it.aktørId)
+                SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${it.aktoerId} og fnr ${journalpostHendelse.fnr}")
+                journalpostHendelse.copy(aktorId = it.aktoerId)
             } ?: journalpostHendelse
         }
         return journalpostHendelse
