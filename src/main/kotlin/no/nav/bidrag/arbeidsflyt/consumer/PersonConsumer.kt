@@ -43,7 +43,7 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
             val response: ResponseEntity<HentPersonResponse> = restTemplate.exchange(
                 "/informasjon",
                 HttpMethod.POST,
-                HttpEntity(PersonRequestDto(ident))
+                HttpEntity(PersonIdent(ident))
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {
