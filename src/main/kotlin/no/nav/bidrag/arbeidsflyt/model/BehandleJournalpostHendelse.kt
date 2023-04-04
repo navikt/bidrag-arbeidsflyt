@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
@@ -51,6 +52,7 @@ class BehandleJournalpostHendelse(
         val saksbehandlerIdent = journalpostHendelse.sporing?.brukerident
 
         val harTilgangTilTema = saksbehandlerIdent?.let { tIlgangskontrollConsumer.sjekkTilgangTema(fagområdeNy, saksbehandlerIdent) } ?: true
+        SECURE_LOGGER.info("Sjekket tilgang til tema $fagområdeNy for saksbehandlerIdent $saksbehandlerIdent. Saksbehandler har tilgang = $harTilgangTilTema")
         val erEndringAvFagomrade = journalpost != null && journalpost.tema != fagområdeNy
 
         if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()){
