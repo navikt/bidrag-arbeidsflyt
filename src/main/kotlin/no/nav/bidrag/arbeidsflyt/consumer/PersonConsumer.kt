@@ -21,7 +21,7 @@ import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.exchange
 
 interface PersonConsumer {
-    fun hentPerson(ident: String?): PersonDto?
+    fun hentPerson(ident: String?): HentPersonResponse?
 }
 
 open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplate) : PersonConsumer {
@@ -36,11 +36,11 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
     )
-    override fun hentPerson(ident: String?): PersonDto? {
+    override fun hentPerson(ident: String?): HentPersonResponse? {
         if (ident == null) return null
 
         try {
-            val response: ResponseEntity<PersonDto> = restTemplate.exchange(
+            val response: ResponseEntity<HentPersonResponse> = restTemplate.exchange(
                 "/informasjon",
                 HttpMethod.POST,
                 HttpEntity(PersonRequestDto(ident))
