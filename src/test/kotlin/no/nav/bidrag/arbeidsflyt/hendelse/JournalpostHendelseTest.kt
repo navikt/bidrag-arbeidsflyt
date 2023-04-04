@@ -990,7 +990,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
             verifyOppgaveEndretWith(
                 1,
-                "Fagområde endret til Bidrag fra Farskap\\r\\n\\r\\n\""
+                "Fagområde endret til Bidrag fra Foreldreskap\\r\\n\\r\\n\""
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1037,7 +1037,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
             verifyOppgaveEndretWith(
                 1,
-                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\n\""
+                "Fagområde endret til Foreldreskap fra Bidrag\\r\\n\\r\\n\""
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1085,7 +1085,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(
                 1,
                 "\"tilordnetRessurs\":\"\"",
-                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
+                "Fagområde endret til Foreldreskap fra Bidrag\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1124,7 +1124,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(
                 1,
                 "\"tilordnetRessurs\":\"\"",
-                "Fagområde endret til Farskap\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
+                "Fagområde endret til Foreldreskap\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
             )
             verifyOppgaveNotOpprettet()
         }
