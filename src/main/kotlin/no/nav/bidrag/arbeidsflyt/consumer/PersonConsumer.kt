@@ -3,12 +3,10 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
-import no.nav.bidrag.arbeidsflyt.dto.PersonRequestDto
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.domain.ident.PersonIdent
-import no.nav.bidrag.transport.person.PersonDto
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
