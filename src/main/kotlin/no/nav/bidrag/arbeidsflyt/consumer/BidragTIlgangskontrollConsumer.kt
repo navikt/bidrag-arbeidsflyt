@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.TILGANG_TEMA_CACHE
-import no.nav.bidrag.commons.cache.BrukerCacheable
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value

@@ -57,7 +57,8 @@ internal class BehandleJournalpostHendelseTest {
         journalpostHendelse = journalpostHendelse,
         oppgaveService = oppgaveService,
         arbeidsfordelingService = arbeidsfordelingService,
-        persistenceService,bidragTIlgangskontrollConsumer
+        persistenceService,
+        bidragTIlgangskontrollConsumer
     )
 
     @BeforeEach

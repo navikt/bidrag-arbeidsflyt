@@ -14,6 +14,7 @@ import java.util.Optional
 class TestDataGenerator {
     @Autowired
     lateinit var journalpostRepository: JournalpostRepository
+
     @Autowired
     lateinit var oppgaveRepository: OppgaveRepository
 
@@ -44,8 +45,7 @@ class TestDataGenerator {
         return journalpostRepository.findByJournalpostId(journalpostId)
     }
 
-
-    fun opprettJournalpost(journalpost: Journalpost){
+    fun opprettJournalpost(journalpost: Journalpost) {
         journalpostRepository.save(journalpost)
     }
 }

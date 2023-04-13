@@ -764,7 +764,6 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         verifyOppgaveNotOpprettet()
     }
 
-
     @Test
     fun `skal lagre journalpost fra hendelse hvis status mottatt`() {
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
@@ -783,24 +782,29 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         verifyOppgaveNotOpprettet()
     }
 
-
     @Test
     fun `skal oppdatere journalpost lagret i databasen`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
-        testDataGenerator.opprettJournalpost(Journalpost(
-            journalpostId = BID_JOURNALPOST_ID_1,
-            enhet = "4444",
-            status = "MOTTATT",
-            tema = "BID"
-        ))
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
+        testDataGenerator.opprettJournalpost(
+            Journalpost(
+                journalpostId = BID_JOURNALPOST_ID_1,
+                enhet = "4444",
+                status = "MOTTATT",
+                tema = "BID"
+            )
+        )
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, enhet = "1234", sporingEnhet = "1234", fagomrade = "FAR")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -821,20 +825,24 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal slette journalpost fra databasen hvis status ikke lenger er mottatt`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
         testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
         assertThat(journalpostOptionalBefore).isNotNull
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = "J", sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -847,17 +855,21 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke lagre journalpost hvis status ikke er M og ikke finnes`() {
-        stubHentOppgave(listOf(OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            journalpostId = JOURNALPOST_ID_1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )))
+        stubHentOppgave(
+            listOf(
+                OppgaveData(
+                    id = OPPGAVE_ID_1,
+                    versjon = 1,
+                    journalpostId = JOURNALPOST_ID_1,
+                    aktoerId = AKTOER_ID,
+                    oppgavetype = "JFR",
+                    tema = "BID",
+                    tildeltEnhetsnr = "4833"
+                )
+            )
+        )
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status="J", sporingEnhet = "1234")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = "J", sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -873,15 +885,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke gjøre endring hvis journalpost ikke har ikke-bidrag fagområde`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(listOf(OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                journalpostId = JOURNALPOST_ID_1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "JFR",
-                tema = "BID",
-                tildeltEnhetsnr = "4860"
-            )))
+            stubHentOppgave(
+                listOf(
+                    OppgaveData(
+                        id = OPPGAVE_ID_1,
+                        versjon = 1,
+                        journalpostId = JOURNALPOST_ID_1,
+                        aktoerId = AKTOER_ID,
+                        oppgavetype = "JFR",
+                        tema = "BID",
+                        tildeltEnhetsnr = "4860"
+                    )
+                )
+            )
 
             testDataGenerator.opprettJournalpost(
                 Journalpost(
@@ -909,18 +925,23 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(1)
             verifyOppgaveNotOpprettet()
         }
+
         @Test
         fun `skal ikke gjøre endring hvis journalpost ikke har status mottatt`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(listOf(OppgaveData(
-                id = OPPGAVE_ID_1,
-                versjon = 1,
-                journalpostId = JOURNALPOST_ID_1,
-                aktoerId = AKTOER_ID,
-                oppgavetype = "BEH_SAK",
-                tema = "BID",
-                tildeltEnhetsnr = "4860"
-            )))
+            stubHentOppgave(
+                listOf(
+                    OppgaveData(
+                        id = OPPGAVE_ID_1,
+                        versjon = 1,
+                        journalpostId = JOURNALPOST_ID_1,
+                        aktoerId = AKTOER_ID,
+                        oppgavetype = "BEH_SAK",
+                        tema = "BID",
+                        tildeltEnhetsnr = "4860"
+                    )
+                )
+            )
 
             testDataGenerator.opprettJournalpost(
                 Journalpost(
@@ -948,6 +969,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveNotEndret()
             verifyOppgaveNotOpprettet()
         }
+
         @Test
         fun `skal oppdatere beskrivelse hvis journalpost tema endret fra FAR til BID`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
@@ -1194,7 +1216,5 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(0)
             verifyOppgaveNotOpprettet()
         }
-
     }
-
 }

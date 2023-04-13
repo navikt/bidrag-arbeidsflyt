@@ -55,17 +55,18 @@ class BehandleJournalpostHendelse(
         SECURE_LOGGER.info("Sjekket tilgang til tema $fagområdeNy for saksbehandlerIdent $saksbehandlerIdent. Saksbehandler har tilgang = $harTilgangTilTema")
         val erEndringAvFagomrade = journalpost != null && journalpost.tema != fagområdeNy
 
-        if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()){
+        if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()) {
             LOGGER.info("Endring fra fagområde ${fagområdeGammelt ?: "UKJENT"} til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema")
             oppgaveService.endreMellomBidragFagomrade(
                 oppgaverForHendelse = oppgaverForHendelse,
                 journalpostHendelse,
-                fagområdeGammelt, fagområdeNy, harTilgangTilTema
+                fagområdeGammelt,
+                fagområdeNy,
+                harTilgangTilTema
             )
 
             finnOppdaterteOppgaverForHendelse = true
         }
-
 
         return this
     }

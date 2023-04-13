@@ -15,7 +15,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
-import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
@@ -29,7 +28,9 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.domain.ident.AktørId
 import no.nav.bidrag.domain.ident.PersonIdent
+import no.nav.bidrag.transport.person.PersonDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -149,7 +150,8 @@ abstract class AbstractBehandleHendelseTest {
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
-                    aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(HentPersonResponse(personId, aktorId)))
+                    aClosedJsonResponse().withStatus(status.value())
+                        .withBody(objectMapper.writeValueAsString(PersonDto(ident = PersonIdent(personId), aktørId = AktørId(aktorId))))
                 )
                 .willSetStateTo(nextScenario)
         )
@@ -202,6 +204,7 @@ abstract class AbstractBehandleHendelseTest {
     fun verifyHentPersonKalt(antall: Int = 1) {
         verify(antall, postRequestedFor(urlMatching("/person.*")))
     }
+
     fun verifySjekkTematilgangKalt(antall: Int = 1, saksbehandlerId: String) {
         verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/api/tilgang/tema?navIdent=$saksbehandlerId")))
     }

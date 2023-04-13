@@ -2,11 +2,12 @@ package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
-import no.nav.bidrag.arbeidsflyt.dto.HentPersonResponse
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.domain.ident.PersonIdent
+import no.nav.bidrag.transport.person.PersonDto
+import no.nav.bidrag.transport.person.PersonRequest
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
@@ -19,7 +20,7 @@ import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.exchange
 
 interface PersonConsumer {
-    fun hentPerson(ident: String?): HentPersonResponse?
+    fun hentPerson(ident: String?): PersonDto?
 }
 
 open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplate) : PersonConsumer {
@@ -34,14 +35,14 @@ open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplat
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
     )
-    override fun hentPerson(ident: String?): HentPersonResponse? {
+    override fun hentPerson(ident: String?): PersonDto? {
         if (ident == null) return null
 
         try {
-            val response: ResponseEntity<HentPersonResponse> = restTemplate.exchange(
+            val response: ResponseEntity<PersonDto> = restTemplate.exchange(
                 "/informasjon",
                 HttpMethod.POST,
-                HttpEntity(PersonIdent(ident))
+                HttpEntity(PersonRequest(PersonIdent(ident)))
             )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {
