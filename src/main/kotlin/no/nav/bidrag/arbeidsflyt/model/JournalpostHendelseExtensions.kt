@@ -3,7 +3,6 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.dokument.dto.Fagomrade
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.JournalpostStatus
-import no.nav.bidrag.dokument.dto.Journalstatus
 import org.apache.commons.lang3.Range
 import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
@@ -14,7 +13,7 @@ fun JournalpostHendelse.erJournalstatusEndretTilIkkeMottatt() = hentStatus() != 
 val JournalpostHendelse.harSaker get() = sakstilknytninger?.isNotEmpty() == true
 val JournalpostHendelse.erMottattStatus get() = hentStatus() == JournalpostStatus.MOTTATT
 fun JournalpostHendelse.hentTema() = fagomrade ?: tema
-val JournalpostHendelse.erEksterntFagomrade get() = hentTema() != null && (hentTema()  != Fagomrade.BIDRAG && hentTema()  != Fagomrade.FARSKAP)
+val JournalpostHendelse.erEksterntFagomrade get() = hentTema() != null && (hentTema() != Fagomrade.BIDRAG && hentTema() != Fagomrade.FARSKAP)
 val JournalpostHendelse.harSporingsdataEnhet get() = sporing?.enhetsnummer != null
 val JournalpostHendelse.harTittel get() = tittel != null
 val JournalpostHendelse.harDokumentDato get() = dokumentDato != null

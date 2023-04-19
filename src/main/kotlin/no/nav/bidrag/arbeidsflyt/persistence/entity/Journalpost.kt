@@ -9,7 +9,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-data class Journalpost (
+data class Journalpost(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
@@ -196,8 +195,8 @@ data class OpprettBehandleDokumentOppgaveRequest(
 ) : OpprettOppgaveRequest(
     beskrivelse =
     lagBeskrivelseHeader(saksbehandlersInfo) +
-            "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
-            "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
+        "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
+        "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
     oppgavetype = OppgaveType.BEH_SAK,
     opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
     tildeltEnhetsnr = sporingsdata.enhetsnummer,
@@ -345,9 +344,9 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret) {
             nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
-                OppgaveType.descriptionFrom(
-                    oppgavetype
-                )
+            OppgaveType.descriptionFrom(
+                oppgavetype
+            )
             }\r\n"
         }
 
@@ -361,8 +360,8 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
 
         if (nyBeskrivelse.isNotEmpty()) {
             this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${this.saksbehandlerInfo} ---\r\n" +
-                    "${nyBeskrivelse}\r\n\r\n" +
-                    eksisterendeBeskrivelse
+                "${nyBeskrivelse}\r\n\r\n" +
+                eksisterendeBeskrivelse
         }
     }
 
@@ -391,9 +390,9 @@ class EndreForNyttDokumentRequest() : PatchOppgaveRequest() {
     constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostHendelse: JournalpostHendelse) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${journalpostHendelse.hentSaksbehandlerInfo()} ---\r\n" +
-                "\u00B7 ${lagDokumentOppgaveTittel("Nytt dokument", journalpostHendelse.tittel ?: "", journalpostHendelse.dokumentDato!!)}\r\n" +
-                "\u00B7 ${lagDokumenterVedlagtBeskrivelse(journalpostHendelse.journalpostId)}\r\n\r\n" +
-                "${oppgaveDataForHendelse.beskrivelse}"
+            "\u00B7 ${lagDokumentOppgaveTittel("Nytt dokument", journalpostHendelse.tittel ?: "", journalpostHendelse.dokumentDato!!)}\r\n" +
+            "\u00B7 ${lagDokumenterVedlagtBeskrivelse(journalpostHendelse.journalpostId)}\r\n\r\n" +
+            "${oppgaveDataForHendelse.beskrivelse}"
     }
 }
 
@@ -408,8 +407,9 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n"
-        if (fagomradeGammelt.isNullOrEmpty()) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)}"}\r\n\r\n"
-        else if (fagomradeGammelt != fagomradeNy) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
+        if (fagomradeGammelt.isNullOrEmpty()) {
+            this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)}"}\r\n\r\n"
+        } else if (fagomradeGammelt != fagomradeNy) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
         if (overførTilFellesbenk && !oppgaveDataForHendelse.tilordnetRessurs.isNullOrEmpty()) {
             this.tilordnetRessurs = ""
             this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
@@ -425,9 +425,9 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-                "${"· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
-                "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
-                (oppgaveDataForHendelse.beskrivelse ?: "")
+            "${"· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer"}\r\n\r\n" +
+            "${"· Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+            (oppgaveDataForHendelse.beskrivelse ?: "")
     }
 }
 
@@ -450,11 +450,11 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-                "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
-                "${oppgaveDataForHendelse.beskrivelse}"
+            "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n" +
+            "${oppgaveDataForHendelse.beskrivelse}"
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-                "${"Oppgave overført fra tema ${oppgaveDataForHendelse.tema} til $tema"}\r\n\r\n" +
-                "${this.beskrivelse}"
+            "${"Oppgave overført fra tema ${oppgaveDataForHendelse.tema} til $tema"}\r\n\r\n" +
+            "${this.beskrivelse}"
     }
 }
 

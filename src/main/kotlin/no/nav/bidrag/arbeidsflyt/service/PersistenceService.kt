@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.model.erEksterntFagomrade
 import no.nav.bidrag.arbeidsflyt.model.erMottattStatus
 import no.nav.bidrag.arbeidsflyt.model.hentTema
-import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
@@ -14,9 +13,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.Optional
 import javax.transaction.Transactional
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class PersistenceService(
@@ -39,9 +36,9 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse){
+    fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse) {
         val journalpostId = journalpostHendelse.journalpostId
-        if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade){
+        if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade) {
             deleteJournalpost(journalpostId)
             LOGGER.info("Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.hentStatus()}, fagomrade=${journalpostHendelse.hentTema()})")
         } else {
@@ -120,26 +117,28 @@ class PersistenceService(
         }
     }
 
-    fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse){
+    fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse) {
         journalpostRepository.findByJournalpostId(journalpostId)?.run {
-            journalpostRepository.save(copy(
-                status = journalpostHendelse.hentStatus()?.name ?: this.status,
-                enhet = journalpostHendelse.enhet ?: this.enhet,
-                tema = journalpostHendelse.hentTema() ?: this.tema
-            ))
-        } ?: run {
-                journalpostRepository.save(
-                    Journalpost(
-                        journalpostId = journalpostId,
-                        status = journalpostHendelse.hentStatus()?.name ?: "UKJENT",
-                        tema = journalpostHendelse.hentTema() ?: "BID",
-                        enhet = journalpostHendelse.enhet ?: "UKJENT",
-                    )
+            journalpostRepository.save(
+                copy(
+                    status = journalpostHendelse.hentStatus()?.name ?: this.status,
+                    enhet = journalpostHendelse.enhet ?: this.enhet,
+                    tema = journalpostHendelse.hentTema() ?: this.tema
                 )
-            }
+            )
+        } ?: run {
+            journalpostRepository.save(
+                Journalpost(
+                    journalpostId = journalpostId,
+                    status = journalpostHendelse.hentStatus()?.name ?: "UKJENT",
+                    tema = journalpostHendelse.hentTema() ?: "BID",
+                    enhet = journalpostHendelse.enhet ?: "UKJENT"
+                )
+            )
+        }
     }
 
-    fun deleteJournalpost(journalpostId: String){
+    fun deleteJournalpost(journalpostId: String) {
         journalpostRepository.deleteByJournalpostId(journalpostId)
     }
 }
