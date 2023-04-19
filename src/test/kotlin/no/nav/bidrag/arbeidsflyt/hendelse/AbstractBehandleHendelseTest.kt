@@ -17,8 +17,6 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
-import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
-import no.nav.bidrag.arbeidsflyt.model.GeografiskTilknytningResponse
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
@@ -28,8 +26,12 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.domain.enums.Enhetsstatus
 import no.nav.bidrag.domain.ident.AktørId
 import no.nav.bidrag.domain.ident.PersonIdent
+import no.nav.bidrag.domain.string.Enhetsnavn
+import no.nav.bidrag.domain.string.Enhetsnummer
+import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
@@ -162,7 +164,7 @@ abstract class AbstractBehandleHendelseTest {
             post(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhet/geografisktilknytning")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
-                        GeografiskTilknytningResponse(enhet, "Enhetnavn")
+                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn"))
                     )
                 )
             )
@@ -174,7 +176,7 @@ abstract class AbstractBehandleHendelseTest {
             get(urlMatching("/organisasjon/bidrag-organisasjon/enhet/info/.*")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
-                        EnhetResponse(enhet, "Enhetnavn", if (erNedlagt) "NEDLAGT" else "AKTIV")
+                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn"), status = if (erNedlagt) Enhetsstatus.NEDLAGT else Enhetsstatus.AKTIV)
                     )
                 )
             )
@@ -214,7 +216,7 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyOppgaveNotOpprettet() {
-        verify(0, WireMock.postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/")))
+        verify(0, postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/")))
     }
 
     fun verifyOppgaveNotEndret() {
@@ -222,7 +224,7 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyOppgaveOpprettetWith(vararg contains: String) {
-        val requestPattern = WireMock.postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/"))
+        val requestPattern = postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
                 ContainsPattern(contain)

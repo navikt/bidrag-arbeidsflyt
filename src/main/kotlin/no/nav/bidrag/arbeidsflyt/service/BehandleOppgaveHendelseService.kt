@@ -85,7 +85,7 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettJournalforingOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse) {
-        val tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent)
+        val tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.hentIdent).verdi
         oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgaveHendelse, tildeltEnhetsnr))
     }
 

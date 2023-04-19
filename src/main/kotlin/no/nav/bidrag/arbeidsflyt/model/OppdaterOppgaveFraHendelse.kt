@@ -14,7 +14,11 @@ import org.springframework.stereotype.Component
 
 @Component
 @Scope(SCOPE_PROTOTYPE)
-class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonService, var journalpostService: JournalpostService, var oppgaveService: OppgaveService) {
+class OppdaterOppgaveFraHendelse(
+    var arbeidsfordelingService: OrganisasjonService,
+    var journalpostService: JournalpostService,
+    var oppgaveService: OppgaveService
+) {
 
     lateinit var oppdaterOppgave: OppdaterOppgave
     lateinit var oppgaveHendelse: OppgaveDataForHendelse
@@ -31,7 +35,8 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
 
     fun overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende(): OppdaterOppgaveFraHendelse {
         val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
-        val tilhorerOppgaveTypeJournalforendeEnhet = oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
+        val tilhorerOppgaveTypeJournalforendeEnhet =
+            oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
         if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
             overforOppgaveTilJournalforendeEnhet(oppgaveHendelse)
         }
@@ -39,7 +44,8 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
     }
 
     fun endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt(): OppdaterOppgaveFraHendelse {
-        val erVurderDokumentOppgaveMedJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
+        val erVurderDokumentOppgaveMedJournalpost =
+            oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost) {
             journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
                 ?.apply { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse) }
@@ -49,7 +55,8 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
     }
 
     fun endreVurderDokumentOppgaveTypeTilVurderHenvendelseHvisIngenJournalpost(): OppdaterOppgaveFraHendelse {
-        val erVurderDokumentOppgaveUtenJournalpost = oppgaveHendelse.erAapenVurderDokumentOppgave() && !oppgaveHendelse.hasJournalpostId
+        val erVurderDokumentOppgaveUtenJournalpost =
+            oppgaveHendelse.erAapenVurderDokumentOppgave() && !oppgaveHendelse.hasJournalpostId
         if (erVurderDokumentOppgaveUtenJournalpost) {
             LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}")
             oppdaterOppgave.endreOppgavetype(OppgaveType.VURD_HENV)
@@ -67,7 +74,7 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
     private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveDataForHendelse) {
         val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.ident)
         LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
-        oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr)
+        oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr.verdi)
     }
 
     private fun endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse: OppgaveDataForHendelse) {
@@ -83,6 +90,11 @@ class OppdaterOppgaveFraHendelse(var arbeidsfordelingService: OrganisasjonServic
 
     private fun erJournalforendeEnhet(enhetNr: String?): Boolean {
         val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE)
-        return if (enhetNr != null) ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter().any { it.enhetIdent == enhetNr } else false
+        return if (enhetNr != null) {
+            ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter()
+                .any { it.nummer.verdi == enhetNr }
+        } else {
+            false
+        }
     }
 }

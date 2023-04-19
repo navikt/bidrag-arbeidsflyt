@@ -5,7 +5,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
-import no.nav.bidrag.arbeidsflyt.model.EnhetResponse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
@@ -15,6 +14,9 @@ import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.dto.Journalstatus
 import no.nav.bidrag.dokument.dto.Sporingsdata
+import no.nav.bidrag.domain.string.Enhetsnavn
+import no.nav.bidrag.domain.string.Enhetsnummer
+import no.nav.bidrag.transport.organisasjon.EnhetDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -179,13 +181,13 @@ fun oppgaveDataResponse(): List<OppgaveData> {
     )
 }
 
-fun createJournalforendeEnheterResponse(): List<EnhetResponse> {
-    return arrayListOf<EnhetResponse>(
-        EnhetResponse("2103", "Nav vikafossen"),
-        EnhetResponse("4817", "NAV Familie- og pensjonsytelser Steinkjer"),
-        EnhetResponse("4833", "NAV Familie- og pensjonsytelser Oslo 1"),
-        EnhetResponse("4806", "NAV Familie- og pensjonsytelser Drammen"),
-        EnhetResponse("4812", "NAV Familie- og pensjonsytelser Bergen")
+fun createJournalforendeEnheterResponse(): List<EnhetDto> {
+    return arrayListOf<EnhetDto>(
+        EnhetDto(Enhetsnummer("2103"), Enhetsnavn("Nav vikafossen")),
+        EnhetDto(Enhetsnummer("4817"), Enhetsnavn("NAV Familie- og pensjonsytelser Steinkjer")),
+        EnhetDto(Enhetsnummer("4833"), Enhetsnavn("NAV Familie- og pensjonsytelser Oslo 1")),
+        EnhetDto(Enhetsnummer("4806"), Enhetsnavn("NAV Familie- og pensjonsytelser Drammen")),
+        EnhetDto(Enhetsnummer("4812"), Enhetsnavn("NAV Familie- og pensjonsytelser Bergen"))
     )
 }
 
