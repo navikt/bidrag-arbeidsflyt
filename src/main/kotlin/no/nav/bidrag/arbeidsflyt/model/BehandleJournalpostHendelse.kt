@@ -135,13 +135,13 @@ class BehandleJournalpostHendelse(
             val erGyldigEnhet = enhetEksitererOgErAktiv && erJournalførendeEnhet
             return if (!erGyldigEnhet) {
                 LOGGER.warn("Enhet ${journalpostHendelse.enhet} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.")
-                arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
+                arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema).verdi
             } else {
                 LOGGER.info("Bruker enhet ${journalpostHendelse.enhet} fra hendelsen ved arbeidsfordelingen.")
                 journalpostHendelse.enhet!!
             }
         }
-        return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema)
+        return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema).verdi
     }
     private fun validerGyldigDataForBehandleDokument() {
         if (!journalpostHendelse.harTittel) throw ManglerDataForBehandleDokument("Kan ikke opprette/oppdatere behandle dokument oppgave fordi hendelse mangler tittel")
