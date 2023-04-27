@@ -155,8 +155,8 @@
     </dependency>
     <!-- apache http -->
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
     </dependency>
 
     <!-- 5.6.6.Final > has bug causing tests to fail  -->
