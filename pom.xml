@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -21,7 +21,7 @@
 
     <!-- dependencies -->
     <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
-    <bidrag-transport.version>20230420100825_db5a095</bidrag-transport.version>
+    <bidrag-transport.version>20230426154133_0fd52b3</bidrag-transport.version>
     <logback-encoder.version>7.3</logback-encoder.version>
     <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
     <token-support.version>3.0.11</token-support.version>
@@ -29,10 +29,10 @@
     <squareup-okhttp3.version>4.11.0</squareup-okhttp3.version>
     <shedlock.version>5.2.0</shedlock.version>
     <bidrag-dokument-dto.version>1.6.31</bidrag-dokument-dto.version>
-    <kotlin-logging-jvm.version>3.0.4</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
-    <build-helper-maven.version>3.2.0</build-helper-maven.version>
+    <build-helper-maven.version>3.3.0</build-helper-maven.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -53,39 +53,18 @@
     </repository>
   </repositories>
   <dependencyManagement>
-<!--    <dependencies>-->
-<!--      &lt;!&ndash; snyk reported vulnerabilities &ndash;&gt;-->
-<!--      <dependency>-->
-<!--        <groupId>commons-codec</groupId>-->
-<!--        <artifactId>commons-codec</artifactId>-->
-<!--        <version>1.13</version>-->
-<!--      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>org.apache.kafka</groupId>-->
-<!--        <artifactId>kafka-clients</artifactId>-->
-<!--        <version>3.0.0</version>-->
-<!--      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>ch.qos.logback</groupId>-->
-<!--        <artifactId>logback-core</artifactId>-->
-<!--        <version>1.2.11</version>-->
-<!--      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>org.bouncycastle</groupId>-->
-<!--        <artifactId>bcpg-jdk15on</artifactId>-->
-<!--        <version>1.61</version>-->
-<!--      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>org.bouncycastle</groupId>-->
-<!--        <artifactId>bcprov-jdk15on</artifactId>-->
-<!--        <version>1.68</version>-->
-<!--      </dependency>-->
-<!--      <dependency>-->
-<!--        <groupId>org.codehaus.plexus</groupId>-->
-<!--        <artifactId>plexus-utils</artifactId>-->
-<!--        <version>3.3.0</version>-->
-<!--      </dependency>-->
-<!--    </dependencies>-->
+    <dependencies>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>2.13.10</version>
+      </dependency>
+    </dependencies>
   </dependencyManagement>
 
   <dependencies>
@@ -142,6 +121,7 @@
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-reflect</artifactId>
+      <version>${kotlin.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -237,7 +217,7 @@
     <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
-      <version>5.5.3</version>
+      <version>5.6.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -285,12 +265,12 @@
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka-test</artifactId>
       <scope>test</scope>
-<!--      <exclusions>-->
-<!--        <exclusion>-->
-<!--          <groupId>log4j</groupId>-->
-<!--          <artifactId>log4j</artifactId>-->
-<!--        </exclusion>-->
-<!--      </exclusions>-->
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -301,7 +281,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>4.8.0</version>
+      <version>5.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -325,6 +305,7 @@
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${kotlin.version}</version>
         <configuration>
           <args>
             <arg>-Xjsr305=strict</arg>
@@ -349,7 +330,9 @@
         </dependencies>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -379,7 +362,7 @@
             <configuration>
               <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <arg value="src/**/*.kt"/>
                 </java>
               </target>
@@ -394,7 +377,7 @@
             <configuration>
               <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <jvmarg value="--add-opens"/>
                   <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
                   <arg value="-F"/>
