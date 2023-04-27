@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.utils
 
+import no.nav.bidrag.commons.util.VirkedagerProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -19,28 +20,28 @@ internal class DateUtilsTest {
     @Test
     fun `should return next workday from saturday`() {
         val candidate = LocalDate.parse(SATURDAY)
-        val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
+        val result = VirkedagerProvider.nesteVirkedag(candidate)
         assertThat(result.toString()).isEqualTo(MONDAY)
     }
 
     @Test
     fun `should return next workday from sunday`() {
         val candidate = LocalDate.parse(SUNDAY)
-        val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
+        val result = VirkedagerProvider.nesteVirkedag(candidate)
         assertThat(result.toString()).isEqualTo(MONDAY)
     }
 
     @Test
     fun `should return next workday from a workday`() {
         val candidate = LocalDate.parse(TUESDAY)
-        val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
+        val result = VirkedagerProvider.nesteVirkedag(candidate)
         assertThat(result.toString()).isEqualTo(candidate.plusDays(1).toString())
     }
 
     @Test
     fun `should return next workday after easter`() {
         val candidate = LocalDate.parse(DAY_BEFORE_EASTER)
-        val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
+        val result = VirkedagerProvider.nesteVirkedag(candidate)
         assertThat(result.toString()).isEqualTo(WORKDAY_AFTER_EASTER)
     }
 
@@ -48,7 +49,7 @@ internal class DateUtilsTest {
     fun `should skip norwegian holiday as working day`() {
         val norwegianHoliday = LocalDate.parse(NORWEGIAN_HOLIDAY)
         val candidate = norwegianHoliday.minusDays(1)
-        val result = DateUtils.finnNesteArbeidsdagEtterDato(candidate)
+        val result = VirkedagerProvider.nesteVirkedag(candidate)
         assertThat(result.toString()).isEqualTo(norwegianHoliday.plusDays(1).toString())
     }
 }

@@ -13,7 +13,6 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
-import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_2
@@ -25,6 +24,7 @@ import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
 import no.nav.bidrag.arbeidsflyt.utils.SAKSBEHANDLER_ID
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
+import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.dokument.dto.HendelseType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import no.nav.bidrag.dokument.dto.Sporingsdata
@@ -218,7 +218,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         verifyOppgaveOpprettetWith(
             "\"tildeltEnhetsnr\":\"$ENHET_4806\"",
-            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",
@@ -294,7 +294,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         verifyOppgaveOpprettetWith(
             "\"tildeltEnhetsnr\":\"$ENHET_FARSKAP\"",
-            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag())}\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",

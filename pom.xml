@@ -20,7 +20,7 @@
     <kotlin.version>1.8.21</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-commons.version>20230425155435_4120d67</bidrag-commons.version>
+    <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
     <bidrag-transport.version>20230420100825_db5a095</bidrag-transport.version>
     <logback-encoder.version>7.3</logback-encoder.version>
     <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
@@ -231,16 +231,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-kotlin</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>de.jollyday</groupId>
-      <artifactId>jollyday</artifactId>
-      <version>0.5.10</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
     </dependency>
 
     <!-- test -->

@@ -7,7 +7,6 @@ import no.nav.bidrag.arbeidsflyt.dto.formatterDatoForOppgave
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_1
-import no.nav.bidrag.arbeidsflyt.utils.DateUtils
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVETYPE_JFR
@@ -17,6 +16,7 @@ import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -185,7 +185,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
         verifyOppgaveOpprettetWith(
-            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(DateUtils.finnNesteArbeidsdag())}\"",
+            "\"fristFerdigstillelse\":\"${formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag())}\"",
             "\"aktoerId\":\"$AKTOER_ID\"",
             "\"oppgavetype\":\"JFR\"",
             "\"journalpostId\":\"$JOURNALPOST_ID_1\"",
