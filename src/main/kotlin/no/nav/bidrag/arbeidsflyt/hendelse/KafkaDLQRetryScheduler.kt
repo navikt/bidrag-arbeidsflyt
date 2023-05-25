@@ -33,6 +33,9 @@ class KafkaDLQRetryScheduler(
     @Value("\${TOPIC_OPPGAVE_ENDRET}")
     lateinit var topicOppgaveEndret: String
 
+    @Value("\${TOPIC_OPPGAVE_OPPRETTET}")
+    lateinit var topicOppgaveOpprettet: String
+
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
 
@@ -65,6 +68,10 @@ class KafkaDLQRetryScheduler(
             topicOppgaveEndret -> {
                 val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
                 behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
+            }
+            topicOppgaveOpprettet -> {
+                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
+                behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveEndretHendelse)
             }
             topicJournalpost -> {
                 val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(message.payload)

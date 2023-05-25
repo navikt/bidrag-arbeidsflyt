@@ -14,8 +14,10 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
+import no.nav.bidrag.arbeidsflyt.utils.createOppgaveData
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.arbeidsflyt.utils.toOppgaveData
 import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.assertj.core.api.Assertions.assertThat
@@ -32,7 +34,9 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal lagre oppgave`() {
         val journalpostId = "213213123"
         val oppgaveId = 10123L
-        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = journalpostId)
+        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = journalpostId, status = OppgaveStatus.OPPRETTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
+
         assertThat(testDataGenerator.hentOppgave(oppgaveId).isPresent).isFalse
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -49,7 +53,8 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal lagre journalforingsoppgave ved endring hvis ikke finnes`() {
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3, status = OppgaveStatus.OPPRETTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -69,7 +74,8 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal endre oppgave`() {
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_3, journalpostId = "UKJENT"))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3, status = OppgaveStatus.OPPRETTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -90,6 +96,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal slette oppgave fra databasen nar oppgave lukket`() {
         stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3))
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -102,10 +109,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave med BID prefix nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(BID_JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, tildeltEnhetsnr = "4812")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -116,10 +124,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal hente geografisk enhet hvis oppgave ikke har tildelt enhetsnr`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4816")
         stubHentJournalpost(journalpostResponse(BID_JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = BID_JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, tildeltEnhetsnr = null)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -130,7 +139,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -138,7 +147,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -147,6 +156,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET, fristFerdigstillelse = LocalDate.of(2020, 2, 1))
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -158,7 +168,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal opprette oppgave med frist neste dag hvis JFR lukket og journalpost har status MOTTATT`() {
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -166,7 +176,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -181,6 +191,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
             fristFerdigstillelse = null,
             oppgavetype = OPPGAVETYPE_JFR
         )
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -200,7 +211,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal ikke opprette oppgave hvis JFR lukket av fagpost selv om journalpost har status MOTTATT`() {
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -208,7 +219,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -224,6 +235,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
             oppgavetype = OPPGAVETYPE_JFR,
             tildeltEnhetsnr = "2950"
         )
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -233,7 +245,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar det ikke finnes noen aapne jfr oppgaver men journalpost status er mottatt men ikke har tema bidrag`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -241,7 +253,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -249,6 +261,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         )
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT, tema = "BAR"))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -257,7 +270,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar oppgave ferdigstilt og journalpost status er mottatt men har allerede aapen JFR oppgave`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -272,6 +285,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         )
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -280,10 +294,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar oppgave ferdigstilt og det ikke finnes noen journalposter lagret i databasen`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentJournalpost(status = HttpStatus.NOT_FOUND)
 
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -292,12 +307,13 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost er mottatt`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(JOURNALPOST_ID_1, journalStatus = Journalstatus.MOTTATT))
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
 
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -306,10 +322,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar oppgave endret fra JFR til BEH_SAK og journalpost ikke mottatt`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_1))
         stubHentJournalpost(journalpostResponse(BID_JOURNALPOST_ID_1, journalStatus = Journalstatus.JOURNALFORT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -318,8 +335,9 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar oppgave endret fra JFR til BEH_SAK og oppgave ikke er lagret databasen`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -328,10 +346,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt enhet ikke er knyttet til journalforende enhet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentJournalpost()
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -344,9 +363,10 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal overfore journalforingsoppgave til journalforende enhet og fjerne tilordnetressurs hvis oppgave ikke er knyttet til journalforende enhet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -359,9 +379,10 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt journalforende enhet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -372,9 +393,10 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke overfore oppgave til journalforende enhet hvis oppgavetype ikke tilhorer journalforende enhet (er ikke JFR eller VUR)`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "BEH_SAK", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -385,9 +407,10 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke overfore journalforingsoppgave til journalforende enhet hvis oppgave tildelt enhet er fagpost`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "JFR", tildeltEnhetsnr = "2950", statuskategori = Oppgavestatuskategori.AAPEN)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -396,11 +419,25 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     }
 
     @Test
+    fun `Skal overfore retur oppgave til farskap enhet hvis journalpost har tema FAR`() {
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "RETUR", tildeltEnhetsnr = "9999", status = OppgaveStatus.AAPNET, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(tema = "FAR"))
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4860")
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
     fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar opprettet`() {
-        stubHentOppgave(emptyList())
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost()
-        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -412,10 +449,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal overfore vurderdokument oppgave til journalforende enhet hvis oppgave ikke er knyttet til journalforende enhet nar endret`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -428,10 +466,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke overfore vurderdokument oppgave til journalforende enhet hvis oppgave tildelt journalforende enhet ved opprettet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -443,10 +482,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke overfore vurderdokument oppgave til journalforende enhet hvis oppgave tildelt journalforende enhet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "4806", statuskategori = Oppgavestatuskategori.AAPEN)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -458,10 +498,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal endre vurderdokument oppgavetype til journalforing hvis journalpost status mottatt etter oppgave opprettet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT, tema = "BAR"))
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -472,10 +513,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal endre vurderdokument oppgavetype til vurder henvendelse hvis oppgave ikke har journalpost`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost()
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = null, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -485,9 +527,10 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ikke hente journalpost hvis vurderdokument er avsluttet`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AVSLUTTET, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 
@@ -498,10 +541,11 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal endre vurderdokument oppgavetype til journalforing hvis journalpost status mottatt ved endring`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
@@ -516,7 +560,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `Skal ferdigstille vurder dokument oppgave hvis journalpost status mottatt og har journalforingopppgave`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -532,6 +576,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet("4806")
         stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(12323213, tilordnetRessurs = "z99123", journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "VUR", tildeltEnhetsnr = "9999", statuskategori = Oppgavestatuskategori.AAPEN, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
 

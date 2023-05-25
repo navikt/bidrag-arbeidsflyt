@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
+import no.nav.bidrag.arbeidsflyt.utils.toOppgaveData
 import no.nav.bidrag.dokument.dto.Journalstatus
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
@@ -22,10 +23,11 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
 
     @Test
     fun `skal mappe og behandle oppgave endret hendelse`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(journalStatus = Journalstatus.MOTTATT))
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
@@ -46,6 +48,7 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
     fun `skal lagre hendelse i dead letter repository ved feil`() {
         stubHentOppgaveError()
         val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))

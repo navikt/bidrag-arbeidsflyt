@@ -7,11 +7,11 @@ import no.nav.bidrag.arbeidsflyt.dto.EndreMellomBidragFagomrader
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettBehandleDokumentOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
-import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
@@ -34,10 +34,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             oppgaveSokRequest.leggTilFagomrade(tema)
         }
 
-        return OppgaverForHendelse(
-            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
-                .map { OppgaveDataForHendelse(it) }
-        )
+        return OppgaverForHendelse(oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver)
     }
 
     internal fun finnAapneJournalforingOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
@@ -46,8 +43,11 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
 
         return OppgaverForHendelse(
             oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
-                .map { OppgaveDataForHendelse(it) }
         )
+    }
+
+    internal fun hentOppgave(oppgaveId: Long): OppgaveData {
+        return oppgaveConsumer.hentOppgave(oppgaveId)
     }
 
     internal fun oppdaterOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
@@ -120,7 +120,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             )
         }
     }
-    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveDataForHendelse>) {
+    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveData>) {
         LOGGER.info("Antall behandle dokument oppgaver som skal oppdateres: {}", oppgaver.size)
 
         for (oppgaveData in oppgaver) {

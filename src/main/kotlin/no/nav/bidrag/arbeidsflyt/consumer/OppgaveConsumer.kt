@@ -7,7 +7,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
-import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.slf4j.LoggerFactory
@@ -19,8 +18,9 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 
 interface OppgaveConsumer {
     fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
+    fun hentOppgave(oppgaveId: Long): OppgaveData
     fun endreOppgave(patchOppgaveRequest: PatchOppgaveRequest, endretAvEnhetsnummer: String? = null)
-    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse
+    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData
 }
 
 class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
@@ -46,6 +46,23 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
     }
 
+    override fun hentOppgave(oppgaveId: Long): OppgaveData {
+        return try {
+            restTemplate.exchange(
+                "$OPPGAVE_CONTEXT/$oppgaveId",
+                HttpMethod.GET,
+                null,
+                OppgaveData::class.java
+            ).body!!
+        }  catch (e: HttpStatusCodeException) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                throw EndreOppgaveFeiletFunksjoneltException("Fant ikke oppgave med id $oppgaveId. Feilet med feilmelding ${e.message}", e)
+            }
+
+            throw e
+        }
+    }
+
     private fun initStringOf(oppgaveSokResponse: OppgaveSokResponse?): String {
         if (oppgaveSokResponse != null) {
             return "OppgaveSokResponse(antallTreff=${oppgaveSokResponse.antallTreffTotalt},oppgaver=[${oppgaveSokResponse.oppgaver}]"
@@ -69,7 +86,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             )
             LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons ${responseEntity.body}")
         } catch (e: HttpStatusCodeException) {
-            if (e.statusCode == HttpStatus.BAD_REQUEST || e.statusCode == HttpStatus.CONFLICT) {
+            if (e.statusCode == HttpStatus.BAD_REQUEST) {
                 throw EndreOppgaveFeiletFunksjoneltException("Kunne ikke endre oppgave med id ${patchOppgaveRequest.id}. Feilet med feilmelding ${e.message}", e)
             }
 
@@ -77,7 +94,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         }
     }
 
-    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveDataForHendelse {
+    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData {
         try {
             SECURE_LOGGER.info("Oppretter oppgave med verdi $opprettOppgaveRequest")
             val responseEntity = restTemplate.exchange(
@@ -88,7 +105,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
             )
 
             LOGGER.info("Opprettet oppgave ${responseEntity.body?.id} med type ${opprettOppgaveRequest.oppgavetype} og journalpostId ${opprettOppgaveRequest.journalpostId}")
-            return responseEntity.body?.somOppgaveForHendelse() ?: OppgaveDataForHendelse(id = -1, versjon = -1)
+            return responseEntity.body!!
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.BAD_REQUEST) {
                 throw OpprettOppgaveFeiletFunksjoneltException("Kunne ikke opprette oppgave for journalpost ${opprettOppgaveRequest.journalpostId}. Feilet med feilmelding ${e.message}", e)

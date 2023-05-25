@@ -16,7 +16,7 @@ AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f
 AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
 AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
-BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll-feature.intern.dev.nav.no
+BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll.intern.dev.nav.no
 TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 KAFKA_MAX_RETRY: 1
 #### KAFKA
@@ -53,7 +53,7 @@ spring:
     enabled: true
     locations: classpath:/db/migration
   datasource:
-    url: jdbc:postgresql://localhost:${DB_PORT:5455}/${DB_DATABASE:bidrag-arbeidsflyt}?user=${DB_USERNAME:cloudsqliamuser}&password=${DB_PASSWORD:admin}
+    url: jdbc:postgresql://localhost:${DB_PORT:5456}/${DB_DATABASE:bidrag-arbeidsflyt}?user=${DB_USERNAME:cloudsqliamuser}&password=${DB_PASSWORD:admin}
     type: com.zaxxer.hikari.HikariDataSource
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}

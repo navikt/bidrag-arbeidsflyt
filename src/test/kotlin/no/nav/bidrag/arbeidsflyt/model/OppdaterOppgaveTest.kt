@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
+import no.nav.bidrag.arbeidsflyt.utils.createOppgaveData
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -34,8 +35,8 @@ internal class OppdaterOppgaveTest {
     fun `skal legge til beskrivelse for oppdatert oppgavetype`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs)
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs)
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
         oppdaterOppgave.somHttpEntity()
@@ -51,8 +52,8 @@ internal class OppdaterOppgaveTest {
     @Test
     fun `skal ikke legge til beskrivelse for endret tilordnetressurs hvis ikke satt fra før`() {
         val existingBeskrivelse = "En beskrivelse fra før"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse)
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val oppgaveData = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse)
+        val oppdaterOppgave = OppdaterOppgave(oppgaveData)
 
         oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
         oppdaterOppgave.somHttpEntity()
@@ -66,8 +67,8 @@ internal class OppdaterOppgaveTest {
 
     @Test
     fun `skal legge til beskrivelse hvis eksisterende beskrivelse er null`() {
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = null, tildeltEnhetsnr = null)
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = null, tildeltEnhetsnr = null)
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
         oppdaterOppgave.somHttpEntity()
@@ -82,8 +83,8 @@ internal class OppdaterOppgaveTest {
     fun `skal legge til beskrivelse for endret enhet`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.overforTilEnhet("4806")
         oppdaterOppgave.somHttpEntity()
@@ -100,8 +101,8 @@ internal class OppdaterOppgaveTest {
     fun `skal ikke legge til beskrivelse hvis ikke endret`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.somHttpEntity()
 
@@ -112,8 +113,8 @@ internal class OppdaterOppgaveTest {
     fun `skal mappe til json`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         assertThat(ObjectMapper().writeValueAsString(oppdaterOppgave)).isEqualTo("{\"id\":1,\"versjon\":1,\"endretAvEnhetsnr\":\"9999\"}")
     }
@@ -122,8 +123,8 @@ internal class OppdaterOppgaveTest {
     fun `skal mappe til json med endring`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveHendelse(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888", oppgavetype = OppgaveType.VUR.name)
-        val oppdaterOppgave = OppdaterOppgave(OppgaveDataForHendelse(hendelse))
+        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888", oppgavetype = OppgaveType.VUR.name)
+        val oppdaterOppgave = OppdaterOppgave(hendelse)
         oppdaterOppgave.endreOppgavetype(OppgaveType.JFR)
         oppdaterOppgave.somHttpEntity()
         assertThat(ObjectMapper().writeValueAsString(oppdaterOppgave)).isEqualTo(

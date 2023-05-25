@@ -1,9 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 
-data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>) {
+data class OppgaverForHendelse(val dataForHendelse: List<OppgaveData>) {
 
     fun erEndringAvTildeltEnhetsnummer(journalpostHendelse: JournalpostHendelse): Boolean {
         return journalpostHendelse.harEnhet() && dataForHendelse.stream()
@@ -13,7 +14,7 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
 
     fun erEndringAvAktoerId(journalpostHendelse: JournalpostHendelse): Boolean {
         return journalpostHendelse.harAktorId() && dataForHendelse.stream()
-            .filter { journalpostHendelse.aktorId != it.aktorId }
+            .filter { journalpostHendelse.aktorId != it.aktoerId }
             .findAny().isPresent
     }
 
@@ -29,7 +30,7 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>
 
     fun hentJournalforingsOppgaver() = dataForHendelse.filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 
-    fun hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostId: String): List<OppgaveDataForHendelse> {
+    fun hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostId: String): List<OppgaveData> {
         val journalpostIdUtenPrefix = journalpostId.replace("BID-", "").replace("JOARK-", "")
         return dataForHendelse.filter { it.oppgavetype == OppgaveType.BEH_SAK.name }
             .filter { it.journalpostId != journalpostIdUtenPrefix && it.journalpostId != "BID-$journalpostId" }
