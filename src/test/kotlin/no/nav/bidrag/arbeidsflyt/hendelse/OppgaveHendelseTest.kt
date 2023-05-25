@@ -34,7 +34,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal lagre oppgave`() {
         val journalpostId = "213213123"
         val oppgaveId = 10123L
-        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = journalpostId)
+        val oppgaveHendelse = createOppgaveHendelse(oppgaveId, journalpostId = journalpostId, status = OppgaveStatus.OPPRETTET)
         stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         assertThat(testDataGenerator.hentOppgave(oppgaveId).isPresent).isFalse
@@ -53,7 +53,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal lagre journalforingsoppgave ved endring hvis ikke finnes`() {
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3, status = OppgaveStatus.OPPRETTET)
         stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
@@ -74,7 +74,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal endre oppgave`() {
         testDataGenerator.opprettOppgave(createOppgave(OPPGAVE_ID_3, journalpostId = "UKJENT"))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3)
+        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_3, journalpostId = JOURNALPOST_ID_3, status = OppgaveStatus.OPPRETTET)
         stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
 
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
