@@ -109,15 +109,18 @@ fun createOppgaveHendelse(
     )
 }
 
+fun Oppgavestatuskategori.toStatus() = when(this){
+    Oppgavestatuskategori.AAPEN -> OppgaveStatus.AAPNET
+    else -> OppgaveStatus.FERDIGSTILT
+}
 fun OppgaveHendelse.toOppgaveData() = OppgaveData(
     id = id,
     versjon = versjon,
     tilordnetRessurs = tilordnetRessurs,
     journalpostId = journalpostId,
     tildeltEnhetsnr = tildeltEnhetsnr,
-    status = status,
+    status = status ?: statuskategori?.toStatus(),
     oppgavetype = oppgavetype,
-    statuskategori = statuskategori,
     tema = tema,
     beskrivelse = beskrivelse,
     ident = ident?.verdi,
@@ -150,7 +153,6 @@ fun createOppgaveData(
         tildeltEnhetsnr = tildeltEnhetsnr,
         status = status,
         oppgavetype = oppgavetype,
-        statuskategori = statuskategori,
         tema = tema,
         beskrivelse = beskrivelse,
         ident = identVerdi,

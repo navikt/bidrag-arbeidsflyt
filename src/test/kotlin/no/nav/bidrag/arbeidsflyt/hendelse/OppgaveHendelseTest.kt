@@ -147,7 +147,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -176,7 +176,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -219,7 +219,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -253,7 +253,7 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
                     journalpostId = JOURNALPOST_ID_1,
                     aktoerId = AKTOER_ID,
                     oppgavetype = "BEH_SAK",
-                    statuskategori = Oppgavestatuskategori.AAPEN,
+                    status = OppgaveStatus.AAPNET,
                     tema = "BID",
                     tildeltEnhetsnr = "4833"
                 )
@@ -415,6 +415,20 @@ class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
         behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveHendelse)
 
         verifyOppgaveNotEndret()
+        verifyOppgaveNotOpprettet()
+    }
+
+    @Test
+    fun `Skal overfore retur oppgave til farskap enhet hvis journalpost har tema FAR`() {
+        val oppgaveHendelse = createOppgaveHendelse(12323213, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, oppgavetype = "RETUR", tildeltEnhetsnr = "9999", status = OppgaveStatus.AAPNET, beskrivelse = "En annen beskrivelse")
+        stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse.toOppgaveData())
+        stubHentGeografiskEnhet("4806")
+        stubHentJournalpost(journalpostResponse(tema = "FAR"))
+
+        behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveHendelse)
+
+        verifyHentJournalforendeEnheterKalt()
+        verifyOppgaveEndretWith(1, "Oppgave overført fra enhet 9999 til 4860")
         verifyOppgaveNotOpprettet()
     }
 

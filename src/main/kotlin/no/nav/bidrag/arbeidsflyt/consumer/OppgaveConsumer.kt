@@ -48,10 +48,12 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
     override fun hentOppgave(oppgaveId: Long): OppgaveData {
         return try {
-            restTemplate.getForObject(
+            restTemplate.exchange(
                 "$OPPGAVE_CONTEXT/$oppgaveId",
+                HttpMethod.GET,
+                null,
                 OppgaveData::class.java
-            )!!
+            ).body!!
         }  catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 throw EndreOppgaveFeiletFunksjoneltException("Fant ikke oppgave med id $oppgaveId. Feilet med feilmelding ${e.message}", e)

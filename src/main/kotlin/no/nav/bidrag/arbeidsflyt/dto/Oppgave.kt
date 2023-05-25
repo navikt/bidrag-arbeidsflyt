@@ -123,7 +123,6 @@ data class OppgaveData(
     val opprettetAv: String? = null,
     val endretAv: String? = null,
     val ferdigstiltTidspunkt: String? = null,
-    val statuskategori: Oppgavestatuskategori? = null,
     val endretTidspunkt: String? = null,
     val prioritet: String? = null,
     val status: OppgaveStatus? = null,
@@ -140,8 +139,8 @@ data class OppgaveData(
     fun erReturoppgave(): Boolean = erStatusKategoriAapen && erReturOppgave
     fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
 
-    internal val erStatusKategoriAapen get() = statuskategori == Oppgavestatuskategori.AAPEN
-    internal val erStatusKategoriAvsluttet get() = statuskategori == Oppgavestatuskategori.AVSLUTTET
+    internal val erStatusKategoriAapen get() = listOf(OppgaveStatus.AAPNET, OppgaveStatus.OPPRETTET, OppgaveStatus.UNDER_BEHANDLING).contains(status)
+    internal val erStatusKategoriAvsluttet get() = listOf(OppgaveStatus.FEILREGISTRERT, OppgaveStatus.FERDIGSTILT).contains(status)
     internal val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
     internal val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
     internal val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
