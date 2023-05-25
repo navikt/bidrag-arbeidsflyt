@@ -52,7 +52,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal behandle hendelse med ugyldig fnr`() {
         val enhet = "4812"
         val aktorid = "123213123213213"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
@@ -74,7 +74,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet er nedlagt`() {
         val enhet = "2101"
         val geografiskEnhet = "4806"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(geografiskEnhet)
         stubHentEnhet(enhet, true)
@@ -90,7 +90,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal opprett oppgave med arbeidsfordeling enhet hvis journalforendenhet ikke finnes`() {
         val enhet = "2101"
         val geografiskEnhet = "4806"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(geografiskEnhet)
         stubHentEnhet(enhet, status = HttpStatus.NO_CONTENT)
@@ -106,7 +106,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal opprette journalforingsoppgave med geografisk enhet og aktorid for mottatt journalpost`() {
         val enhet = "4812"
         val aktorid = "123213123213213"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
@@ -127,7 +127,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal ikke opprette journalforingsoppgave hvis hent geografisk enhet feiler`() {
         val enhet = "4812"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet, HttpStatus.INTERNAL_SERVER_ERROR)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = null)
@@ -142,7 +142,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette journalforingsoppgave med BID prefix nar journalpost med status mottatt ikke har jfr oppgave og enhet er null`() {
         val enhet = "4812"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet(enhet)
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW).copy(enhet = null)
@@ -156,7 +156,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette journalforingsoppgave med journalpost enhet hvis BID journalpost`() {
         val enhet = "4833"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentJournalforendeEnheter()
         stubHentGeografiskEnhet("1111")
@@ -172,7 +172,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     @Test
     fun `skal opprette journalforingsoppgave med journalpost enhet hvis Joark journalpost`() {
         val enhet = "4833"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentJournalforendeEnheter()
         stubHentGeografiskEnhet("1111")
@@ -190,7 +190,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     fun `skal opprette journalforingsoppgave med arbeidsfordeling hvis hendelse enhet ikke er journalførende`() {
         val enhet = "4343"
         val arbeisfordelingEnhet = "4833"
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentJournalforendeEnheter()
         stubHentGeografiskEnhet(arbeisfordelingEnhet)
@@ -206,7 +206,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave med uten prefix nar Joark journalpost med status mottatt ikke har jfr oppgave`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
         stubHentEnhet()
@@ -230,7 +230,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette journalforingsoppgave nar Bidrag journalpost med status mottatt har jfr oppgave`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -256,7 +256,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke opprette oppgave nar Joark journalpost med status mottatt har jfr oppgave`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -282,7 +282,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal opprette oppgave på enhet 4860 hvis journalpost har tema FAR`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
         stubHentEnhet()
@@ -306,7 +306,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ferdigstille oppgave nar endret til ekstern fagomrade`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -784,7 +784,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal oppdatere journalpost lagret i databasen`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -825,7 +825,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal slette journalpost fra databasen hvis status ikke lenger er mottatt`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -855,7 +855,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
     @Test
     fun `skal ikke lagre journalpost hvis status ikke er M og ikke finnes`() {
-        stubHentOppgave(
+        stubHentOppgaveSok(
             listOf(
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -885,7 +885,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke gjøre endring hvis journalpost ikke har ikke-bidrag fagområde`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -929,7 +929,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke gjøre endring hvis journalpost ikke har status mottatt`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -973,7 +973,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal oppdatere beskrivelse hvis journalpost tema endret fra FAR til BID`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -1020,7 +1020,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke fjerne tilordnetressurs hvis saksbehandler har tilgang og oppdatere beskrivelse hvis journalpost tema endret fra BID til FAR`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -1067,7 +1067,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal fjerne tilordnetressurs og oppdatere beskrivelse hvis journalpost tema endret fra BID til FAR og saksbehandler ikke har tilgang`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -1115,7 +1115,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal fjerne tilordnetressurs og oppdatere beskrivelse hvis journalpost tema endret til FAR og saksbehandler ikke har tilgang`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -1154,7 +1154,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke oppdatere oppgave hvis journalpost har tema BID og journalpost ikke lagret i databasen`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,
@@ -1187,7 +1187,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         @Test
         fun `skal ikke oppdatere oppgave hvis journalpost har tema FAR og saksbehandler har tilgang`() {
             val journalpostId = "BID-$JOURNALPOST_ID_2"
-            stubHentOppgave(
+            stubHentOppgaveSok(
                 listOf(
                     OppgaveData(
                         id = OPPGAVE_ID_1,

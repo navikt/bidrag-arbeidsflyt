@@ -21,7 +21,6 @@ database:
   dbname: bidrag-arbeidsflyt-feature
   autoResize: false
 ingresses:
-  - https://bidrag-arbeidsflyt-feature.dev.intern.nav.no
   - https://bidrag-arbeidsflyt-feature.intern.dev.nav.no
 outbound-access-apps:
   - bidrag-tilgangskontroll-feature

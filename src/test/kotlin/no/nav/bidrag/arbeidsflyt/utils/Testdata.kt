@@ -74,7 +74,6 @@ fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", ret
         createdTimestamp = timestamp
     )
 }
-
 fun createOppgaveHendelse(
     id: Long,
     journalpostId: String? = "123213",
@@ -107,6 +106,58 @@ fun createOppgaveHendelse(
         endretTidspunkt = CREATED_TIME,
         endretAv = "test",
         fristFerdigstillelse = fristFerdigstillelse
+    )
+}
+
+fun OppgaveHendelse.toOppgaveData() = OppgaveData(
+    id = id,
+    versjon = versjon,
+    tilordnetRessurs = tilordnetRessurs,
+    journalpostId = journalpostId,
+    tildeltEnhetsnr = tildeltEnhetsnr,
+    status = status,
+    oppgavetype = oppgavetype,
+    statuskategori = statuskategori,
+    tema = tema,
+    beskrivelse = beskrivelse,
+    ident = ident?.verdi,
+    opprettetTidspunkt = opprettetTidspunkt.toString(),
+    endretTidspunkt = endretTidspunkt.toString(),
+    endretAv = "test",
+    fristFerdigstillelse = fristFerdigstillelse.toString()
+)
+fun createOppgaveData(
+    id: Long,
+    journalpostId: String? = "123213",
+    tildeltEnhetsnr: String? = "4806",
+    statuskategori: Oppgavestatuskategori = Oppgavestatuskategori.AAPEN,
+    status: OppgaveStatus = OppgaveStatus.OPPRETTET,
+    oppgavetype: String = OPPGAVETYPE_JFR,
+    tema: String = "BID",
+    identVerdi: String = AKTOER_ID,
+    beskrivelse: String? = null,
+    fnr: String = PERSON_IDENT_1,
+    tilordnetRessurs: String? = null,
+    identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
+    fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
+): OppgaveData {
+    val ident = OppgaveHendelse.Ident(verdi = identVerdi, identType = identType, folkeregisterident = if (identType == OppgaveIdentType.AKTOERID) fnr else null)
+    return OppgaveData(
+        id = id,
+        versjon = 1,
+        tilordnetRessurs = tilordnetRessurs,
+        journalpostId = journalpostId,
+        tildeltEnhetsnr = tildeltEnhetsnr,
+        status = status,
+        oppgavetype = oppgavetype,
+        statuskategori = statuskategori,
+        tema = tema,
+        beskrivelse = beskrivelse,
+        ident = identVerdi,
+        opprettetTidspunkt = CREATED_TIME.toString(),
+        endretTidspunkt = CREATED_TIME.toString(),
+        endretAv = "test",
+        fristFerdigstillelse = fristFerdigstillelse.toString()
     )
 }
 

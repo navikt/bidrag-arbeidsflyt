@@ -2,7 +2,6 @@ package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
-import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -10,9 +9,8 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
-        val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
-        )
+        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+
 
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
@@ -23,9 +21,8 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere FerdigstillOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
-        )
+        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+
 
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave)
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
@@ -41,9 +38,8 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere OverforOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveDataForHendelse(
-            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
-        )
+        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812", "Z999999")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
         val expectedValue = "" +

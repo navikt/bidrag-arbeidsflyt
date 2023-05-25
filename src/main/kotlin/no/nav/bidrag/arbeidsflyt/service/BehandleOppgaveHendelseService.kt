@@ -34,6 +34,7 @@ class BehandleOppgaveHendelseService(
             oppdaterOppgaveFraHendelse(oppgaveHendelse)
                 .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
                 .endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt()
+                .overforReturoppgaveTilFarskapHvisJournalpostHarTemaFAR()
                 .utfor()
         } else {
             oppdaterOppgaveFraHendelse(oppgaveHendelse)

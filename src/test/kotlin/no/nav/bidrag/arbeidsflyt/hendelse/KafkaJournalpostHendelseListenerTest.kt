@@ -50,7 +50,7 @@ internal class KafkaJournalpostHendelseListenerTest : AbstractKafkaHendelseTest(
 
     @Test
     fun `skal legge melding i dead_letter_kafka tabellen hvis behandling feiler`() {
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubOpprettOppgave(status = HttpStatus.INTERNAL_SERVER_ERROR)
         stubHentPerson(PERSON_IDENT_3)
         stubHentEnhet()
@@ -69,7 +69,7 @@ internal class KafkaJournalpostHendelseListenerTest : AbstractKafkaHendelseTest(
     fun `skal opprette oppgave med BID prefix nar journalpost mottatt uten oppgave`() {
         val geografiskEnhet = "4812"
         stubHentGeografiskEnhet("0101")
-        stubHentOppgave(emptyList())
+        stubHentOppgaveSok(emptyList())
         stubOpprettOppgave()
         stubHentEnhet()
         stubHentPerson(PERSON_IDENT_3)

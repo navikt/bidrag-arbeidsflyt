@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
+import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
 import no.nav.bidrag.commons.util.VirkedagerProvider
@@ -95,50 +95,63 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
 data class OppgaveData(
-    var id: Long? = null,
-    var tildeltEnhetsnr: String? = null,
-    var endretAvEnhetsnr: String? = null,
-    var opprettetAvEnhetsnr: String? = null,
-    var journalpostId: String? = null,
-    var journalpostkilde: String? = null,
-    var behandlesAvApplikasjon: String? = null,
-    var saksreferanse: String? = null,
-    var bnr: String? = null,
-    var samhandlernr: String? = null,
-    var aktoerId: String? = null,
-    var orgnr: String? = null,
-    var tilordnetRessurs: String? = null,
-    var beskrivelse: String? = null,
-    var temagruppe: String? = null,
-    var tema: String? = null,
-    var behandlingstema: String? = null,
-    var oppgavetype: String? = null,
-    var behandlingstype: String? = null,
-    var versjon: Int? = null,
-    var mappeId: String? = null,
-    var fristFerdigstillelse: String? = null,
-    var aktivDato: String? = null,
-    var opprettetTidspunkt: String? = null,
-    var opprettetAv: String? = null,
-    var endretAv: String? = null,
-    var ferdigstiltTidspunkt: String? = null,
+    val id: Long = -1,
+    val tildeltEnhetsnr: String? = null,
+    val endretAvEnhetsnr: String? = null,
+    val opprettetAvEnhetsnr: String? = null,
+    val journalpostId: String? = null,
+    val journalpostkilde: String? = null,
+    val behandlesAvApplikasjon: String? = null,
+    val saksreferanse: String? = null,
+    val bnr: String? = null,
+    val samhandlernr: String? = null,
+    val aktoerId: String? = null,
+    val orgnr: String? = null,
+    val tilordnetRessurs: String? = null,
+    val beskrivelse: String? = null,
+    val ident: String? = null,
+    val temagruppe: String? = null,
+    val tema: String? = null,
+    val behandlingstema: String? = null,
+    val oppgavetype: String? = null,
+    val behandlingstype: String? = null,
+    val versjon: Int = -1,
+    val mappeId: String? = null,
+    val fristFerdigstillelse: String? = null,
+    val aktivDato: String? = null,
+    val opprettetTidspunkt: String? = null,
+    val opprettetAv: String? = null,
+    val endretAv: String? = null,
+    val ferdigstiltTidspunkt: String? = null,
     val statuskategori: Oppgavestatuskategori? = null,
-    var endretTidspunkt: String? = null,
-    var prioritet: String? = null,
-    var status: OppgaveStatus? = null,
-    var metadata: Map<String, String>? = null
+    val endretTidspunkt: String? = null,
+    val prioritet: String? = null,
+    val status: OppgaveStatus? = null,
+    val metadata: Map<String, String>? = null
 ) {
-    fun somOppgaveForHendelse() = OppgaveDataForHendelse(
-        id = id ?: -1,
-        versjon = versjon ?: -1,
-        aktorId = aktoerId,
-        oppgavetype = oppgavetype,
-        tema = tema,
-        tildeltEnhetsnr = tildeltEnhetsnr
-    )
 
     override fun toString() =
         "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
+
+    fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
+    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
+    fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
+    fun erAapenVurderDokumentOppgave(): Boolean = erStatusKategoriAapen && erVurderDokumentOppgave
+    fun erReturoppgave(): Boolean = erStatusKategoriAapen && erReturOppgave
+    fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
+
+    internal val erStatusKategoriAapen get() = statuskategori == Oppgavestatuskategori.AAPEN
+    internal val erStatusKategoriAvsluttet get() = statuskategori == Oppgavestatuskategori.AVSLUTTET
+    internal val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
+    internal val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
+    internal val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
+    internal val erBehandleDokumentOppgave get() = oppgavetype == OppgaveType.BEH_SAK.name
+    internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
+    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
+    internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
+//    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
+
+    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if (isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 }
 
 @Suppress("unused") // used by jackson...
@@ -274,7 +287,7 @@ open class PatchOppgaveRequest(
         return HttpEntity<PatchOppgaveRequest>(this, headers)
     }
 
-    protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveDataForHendelse) {
+    protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveData) {
         id = oppgaveDataForHendelse.id
         versjon = oppgaveDataForHendelse.versjon
     }
@@ -307,9 +320,9 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
 
     private var _hasChanged: Boolean = false
     private var saksbehandlerInfo: String = "Automatisk jobb"
-    private var oppgaveDataForHendelse: OppgaveDataForHendelse? = null
+    private var oppgaveDataForHendelse: OppgaveData? = null
 
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, saksbehandlersInfo: String? = null) : this() {
+    constructor(oppgaveDataForHendelse: OppgaveData, saksbehandlersInfo: String? = null) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         this.oppgaveDataForHendelse = oppgaveDataForHendelse
         this.saksbehandlerInfo = saksbehandlersInfo ?: this.saksbehandlerInfo
@@ -380,14 +393,14 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
 }
 
 class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
+    constructor(oppgaveDataForHendelse: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
 
 class EndreForNyttDokumentRequest() : PatchOppgaveRequest() {
 
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, journalpostHendelse: JournalpostHendelse) : this() {
+    constructor(oppgaveDataForHendelse: OppgaveData, journalpostHendelse: JournalpostHendelse) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${journalpostHendelse.hentSaksbehandlerInfo()} ---\r\n" +
             "\u00B7 ${lagDokumentOppgaveTittel("Nytt dokument", journalpostHendelse.tittel ?: "", journalpostHendelse.dokumentDato!!)}\r\n" +
@@ -398,7 +411,7 @@ class EndreForNyttDokumentRequest() : PatchOppgaveRequest() {
 
 class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
     constructor(
-        oppgaveDataForHendelse: OppgaveDataForHendelse,
+        oppgaveDataForHendelse: OppgaveData,
         saksbehandlersInfo: String,
         fagomradeGammelt: String? = null,
         fagomradeNy: String,
@@ -421,7 +434,7 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
 class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
     override var tilordnetRessurs: String? = ""
 
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
+    constructor(oppgaveDataForHendelse: OppgaveData, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
@@ -432,7 +445,7 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
 }
 
 class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveRequest() {
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse, aktoerId: String?) : this(aktoerId) {
+    constructor(oppgaveDataForHendelse: OppgaveData, aktoerId: String?) : this(aktoerId) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
@@ -442,7 +455,7 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
     override var tilordnetRessurs: String? = null
 
     constructor(
-        oppgaveDataForHendelse: OppgaveDataForHendelse,
+        oppgaveDataForHendelse: OppgaveData,
         tema: String?,
         tildeltEnhetsnr: String?,
         saksbehandlersInfo: String
@@ -460,7 +473,7 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
 
 class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequest() {
 
-    constructor(oppgaveDataForHendelse: OppgaveDataForHendelse) : this(status = "FERDIGSTILT") {
+    constructor(oppgaveDataForHendelse: OppgaveData) : this(status = "FERDIGSTILT") {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
@@ -492,6 +505,7 @@ enum class OppgaveType(val description: String) {
     BEH_SAK("Behandle sak"),
     VUR("Vurder dokument"),
     JFR("Journalføring"),
+    RETUR("Retur"),
     VURD_HENV("Vurder henvendelse");
 
     companion object {

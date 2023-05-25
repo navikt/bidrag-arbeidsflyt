@@ -6,7 +6,6 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JOURNALFORINGSOPPGAVE
-import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -70,7 +69,7 @@ internal class DefaultBehandleHendelseServiceTest {
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "$fagomrade-101", fagomrade = fagomrade))
-        verify(oppgaveConsumerMock).endreOppgave(FerdigstillOppgaveRequest(OppgaveDataForHendelse(id = 1, versjon = 1)))
+        verify(oppgaveConsumerMock).endreOppgave(FerdigstillOppgaveRequest(OppgaveData(id = 1, versjon = 1)))
     }
 
     @Test
@@ -116,7 +115,7 @@ internal class DefaultBehandleHendelseServiceTest {
         verify(oppgaveConsumerMock).endreOppgave(
             patchOppgaveRequest = eq(
                 OverforOppgaveRequest(
-                    oppgaveDataForHendelse = OppgaveDataForHendelse(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
+                    oppgaveDataForHendelse = OppgaveData(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
                     nyttEnhetsnummer = nyttEnhetsnummer,
                     "Z99999"
                 )

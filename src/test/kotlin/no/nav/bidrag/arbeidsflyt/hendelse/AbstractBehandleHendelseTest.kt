@@ -61,7 +61,7 @@ abstract class AbstractBehandleHendelseTest {
         stubHentPerson()
         stubOpprettOppgave()
         stubEndreOppgave()
-        stubHentOppgave()
+        stubHentOppgaveSok()
         stubHentTemaTilgang()
         stubHentJournalforendeEnheter()
     }
@@ -99,11 +99,20 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(patch(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value())))
     }
 
-    fun stubHentOppgave(oppgaver: List<OppgaveData> = oppgaveDataResponse()) {
+    fun stubHentOppgaveSok(oppgaver: List<OppgaveData> = oppgaveDataResponse()) {
         stubFor(
-            get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(
+            get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
                 aClosedJsonResponse().withStatus(HttpStatus.OK.value())
                     .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))
+            )
+        )
+    }
+
+    fun stubHentOppgave(oppgaveId: Long, oppgave: OppgaveData) {
+        stubFor(
+            get(urlMatching("/oppgave/api/v1/oppgaver/$oppgaveId")).willReturn(
+                aClosedJsonResponse().withStatus(HttpStatus.OK.value())
+                    .withBody(objectMapper.writeValueAsString(oppgave))
             )
         )
     }
