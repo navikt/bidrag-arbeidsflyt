@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 

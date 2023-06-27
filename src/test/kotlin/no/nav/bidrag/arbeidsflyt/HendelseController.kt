@@ -5,7 +5,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.commons.CorrelationId
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.GetMapping

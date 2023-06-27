@@ -5,7 +5,7 @@ import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
 import no.nav.bidrag.commons.util.VirkedagerProvider
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -191,7 +191,7 @@ data class OpprettBehandleDokumentOppgaveRequest(
     private var tittel: String,
     private var dokumentDato: LocalDate?,
     private var saksbehandlersInfo: String,
-    private var sporingsdata: no.nav.bidrag.dokument.dto.Sporingsdata
+    private var sporingsdata: no.nav.bidrag.transport.dokument.Sporingsdata
 ) : OpprettOppgaveRequest(
     beskrivelse =
     lagBeskrivelseHeader(saksbehandlersInfo) +

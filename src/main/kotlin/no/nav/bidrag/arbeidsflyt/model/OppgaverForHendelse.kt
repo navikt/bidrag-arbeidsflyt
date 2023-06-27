@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 
 data class OppgaverForHendelse(val dataForHendelse: List<OppgaveDataForHendelse>) {
 

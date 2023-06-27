@@ -6,7 +6,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -46,7 +46,7 @@ class BehandleJournalpostHendelse(
     fun oppdaterOverførMellomBidragFagomrader(): BehandleJournalpostHendelse {
         if (journalpostHendelse.erEksterntFagomrade || !journalpostHendelse.erMottattStatus) return this
 
-        val fagområdeNy = journalpostHendelse.hentTema() ?: return this
+        val fagområdeNy = journalpostHendelse.tema ?: return this
         val journalpost = persistenceService.hentJournalpostMedStatusMottatt(journalpostHendelse.journalpostId)
         val fagområdeGammelt = journalpost?.tema
         val saksbehandlerIdent = journalpostHendelse.sporing?.brukerident
@@ -124,7 +124,7 @@ class BehandleJournalpostHendelse(
     }
 
     fun hentArbeidsfordeling(): String {
-        val tema = journalpostHendelse.hentTema()
+        val tema = journalpostHendelse.tema
         if (tema == Fagomrade.FARSKAP) {
             LOGGER.info("Journalposthendelse med journalpostId ${journalpostHendelse.journalpostId} har tema FAR. Bruker enhet $ENHET_FARSKAP ved arbeidsfordeling")
             return ENHET_FARSKAP

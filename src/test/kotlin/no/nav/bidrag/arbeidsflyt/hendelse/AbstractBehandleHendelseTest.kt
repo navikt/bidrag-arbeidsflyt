@@ -25,12 +25,12 @@ import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
 import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
-import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.domain.enums.Enhetsstatus
 import no.nav.bidrag.domain.ident.AktørId
 import no.nav.bidrag.domain.ident.PersonIdent
 import no.nav.bidrag.domain.string.Enhetsnavn
 import no.nav.bidrag.domain.string.Enhetsnummer
+import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server

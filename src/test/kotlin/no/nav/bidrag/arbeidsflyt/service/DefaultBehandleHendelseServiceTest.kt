@@ -7,7 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.JOURNALFORINGSOPPGAVE
 import no.nav.bidrag.arbeidsflyt.model.OppgaveDataForHendelse
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
