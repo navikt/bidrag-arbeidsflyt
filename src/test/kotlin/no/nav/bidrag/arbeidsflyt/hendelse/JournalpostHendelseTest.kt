@@ -325,7 +325,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentEnhet()
         stubHentJournalforendeEnheter()
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806).copy(fagomrade = "FAR")
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = ENHET_4806).copy(tema = "FAR")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -342,7 +342,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade`() {
+    fun `skal ferdigstille oppgave nar endret til ekstern tema`() {
         stubHentOppgave(
             listOf(
                 OppgaveData(
@@ -358,7 +358,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(tema = "EKSTERN")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -367,7 +367,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
     }
 
     @Test
-    fun `skal ferdigstille oppgave nar endret til ekstern fagomrade for Joark journalpost men JFR oppgave finnes fra for`() {
+    fun `skal ferdigstille oppgave nar endret til ekstern tema for Joark journalpost men JFR oppgave finnes fra for`() {
         stubHentOppgaveContaining(
             listOf(
                 OppgaveData(
@@ -398,7 +398,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(fagomrade = "EKSTERN")
+        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix).copy(tema = "EKSTERN")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 

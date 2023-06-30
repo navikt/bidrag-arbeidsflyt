@@ -24,8 +24,14 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
     fun `skal mappe og behandle oppgave endret hendelse`() {
         stubHentOppgave(emptyList())
         stubHentGeografiskEnhet()
-        stubHentJournalpost(journalpostResponse(journalStatus = JournalpostStatus.JOURNALFØRT))
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        stubHentJournalpost(journalpostResponse(journalStatus = JournalpostStatus.MOTTATT))
+        val oppgaveHendelse = createOppgaveHendelse(
+            OPPGAVE_ID_1,
+            journalpostId = JOURNALPOST_ID_1,
+            fnr = PERSON_IDENT_1,
+            status = OppgaveStatus.FERDIGSTILT,
+            statuskategori = Oppgavestatuskategori.AVSLUTTET
+        )
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))
@@ -45,7 +51,13 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
     @Test
     fun `skal lagre hendelse i dead letter repository ved feil`() {
         stubHentOppgaveError()
-        val oppgaveHendelse = createOppgaveHendelse(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, fnr = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse = createOppgaveHendelse(
+            OPPGAVE_ID_1,
+            journalpostId = JOURNALPOST_ID_1,
+            fnr = PERSON_IDENT_1,
+            status = OppgaveStatus.FERDIGSTILT,
+            statuskategori = Oppgavestatuskategori.AVSLUTTET
+        )
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse)
 
         configureProducer()?.send(ProducerRecord(topicEndret, hendelseString))

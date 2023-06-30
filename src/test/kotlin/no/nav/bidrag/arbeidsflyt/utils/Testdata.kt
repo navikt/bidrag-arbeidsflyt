@@ -122,9 +122,10 @@ fun createJournalpostHendelse(
     return JournalpostHendelse(
         journalpostId = journalpostId,
         aktorId = aktorId,
-        fagomrade = fagomrade,
+        tema = fagomrade,
         enhet = enhet,
-        journalstatus = status,
+        journalstatus = status.name,
+        status = status,
         sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = SAKSBEHANDLER_ID, saksbehandlersNavn = "Navn Navnesen"),
         hendelseType = HendelseType.ENDRING,
         journalposttype = "I"
@@ -135,7 +136,8 @@ fun journalpostResponse(journalpostId: String = JOURNALPOST_ID_1, journalStatus:
     return JournalpostResponse(
         journalpost = JournalpostDto(
             journalpostId = journalpostId,
-            journalstatus = journalStatus,
+            journalstatus = journalStatus.name,
+            status = journalStatus,
             journalforendeEnhet = journalforendeEnhet,
             fagomrade = tema
         )
