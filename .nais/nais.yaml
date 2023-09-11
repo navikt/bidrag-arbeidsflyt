@@ -91,6 +91,9 @@ spec:
       value: {{ kafka-topic-oppgave-hendelse }}
     - name: FEATURE_ENABLED
       value: {{ feature-toggle }}
+    - name: JAVA_OPTS
+      value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+
   gcp:
     sqlInstances:
       - name: {{ database.dbname }}
