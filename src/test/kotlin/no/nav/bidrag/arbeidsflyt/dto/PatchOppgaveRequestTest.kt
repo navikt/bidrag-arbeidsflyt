@@ -11,7 +11,6 @@ internal class PatchOppgaveRequestTest {
     fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
         val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
 
-
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
         val expectedValue = "{\"journalpostId\":\"JOARK-test\",\"id\":1,\"versjon\":2}"
@@ -22,7 +21,6 @@ internal class PatchOppgaveRequestTest {
     @Test
     fun `skal serialisere FerdigstillOppgaveRequest`() {
         val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
-
 
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave)
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)

@@ -70,13 +70,13 @@ internal class BehandleJournalpostHendelseTest {
                 anyOrNull(),
                 eq(OppgaveSokResponse::class.java)
             )
-        ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))))
+        ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, oppgavetype = JOURNALFORINGSOPPGAVE)))))
     }
 
     @Test
     fun `skal sette endretAvEnhetsnummer når oppdatering av eksternt fagområde gjøres`() {
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
-            .thenReturn(ResponseEntity.ok(OppgaveData()))
+            .thenReturn(ResponseEntity.ok(OppgaveData(1)))
 
         // then
         hentBehandleJournalpostTjeneste(journalpostHendelse.copy(fagomrade = "IKKE_BIDRAG")).oppdaterEksterntFagomrade()
@@ -99,7 +99,7 @@ internal class BehandleJournalpostHendelseTest {
     @Test
     fun `skal sette endretAvEnhetsnummer når oppdatering av enhetsnummer gjøres`() {
         whenever(httpHeaderRestTemplateMock.exchange(anyString(), eq(HttpMethod.PATCH), any(), eq(OppgaveData::class.java)))
-            .thenReturn(ResponseEntity.ok(OppgaveData()))
+            .thenReturn(ResponseEntity.ok(OppgaveData(1)))
 
         hentBehandleJournalpostTjeneste(journalpostHendelse.copy(enhet = "1234")).oppdaterEndretEnhetsnummer()
 

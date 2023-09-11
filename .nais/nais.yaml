@@ -87,6 +87,8 @@ spec:
       value: {{ kafka-topic-oppgave-endret }}
     - name: TOPIC_OPPGAVE_OPPRETTET
       value: {{ kafka-topic-oppgave-opprettet }}
+    - name: TOPIC_OPPGAVE_HENDELSE
+      value: {{ kafka-topic-oppgave-hendelse }}
     - name: FEATURE_ENABLED
       value: {{ feature-toggle }}
   gcp:

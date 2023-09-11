@@ -109,7 +109,7 @@ fun createOppgaveHendelse(
     )
 }
 
-fun Oppgavestatuskategori.toStatus() = when(this){
+fun Oppgavestatuskategori.toStatus() = when (this) {
     Oppgavestatuskategori.AAPEN -> OppgaveStatus.AAPNET
     else -> OppgaveStatus.FERDIGSTILT
 }
@@ -123,11 +123,10 @@ fun OppgaveHendelse.toOppgaveData() = OppgaveData(
     oppgavetype = oppgavetype,
     tema = tema,
     beskrivelse = beskrivelse,
-    ident = ident?.verdi,
     opprettetTidspunkt = opprettetTidspunkt.toString(),
     endretTidspunkt = endretTidspunkt.toString(),
     endretAv = "test",
-    fristFerdigstillelse = fristFerdigstillelse.toString()
+    fristFerdigstillelse = fristFerdigstillelse
 )
 fun createOppgaveData(
     id: Long,
@@ -155,11 +154,10 @@ fun createOppgaveData(
         oppgavetype = oppgavetype,
         tema = tema,
         beskrivelse = beskrivelse,
-        ident = identVerdi,
         opprettetTidspunkt = CREATED_TIME.toString(),
         endretTidspunkt = CREATED_TIME.toString(),
         endretAv = "test",
-        fristFerdigstillelse = fristFerdigstillelse.toString()
+        fristFerdigstillelse = fristFerdigstillelse
     )
 }
 

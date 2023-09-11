@@ -14,7 +14,6 @@ import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_3
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
 import no.nav.bidrag.arbeidsflyt.utils.createOppgave
-import no.nav.bidrag.arbeidsflyt.utils.createOppgaveData
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.toOppgaveData

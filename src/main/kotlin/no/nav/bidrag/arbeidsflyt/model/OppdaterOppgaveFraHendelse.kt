@@ -30,9 +30,8 @@ class OppdaterOppgaveFraHendelse(
         val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaveFraHendelse::class.java)
     }
 
-    fun behandle(_oppgaveHendelse: OppgaveHendelse): OppdaterOppgaveFraHendelse {
-        oppgaveHendelse = oppgaveService.hentOppgave(_oppgaveHendelse.id)
-        oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
+    fun behandle(oppgave: OppgaveData): OppdaterOppgaveFraHendelse {
+        oppdaterOppgave = OppdaterOppgave(oppgave)
         return this
     }
 
@@ -92,7 +91,7 @@ class OppdaterOppgaveFraHendelse(
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr)
     }
     private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveData) {
-        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.ident)
+        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.aktoerId)
         LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr.verdi)
     }

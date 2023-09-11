@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -19,7 +20,8 @@ class KafkaDLQRetryScheduler(
     private val jsonMapperService: JsonMapperService,
     private val dlqKafkaRepository: DLQKafkaRepository,
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
-    private val behandleHendelseService: BehandleHendelseService
+    private val behandleHendelseService: BehandleHendelseService,
+    private val oppgaveService: OppgaveService
 ) {
 
     companion object {
@@ -67,11 +69,11 @@ class KafkaDLQRetryScheduler(
         when (message.topicName) {
             topicOppgaveEndret -> {
                 val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
+                behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveService.hentOppgave(oppgaveEndretHendelse.id))
             }
             topicOppgaveOpprettet -> {
                 val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveEndretHendelse)
+                behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveService.hentOppgave(oppgaveEndretHendelse.id))
             }
             topicJournalpost -> {
                 val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(message.payload)

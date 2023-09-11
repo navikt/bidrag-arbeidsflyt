@@ -14,6 +14,7 @@ kafka:
   pool: nav-prod
   bootstrap_servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
 kafka-topic-journalpost: bidrag.journalpost
+kafka-topic-oppgave-hendelse: oppgavehandtering.oppgavehendelse-v1
 kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-prod
 kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-prod
 feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST,OPPRETT_OPPGAVE
