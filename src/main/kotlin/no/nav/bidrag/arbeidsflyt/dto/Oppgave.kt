@@ -288,11 +288,6 @@ open class PatchOppgaveRequest(
         versjon = oppgaveDataForHendelse.versjon
     }
 
-    protected fun leggTilObligatoriskeVerdier(oppgaveHendelse: OppgaveHendelse) {
-        id = oppgaveHendelse.id
-        versjon = oppgaveHendelse.versjon
-    }
-
     override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
 
     private fun fieldsWithValues(): String {

@@ -1,8 +1,10 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import io.micrometer.core.instrument.MeterRegistry
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
@@ -15,7 +17,8 @@ class BehandleOppgaveHendelseService(
     var oppgaveService: OppgaveService,
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
-    var arbeidsfordelingService: OrganisasjonService
+    var arbeidsfordelingService: OrganisasjonService,
+    private val meterRegistry: MeterRegistry,
 ) {
 
     companion object {
@@ -23,16 +26,38 @@ class BehandleOppgaveHendelseService(
         private val LOGGER = LoggerFactory.getLogger(BehandleOppgaveHendelseService::class.java)
     }
 
-    fun behandleOpprettOppgave(oppgave: OppgaveHendelse) {
-        behandleOpprettOppgave(oppgaveService.hentOppgave(oppgave.id))
-    }
-
     @Transactional
-    fun behandleEndretOppgave(oppgave: OppgaveHendelse) {
-        behandleEndretOppgave(oppgaveService.hentOppgave(oppgave.id))
+    fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
+        LOGGER.info(
+            """
+            Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med 
+            oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}, 
+            versjon ${oppgaveHendelse.oppgave.versjon},
+            opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype},
+            tema ${oppgaveHendelse.oppgave.kategorisering?.tema},
+            utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr}),       
+           """.replaceIndent(" ").replace("\n", "")
+        )
+        SECURE_LOGGER.info("""
+            Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med 
+            oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}, 
+            versjon ${oppgaveHendelse.oppgave.versjon},
+            opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype},
+            hendelse $oppgaveHendelse
+            """.replaceIndent(" ").replace("\n", ""))
+
+        if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
+            val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
+            behandleOpprettOppgave(oppgave)
+            measureOppgaveOpprettetHendelse(oppgave)
+        } else if (oppgaveHendelse.erOppgaveEndretHendelse) {
+            val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
+            behandleEndretOppgave(oppgave)
+            persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveHendelse.oppgaveId)
+        }
     }
 
-    fun behandleOpprettOppgave(oppgave: OppgaveData) {
+    private fun behandleOpprettOppgave(oppgave: OppgaveData) {
         if (oppgave.erJournalforingOppgave) {
             persistenceService.lagreJournalforingsOppgaveFraHendelse(oppgave)
         }
@@ -51,8 +76,7 @@ class BehandleOppgaveHendelseService(
         }
     }
 
-    @Transactional
-    fun behandleEndretOppgave(oppgave: OppgaveData) {
+    private fun behandleEndretOppgave(oppgave: OppgaveData) {
         if (oppgave.hasJournalpostId) {
             oppdaterOppgaveFraHendelse(oppgave)
                 .overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende()
@@ -70,8 +94,12 @@ class BehandleOppgaveHendelseService(
         return applicationContext.getBean(OppdaterOppgaveFraHendelse::class.java)
             .behandle(oppgave)
     }
+
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgave: OppgaveData) {
-        if (!oppgave.tilhorerFagpost && (oppgave.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(oppgave))) {
+        if (!oppgave.tilhorerFagpost && (oppgave.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(
+                oppgave
+            ))
+        ) {
             opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgave)
         }
     }
@@ -83,18 +111,26 @@ class BehandleOppgaveHendelseService(
                 ?.run {
                     LOGGER.info("Journalpost ${oppgave.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
                     opprettJournalforingOppgaveFraHendelse(oppgave)
-                } ?: run { LOGGER.info("Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling.") }
+                }
+                ?: run { LOGGER.info("Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling.") }
         }
     }
 
     fun harIkkeAapneJournalforingsoppgaver(journalpostId: String): Boolean {
-        val aapneOppgaveAPI = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(journalpostId)
+        val aapneOppgaveAPI =
+            oppgaveService.finnAapneJournalforingOppgaverForJournalpost(journalpostId)
         return aapneOppgaveAPI.harIkkeJournalforingsoppgave()
     }
 
     fun opprettJournalforingOppgaveFraHendelse(oppgave: OppgaveData) {
-        val tildeltEnhetsnr = oppgave.tildeltEnhetsnr ?: arbeidsfordelingService.hentArbeidsfordeling(oppgave.hentIdent).verdi
-        oppgaveService.opprettJournalforingOppgave(OpprettJournalforingsOppgaveRequest(oppgave, tildeltEnhetsnr))
+        val tildeltEnhetsnr = oppgave.tildeltEnhetsnr
+            ?: arbeidsfordelingService.hentArbeidsfordeling(oppgave.hentIdent).verdi
+        oppgaveService.opprettJournalforingOppgave(
+            OpprettJournalforingsOppgaveRequest(
+                oppgave,
+                tildeltEnhetsnr
+            )
+        )
     }
 
     fun erOppgavetypeEndretFraJournalforingTilAnnet(oppgave: OppgaveData): Boolean {
@@ -109,5 +145,17 @@ class BehandleOppgaveHendelseService(
         }
 
         return false
+    }
+
+    fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveData) {
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
+            meterRegistry.counter(
+                "jfr_oppgave_opprettet",
+                "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
+                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
+                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
+                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
+            ).increment()
+        }
     }
 }

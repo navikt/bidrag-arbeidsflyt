@@ -4,30 +4,20 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.stereotype.Service
 
-interface JournalpostHendelseListener {
-    fun lesHendelse(hendelse: String)
-}
-
-class KafkaJournalpostHendelseListener(
-    jsonMapperService: JsonMapperService,
-    behandeHendelseService: BehandleHendelseService,
-    persistenceService: PersistenceService
-) : PojoJournalpostHendelseListener(jsonMapperService, persistenceService, behandeHendelseService) {
+class JournalpostHendelseListener(
+    private val jsonMapperService: JsonMapperService,
+    private val behandeHendelseService: BehandleHendelseService,
+    private val persistenceService: PersistenceService
+) {
 
     @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"])
-    override fun lesHendelse(hendelse: String) {
-        super.lesHendelse(hendelse)
+    fun hendeseLytter(hendelse: String) {
+        prosesserHendelse(hendelse)
     }
-}
 
-open class PojoJournalpostHendelseListener(
-    private val jsonMapperService: JsonMapperService,
-    private val persistenceService: PersistenceService,
-    private val behandeHendelseService: BehandleHendelseService
-) : JournalpostHendelseListener {
-
-    override fun lesHendelse(hendelse: String) {
+    fun prosesserHendelse(hendelse: String) {
         val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(hendelse)
         behandeHendelseService.behandleHendelse(journalpostHendelse)
 

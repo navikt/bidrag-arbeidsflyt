@@ -26,12 +26,6 @@ class HendelseController(var behandleHendelseService: BehandleHendelseService, v
         behandleHendelseService.behandleHendelse(journalpostHendelse)
     }
 
-    @PostMapping("/oppgave")
-    fun simulateOppgaveHendelse(@RequestBody oppgave: String) {
-        CorrelationId.existing("test fra bidrag")
-        var oppgave = jsonMapperService.mapOppgaveHendelse(oppgave)
-    }
-
     @GetMapping("/")
     fun simulateOppgaveHendelse(): List<DLQKafka> {
         return dlqKafkaRepository.findAll()

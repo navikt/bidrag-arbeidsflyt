@@ -32,11 +32,8 @@ class KafkaDLQRetryScheduler(
     @Value("\${SCHEDULER_MAX_RETRY:10}")
     lateinit var maxRetry: Number
 
-    @Value("\${TOPIC_OPPGAVE_ENDRET}")
-    lateinit var topicOppgaveEndret: String
-
-    @Value("\${TOPIC_OPPGAVE_OPPRETTET}")
-    lateinit var topicOppgaveOpprettet: String
+    @Value("\${TOPIC_OPPGAVE_HENDELSE}")
+    lateinit var topicOppgaveHendelse: String
 
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
@@ -67,13 +64,9 @@ class KafkaDLQRetryScheduler(
 
     fun processMessage(message: DLQKafka) {
         when (message.topicName) {
-            topicOppgaveEndret -> {
-                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveService.hentOppgave(oppgaveEndretHendelse.id))
-            }
-            topicOppgaveOpprettet -> {
-                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveService.hentOppgave(oppgaveEndretHendelse.id))
+            topicOppgaveHendelse -> {
+                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelseV2(message.payload)
+                behandleOppgaveHendelseService.behandleOppgaveHendelse(oppgaveEndretHendelse)
             }
             topicJournalpost -> {
                 val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(message.payload)

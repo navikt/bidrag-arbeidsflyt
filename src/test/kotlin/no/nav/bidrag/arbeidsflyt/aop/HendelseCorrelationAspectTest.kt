@@ -53,7 +53,7 @@ internal class HendelseCorrelationAspectTest {
         }
         """.trimIndent()
 
-        journalpostHendelseListener.lesHendelse(hendelse)
+        journalpostHendelseListener.prosesserHendelse(hendelse)
 
         assertThat(CorrelationId.fetchCorrelationIdForThread()).isEqualTo("test.av.correlation.id")
     }

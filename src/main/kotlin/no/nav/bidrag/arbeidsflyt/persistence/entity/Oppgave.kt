@@ -4,7 +4,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 
 @Entity
 data class Oppgave(

@@ -2,7 +2,6 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import jakarta.transaction.Transactional
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.model.erEksterntFagomrade
 import no.nav.bidrag.arbeidsflyt.model.erMottattStatus
 import no.nav.bidrag.arbeidsflyt.model.hentTema
