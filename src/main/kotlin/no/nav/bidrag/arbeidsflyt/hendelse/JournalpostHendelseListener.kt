@@ -15,7 +15,7 @@ class KafkaJournalpostHendelseListener(
     persistenceService: PersistenceService
 ) : PojoJournalpostHendelseListener(jsonMapperService, persistenceService, behandeHendelseService) {
 
-    @KafkaListener(groupId = "bidrag-arbeidsflyt-local", topics = ["\${TOPIC_JOURNALPOST}"])
+    @KafkaListener(groupId = "bidrag-arbeidsflyt", topics = ["\${TOPIC_JOURNALPOST}"])
     override fun lesHendelse(hendelse: String) {
         super.lesHendelse(hendelse)
     }

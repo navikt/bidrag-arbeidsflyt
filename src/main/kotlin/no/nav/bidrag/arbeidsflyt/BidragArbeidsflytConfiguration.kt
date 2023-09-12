@@ -122,36 +122,36 @@ class HendelseConfiguration {
         return factory
     }
 
-//    @Bean
-//    fun oppgaveConsumerFactory(
-//        @Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
-//        @Value("\${KAFKA_GROUP_ID}") groupId: String,
-//        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
-//        @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
-//        @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
-//        @Value("\${SERVICE_USER_USERNAME}") username: String,
-//        @Value("\${SERVICE_USER_PASSWORD}") password: String,
-//        environment: Environment
-//    ): ConsumerFactory<Long, String> {
-//        val props = mutableMapOf<String, Any>()
-//        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
-//        props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
-//        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = offsetReset
-//        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
-//        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
-//        props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
-//        props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
-//        props["spring.deserializer.value.delegate.class"] = StringDeserializer::class.java
-//        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)) {
-//            props[SaslConfigs.SASL_JAAS_CONFIG] =
-//                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
-//            props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
-//            props[SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
-//            props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = trustStorePath
-//            props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = trustStorePassword
-//        }
-//        return DefaultKafkaConsumerFactory(props)
-//    }
+    @Bean
+    fun oppgaveConsumerFactory(
+        @Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
+        @Value("\${KAFKA_GROUP_ID}") groupId: String,
+        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
+        @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
+        @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
+        @Value("\${SERVICE_USER_USERNAME}") username: String,
+        @Value("\${SERVICE_USER_PASSWORD}") password: String,
+        environment: Environment
+    ): ConsumerFactory<Long, String> {
+        val props = mutableMapOf<String, Any>()
+        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
+        props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
+        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = offsetReset
+        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
+        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
+        props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
+        props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
+        props["spring.deserializer.value.delegate.class"] = StringDeserializer::class.java
+        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)) {
+            props[SaslConfigs.SASL_JAAS_CONFIG] =
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
+            props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
+            props[SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
+            props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = trustStorePath
+            props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = trustStorePassword
+        }
+        return DefaultKafkaConsumerFactory(props)
+    }
 }
 
 @Configuration

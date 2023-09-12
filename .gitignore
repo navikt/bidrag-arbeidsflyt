@@ -4,3 +4,4 @@ target
 .DS_Store
 /.dcignore
 application-lokal-nais-secrets.properties
+**/kafka/**

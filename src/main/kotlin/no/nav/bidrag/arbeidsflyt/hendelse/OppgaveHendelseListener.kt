@@ -30,7 +30,7 @@ class OppgaveHendelseListener(
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(OppgaveHendelseListener::class.java)
     }
-    @KafkaListener(groupId = "bidrag-arbeisflyt-local", topics = ["\${TOPIC_OPPGAVE_HENDELSE}"])
+    @KafkaListener(groupId = "bidrag-arbeisflyt", topics = ["\${TOPIC_OPPGAVE_HENDELSE}"])
     fun lesOppgaveHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveHendelse = jsonMapperService.mapOppgaveHendelseV2(consumerRecord.value())
 
@@ -50,29 +50,29 @@ class OppgaveHendelseListener(
         }
     }
 
-//    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
-//    fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
-//        val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
-//
-//        if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
-//            LOGGER.info("Mottatt oppgave endret hendelse $oppgaveEndretHendelse")
-//            val oppgave = oppgaveService.hentOppgave(oppgaveEndretHendelse.id)
-//            behandleOppgaveHendelseService.behandleEndretOppgave(oppgave)
-//            persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveEndretHendelse.id)
-//        }
-//    }
-//
-//    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
-//    fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
-//        val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
-//
-//        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR()) {
-//            LOGGER.info("Mottatt oppgave opprettet hendelse $oppgaveOpprettetHendelse")
-//            val oppgave = oppgaveService.hentOppgave(oppgaveOpprettetHendelse.id)
-//            behandleOppgaveHendelseService.behandleOpprettOppgave(oppgave)
-//            measureOppgaveOpprettetHendelse(oppgave)
-//        }
-//    }
+    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_ENDRET}"])
+    fun lesOppgaveEndretHendelse(consumerRecord: ConsumerRecord<String, String>) {
+        val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
+
+        if (oppgaveEndretHendelse.erTemaBIDEllerFAR()) {
+            LOGGER.info("Mottatt oppgave endret hendelse $oppgaveEndretHendelse")
+            val oppgave = oppgaveService.hentOppgave(oppgaveEndretHendelse.id)
+            behandleOppgaveHendelseService.behandleEndretOppgave(oppgave)
+            persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveEndretHendelse.id)
+        }
+    }
+
+    @KafkaListener(containerFactory = "oppgaveKafkaListenerContainerFactory", topics = ["\${TOPIC_OPPGAVE_OPPRETTET}"])
+    fun lesOppgaveOpprettetHendelse(consumerRecord: ConsumerRecord<String, String>) {
+        val oppgaveOpprettetHendelse = jsonMapperService.mapOppgaveHendelse(consumerRecord.value())
+
+        if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR()) {
+            LOGGER.info("Mottatt oppgave opprettet hendelse $oppgaveOpprettetHendelse")
+            val oppgave = oppgaveService.hentOppgave(oppgaveOpprettetHendelse.id)
+            behandleOppgaveHendelseService.behandleOpprettOppgave(oppgave)
+            measureOppgaveOpprettetHendelse(oppgave)
+        }
+    }
 
     fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveData) {
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
