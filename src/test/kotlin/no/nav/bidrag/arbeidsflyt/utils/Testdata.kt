@@ -111,32 +111,6 @@ fun createOppgaveData(
     aktoerId = aktoerId
 )
 
-fun createOppgaveHendelse(
-    id: Long,
-    tildeltEnhetsnr: String? = "4806",
-    type: OppgaveKafkaHendelse.Hendelse.Hendelsestype = OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_ENDRET,
-    oppgavetype: String = OPPGAVETYPE_JFR,
-    tema: String = "BID",
-    fnr: String = PERSON_IDENT_1,
-    tilordnetRessurs: String? = null
-): OppgaveKafkaHendelse {
-    return OppgaveKafkaHendelse(
-        hendelse = OppgaveKafkaHendelse.Hendelse(
-            type,
-            LocalDateTime.now()
-        ),
-        utfortAv = OppgaveKafkaHendelse.UtfortAv(tilordnetRessurs, tildeltEnhetsnr),
-        oppgave = OppgaveKafkaHendelse.Oppgave(
-            id,
-            1,
-            kategorisering = OppgaveKafkaHendelse.Kategorisering(tema, oppgavetype = oppgavetype),
-            bruker = OppgaveKafkaHendelse.Bruker(
-                fnr,
-                OppgaveKafkaHendelse.Bruker.IdentType.FOLKEREGISTERIDENT
-            )
-        )
-    )
-}
 fun OppgaveData.toHendelse(
     type: OppgaveKafkaHendelse.Hendelse.Hendelsestype? = null
 ) = OppgaveKafkaHendelse(

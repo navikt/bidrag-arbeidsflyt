@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 private val LOGGER = KotlinLogging.logger {}
 
-fun StringBuilder.appendParameter(name: String, value: String) = append("$name $value, ")
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,

@@ -5,3 +5,4 @@ target
 /.dcignore
 application-lokal-nais-secrets.properties
 **/kafka/**
+*nais-kafka*

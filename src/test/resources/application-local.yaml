@@ -2,25 +2,12 @@ logging:
   level:
     root: INFO
 
-OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
-PERSON_URL: https://bidrag-person-feature.dev.adeo.no
-ORGANISASJON_URL: https://bidrag-organisasjon-feature.dev-fss-pub.nais.io
-BIDRAG_DOKUMENT_URL: https://bidrag-dokument-feature.dev-fss-pub.nais.io
-OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
-PERSON_SCOPE: dev-fss.bidrag.bidrag-person-feature
-ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon-feature
-DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument-feature
-AZURE_APP_CLIENT_SECRET: changme
-AZURE_APP_CLIENT_ID: 98a4c9b5-4ace-4759-b8f6-905d4765b125
-AZURE_OPENID_CONFIG_TOKEN_ENDPOINT: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
-AZURE_OPENID_CONFIG_ISSUER: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
-AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
-AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
 BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll.intern.dev.nav.no
 TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 KAFKA_MAX_RETRY: 1
+TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
 #### KAFKA
-NAIS_APP_NAME: bidrag-dokument-forsendelse
+NAIS_APP_NAME: bidrag-arbeidsflyt-local
 KAFKA_BOOTSTRAP_SERVERS: localhost:9092
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 KAFKA_BROKERS: localhost:9092
@@ -30,7 +17,6 @@ TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
-FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
 server.port: 9999
 spring:
   flyway.enabled: false
@@ -38,6 +24,9 @@ spring:
   datasource.url: jdbc:h2:mem:default;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
   h2.console.enabled: true
   jpa.hibernate.hbmddl-auto: create-drop
+---
+spring.config.activate.on-profile: local-kafka
+spring:
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -47,7 +36,7 @@ spring:
     listener:
       ackMode: RECORD
 ---
-spring.config.activate.on-profile: local_postgres
+spring.config.activate.on-profile: kafka
 spring:
   flyway:
     enabled: true
@@ -55,11 +44,3 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:${DB_PORT:5456}/${DB_DATABASE:bidrag-arbeidsflyt}?user=${DB_USERNAME:cloudsqliamuser}&password=${DB_PASSWORD:admin}
     type: com.zaxxer.hikari.HikariDataSource
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      security.protocol: PLAINTEXT
-    consumer:
-      enableAutoCommit: false
-    listener:
-      ackMode: RECORD

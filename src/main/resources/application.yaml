@@ -13,6 +13,9 @@ SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 KAFKA_MAX_RETRY: 10
 SCHEDULER_MAX_RETRY: 20
+spring:
+  main:
+    banner-mode: off
 ---
 spring:
   config.activate.on-profile: nais
