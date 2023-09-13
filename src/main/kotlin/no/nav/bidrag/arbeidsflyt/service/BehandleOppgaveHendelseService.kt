@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 private val LOGGER = KotlinLogging.logger {}
 
+fun StringBuilder.appendParameter(name: String, value: String) = append("$name $value, ")
 @Service
 class BehandleOppgaveHendelseService(
     var persistenceService: PersistenceService,
@@ -24,23 +25,23 @@ class BehandleOppgaveHendelseService(
     @Transactional
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
         LOGGER.info(
-            """
-            Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med 
-            oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}, 
-            versjon ${oppgaveHendelse.oppgave.versjon},
-            opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype},
-            tema ${oppgaveHendelse.oppgave.kategorisering?.tema},
-            utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr}),       
-           """.replaceIndent(" ").replace("\n", "")
+            "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
+            buildList {
+                add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+            }.joinToString(", ")
         )
         SECURE_LOGGER.info(
-            """
-            Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med 
-            oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}, 
-            versjon ${oppgaveHendelse.oppgave.versjon},
-            opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype},
-            hendelse $oppgaveHendelse
-            """.replaceIndent(" ").replace("\n", "")
+            "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
+                    buildList {
+                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                        add("hendelse $oppgaveHendelse")
+                    }.joinToString(", ")
         )
 
         if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
