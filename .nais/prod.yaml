@@ -1,4 +1,6 @@
 name: bidrag-arbeidsflyt
+kafka:
+  pool: nav-prod
 env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon-feature.prod-fss-pub.nais.io
