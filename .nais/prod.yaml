@@ -5,7 +5,7 @@ env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon-feature.prod-fss-pub.nais.io
   PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
-  BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io/bidrag-dokument
+  BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
 
   ORGANISASJON_SCOPE: prod-fss.bidrag.bidrag-organisasjon
