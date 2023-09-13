@@ -14,13 +14,14 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import java.util.Collections
 
 @SpringBootTest
 @ActiveProfiles(value = [PROFILE_KAFKA_TEST, PROFILE_TEST])
 @DisplayName("OppgaveEndretHendelseListenerTest")
-@EmbeddedKafka(partitions = 1, brokerProperties = ["listeners=PLAINTEXT://localhost:9093", "port=9093"], topics = ["topic_journalpost", "oppgave-hendelse"])
+@EmbeddedKafka(partitions = 1, topics = ["topic_journalpost", "oppgave-hendelse"], bootstrapServersProperty = "KAFKA_BROKERS")
 abstract class AbstractKafkaHendelseTest : AbstractBehandleHendelseTest() {
 
     @Autowired

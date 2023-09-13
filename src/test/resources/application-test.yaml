@@ -10,8 +10,6 @@ PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_HENDELSE: oppgave-hendelse
 TOPIC_JOURNALPOST: topic_journalpost
-KAFKA_BROKERS: localhost:9093
-KAFKA_BOOTSTRAP_SERVERS: localhost:9093
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
@@ -23,7 +21,7 @@ SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: passord
 FEATURE_ENABLED: KAFKA_OPPGAVE,OPPRETT_OPPGAVE,LAGRE_JOURNALPOST
 OPPGAVE_KAFKA_OFFSET_RESET: earliest
-
+KAFKA_BROKERS: localhost:0000
 no.nav.security.jwt:
   client:
     registration:
