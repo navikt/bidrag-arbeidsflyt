@@ -30,7 +30,3 @@ outbound-access-hosts:
    - bidrag-person.dev-fss-pub.nais.io
    - oppgave.dev-fss-pub.nais.io
    - bidrag-organisasjon.dev-fss-pub.nais.io
-outbound-access-kafka-hosts:
-   - b27apvl00045.preprod.local
-   - b27apvl00046.preprod.local
-   - b27apvl00047.preprod.local

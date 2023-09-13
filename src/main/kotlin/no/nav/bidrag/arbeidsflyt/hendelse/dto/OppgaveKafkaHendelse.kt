@@ -1,14 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.hendelse.dto
 
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-data class OppgaveHendelseTo(
-    val oppgave: OppgaveData,
-    val hendelse: OppgaveKafkaHendelse
-)
 
 data class OppgaveKafkaHendelse(
     val hendelse: Hendelse,

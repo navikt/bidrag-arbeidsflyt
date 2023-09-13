@@ -22,13 +22,6 @@ spec:
       {{#each outbound-access-hosts}}
           - host: {{this}}
       {{/each}}
-      {{#each outbound-access-kafka-hosts}}
-          - host: {{this}}
-            ports:
-              - name: kafka
-                port: 8443
-                protocol: TCP
-      {{/each}}
   image: {{ image }}
   kafka:
     pool: {{ kafka.pool }}

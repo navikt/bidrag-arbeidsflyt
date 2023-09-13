@@ -17,7 +17,7 @@ class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val jsonMapperService: JsonMapperService
 ) {
-    @KafkaListener(groupId = "bidrag-arbeisflyt", topics = ["\${TOPIC_OPPGAVE_HENDELSE}"])
+    @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_OPPGAVE_HENDELSE}"])
     fun lesOppgaveHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val oppgaveHendelse = jsonMapperService.mapOppgaveHendelseV2(consumerRecord.value())
 

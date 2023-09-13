@@ -25,22 +25,22 @@ class BehandleOppgaveHendelseService(
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
         LOGGER.info(
             "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-            buildList {
-                add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-            }.joinToString(", ")
+                buildList {
+                    add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                    add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                    add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                    add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                    add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+                }.joinToString(", ")
         )
         SECURE_LOGGER.info(
             "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                    buildList {
-                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                        add("hendelse $oppgaveHendelse")
-                    }.joinToString(", ")
+                buildList {
+                    add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                    add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                    add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                    add("hendelse $oppgaveHendelse")
+                }.joinToString(", ")
         )
 
         if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
