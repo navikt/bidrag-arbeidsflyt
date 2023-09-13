@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
 
-class oppgaveDataTest : AbstractBehandleHendelseTest() {
+class OppgaveHendelseTest : AbstractBehandleHendelseTest() {
     @Autowired
     lateinit var behandleOppgaveHendelseService: BehandleOppgaveHendelseService
 

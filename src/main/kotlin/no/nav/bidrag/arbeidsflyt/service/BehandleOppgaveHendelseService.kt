@@ -1,15 +1,16 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import io.micrometer.core.instrument.MeterRegistry
+import mu.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
-import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+private val LOGGER = KotlinLogging.logger {}
 
 @Service
 class BehandleOppgaveHendelseService(
@@ -18,14 +19,8 @@ class BehandleOppgaveHendelseService(
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: OrganisasjonService,
-    private val meterRegistry: MeterRegistry,
+    private val meterRegistry: MeterRegistry
 ) {
-
-    companion object {
-        @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(BehandleOppgaveHendelseService::class.java)
-    }
-
     @Transactional
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
         LOGGER.info(
@@ -38,13 +33,15 @@ class BehandleOppgaveHendelseService(
             utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr}),       
            """.replaceIndent(" ").replace("\n", "")
         )
-        SECURE_LOGGER.info("""
+        SECURE_LOGGER.info(
+            """
             Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med 
             oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}, 
             versjon ${oppgaveHendelse.oppgave.versjon},
             opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype},
             hendelse $oppgaveHendelse
-            """.replaceIndent(" ").replace("\n", ""))
+            """.replaceIndent(" ").replace("\n", "")
+        )
 
         if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
             val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
@@ -96,9 +93,11 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgave: OppgaveData) {
-        if (!oppgave.tilhorerFagpost && (oppgave.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(
-                oppgave
-            ))
+        if (!oppgave.tilhorerFagpost && (
+            oppgave.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(
+                    oppgave
+                )
+            )
         ) {
             opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgave)
         }

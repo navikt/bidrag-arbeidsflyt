@@ -3,7 +3,6 @@ package no.nav.bidrag.arbeidsflyt.hendelse.dto
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import java.time.LocalDate
-
 import java.time.LocalDateTime
 
 data class OppgaveHendelseTo(
@@ -17,8 +16,8 @@ data class OppgaveKafkaHendelse(
     val oppgave: Oppgave
 ) {
 
-    val erOppgaveOpprettetHendelse get() =  hendelse.hendelsestype == Hendelse.Hendelsestype.OPPGAVE_OPPRETTET
-    val erOppgaveEndretHendelse get() =  hendelse.hendelsestype != Hendelse.Hendelsestype.OPPGAVE_OPPRETTET
+    val erOppgaveOpprettetHendelse get() = hendelse.hendelsestype == Hendelse.Hendelsestype.OPPGAVE_OPPRETTET
+    val erOppgaveEndretHendelse get() = hendelse.hendelsestype != Hendelse.Hendelsestype.OPPGAVE_OPPRETTET
     fun erTemaBIDEllerFAR(): Boolean = oppgave.kategorisering?.tema == "BID" || oppgave.kategorisering?.tema == "FAR"
     val oppgaveId get() = oppgave.oppgaveId
     val erJournalforingOppgave get() = oppgave.kategorisering?.oppgavetype == OppgaveType.JFR.name
@@ -77,7 +76,4 @@ data class OppgaveKafkaHendelse(
             SAMHANDLERNR
         }
     }
-
-
-
 }

@@ -4,7 +4,6 @@ import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.stereotype.Service
 
 class JournalpostHendelseListener(
     private val jsonMapperService: JsonMapperService,

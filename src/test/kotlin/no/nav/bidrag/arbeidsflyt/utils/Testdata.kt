@@ -108,7 +108,7 @@ fun createOppgaveData(
     tilordnetRessurs = tilordnetRessurs,
     fristFerdigstillelse = fristFerdigstillelse,
     beskrivelse = beskrivelse,
-    aktoerId = aktoerId,
+    aktoerId = aktoerId
 )
 
 fun createOppgaveHendelse(
@@ -118,7 +118,7 @@ fun createOppgaveHendelse(
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
     fnr: String = PERSON_IDENT_1,
-    tilordnetRessurs: String? = null,
+    tilordnetRessurs: String? = null
 ): OppgaveKafkaHendelse {
     return OppgaveKafkaHendelse(
         hendelse = OppgaveKafkaHendelse.Hendelse(
@@ -127,17 +127,18 @@ fun createOppgaveHendelse(
         ),
         utfortAv = OppgaveKafkaHendelse.UtfortAv(tilordnetRessurs, tildeltEnhetsnr),
         oppgave = OppgaveKafkaHendelse.Oppgave(
-            id, 1,
+            id,
+            1,
             kategorisering = OppgaveKafkaHendelse.Kategorisering(tema, oppgavetype = oppgavetype),
             bruker = OppgaveKafkaHendelse.Bruker(
                 fnr,
                 OppgaveKafkaHendelse.Bruker.IdentType.FOLKEREGISTERIDENT
             )
-        ),
+        )
     )
 }
 fun OppgaveData.toHendelse(
-    type: OppgaveKafkaHendelse.Hendelse.Hendelsestype? = null,
+    type: OppgaveKafkaHendelse.Hendelse.Hendelsestype? = null
 ) = OppgaveKafkaHendelse(
     hendelse = OppgaveKafkaHendelse.Hendelse(
         type ?: when (status) {
@@ -151,7 +152,8 @@ fun OppgaveData.toHendelse(
     ),
     utfortAv = OppgaveKafkaHendelse.UtfortAv(tilordnetRessurs, tildeltEnhetsnr),
     oppgave = OppgaveKafkaHendelse.Oppgave(
-        id, 1,
+        id,
+        1,
         kategorisering = OppgaveKafkaHendelse.Kategorisering(
             tema ?: "BID",
             oppgavetype = oppgavetype ?: "JFR"
@@ -160,7 +162,7 @@ fun OppgaveData.toHendelse(
             aktoerId,
             OppgaveKafkaHendelse.Bruker.IdentType.FOLKEREGISTERIDENT
         )
-    ),
+    )
 )
 
 fun createJournalpostHendelse(
