@@ -23,26 +23,7 @@ class BehandleOppgaveHendelseService(
 ) {
     @Transactional
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
-        LOGGER.info(
-            "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                buildList {
-                    add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                    add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                    add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                    add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                    add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-                }.joinToString(", ")
-        )
-        SECURE_LOGGER.info(
-            "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                buildList {
-                    add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                    add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                    add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                    add("hendelse $oppgaveHendelse")
-                }.joinToString(", ")
-        )
-
+        logHendelse(oppgaveHendelse)
         if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
             val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
             behandleOpprettOppgave(oppgave)
@@ -155,6 +136,36 @@ class BehandleOppgaveHendelseService(
                 "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
                 "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
             ).increment()
+        }
+    }
+
+    private fun logHendelse(oppgaveHendelse: OppgaveKafkaHendelse){
+        try {
+            LOGGER.info(
+                "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
+                        buildList {
+                            add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                            add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                            add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                            add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                            add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
+                            add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+                        }.joinToString(", ")
+            )
+            SECURE_LOGGER.info(
+                "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
+                        buildList {
+                            add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                            add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                            add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                            add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                            add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
+                            add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+                            add("hendelse $oppgaveHendelse")
+                        }.joinToString(", ")
+            )
+        } catch (e: Exception){
+            LOGGER.error(e){ "Det skjedde en feil ved logging av hendelse" }
         }
     }
 }
