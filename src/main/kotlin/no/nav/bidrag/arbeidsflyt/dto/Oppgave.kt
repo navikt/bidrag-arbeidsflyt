@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
@@ -95,7 +96,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
 data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
 
 data class OppgaveData(
-    val id: Long = -1,
+    val id: Long,
     val tildeltEnhetsnr: String? = null,
     val endretAvEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
@@ -109,7 +110,6 @@ data class OppgaveData(
     val orgnr: String? = null,
     val tilordnetRessurs: String? = null,
     val beskrivelse: String? = null,
-    val ident: String? = null,
     val temagruppe: String? = null,
     val tema: String? = null,
     val behandlingstema: String? = null,
@@ -117,7 +117,7 @@ data class OppgaveData(
     val behandlingstype: String? = null,
     val versjon: Int = -1,
     val mappeId: String? = null,
-    val fristFerdigstillelse: String? = null,
+    val fristFerdigstillelse: LocalDate? = null,
     val aktivDato: String? = null,
     val opprettetTidspunkt: String? = null,
     val opprettetAv: String? = null,
@@ -133,22 +133,19 @@ data class OppgaveData(
         "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
-    fun erStatusFerdigstilt(): Boolean = status == OppgaveStatus.FERDIGSTILT
     fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
     fun erAapenVurderDokumentOppgave(): Boolean = erStatusKategoriAapen && erVurderDokumentOppgave
     fun erReturoppgave(): Boolean = erStatusKategoriAapen && erReturOppgave
-    fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
-
-    internal val erStatusKategoriAapen get() = listOf(OppgaveStatus.AAPNET, OppgaveStatus.OPPRETTET, OppgaveStatus.UNDER_BEHANDLING).contains(status)
-    internal val erStatusKategoriAvsluttet get() = listOf(OppgaveStatus.FEILREGISTRERT, OppgaveStatus.FERDIGSTILT).contains(status)
-    internal val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
-    internal val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
-    internal val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
-    internal val erBehandleDokumentOppgave get() = oppgavetype == OppgaveType.BEH_SAK.name
+    private val erStatusKategoriAapen get() = listOf(OppgaveStatus.AAPNET, OppgaveStatus.OPPRETTET, OppgaveStatus.UNDER_BEHANDLING).contains(status)
+    val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
+    private val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
+    private val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
     internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
-    internal val journalpostIdUtenPrefix get() = if (harJournalpostIdPrefix() && hasJournalpostId) journalpostId!!.split('-')[1] else journalpostId
-    internal fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
-//    internal val journalpostIdMedPrefix get() = if (journalpostId == null) null else if(harJournalpostIdPrefix()) journalpostId else "JOARK-$journalpostId"
+    private fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
+    fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
+    internal val erStatusKategoriAvsluttet get() = listOf(OppgaveStatus.FERDIGSTILT, OppgaveStatus.FEILREGISTRERT).contains(status)
+    val tilhorerFagpost get() = tildeltEnhetsnr == ENHET_FAGPOST
+    internal val hentIdent get() = aktoerId
 
     internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if (isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
 }
@@ -224,8 +221,8 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
     beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
     oppgavetype = OppgaveType.JFR
 ) {
-    constructor(oppgaveHendelse: OppgaveHendelse, tildeltEnhetsnr: String) : this(oppgaveHendelse.journalpostId!!, oppgaveHendelse.hentAktoerId) {
-        this.bnr = oppgaveHendelse.hentBnr
+    constructor(oppgaveHendelse: OppgaveData, tildeltEnhetsnr: String) : this(oppgaveHendelse.journalpostId!!, oppgaveHendelse.aktoerId) {
+        this.bnr = oppgaveHendelse.bnr
         this.tema = oppgaveHendelse.tema ?: this.tema
         this.fristFerdigstillelse =
             if (oppgaveHendelse.fristFerdigstillelse != null) formatterDatoForOppgave(oppgaveHendelse.fristFerdigstillelse) else this.fristFerdigstillelse
@@ -289,11 +286,6 @@ open class PatchOppgaveRequest(
     protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveData) {
         id = oppgaveDataForHendelse.id
         versjon = oppgaveDataForHendelse.versjon
-    }
-
-    protected fun leggTilObligatoriskeVerdier(oppgaveHendelse: OppgaveHendelse) {
-        id = oppgaveHendelse.id
-        versjon = oppgaveHendelse.versjon
     }
 
     override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.utils.createOppgaveData
-import no.nav.bidrag.arbeidsflyt.utils.createOppgaveHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

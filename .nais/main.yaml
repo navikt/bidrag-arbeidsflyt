@@ -1,22 +1,23 @@
 name: bidrag-arbeidsflyt
-azure:
-  tilgangskontroll: bidrag-tilgangskontroll
-  oppgave: oppgave.dev-fss-pub.nais.io
-  person: bidrag-person.dev-fss-pub.nais.io
-  organisasjon: bidrag-organisasjon.dev-fss-pub.nais.io
-  dokument: bidrag-dokument.dev-fss-pub.nais.io
-  oppgave_clientid: dev-fss.oppgavehandtering.oppgave
-  person_clientid: dev-fss.bidrag.bidrag-person
-  organisasjon_clientid: dev-fss.bidrag.bidrag-organisasjon
-  dokument_clientid: dev-fss.bidrag.bidrag-dokument
-  tilgangskontroll_clientid: dev-gcp.bidrag.bidrag-tilgangskontroll
 kafka:
   pool: nav-dev
-  bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-kafka-topic-journalpost: bidrag.journalpost
-kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-dev-syntetisk
-kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-dev-syntetisk
-feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST,OPPRETT_OPPGAVE
+env:
+  OPPGAVE_URL: https://oppgave.dev-fss-pub.nais.io
+  ORGANISASJON_URL: https://bidrag-organisasjon.dev-fss-pub.nais.io
+  PERSON_URL: https://bidrag-person.dev-fss-pub.nais.io
+  BIDRAG_DOKUMENT_URL: https://bidrag-dokument.dev-fss-pub.nais.io
+  BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
+
+  ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon
+  PERSON_SCOPE: dev-fss.bidrag.bidrag-person
+  OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave
+  DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument
+  TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll
+
+  TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
+  TOPIC_DOKUMENT: bidrag.dokument
+  TOPIC_JOURNALPOST: bidrag.journalpost
+  JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 database:
   dbname: bidrag-arbeidsflyt-dev4
   autoResize: true
@@ -29,7 +30,3 @@ outbound-access-hosts:
    - bidrag-person.dev-fss-pub.nais.io
    - oppgave.dev-fss-pub.nais.io
    - bidrag-organisasjon.dev-fss-pub.nais.io
-outbound-access-kafka-hosts:
-   - b27apvl00045.preprod.local
-   - b27apvl00046.preprod.local
-   - b27apvl00047.preprod.local

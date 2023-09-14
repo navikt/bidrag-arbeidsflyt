@@ -1,7 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import jakarta.transaction.Transactional
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.model.erEksterntFagomrade
 import no.nav.bidrag.arbeidsflyt.model.erMottattStatus
 import no.nav.bidrag.arbeidsflyt.model.hentTema
@@ -64,7 +64,7 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse) {
+    fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveData) {
         if (!oppgaveHendelse.erJournalforingOppgave) {
             LOGGER.debug("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
             return
@@ -80,7 +80,7 @@ class PersistenceService(
     }
 
     @Transactional
-    fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveHendelse) {
+    fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveData) {
         if (oppgaveHendelse.erAapenJournalforingsoppgave()) {
             oppgaveRepository.findById(oppgaveHendelse.id)
                 .ifPresentOrElse({

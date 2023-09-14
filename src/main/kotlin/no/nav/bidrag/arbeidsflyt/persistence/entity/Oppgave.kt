@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.persistence.entity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 
 @Entity
 data class Oppgave(
@@ -23,7 +23,7 @@ data class Oppgave(
 
 ) {
     fun erJournalforingOppgave(): Boolean = oppgavetype == "JFR"
-    fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveHendelse) {
+    fun oppdaterOppgaveFraHendelse(oppgaveHendelse: OppgaveData) {
         status = oppgaveHendelse.status?.name!!
         journalpostId = oppgaveHendelse.journalpostId
         oppgavetype = oppgaveHendelse.oppgavetype!!

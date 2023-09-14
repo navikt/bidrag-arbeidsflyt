@@ -2,7 +2,6 @@ package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.service.JournalpostService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
@@ -24,34 +23,34 @@ class OppdaterOppgaveFraHendelse(
 ) {
 
     lateinit var oppdaterOppgave: OppdaterOppgave
-    lateinit var oppgaveHendelse: OppgaveData
+    lateinit var oppgave: OppgaveData
 
     companion object {
         val LOGGER: Logger = LoggerFactory.getLogger(OppdaterOppgaveFraHendelse::class.java)
     }
 
-    fun behandle(_oppgaveHendelse: OppgaveHendelse): OppdaterOppgaveFraHendelse {
-        oppgaveHendelse = oppgaveService.hentOppgave(_oppgaveHendelse.id)
-        oppdaterOppgave = OppdaterOppgave(oppgaveHendelse)
+    fun behandle(oppgaveData: OppgaveData): OppdaterOppgaveFraHendelse {
+        oppdaterOppgave = OppdaterOppgave(oppgaveData)
+        oppgave = oppgaveData
         return this
     }
 
     fun overforOppgaveTilJournalforendeEnhetHvisTilhorerJournalforende(): OppdaterOppgaveFraHendelse {
-        val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgaveHendelse.tildeltEnhetsnr)
+        val tildeltEnhetErIkkeEnJournalforendeEnhet = !erJournalforendeEnhet(oppgave.tildeltEnhetsnr)
         val tilhorerOppgaveTypeJournalforendeEnhet =
-            oppgaveHendelse.erAapenVurderDokumentOppgave() || oppgaveHendelse.erAapenJournalforingsoppgave()
-        if (oppgaveHendelse.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
-            overforOppgaveTilJournalforendeEnhet(oppgaveHendelse)
+            oppgave.erAapenVurderDokumentOppgave() || oppgave.erAapenJournalforingsoppgave()
+        if (oppgave.erTemaBIDEllerFAR() && tilhorerOppgaveTypeJournalforendeEnhet && tildeltEnhetErIkkeEnJournalforendeEnhet) {
+            overforOppgaveTilJournalforendeEnhet(oppgave)
         }
         return this
     }
 
     fun endreVurderDokumentOppgaveTypeTilJournalforingHvisJournalpostMottatt(): OppdaterOppgaveFraHendelse {
         val erVurderDokumentOppgaveMedJournalpost =
-            oppgaveHendelse.erAapenVurderDokumentOppgave() && oppgaveHendelse.hasJournalpostId
+            oppgave.erAapenVurderDokumentOppgave() && oppgave.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost) {
-            journalpostService.hentJournalpostMedStatusMottatt(oppgaveHendelse.journalpostIdMedPrefix!!)
-                ?.apply { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse) }
+            journalpostService.hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
+                ?.apply { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgave) }
         }
 
         return this
@@ -59,9 +58,9 @@ class OppdaterOppgaveFraHendelse(
 
     fun overforReturoppgaveTilFarskapHvisJournalpostHarTemaFAR(): OppdaterOppgaveFraHendelse {
         val erReturOppgaveMedJournalpost =
-            oppgaveHendelse.erReturoppgave() && oppgaveHendelse.hasJournalpostId
-        if (erReturOppgaveMedJournalpost && oppgaveHendelse.tildeltEnhetsnr != BidragEnhet.ENHET_FARSKAP) {
-            journalpostService.hentJournalpost(oppgaveHendelse.journalpostIdMedPrefix!!)
+            oppgave.erReturoppgave() && oppgave.hasJournalpostId
+        if (erReturOppgaveMedJournalpost && oppgave.tildeltEnhetsnr != BidragEnhet.ENHET_FARSKAP) {
+            journalpostService.hentJournalpost(oppgave.journalpostIdMedPrefix!!)
                 ?.takeIf { it.erFarskap }
                 ?.apply { overforOppgaveTilFarskapEnhet() }
         }
@@ -71,9 +70,9 @@ class OppdaterOppgaveFraHendelse(
 
     fun endreVurderDokumentOppgaveTypeTilVurderHenvendelseHvisIngenJournalpost(): OppdaterOppgaveFraHendelse {
         val erVurderDokumentOppgaveUtenJournalpost =
-            oppgaveHendelse.erAapenVurderDokumentOppgave() && !oppgaveHendelse.hasJournalpostId
+            oppgave.erAapenVurderDokumentOppgave() && !oppgave.hasJournalpostId
         if (erVurderDokumentOppgaveUtenJournalpost) {
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}")
+            LOGGER.info("Oppgave ${oppgave.id} har oppgavetype=${oppgave.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}")
             oppdaterOppgave.endreOppgavetype(OppgaveType.VURD_HENV)
         }
 
@@ -88,11 +87,11 @@ class OppdaterOppgaveFraHendelse(
 
     private fun overforOppgaveTilFarskapEnhet() {
         val tildeltEnhetsnr = BidragEnhet.ENHET_FARSKAP
-        LOGGER.info("Oppgave ${oppgaveHendelse.id} er returoppgave som har journalpost tema FAR. Oppgaven er tildelt ${oppgaveHendelse.tildeltEnhetsnr} som ikke er farskapenhet. Overfører til ${BidragEnhet.ENHET_FARSKAP}")
+        LOGGER.info("Oppgave ${oppgave.id} er returoppgave som har journalpost tema FAR. Oppgaven er tildelt ${oppgave.tildeltEnhetsnr} som ikke er farskapenhet. Overfører til ${BidragEnhet.ENHET_FARSKAP}")
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr)
     }
     private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveData) {
-        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.ident)
+        val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.aktoerId)
         LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr.verdi)
     }

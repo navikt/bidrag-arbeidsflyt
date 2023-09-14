@@ -54,7 +54,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 null,
                 OppgaveData::class.java
             ).body!!
-        }  catch (e: HttpStatusCodeException) {
+        } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 throw EndreOppgaveFeiletFunksjoneltException("Fant ikke oppgave med id $oppgaveId. Feilet med feilmelding ${e.message}", e)
             }

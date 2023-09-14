@@ -1,13 +1,14 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import mu.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.utils.numericOnly
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+private val LOGGER = KotlinLogging.logger {}
 
 @Service
 class BehandleHendelseService(
@@ -17,10 +18,6 @@ class BehandleHendelseService(
     private val persistenceService: PersistenceService,
     private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer
 ) {
-    companion object {
-        @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(BehandleHendelseService::class.java)
-    }
 
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")

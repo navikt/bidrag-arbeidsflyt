@@ -1,22 +1,23 @@
 name: bidrag-arbeidsflyt-feature
-azure:
-  tilgangskontroll: bidrag-tilgangskontroll-feature
-  oppgave: oppgave-q1.dev-fss-pub.nais.io
-  person: bidrag-person-feature.dev-fss-pub.nais.io
-  dokument: bidrag-dokument-feature.dev-fss-pub.nais.io
-  organisasjon: bidrag-organisasjon-feature.dev-fss-pub.nais.io
-  oppgave_clientid: dev-fss.oppgavehandtering.oppgave-q1
-  person_clientid: dev-fss.bidrag.bidrag-person-feature
-  organisasjon_clientid: dev-fss.bidrag.bidrag-organisasjon-feature
-  dokument_clientid: dev-fss.bidrag.bidrag-dokument-feature
-  tilgangskontroll_clientid: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 kafka:
   pool: nav-dev
-  bootstrap_servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443
-kafka-topic-journalpost: bidrag.journalpost-feature
-kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-preprod
-kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-preprod
-feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST,OPPRETT_OPPGAVE
+env:
+  OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
+  ORGANISASJON_URL: https://bidrag-organisasjon-feature.dev-fss-pub.nais.io
+  PERSON_URL: https://bidrag-person-feature.dev-fss-pub.nais.io
+  BIDRAG_DOKUMENT_URL: https://bidrag-dokument-feature.dev-fss-pub.nais.io
+  BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll-feature
+
+  ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon-feature
+  PERSON_SCOPE: dev-fss.bidrag.bidrag-person-feature
+  OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
+  DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument-feature
+  TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
+
+  TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-q1-v1
+  TOPIC_DOKUMENT: bidrag.dokument-feature
+  TOPIC_JOURNALPOST: bidrag.journalpost-feature
+  JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 database:
   dbname: bidrag-arbeidsflyt-feature
   autoResize: false
@@ -29,7 +30,3 @@ outbound-access-hosts:
    - bidrag-person-feature.dev-fss-pub.nais.io
    - bidrag-organisasjon-feature.dev-fss-pub.nais.io
    - oppgave-q1.dev-fss-pub.nais.io
-outbound-access-kafka-hosts:
-   - b27apvl00045.preprod.local
-   - b27apvl00046.preprod.local
-   - b27apvl00047.preprod.local

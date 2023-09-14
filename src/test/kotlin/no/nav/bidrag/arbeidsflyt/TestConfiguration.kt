@@ -1,7 +1,6 @@
 package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.hendelse.PojoJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
@@ -19,9 +18,9 @@ class TestConfiguration {
         jsonMapperService: JsonMapperService,
         behandleHendelseService: BehandleHendelseService,
         persistenceService: PersistenceService
-    ): JournalpostHendelseListener = PojoJournalpostHendelseListener(
+    ): JournalpostHendelseListener = JournalpostHendelseListener(
         jsonMapperService,
-        persistenceService,
-        behandleHendelseService
+        behandleHendelseService,
+        persistenceService
     )
 }

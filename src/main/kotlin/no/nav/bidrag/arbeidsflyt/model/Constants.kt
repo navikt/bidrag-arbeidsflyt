@@ -10,19 +10,9 @@ fun tilFagområdeBeskrivelse(fagomrade: String): String {
     return if (fagomrade == Fagomrade.FARSKAP) "Farskap" else if (fagomrade == Fagomrade.BIDRAG) "Bidrag" else fagomrade
 }
 
-// Journalstatus som er viktig for en JournalpostHendelse
-object Journalstatus {
-    const val MOTTATT = "M"
-}
-
-object Token {
-    const val OPPGAVE_CLIENT_REGISTRATION_ID = "oppgave"
-}
-
 // misc const
 const val CORRELATION_ID = "correlationId"
 const val JOURNALFORINGSOPPGAVE = "JFR"
-const val AOUTH2_JWT_REGISTRATION = "bidrag-arbeidsflyt"
 
 const val ENHET_FAGPOST = "2950"
 const val ENHET_IT_AVDELINGEN = "2990"

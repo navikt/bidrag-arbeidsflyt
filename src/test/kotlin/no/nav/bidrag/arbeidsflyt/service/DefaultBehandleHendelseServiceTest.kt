@@ -49,7 +49,7 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(OppgaveData(journalpostId = journalpostId))
+                oppgaver = listOf(OppgaveData(1, journalpostId = journalpostId))
             )
         )
 
@@ -127,7 +127,7 @@ internal class DefaultBehandleHendelseServiceTest {
     @Test
     fun `skal ikke ferdigstille journalføringsoppgave når journalstatus er null`() {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
-            OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(oppgavetype = JOURNALFORINGSOPPGAVE)))
+            OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(1, oppgavetype = JOURNALFORINGSOPPGAVE)))
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", journalstatus = null))

@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.model
 
+import mu.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
@@ -7,8 +8,7 @@ import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.dokument.dto.JournalpostHendelse
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+private val LOGGER = KotlinLogging.logger {}
 
 class BehandleJournalpostHendelse(
     private val journalpostHendelse: JournalpostHendelse,
@@ -23,11 +23,6 @@ class BehandleJournalpostHendelse(
     init {
         finnOppgaverForHendelse()
     }
-
-    companion object {
-        val LOGGER: Logger = LoggerFactory.getLogger(BehandleJournalpostHendelse::class.java)
-    }
-
     fun oppdaterEksterntFagomrade(): BehandleJournalpostHendelse {
         if (journalpostHendelse.erEksterntFagomrade) {
             LOGGER.info("Endring til eksternt fagområde av ${journalpostHendelse.hentSaksbehandlerInfo()}.")

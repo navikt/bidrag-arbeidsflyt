@@ -1,0 +1,154 @@
+name: Deploy to dev
+on:
+  pull_request:
+    types: [ ready_for_review, opened, synchronize ]
+
+env:
+  GITHUB_USERNAME: x-access-token
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: "read"
+      id-token: "write"
+    name: Build with maven and docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: mvn -Dmaven.test.skip=true -B -e --settings .github/.m2/maven-settings.xml clean install
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: bidrag
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    outputs:
+      image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
+
+  run-tests:
+    runs-on: ubuntu-latest
+    name: Run tests
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: mvn -B -e --settings .github/.m2/maven-settings.xml clean install
+
+  deploy-main:
+    runs-on: ubuntu-latest
+    name: Deploy main
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: deploy
+      - name: Deploy main branch to dev-gcp
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          RESOURCE: deploy/.nais/nais.yaml
+          VARS: deploy/.nais/main.yaml
+          IMAGE: ${{ needs.build.outputs.image }}
+
+  run-tests-for-opprett-oppgave:
+    runs-on: ubuntu-latest
+    name: "Run tests: opprett-oppgave"
+    needs: deploy-main
+
+    env:
+      INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no
+
+    steps:
+      - run: |
+          curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
+               --request POST \
+               --data '{"tags":["@arbeidsflyt-opprett-oppgave"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
+                   "${{ env.INGRESS_OPPGAVE }}@oppgave"
+                 ]}' \
+               ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/2 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+
+  run-tests-for-endre-fagomrade:
+    runs-on: ubuntu-latest
+    name: "Run tests: endre-fagomrade"
+    needs: deploy-main
+
+    env:
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no
+      INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
+
+    steps:
+      - run: |
+          curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
+               --request POST \
+               --data '{"tags":["@arbeidsflyt-endre-fagomrade"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
+                   "${{ env.INGRESS_OPPGAVE }}@oppgave"
+                 ]}' \
+               ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/2 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+
+  run-tests-for-overfor-enhet:
+    runs-on: ubuntu-latest
+    name: "Run tests: overfor-til-annen-enhet"
+    needs: deploy-main
+
+    env:
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no
+      INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
+
+    steps:
+      - run: |
+          curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
+               --request POST \
+               --data '{"tags":["@arbeidsflyt-overfor-til-annen-enhet"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
+                   "${{ env.INGRESS_OPPGAVE }}@oppgave"
+                 ]}' \
+               ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/2 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+
+  run-tests-for-journalforing:
+    runs-on: ubuntu-latest
+    name: "Run tests for journalforing"
+    needs: deploy-main
+
+    env:
+      INGRESS_CUCUMBER: https://bidrag-cucumber-cloud.ekstern.dev.nav.no
+      INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
+
+    steps:
+      - run: |
+          curl -H "Content-Type: application/json" -i \
+                -H "Authorization: Basic ${{ secrets.BIDRAG_CUCUMBER_CLOUD_AUTH }}" \
+               --request POST \
+               --data '{"tags":["@arbeidsflyt-journalforing"],"noContextPathForApps":["oppgave"],"ingressesForApps":[
+                   "${{ env.INGRESS_OPPGAVE }}@oppgave"
+                 ]}' \
+               ${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-cloud/run | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/2 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)

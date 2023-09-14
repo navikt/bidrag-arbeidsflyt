@@ -113,7 +113,9 @@ For oppgave
 ````bash
 kcat -b 0.0.0.0:9092 -t bidrag-opprettet -P
 ````
-
+````bash
+kcat -b 0.0.0.0:9092 -t oppgave.opprettet -P
+````
 og lim inn eks:
 
 ```bash
@@ -142,6 +144,11 @@ Deretter kjør følgende kommando for å importere secrets. Viktig at filen som 
 
 ```bash
 kubectl exec --tty deployment/bidrag-arbeidsflyt printenv | grep -E 'AZURE_|_URL|SCOPE|SRV|NAIS_APP_NAME|TOPIC' > src/test/resources/application-lokal-nais-secrets.properties
+```
+
+```json
+{"id":135937,"tildeltEnhetsnr":"4806","opprettetAvEnhetsnr":"9999","journalpostId":"453836625","saksreferanse":"123213123","tema":"BID","oppgavetype":"RETUR","versjon":1,"beskrivelse":"Returpost","fristFerdigstillelse":"2022-06-09","aktivDato":"2022-03-29","opprettetTidspunkt":"2023-05-24T13:19:35.25+02:00","opprettetAv":"srvbisys","prioritet":"HOY","status":"OPPRETTET","statuskategori":"AAPEN","ident":{"identType":"AKTOERID","verdi":"2421516513291","folkeregisterident":"22447402207"}}
+
 ```
 
 Kjør filen [BidragArbeidsflytLocal](src/test/kotlin/no/nav/bidrag/arbeidsflyt/BidragArbeidsflytLocal.kt)

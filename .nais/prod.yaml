@@ -1,22 +1,22 @@
 name: bidrag-arbeidsflyt
-azure:
-  tilgangskontroll: bidrag-tilgangskontroll
-  oppgave: oppgave.prod-fss-pub.nais.io
-  person: bidrag-person.prod-fss-pub.nais.io
-  organisasjon: bidrag-organisasjon.prod-fss-pub.nais.io
-  dokument: bidrag-dokument.prod-fss-pub.nais.io
-  oppgave_clientid: prod-fss.oppgavehandtering.oppgave
-  person_clientid: prod-fss.bidrag.bidrag-person
-  organisasjon_clientid: prod-fss.bidrag.bidrag-organisasjon
-  dokument_clientid: prod-fss.bidrag.bidrag-dokument
-  tilgangskontroll_clientid: prod-gcp.bidrag.bidrag-tilgangskontroll
 kafka:
   pool: nav-prod
-  bootstrap_servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443
-kafka-topic-journalpost: bidrag.journalpost
-kafka-topic-oppgave-endret: aapen-oppgave-endret-v1-prod
-kafka-topic-oppgave-opprettet: aapen-oppgave-opprettet-v1-prod
-feature-toggle: KAFKA_OPPGAVE,LAGRE_JOURNALPOST,OPPRETT_OPPGAVE
+env:
+  OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
+  ORGANISASJON_URL: https://bidrag-organisasjon-feature.prod-fss-pub.nais.io
+  PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
+  BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io
+  BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
+
+  ORGANISASJON_SCOPE: prod-fss.bidrag.bidrag-organisasjon
+  PERSON_SCOPE: prod-fss.bidrag.bidrag-person
+  OPPGAVE_SCOPE: prod-fss.oppgavehandtering.oppgave
+  DOKUMENT_SCOPE: prod-fss.bidrag.bidrag-dokument
+  TILGANGSKONTROLL_SCOPE: prod-gcp.bidrag.bidrag-tilgangskontroll
+
+  TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
+  TOPIC_DOKUMENT: bidrag.dokument
+  TOPIC_JOURNALPOST: bidrag.journalpost
 database:
   dbname: bidrag-arbeidsflyt
   autoResize: true
@@ -29,10 +29,3 @@ outbound-access-hosts:
    - bidrag-person.prod-fss-pub.nais.io
    - oppgave.prod-fss-pub.nais.io
    - bidrag-organisasjon.prod-fss-pub.nais.io
-outbound-access-kafka-hosts:
-   - a01apvl00145.adeo.no
-   - a01apvl00146.adeo.no
-   - a01apvl00147.adeo.no
-   - a01apvl00148.adeo.no
-   - a01apvl00149.adeo.no
-   - a01apvl00150.adeo.no

@@ -10,7 +10,6 @@ import no.nav.bidrag.arbeidsflyt.consumer.DefaultPersonConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.hendelse.JournalpostHendelseListener
-import no.nav.bidrag.arbeidsflyt.hendelse.KafkaJournalpostHendelseListener
 import no.nav.bidrag.arbeidsflyt.hendelse.KafkaRetryListener
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
@@ -24,13 +23,7 @@ import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.web.CorrelationIdFilter
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.config.SaslConfigs
-import org.apache.kafka.common.config.SslConfigs
-import org.apache.kafka.common.serialization.LongDeserializer
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -38,16 +31,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
-import org.springframework.core.env.Environment
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.time.Duration
@@ -79,7 +69,7 @@ class HendelseConfiguration {
         jsonMapperService: JsonMapperService,
         behandleHendelseService: BehandleHendelseService,
         persistenceService: PersistenceService
-    ): JournalpostHendelseListener = KafkaJournalpostHendelseListener(
+    ): JournalpostHendelseListener = JournalpostHendelseListener(
         jsonMapperService,
         behandleHendelseService,
         persistenceService
@@ -120,37 +110,6 @@ class HendelseConfiguration {
 
         factory.setCommonErrorHandler(defaultErrorHandler)
         return factory
-    }
-
-    @Bean
-    fun oppgaveConsumerFactory(
-        @Value("\${KAFKA_BOOTSTRAP_SERVERS}") bootstrapServers: String,
-        @Value("\${KAFKA_GROUP_ID}") groupId: String,
-        @Value("\${OPPGAVE_KAFKA_OFFSET_RESET:latest}") offsetReset: String,
-        @Value("\${NAV_TRUSTSTORE_PATH}") trustStorePath: String,
-        @Value("\${NAV_TRUSTSTORE_PASSWORD}") trustStorePassword: String,
-        @Value("\${SERVICE_USER_USERNAME}") username: String,
-        @Value("\${SERVICE_USER_PASSWORD}") password: String,
-        environment: Environment
-    ): ConsumerFactory<Long, String> {
-        val props = mutableMapOf<String, Any>()
-        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
-        props[ConsumerConfig.GROUP_ID_CONFIG] = groupId
-        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = offsetReset
-        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
-        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
-        props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
-        props["spring.deserializer.key.delegate.class"] = LongDeserializer::class.java
-        props["spring.deserializer.value.delegate.class"] = StringDeserializer::class.java
-        if (!environment.activeProfiles.contains(PROFILE_KAFKA_TEST)) {
-            props[SaslConfigs.SASL_JAAS_CONFIG] =
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$username\" password=\"$password\";"
-            props[SaslConfigs.SASL_MECHANISM] = "PLAIN"
-            props[SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
-            props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = trustStorePath
-            props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = trustStorePassword
-        }
-        return DefaultKafkaConsumerFactory(props)
     }
 }
 

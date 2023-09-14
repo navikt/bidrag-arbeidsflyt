@@ -1,10 +1,9 @@
 package no.nav.bidrag.arbeidsflyt.utils
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveHendelse
-import no.nav.bidrag.arbeidsflyt.dto.OppgaveIdentType
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
+import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
@@ -20,6 +19,7 @@ import no.nav.bidrag.transport.organisasjon.EnhetDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+
 val DEFAULT_TIME = LocalDateTime.of(2020, 1, 1, 12, 0)
 
 var JOURNALPOST_ID_1 = "124123"
@@ -64,7 +64,14 @@ fun createOppgave(
     )
 }
 
-fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", retry: Boolean = false, retryCount: Int = 0, messageKey: String = "JOARK-$JOURNALPOST_ID_1", timestamp: LocalDateTime = LocalDateTime.now()): DLQKafka {
+fun createDLQKafka(
+    payload: String,
+    topicName: String = "topic_journalpost",
+    retry: Boolean = false,
+    retryCount: Int = 0,
+    messageKey: String = "JOARK-$JOURNALPOST_ID_1",
+    timestamp: LocalDateTime = LocalDateTime.now()
+): DLQKafka {
     return DLQKafka(
         topicName = topicName,
         messageKey = messageKey,
@@ -74,7 +81,8 @@ fun createDLQKafka(payload: String, topicName: String = "topic_journalpost", ret
         createdTimestamp = timestamp
     )
 }
-fun createOppgaveHendelse(
+
+fun createOppgaveData(
     id: Long,
     journalpostId: String? = "123213",
     tildeltEnhetsnr: String? = "4806",
@@ -82,86 +90,54 @@ fun createOppgaveHendelse(
     status: OppgaveStatus? = null,
     oppgavetype: String = OPPGAVETYPE_JFR,
     tema: String = "BID",
-    identVerdi: String = AKTOER_ID,
+    aktoerId: String = AKTOER_ID,
     beskrivelse: String? = null,
-    fnr: String = PERSON_IDENT_1,
     tilordnetRessurs: String? = null,
-    identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
     fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
-): OppgaveHendelse {
-    val ident = OppgaveHendelse.Ident(verdi = identVerdi, identType = identType, folkeregisterident = if (identType == OppgaveIdentType.AKTOERID) fnr else null)
-    return OppgaveHendelse(
-        id = id,
-        versjon = 1,
-        tilordnetRessurs = tilordnetRessurs,
-        journalpostId = journalpostId,
-        tildeltEnhetsnr = tildeltEnhetsnr,
-        status = status ?: statuskategori.toStatus(),
-        oppgavetype = oppgavetype,
-        statuskategori = statuskategori,
-        tema = tema,
-        beskrivelse = beskrivelse,
-        ident = ident,
-        opprettetTidspunkt = CREATED_TIME,
-        endretTidspunkt = CREATED_TIME,
-        endretAv = "test",
-        fristFerdigstillelse = fristFerdigstillelse
-    )
-}
-
-fun Oppgavestatuskategori.toStatus() = when(this){
-    Oppgavestatuskategori.AAPEN -> OppgaveStatus.AAPNET
-    else -> OppgaveStatus.FERDIGSTILT
-}
-fun OppgaveHendelse.toOppgaveData() = OppgaveData(
+) = OppgaveData(
     id = id,
-    versjon = versjon,
-    tilordnetRessurs = tilordnetRessurs,
+    versjon = 1,
     journalpostId = journalpostId,
     tildeltEnhetsnr = tildeltEnhetsnr,
-    status = status ?: statuskategori?.toStatus(),
+    status = status ?: when (statuskategori) {
+        Oppgavestatuskategori.AAPEN -> OppgaveStatus.OPPRETTET
+        Oppgavestatuskategori.AVSLUTTET -> OppgaveStatus.FERDIGSTILT
+    },
     oppgavetype = oppgavetype,
     tema = tema,
+    tilordnetRessurs = tilordnetRessurs,
+    fristFerdigstillelse = fristFerdigstillelse,
     beskrivelse = beskrivelse,
-    ident = ident?.verdi,
-    opprettetTidspunkt = opprettetTidspunkt.toString(),
-    endretTidspunkt = endretTidspunkt.toString(),
-    endretAv = "test",
-    fristFerdigstillelse = fristFerdigstillelse.toString()
+    aktoerId = aktoerId
 )
-fun createOppgaveData(
-    id: Long,
-    journalpostId: String? = "123213",
-    tildeltEnhetsnr: String? = "4806",
-    statuskategori: Oppgavestatuskategori = Oppgavestatuskategori.AAPEN,
-    status: OppgaveStatus = OppgaveStatus.OPPRETTET,
-    oppgavetype: String = OPPGAVETYPE_JFR,
-    tema: String = "BID",
-    identVerdi: String = AKTOER_ID,
-    beskrivelse: String? = null,
-    fnr: String = PERSON_IDENT_1,
-    tilordnetRessurs: String? = null,
-    identType: OppgaveIdentType = OppgaveIdentType.AKTOERID,
-    fristFerdigstillelse: LocalDate? = LocalDate.of(2020, 2, 1)
-): OppgaveData {
-    val ident = OppgaveHendelse.Ident(verdi = identVerdi, identType = identType, folkeregisterident = if (identType == OppgaveIdentType.AKTOERID) fnr else null)
-    return OppgaveData(
-        id = id,
-        versjon = 1,
-        tilordnetRessurs = tilordnetRessurs,
-        journalpostId = journalpostId,
-        tildeltEnhetsnr = tildeltEnhetsnr,
-        status = status,
-        oppgavetype = oppgavetype,
-        tema = tema,
-        beskrivelse = beskrivelse,
-        ident = identVerdi,
-        opprettetTidspunkt = CREATED_TIME.toString(),
-        endretTidspunkt = CREATED_TIME.toString(),
-        endretAv = "test",
-        fristFerdigstillelse = fristFerdigstillelse.toString()
+
+fun OppgaveData.toHendelse(
+    type: OppgaveKafkaHendelse.Hendelse.Hendelsestype? = null
+) = OppgaveKafkaHendelse(
+    hendelse = OppgaveKafkaHendelse.Hendelse(
+        type ?: when (status) {
+            OppgaveStatus.FERDIGSTILT -> OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_FERDIGSTILT
+            OppgaveStatus.OPPRETTET -> OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_OPPRETTET
+            OppgaveStatus.UNDER_BEHANDLING -> OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_ENDRET
+            OppgaveStatus.FEILREGISTRERT -> OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_FEILREGISTRERT
+            else -> OppgaveKafkaHendelse.Hendelse.Hendelsestype.OPPGAVE_ENDRET
+        },
+        LocalDateTime.now()
+    ),
+    utfortAv = OppgaveKafkaHendelse.UtfortAv(tilordnetRessurs, tildeltEnhetsnr),
+    oppgave = OppgaveKafkaHendelse.Oppgave(
+        id,
+        1,
+        kategorisering = OppgaveKafkaHendelse.Kategorisering(
+            tema ?: "BID",
+            oppgavetype = oppgavetype ?: "JFR"
+        ),
+        bruker = OppgaveKafkaHendelse.Bruker(
+            aktoerId,
+            OppgaveKafkaHendelse.Bruker.IdentType.FOLKEREGISTERIDENT
+        )
     )
-}
+)
 
 fun createJournalpostHendelse(
     journalpostId: String,
@@ -177,13 +153,23 @@ fun createJournalpostHendelse(
         fagomrade = fagomrade,
         enhet = enhet,
         journalstatus = status,
-        sporing = Sporingsdata("test", enhetsnummer = sporingEnhet, brukerident = SAKSBEHANDLER_ID, saksbehandlersNavn = "Navn Navnesen"),
+        sporing = Sporingsdata(
+            "test",
+            enhetsnummer = sporingEnhet,
+            brukerident = SAKSBEHANDLER_ID,
+            saksbehandlersNavn = "Navn Navnesen"
+        ),
         hendelseType = HendelseType.ENDRING,
         journalposttype = "I"
     )
 }
 
-fun journalpostResponse(journalpostId: String = JOURNALPOST_ID_1, journalStatus: String = Journalstatus.JOURNALFORT, journalforendeEnhet: String = "4833", tema: String = "BID"): JournalpostResponse {
+fun journalpostResponse(
+    journalpostId: String = JOURNALPOST_ID_1,
+    journalStatus: String = Journalstatus.JOURNALFORT,
+    journalforendeEnhet: String = "4833",
+    tema: String = "BID"
+): JournalpostResponse {
     return JournalpostResponse(
         journalpost = JournalpostDto(
             journalpostId = journalpostId,
@@ -193,6 +179,7 @@ fun journalpostResponse(journalpostId: String = JOURNALPOST_ID_1, journalStatus:
         )
     )
 }
+
 fun oppgaveDataResponse(): List<OppgaveData> {
     return listOf(
         OppgaveData(
@@ -244,7 +231,12 @@ fun createJournalforendeEnheterResponse(): List<EnhetDto> {
     )
 }
 
-fun createJournalpost(journalpostId: String, status: String = "M", enhet: String = "4833", tema: String = "BID"): Journalpost {
+fun createJournalpost(
+    journalpostId: String,
+    status: String = "M",
+    enhet: String = "4833",
+    tema: String = "BID"
+): Journalpost {
     return Journalpost(
         journalpostId = journalpostId,
         status = status,

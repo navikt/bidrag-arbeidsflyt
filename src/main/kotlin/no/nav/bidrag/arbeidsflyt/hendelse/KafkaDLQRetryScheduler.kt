@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
+import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -19,7 +20,8 @@ class KafkaDLQRetryScheduler(
     private val jsonMapperService: JsonMapperService,
     private val dlqKafkaRepository: DLQKafkaRepository,
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
-    private val behandleHendelseService: BehandleHendelseService
+    private val behandleHendelseService: BehandleHendelseService,
+    private val oppgaveService: OppgaveService
 ) {
 
     companion object {
@@ -30,11 +32,8 @@ class KafkaDLQRetryScheduler(
     @Value("\${SCHEDULER_MAX_RETRY:10}")
     lateinit var maxRetry: Number
 
-    @Value("\${TOPIC_OPPGAVE_ENDRET}")
-    lateinit var topicOppgaveEndret: String
-
-    @Value("\${TOPIC_OPPGAVE_OPPRETTET}")
-    lateinit var topicOppgaveOpprettet: String
+    @Value("\${TOPIC_OPPGAVE_HENDELSE}")
+    lateinit var topicOppgaveHendelse: String
 
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
@@ -65,13 +64,9 @@ class KafkaDLQRetryScheduler(
 
     fun processMessage(message: DLQKafka) {
         when (message.topicName) {
-            topicOppgaveEndret -> {
-                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleEndretOppgave(oppgaveEndretHendelse)
-            }
-            topicOppgaveOpprettet -> {
-                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelse(message.payload)
-                behandleOppgaveHendelseService.behandleOpprettOppgave(oppgaveEndretHendelse)
+            topicOppgaveHendelse -> {
+                val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelseV2(message.payload)
+                behandleOppgaveHendelseService.behandleOppgaveHendelse(oppgaveEndretHendelse)
             }
             topicJournalpost -> {
                 val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(message.payload)

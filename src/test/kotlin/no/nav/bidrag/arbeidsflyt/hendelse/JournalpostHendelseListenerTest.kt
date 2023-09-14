@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import java.util.concurrent.TimeUnit
 
-internal class KafkaJournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
+internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
 
     @Value("\${TOPIC_JOURNALPOST}")
     private val topic: String? = null
