@@ -4,6 +4,7 @@ on:
     branches:
       - '**'
       - '!main'
+      - '!dependabot/**'
 
 env:
   GITHUB_USERNAME: x-access-token
