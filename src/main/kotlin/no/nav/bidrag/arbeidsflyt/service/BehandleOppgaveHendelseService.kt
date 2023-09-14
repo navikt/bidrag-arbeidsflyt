@@ -23,13 +23,12 @@ class BehandleOppgaveHendelseService(
 ) {
     @Transactional
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
-        logHendelse(oppgaveHendelse)
+        val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
+        logHendelse(oppgaveHendelse, oppgave)
         if (oppgaveHendelse.erOppgaveOpprettetHendelse) {
-            val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
             behandleOpprettOppgave(oppgave)
             measureOppgaveOpprettetHendelse(oppgave)
         } else if (oppgaveHendelse.erOppgaveEndretHendelse) {
-            val oppgave = oppgaveService.hentOppgave(oppgaveHendelse.oppgaveId)
             behandleEndretOppgave(oppgave)
             persistenceService.slettFeiledeMeldingerMedOppgaveid(oppgaveHendelse.oppgaveId)
         }
@@ -139,7 +138,7 @@ class BehandleOppgaveHendelseService(
         }
     }
 
-    private fun logHendelse(oppgaveHendelse: OppgaveKafkaHendelse){
+    private fun logHendelse(oppgaveHendelse: OppgaveKafkaHendelse, oppgave: OppgaveData){
         try {
             LOGGER.info(
                 "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
@@ -148,6 +147,7 @@ class BehandleOppgaveHendelseService(
                             add("versjon ${oppgaveHendelse.oppgave.versjon}")
                             add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
                             add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                            add("journalpostId ${oppgave.journalpostId}")
                             add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
                             add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
                         }.joinToString(", ")
@@ -159,6 +159,7 @@ class BehandleOppgaveHendelseService(
                             add("versjon ${oppgaveHendelse.oppgave.versjon}")
                             add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
                             add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                            add("journalpostId ${oppgave.journalpostId}")
                             add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
                             add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
                             add("hendelse $oppgaveHendelse")
