@@ -7,14 +7,14 @@ import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
-import no.nav.bidrag.dokument.dto.HendelseType
-import no.nav.bidrag.dokument.dto.JournalpostDto
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
-import no.nav.bidrag.dokument.dto.JournalpostResponse
-import no.nav.bidrag.dokument.dto.Journalstatus
-import no.nav.bidrag.dokument.dto.Sporingsdata
+import no.nav.bidrag.transport.dokument.HendelseType
+import no.nav.bidrag.transport.dokument.JournalpostDto
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostResponse
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import no.nav.bidrag.domain.string.Enhetsnavn
 import no.nav.bidrag.domain.string.Enhetsnummer
+import no.nav.bidrag.transport.dokument.JournalpostStatus
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -141,7 +141,7 @@ fun OppgaveData.toHendelse(
 
 fun createJournalpostHendelse(
     journalpostId: String,
-    status: String = "M",
+    status: JournalpostStatus = JournalpostStatus.MOTTATT,
     enhet: String? = "4833",
     fagomrade: String = "BID",
     aktorId: String = AKTOER_ID,
@@ -152,7 +152,7 @@ fun createJournalpostHendelse(
         aktorId = aktorId,
         fagomrade = fagomrade,
         enhet = enhet,
-        journalstatus = status,
+        status = status,
         sporing = Sporingsdata(
             "test",
             enhetsnummer = sporingEnhet,
@@ -166,14 +166,14 @@ fun createJournalpostHendelse(
 
 fun journalpostResponse(
     journalpostId: String = JOURNALPOST_ID_1,
-    journalStatus: String = Journalstatus.JOURNALFORT,
+    journalStatus: JournalpostStatus = JournalpostStatus.JOURNALFØRT,
     journalforendeEnhet: String = "4833",
     tema: String = "BID"
 ): JournalpostResponse {
     return JournalpostResponse(
         journalpost = JournalpostDto(
             journalpostId = journalpostId,
-            journalstatus = journalStatus,
+            status = journalStatus,
             journalforendeEnhet = journalforendeEnhet,
             fagomrade = tema
         )

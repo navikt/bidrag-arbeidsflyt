@@ -8,8 +8,8 @@ import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
-import no.nav.bidrag.dokument.dto.Sporingsdata
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

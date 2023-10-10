@@ -1,6 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

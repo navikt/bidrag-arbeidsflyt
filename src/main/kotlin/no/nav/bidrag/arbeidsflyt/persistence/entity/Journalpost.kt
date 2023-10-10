@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
-import no.nav.bidrag.dokument.dto.JournalpostStatus
+import no.nav.bidrag.transport.dokument.JournalpostStatus
 
 @Entity
 data class Journalpost(

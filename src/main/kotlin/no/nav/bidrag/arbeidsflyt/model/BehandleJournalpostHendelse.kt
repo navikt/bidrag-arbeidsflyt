@@ -7,7 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 private val LOGGER = KotlinLogging.logger {}
 
 class BehandleJournalpostHendelse(

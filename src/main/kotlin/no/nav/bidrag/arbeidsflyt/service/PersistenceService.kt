@@ -11,7 +11,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -40,7 +40,7 @@ class PersistenceService(
         val journalpostId = journalpostHendelse.journalpostId
         if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade) {
             deleteJournalpost(journalpostId)
-            LOGGER.info("Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.hentStatus()}, fagomrade=${journalpostHendelse.hentTema()})")
+            LOGGER.info("Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.status}, fagomrade=${journalpostHendelse.hentTema()})")
         } else {
             saveOrUpdateMottattJournalpost(journalpostId, journalpostHendelse)
             LOGGER.info("Lagret journalpost $journalpostId i databasen")
@@ -121,7 +121,7 @@ class PersistenceService(
         journalpostRepository.findByJournalpostId(journalpostId)?.run {
             journalpostRepository.save(
                 copy(
-                    status = journalpostHendelse.hentStatus()?.name ?: this.status,
+                    status = journalpostHendelse.status?.name ?: this.status,
                     enhet = journalpostHendelse.enhet ?: this.enhet,
                     tema = journalpostHendelse.hentTema() ?: this.tema
                 )
@@ -130,7 +130,7 @@ class PersistenceService(
             journalpostRepository.save(
                 Journalpost(
                     journalpostId = journalpostId,
-                    status = journalpostHendelse.hentStatus()?.name ?: "UKJENT",
+                    status = journalpostHendelse.status?.name ?: "UKJENT",
                     tema = journalpostHendelse.hentTema() ?: "BID",
                     enhet = journalpostHendelse.enhet ?: "UKJENT"
                 )

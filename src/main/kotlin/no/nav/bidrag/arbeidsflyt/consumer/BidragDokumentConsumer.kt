@@ -3,7 +3,7 @@ package no.nav.bidrag.arbeidsflyt.consumer
 import no.nav.bidrag.arbeidsflyt.model.HentJournalpostFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.HentJournalpostFeiletTekniskException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.transport.dokument.JournalpostResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
