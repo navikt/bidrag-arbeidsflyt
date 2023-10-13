@@ -25,9 +25,10 @@ import no.nav.bidrag.arbeidsflyt.utils.SAKSBEHANDLER_ID
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpost
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
 import no.nav.bidrag.commons.util.VirkedagerProvider
-import no.nav.bidrag.dokument.dto.HendelseType
-import no.nav.bidrag.dokument.dto.JournalpostHendelse
-import no.nav.bidrag.dokument.dto.Sporingsdata
+import no.nav.bidrag.transport.dokument.HendelseType
+import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.JournalpostStatus
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -473,7 +474,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
             dokumentDato = LocalDate.parse("2020-01-02"),
@@ -530,7 +531,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
             dokumentDato = LocalDate.parse("2020-01-02"),
@@ -587,7 +588,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen"),
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
@@ -631,7 +632,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
             dokumentDato = LocalDate.parse("2020-01-02"),
@@ -689,7 +690,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
             dokumentDato = LocalDate.parse("2020-01-02"),
@@ -747,7 +748,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             journalpostId = journalpostIdMedJoarkPrefix
         ).copy(
             aktorId = "123213213",
-            journalstatus = "J",
+            status = JournalpostStatus.JOURNALFØRT,
             tittel = "Ny tittel",
             journalfortDato = LocalDate.now(),
             dokumentDato = LocalDate.parse("2020-01-02"),
@@ -842,7 +843,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
         assertThat(journalpostOptionalBefore).isNotNull
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = "J", sporingEnhet = "1234")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -869,7 +870,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             )
         )
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = "J", sporingEnhet = "1234")
+        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1,status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -915,7 +916,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                 journalpostId = journalpostId,
                 fagomrade = "BAR",
                 enhet = "4860",
-                status = "M"
+                status = JournalpostStatus.MOTTATT
             )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
@@ -959,7 +960,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                 journalpostId = journalpostId,
                 fagomrade = "BID",
                 enhet = "4860",
-                status = "J"
+                status = JournalpostStatus.JOURNALFØRT
             )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)

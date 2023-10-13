@@ -25,7 +25,7 @@ import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
 import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
-import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.domain.enums.Enhetsstatus
 import no.nav.bidrag.domain.ident.AktørId
 import no.nav.bidrag.domain.ident.PersonIdent

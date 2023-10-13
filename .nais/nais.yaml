@@ -40,9 +40,9 @@ spec:
     path: /bidrag-arbeidsflyt/actuator/prometheus
   resources:
     limits:
-      memory: 2048Mi
+      memory: 1048Mi
     requests:
-      memory: 1024Mi
+      memory: 512Mi
   ingresses:
   {{#each ingresses as |url|}}
     - {{url}}

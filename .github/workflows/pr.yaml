@@ -4,19 +4,18 @@ on:
     types: [ ready_for_review, opened, synchronize ]
 
 env:
-  GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
-    if: github.event.pull_request.draft == false && ${{ github.actor != 'dependabot[bot]' }}
+    if: github.event.pull_request.draft == false
     permissions:
       contents: "read"
       id-token: "write"
     name: Build with maven and docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -27,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -Dmaven.test.skip=true -B -e --settings .github/.m2/maven-settings.xml clean install
+      - run: mvn -Dmaven.test.skip=true -DskipOwasp=true -B -e clean install
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:
@@ -41,27 +40,27 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     name: Run tests
-    needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
       - uses: actions/cache@v3
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -B -e --settings .github/.m2/maven-settings.xml clean install
+      - run: mvn test
 
   deploy-main:
     runs-on: ubuntu-latest
     name: Deploy main
     needs: build
+    if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: deploy
       - name: Deploy main branch to dev-gcp

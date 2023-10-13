@@ -7,7 +7,7 @@ import no.nav.bidrag.arbeidsflyt.service.JournalpostService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.erFarskap
-import no.nav.bidrag.dokument.dto.BidragEnhet
+import no.nav.bidrag.transport.dokument.BidragEnhet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE
