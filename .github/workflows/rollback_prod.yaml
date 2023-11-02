@@ -6,9 +6,6 @@ on:
         description: 'Deploy tag. As default the previous tag will be deployed'
         required: false
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   build-deploy:
     name: "Rollback and deploy previous version to prod"
