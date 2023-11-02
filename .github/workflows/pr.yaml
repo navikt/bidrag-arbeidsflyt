@@ -3,22 +3,22 @@ on:
   pull_request:
     types: [ ready_for_review, opened, synchronize ]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   build-deploy:
     name: "Build and deploy to main"
     permissions:
       contents: "read"
       id-token: "write"
-    uses: navikt/bidrag-workflow/.github/workflows/deploy_main.yaml@main
+    uses: navikt/bidrag-workflow/.github/workflows/deploy.yaml@main
     secrets: inherit
+    with:
+      nais_variabler_filnavn: main.yaml
 
   run-tests-for-opprett-oppgave:
     runs-on: ubuntu-latest
     name: "Run tests: opprett-oppgave"
     needs: deploy-main
+    if: ${{ always() && needs.build-deploy.outputs.deploy_suksess == 'true' }}
 
     env:
       INGRESS_OPPGAVE: https://oppgave.dev-fss-pub.nais.io
