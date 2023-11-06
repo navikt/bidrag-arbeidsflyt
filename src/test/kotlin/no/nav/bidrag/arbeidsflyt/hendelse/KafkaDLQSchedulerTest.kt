@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
 internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
-
     @Autowired
     lateinit var kafkaDLQRetryScheduler: KafkaDLQRetryScheduler
 
@@ -23,8 +22,20 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3)
         val journalpostHendelse1 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
         val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_2")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse1), retry = true, messageKey = journalpostHendelse1.journalpostId))
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = false, messageKey = journalpostHendelse2.journalpostId))
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(
+                objectMapper.writeValueAsString(journalpostHendelse1),
+                retry = true,
+                messageKey = journalpostHendelse1.journalpostId,
+            ),
+        )
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(
+                objectMapper.writeValueAsString(journalpostHendelse2),
+                retry = false,
+                messageKey = journalpostHendelse2.journalpostId,
+            ),
+        )
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(2)
@@ -34,7 +45,13 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
         val dlqMessagesAfter = testDataGenerator.hentDlKafka()
         assertThat(dlqMessagesAfter.size).isEqualTo(1)
 
-        verifyOppgaveOpprettetWith("\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_1}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${JOURNALPOST_ID_1}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
     }
 
@@ -42,7 +59,9 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
     fun `should set retry to false if processing fails after max retry`() {
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 19))
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 19),
+        )
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(1)
@@ -58,7 +77,9 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
     fun `should increment retry count if processing fails`() {
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 1))
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), retry = true, retryCount = 1),
+        )
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(1)
@@ -79,18 +100,36 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.OK, nextScenario = "FAIL")
         stubHentPerson(PERSON_IDENT_3, status = HttpStatus.INTERNAL_SERVER_ERROR, scenarioState = "FAIL")
 
-        val journalpostHendelseOld = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-            .copy(
-                aktorId = null,
-                fnr = "24444444"
-            )
-        val journalpostHendelse2 = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
-            .copy(
-                aktorId = null,
-                fnr = "13213213"
-            )
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse2), retry = true, retryCount = 1, timestamp = LocalDateTime.now(), messageKey = journalpostHendelse2.journalpostId))
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelseOld), retry = true, retryCount = 1, timestamp = LocalDateTime.now().minusDays(1), messageKey = journalpostHendelseOld.journalpostId))
+        val journalpostHendelseOld =
+            createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+                .copy(
+                    aktorId = null,
+                    fnr = "24444444",
+                )
+        val journalpostHendelse2 =
+            createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")
+                .copy(
+                    aktorId = null,
+                    fnr = "13213213",
+                )
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(
+                objectMapper.writeValueAsString(journalpostHendelse2),
+                retry = true,
+                retryCount = 1,
+                timestamp = LocalDateTime.now(),
+                messageKey = journalpostHendelse2.journalpostId,
+            ),
+        )
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(
+                objectMapper.writeValueAsString(journalpostHendelseOld),
+                retry = true,
+                retryCount = 1,
+                timestamp = LocalDateTime.now().minusDays(1),
+                messageKey = journalpostHendelseOld.journalpostId,
+            ),
+        )
 
         val dlqMessages = testDataGenerator.hentDlKafka()
         assertThat(dlqMessages.size).isEqualTo(2)

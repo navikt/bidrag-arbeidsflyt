@@ -33,7 +33,6 @@ import org.springframework.test.context.ActiveProfiles
 @DisplayName("OppdaterOppgaver")
 @ActiveProfiles("test")
 internal class BehandleJournalpostHendelseTest {
-
     private val enhetsnummerFraSporingsdata = "1001"
 
     @Autowired
@@ -53,13 +52,14 @@ internal class BehandleJournalpostHendelseTest {
 
     private val journalpostHendelse = JournalpostHendelse(sporing = Sporingsdata(enhetsnummer = enhetsnummerFraSporingsdata))
 
-    fun hentBehandleJournalpostTjeneste(journalpostHendelse: JournalpostHendelse) = BehandleJournalpostHendelse(
-        journalpostHendelse = journalpostHendelse,
-        oppgaveService = oppgaveService,
-        arbeidsfordelingService = arbeidsfordelingService,
-        persistenceService,
-        bidragTIlgangskontrollConsumer
-    )
+    fun hentBehandleJournalpostTjeneste(journalpostHendelse: JournalpostHendelse) =
+        BehandleJournalpostHendelse(
+            journalpostHendelse = journalpostHendelse,
+            oppgaveService = oppgaveService,
+            arbeidsfordelingService = arbeidsfordelingService,
+            persistenceService,
+            bidragTIlgangskontrollConsumer,
+        )
 
     @BeforeEach
     fun `init OppdaterOppgaver med oppgavesøk`() {
@@ -68,9 +68,11 @@ internal class BehandleJournalpostHendelseTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 anyOrNull(),
-                eq(OppgaveSokResponse::class.java)
-            )
-        ).thenReturn(ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, oppgavetype = JOURNALFORINGSOPPGAVE)))))
+                eq(OppgaveSokResponse::class.java),
+            ),
+        ).thenReturn(
+            ResponseEntity.ok(OppgaveSokResponse(antallTreffTotalt = 1, listOf(OppgaveData(id = 1, oppgavetype = JOURNALFORINGSOPPGAVE)))),
+        )
     }
 
     @Test
@@ -87,7 +89,7 @@ internal class BehandleJournalpostHendelseTest {
             anyString(),
             eq(HttpMethod.PATCH),
             patchEntityCaptor.capture(),
-            eq(OppgaveData::class.java)
+            eq(OppgaveData::class.java),
         )
 
         val patchRequest = patchEntityCaptor.value.body as PatchOppgaveRequest
@@ -109,7 +111,7 @@ internal class BehandleJournalpostHendelseTest {
             anyString(),
             eq(HttpMethod.PATCH),
             patchEntityCaptor.capture(),
-            eq(OppgaveData::class.java)
+            eq(OppgaveData::class.java),
         )
 
         val patchRequest = patchEntityCaptor.value.body as PatchOppgaveRequest

@@ -29,7 +29,6 @@ import org.springframework.test.context.ActiveProfiles
 @DisplayName("DefaultBehandleHendelseService")
 @ActiveProfiles("test")
 internal class DefaultBehandleHendelseServiceTest {
-
     @Autowired
     private lateinit var behandleHendelseService: BehandleHendelseService
 
@@ -49,8 +48,8 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(OppgaveData(1, journalpostId = journalpostId))
-            )
+                oppgaver = listOf(OppgaveData(1, journalpostId = journalpostId)),
+            ),
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = journalpostId, fagomrade = fagomrade))
@@ -64,8 +63,8 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(OppgaveData(id = 1, tema = fagomrade, versjon = 1, oppgavetype = JOURNALFORINGSOPPGAVE))
-            )
+                oppgaver = listOf(OppgaveData(id = 1, tema = fagomrade, versjon = 1, oppgavetype = JOURNALFORINGSOPPGAVE)),
+            ),
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "$fagomrade-101", fagomrade = fagomrade))
@@ -77,14 +76,15 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(
-                    OppgaveData(
-                        id = 1,
-                        tildeltEnhetsnr = "1001",
-                        versjon = 1
-                    )
-                )
-            )
+                oppgaver =
+                    listOf(
+                        OppgaveData(
+                            id = 1,
+                            tildeltEnhetsnr = "1001",
+                            versjon = 1,
+                        ),
+                    ),
+            ),
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", enhet = "1001"))
@@ -99,35 +99,37 @@ internal class DefaultBehandleHendelseServiceTest {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
-                oppgaver = listOf(
-                    OppgaveData(
-                        id = 1,
-                        tildeltEnhetsnr = "1001",
-                        versjon = 1
-                    )
-                )
-            )
+                oppgaver =
+                    listOf(
+                        OppgaveData(
+                            id = 1,
+                            tildeltEnhetsnr = "1001",
+                            versjon = 1,
+                        ),
+                    ),
+            ),
         )
 
         val nyttEnhetsnummer = "1234"
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = journalpostId, enhet = nyttEnhetsnummer))
 
         verify(oppgaveConsumerMock).endreOppgave(
-            patchOppgaveRequest = eq(
-                OverforOppgaveRequest(
-                    oppgaveDataForHendelse = OppgaveData(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
-                    nyttEnhetsnummer = nyttEnhetsnummer,
-                    "Z99999"
-                )
-            ),
-            endretAvEnhetsnummer = anyOrNull()
+            patchOppgaveRequest =
+                eq(
+                    OverforOppgaveRequest(
+                        oppgaveDataForHendelse = OppgaveData(id = 1, versjon = 1, tildeltEnhetsnr = nyttEnhetsnummer),
+                        nyttEnhetsnummer = nyttEnhetsnummer,
+                        "Z99999",
+                    ),
+                ),
+            endretAvEnhetsnummer = anyOrNull(),
         )
     }
 
     @Test
     fun `skal ikke ferdigstille journalføringsoppgave når journalstatus er null`() {
         whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
-            OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(1, oppgavetype = JOURNALFORINGSOPPGAVE)))
+            OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(1, oppgavetype = JOURNALFORINGSOPPGAVE))),
         )
 
         behandleHendelseService.behandleHendelse(JournalpostHendelse(journalpostId = "BID-101", journalstatus = null))

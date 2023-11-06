@@ -17,14 +17,17 @@ import java.net.URI
 @Service
 class BidragTIlgangskontrollConsumer(
     @Value("\${BIDRAG_TILGANGSKONTROLL_URL}") val url: URI,
-    @Qualifier("azure") private val restTemplate: RestOperations
+    @Qualifier("azure") private val restTemplate: RestOperations,
 ) : AbstractRestClient(restTemplate, "bidrag-tilgangskontroll") {
-
     @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0))
     @Cacheable(TILGANG_TEMA_CACHE)
-    fun sjekkTilgangTema(tema: String, saksbehandlerIdent: String): Boolean {
-        val url = UriComponentsBuilder.fromUri(url)
-            .path("/api/tilgang/tema").queryParam("navIdent", saksbehandlerIdent).build()
+    fun sjekkTilgangTema(
+        tema: String,
+        saksbehandlerIdent: String,
+    ): Boolean {
+        val url =
+            UriComponentsBuilder.fromUri(url)
+                .path("/api/tilgang/tema").queryParam("navIdent", saksbehandlerIdent).build()
         return try {
             postForEntity(url.toUri(), tema) ?: false
         } catch (e: HttpStatusCodeException) {

@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 internal class StringUtilsTest {
-
     @Test
     fun shouldRemoveNonNumericCharacters() {
         assertThat("asda123asda".numericOnly()).isEqualTo("123")

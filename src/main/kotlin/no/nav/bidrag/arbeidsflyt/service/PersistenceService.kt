@@ -19,9 +19,8 @@ import org.springframework.stereotype.Service
 class PersistenceService(
     private val oppgaveRepository: OppgaveRepository,
     private val dlqKafkaRepository: DLQKafkaRepository,
-    private val journalpostRepository: JournalpostRepository
+    private val journalpostRepository: JournalpostRepository,
 ) {
-
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(PersistenceService::class.java)
@@ -40,7 +39,9 @@ class PersistenceService(
         val journalpostId = journalpostHendelse.journalpostId
         if (!journalpostHendelse.erMottattStatus || journalpostHendelse.erEksterntFagomrade) {
             deleteJournalpost(journalpostId)
-            LOGGER.info("Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.status}, fagomrade=${journalpostHendelse.hentTema()})")
+            LOGGER.info(
+                "Slettet journalpost $journalpostId fra hendelse fra databasen fordi status ikke lenger er MOTTATT eller er endret til ekstern fagområde (status=${journalpostHendelse.status}, fagomrade=${journalpostHendelse.hentTema()})",
+            )
         } else {
             saveOrUpdateMottattJournalpost(journalpostId, journalpostHendelse)
             LOGGER.info("Lagret journalpost $journalpostId i databasen")
@@ -48,15 +49,20 @@ class PersistenceService(
     }
 
     @Transactional
-    fun lagreDLQKafka(topic: String, key: String?, payload: String, retry: Boolean = true) {
+    fun lagreDLQKafka(
+        topic: String,
+        key: String?,
+        payload: String,
+        retry: Boolean = true,
+    ) {
         try {
             dlqKafkaRepository.save(
                 DLQKafka(
                     messageKey = key ?: "UKJENT",
                     topicName = topic,
                     payload = payload,
-                    retry = retry
-                )
+                    retry = retry,
+                ),
             )
         } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved lagring av feilet kafka melding", e)
@@ -66,15 +72,18 @@ class PersistenceService(
     @Transactional
     fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveData) {
         if (!oppgaveHendelse.erJournalforingOppgave) {
-            LOGGER.debug("Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave")
+            LOGGER.debug(
+                "Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave",
+            )
             return
         }
-        val oppgave = Oppgave(
-            oppgaveId = oppgaveHendelse.id,
-            oppgavetype = oppgaveHendelse.oppgavetype!!,
-            status = oppgaveHendelse.status?.name!!,
-            journalpostId = oppgaveHendelse.journalpostId
-        )
+        val oppgave =
+            Oppgave(
+                oppgaveId = oppgaveHendelse.id,
+                oppgavetype = oppgaveHendelse.oppgavetype!!,
+                status = oppgaveHendelse.status?.name!!,
+                journalpostId = oppgaveHendelse.journalpostId,
+            )
         oppgaveRepository.save(oppgave)
         LOGGER.info("Lagret oppgave med id ${oppgaveHendelse.id} i databasen.")
     }
@@ -117,14 +126,17 @@ class PersistenceService(
         }
     }
 
-    fun saveOrUpdateMottattJournalpost(journalpostId: String, journalpostHendelse: JournalpostHendelse) {
+    fun saveOrUpdateMottattJournalpost(
+        journalpostId: String,
+        journalpostHendelse: JournalpostHendelse,
+    ) {
         journalpostRepository.findByJournalpostId(journalpostId)?.run {
             journalpostRepository.save(
                 copy(
                     status = journalpostHendelse.status?.name ?: this.status,
                     enhet = journalpostHendelse.enhet ?: this.enhet,
-                    tema = journalpostHendelse.hentTema() ?: this.tema
-                )
+                    tema = journalpostHendelse.hentTema() ?: this.tema,
+                ),
             )
         } ?: run {
             journalpostRepository.save(
@@ -132,8 +144,8 @@ class PersistenceService(
                     journalpostId = journalpostId,
                     status = journalpostHendelse.status?.name ?: "UKJENT",
                     tema = journalpostHendelse.hentTema() ?: "BID",
-                    enhet = journalpostHendelse.enhet ?: "UKJENT"
-                )
+                    enhet = journalpostHendelse.enhet ?: "UKJENT",
+                ),
             )
         }
     }

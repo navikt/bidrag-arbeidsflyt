@@ -22,15 +22,15 @@ import java.util.Collections
 @DisplayName("OppgaveEndretHendelseListenerTest")
 @EmbeddedKafka(partitions = 1, topics = ["topic_journalpost", "oppgave-hendelse"], bootstrapServersProperty = "KAFKA_BROKERS")
 abstract class AbstractKafkaHendelseTest : AbstractBehandleHendelseTest() {
-
     @Autowired
     lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker
 
     fun configureConsumer(topic: String): Consumer<Int, String>? {
         val consumerProps = KafkaTestUtils.consumerProps("testGroup", "true", embeddedKafkaBroker)
         consumerProps[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-        val consumer: Consumer<Int, String> = DefaultKafkaConsumerFactory<Int, String>(consumerProps)
-            .createConsumer()
+        val consumer: Consumer<Int, String> =
+            DefaultKafkaConsumerFactory<Int, String>(consumerProps)
+                .createConsumer()
         consumer.subscribe(Collections.singleton(topic))
         return consumer
     }

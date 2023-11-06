@@ -14,18 +14,14 @@ data class Journalpost(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     val id: Int = 0,
-
     @Column(name = "journalpost_id")
     val journalpostId: String,
-
     @Column(name = "status")
     val status: String,
-
     @Column(name = "enhet")
     val enhet: String,
-
     @Column(name = "tema")
-    val tema: String
+    val tema: String,
 ) {
     internal val erStatusMottatt get() = status == "M" || status == JournalpostStatus.MOTTATT.name
     internal val erBidragFagomrade get() = tema == Fagomrade.BIDRAG || tema == Fagomrade.FARSKAP

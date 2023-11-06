@@ -12,7 +12,6 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpStatusCodeException
 
 open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTemplate) {
-
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BidragDokumentConsumer::class.java)
@@ -21,16 +20,17 @@ open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTempla
     @Retryable(
         value = [HentJournalpostFeiletTekniskException::class],
         maxAttempts = 10,
-        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
+        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
     )
     open fun hentJournalpost(journalpostId: String): JournalpostResponse? {
         try {
-            val response = restTemplate.exchange(
-                "/journal/$journalpostId",
-                HttpMethod.GET,
-                null,
-                JournalpostResponse::class.java
-            )
+            val response =
+                restTemplate.exchange(
+                    "/journal/$journalpostId",
+                    HttpMethod.GET,
+                    null,
+                    JournalpostResponse::class.java,
+                )
             if (response.statusCode == HttpStatus.NO_CONTENT) {
                 return null
             }

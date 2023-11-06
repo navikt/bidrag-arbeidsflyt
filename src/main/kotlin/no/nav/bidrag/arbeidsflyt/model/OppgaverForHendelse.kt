@@ -5,17 +5,18 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 
 data class OppgaverForHendelse(val dataForHendelse: List<OppgaveData>) {
-
     fun erEndringAvTildeltEnhetsnummer(journalpostHendelse: JournalpostHendelse): Boolean {
-        return journalpostHendelse.harEnhet() && dataForHendelse.stream()
-            .filter { journalpostHendelse.enhet != it.tildeltEnhetsnr }
-            .findAny().isPresent
+        return journalpostHendelse.harEnhet() &&
+            dataForHendelse.stream()
+                .filter { journalpostHendelse.enhet != it.tildeltEnhetsnr }
+                .findAny().isPresent
     }
 
     fun erEndringAvAktoerId(journalpostHendelse: JournalpostHendelse): Boolean {
-        return journalpostHendelse.harAktorId() && dataForHendelse.stream()
-            .filter { journalpostHendelse.aktorId != it.aktoerId }
-            .findAny().isPresent
+        return journalpostHendelse.harAktorId() &&
+            dataForHendelse.stream()
+                .filter { journalpostHendelse.aktorId != it.aktoerId }
+                .findAny().isPresent
     }
 
     fun harIkkeJournalforingsoppgave(): Boolean {
@@ -25,8 +26,11 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveData>) {
     fun erJournalforingsoppgaverTildeltSaksbehandler(): Boolean {
         return hentJournalforingsOppgaver().any { !it.tilordnetRessurs.isNullOrEmpty() }
     }
-    fun harJournalforingsoppgaver() = dataForHendelse.isNotEmpty() && dataForHendelse
-        .stream().anyMatch { it.oppgavetype == JOURNALFORINGSOPPGAVE }
+
+    fun harJournalforingsoppgaver() =
+        dataForHendelse.isNotEmpty() &&
+            dataForHendelse
+                .stream().anyMatch { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 
     fun hentJournalforingsOppgaver() = dataForHendelse.filter { it.oppgavetype == JOURNALFORINGSOPPGAVE }
 
@@ -37,7 +41,10 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveData>) {
             .filter { it.beskrivelse != null && !it.beskrivelse.contains(journalpostIdUtenPrefix) }
     }
 
-    fun harBehandleDokumentOppgaveForSaker(journalpostId: String, saker: List<String>): Boolean {
+    fun harBehandleDokumentOppgaveForSaker(
+        journalpostId: String,
+        saker: List<String>,
+    ): Boolean {
         val sakerSomSkalEndres = hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostId)
 
         val sakerSomSkalOpprettesNyBehandleDokumentOppgave = hentSakerSomKreverNyBehandleDokumentOppgave(saker)
@@ -45,7 +52,10 @@ data class OppgaverForHendelse(val dataForHendelse: List<OppgaveData>) {
         return sakerSomSkalEndres.isEmpty() && sakerSomSkalOpprettesNyBehandleDokumentOppgave.isEmpty()
     }
 
-    fun skalOppdatereEllerOppretteBehandleDokumentOppgaver(journalpostId: String, saker: List<String>): Boolean {
+    fun skalOppdatereEllerOppretteBehandleDokumentOppgaver(
+        journalpostId: String,
+        saker: List<String>,
+    ): Boolean {
         return !harBehandleDokumentOppgaveForSaker(journalpostId, saker)
     }
 

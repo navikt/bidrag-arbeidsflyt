@@ -10,13 +10,24 @@ class KafkaRetryListener : RetryListener {
         private val LOGGER = LoggerFactory.getLogger(KafkaRetryListener::class.java)
     }
 
-    override fun failedDelivery(record: ConsumerRecord<*, *>, exception: Exception, deliveryAttempt: Int) {
+    override fun failedDelivery(
+        record: ConsumerRecord<*, *>,
+        exception: Exception,
+        deliveryAttempt: Int,
+    ) {
         LOGGER.warn("Håndtering av kafka melding ${record.value()} feilet. Dette er $deliveryAttempt. forsøk", exception)
     }
 
-    override fun recovered(record: ConsumerRecord<*, *>, exception: java.lang.Exception) {
+    override fun recovered(
+        record: ConsumerRecord<*, *>,
+        exception: java.lang.Exception,
+    ) {
         LOGGER.warn("Håndtering av kafka melding ${record.value()} er enten suksess eller ignorert pågrunn av ugyldig data", exception)
     }
 
-    override fun recoveryFailed(record: ConsumerRecord<*, *>, original: java.lang.Exception, failure: java.lang.Exception) {}
+    override fun recoveryFailed(
+        record: ConsumerRecord<*, *>,
+        original: java.lang.Exception,
+        failure: java.lang.Exception,
+    ) {}
 }

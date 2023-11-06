@@ -28,7 +28,6 @@ fun formatterDatoForOppgave(date: LocalDate): String {
 }
 
 data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilder()) {
-
     fun brukBehandlingSomOppgaveType(): OppgaveSokRequest {
         return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
     }
@@ -71,12 +70,16 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
     }
 
     private fun harJournalpostIdPrefiks(journalpostId: String) = journalpostId.contains("-")
+
     private fun hentJournalpostIdUtenPrefiks(journalpostId: String) =
         if (harJournalpostIdPrefiks(journalpostId)) journalpostId.split('-')[1] else journalpostId
 
     private fun hentPrefiks(journalpostId: String) = journalpostId.split('-')[0]
 
-    private fun leggTilParameter(navn: String?, verdi: Any?): OppgaveSokRequest {
+    private fun leggTilParameter(
+        navn: String?,
+        verdi: Any?,
+    ): OppgaveSokRequest {
         if (parametre.isEmpty()) {
             parametre.append('?')
         } else {
@@ -126,28 +129,46 @@ data class OppgaveData(
     val endretTidspunkt: String? = null,
     val prioritet: String? = null,
     val status: OppgaveStatus? = null,
-    val metadata: Map<String, String>? = null
+    val metadata: Map<String, String>? = null,
 ) {
-
     override fun toString() =
         "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
+
     fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
+
     fun erAapenVurderDokumentOppgave(): Boolean = erStatusKategoriAapen && erVurderDokumentOppgave
+
     fun erReturoppgave(): Boolean = erStatusKategoriAapen && erReturOppgave
-    private val erStatusKategoriAapen get() = listOf(OppgaveStatus.AAPNET, OppgaveStatus.OPPRETTET, OppgaveStatus.UNDER_BEHANDLING).contains(status)
+
+    private val erStatusKategoriAapen get() =
+        listOf(
+            OppgaveStatus.AAPNET,
+            OppgaveStatus.OPPRETTET,
+            OppgaveStatus.UNDER_BEHANDLING,
+        ).contains(status)
     val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
     private val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
     private val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
     internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
+
     private fun harJournalpostIdPrefix() = hasJournalpostId && journalpostId!!.contains("-")
+
     fun erAvsluttetJournalforingsoppgave(): Boolean = erStatusKategoriAvsluttet && erJournalforingOppgave
+
     internal val erStatusKategoriAvsluttet get() = listOf(OppgaveStatus.FERDIGSTILT, OppgaveStatus.FEILREGISTRERT).contains(status)
     val tilhorerFagpost get() = tildeltEnhetsnr == ENHET_FAGPOST
     internal val hentIdent get() = aktoerId
 
-    internal val journalpostIdMedPrefix get() = if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) journalpostId else if (isBidJournalpostId(journalpostId)) "BID-$journalpostId" else "JOARK-$journalpostId"
+    internal val journalpostIdMedPrefix get() =
+        if (journalpostId.isNullOrEmpty() || harJournalpostIdPrefix()) {
+            journalpostId
+        } else if (isBidJournalpostId(journalpostId)) {
+            "BID-$journalpostId"
+        } else {
+            "JOARK-$journalpostId"
+        }
 }
 
 @Suppress("unused") // used by jackson...
@@ -164,7 +185,7 @@ sealed class OpprettOppgaveRequest(
     open val journalpostId: String? = null,
     open val tilordnetRessurs: String? = null,
     open val aktoerId: String? = null,
-    var bnr: String? = null
+    var bnr: String? = null,
 ) {
     fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
@@ -200,17 +221,17 @@ data class OpprettBehandleDokumentOppgaveRequest(
     private var tittel: String,
     private var dokumentDato: LocalDate?,
     private var saksbehandlersInfo: String,
-    private var sporingsdata: no.nav.bidrag.transport.dokument.Sporingsdata
+    private var sporingsdata: no.nav.bidrag.transport.dokument.Sporingsdata,
 ) : OpprettOppgaveRequest(
-    beskrivelse =
-    lagBeskrivelseHeader(saksbehandlersInfo) +
-        "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
-        "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
-    oppgavetype = OppgaveType.BEH_SAK,
-    opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
-    tildeltEnhetsnr = sporingsdata.enhetsnummer,
-    tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident
-) {
+        beskrivelse =
+            lagBeskrivelseHeader(saksbehandlersInfo) +
+                "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
+                "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
+        oppgavetype = OppgaveType.BEH_SAK,
+        opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
+        tildeltEnhetsnr = sporingsdata.enhetsnummer,
+        tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident,
+    ) {
     override fun toString(): String {
         return super.toString()
     }
@@ -219,7 +240,7 @@ data class OpprettBehandleDokumentOppgaveRequest(
 @Suppress("unused") // used by jackson...
 data class OpprettJournalforingsOppgaveRequest(override var journalpostId: String, override var aktoerId: String?) : OpprettOppgaveRequest(
     beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
-    oppgavetype = OppgaveType.JFR
+    oppgavetype = OppgaveType.JFR,
 ) {
     constructor(oppgaveHendelse: OppgaveData, tildeltEnhetsnr: String) : this(oppgaveHendelse.journalpostId!!, oppgaveHendelse.aktoerId) {
         this.bnr = oppgaveHendelse.bnr
@@ -231,7 +252,7 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
 
     constructor(journalpostHendelse: JournalpostHendelse, tildeltEnhetsnr: String) : this(
         journalpostHendelse.journalpostMedBareBIDPrefix,
-        journalpostHendelse.aktorId
+        journalpostHendelse.aktorId,
     ) {
         this.tema = "BID" // Kan ikke opprette JFR med tema FAR
         this.tildeltEnhetsnr = tildeltEnhetsnr
@@ -245,7 +266,7 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
 
     constructor(journalpostId: String, aktoerId: String? = null, tema: String = "BID", tildeltEnhetsnr: String = "4833") : this(
         journalpostId,
-        aktoerId
+        aktoerId,
     ) {
         this.aktoerId = aktoerId
         this.tema = tema
@@ -272,10 +293,10 @@ open class PatchOppgaveRequest(
     open var tema: String? = null,
     open var tildeltEnhetsnr: String? = null,
     open var tilordnetRessurs: String? = null,
-    open var beskrivelse: String? = null
+    open var beskrivelse: String? = null,
 ) {
-
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/$id".replace("//", "/")
+
     open fun somHttpEntity(): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -304,11 +325,13 @@ open class PatchOppgaveRequest(
             .toString()
     }
 
-    private fun fieldToString(fieldName: String, value: String?) = if (value != null) ",$fieldName=$value" else ""
+    private fun fieldToString(
+        fieldName: String,
+        value: String?,
+    ) = if (value != null) ",$fieldName=$value" else ""
 }
 
 class OppdaterOppgave() : PatchOppgaveRequest() {
-
     private var _hasChanged: Boolean = false
     private var saksbehandlerInfo: String = "Automatisk jobb"
     private var oppgaveDataForHendelse: OppgaveData? = null
@@ -348,9 +371,9 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret) {
             nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
-            OppgaveType.descriptionFrom(
-                oppgavetype
-            )
+                OppgaveType.descriptionFrom(
+                    oppgavetype,
+                )
             }\r\n"
         }
 
@@ -390,7 +413,6 @@ class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgave
 }
 
 class EndreForNyttDokumentRequest() : PatchOppgaveRequest() {
-
     constructor(oppgaveDataForHendelse: OppgaveData, journalpostHendelse: JournalpostHendelse) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         this.beskrivelse = "--- ${LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)} ${journalpostHendelse.hentSaksbehandlerInfo()} ---\r\n" +
@@ -406,14 +428,16 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
         saksbehandlersInfo: String,
         fagomradeGammelt: String? = null,
         fagomradeNy: String,
-        overførTilFellesbenk: Boolean = false
+        overførTilFellesbenk: Boolean = false,
     ) : this() {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n"
         if (fagomradeGammelt.isNullOrEmpty()) {
             this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)}"}\r\n\r\n"
-        } else if (fagomradeGammelt != fagomradeNy) this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
+        } else if (fagomradeGammelt != fagomradeNy) {
+            this.beskrivelse += "${"Fagområde endret til ${tilFagområdeBeskrivelse(fagomradeNy)} fra ${tilFagområdeBeskrivelse(fagomradeGammelt)}"}\r\n\r\n"
+        }
         if (overførTilFellesbenk && !oppgaveDataForHendelse.tilordnetRessurs.isNullOrEmpty()) {
             this.tilordnetRessurs = ""
             this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
@@ -449,7 +473,7 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
         oppgaveDataForHendelse: OppgaveData,
         tema: String?,
         tildeltEnhetsnr: String?,
-        saksbehandlersInfo: String
+        saksbehandlersInfo: String,
     ) : this(tema = tema, tildeltEnhetsnr = tildeltEnhetsnr) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
@@ -463,21 +487,20 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
 }
 
 class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequest() {
-
     constructor(oppgaveDataForHendelse: OppgaveData) : this(status = "FERDIGSTILT") {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
 
 enum class Prioritet {
-    HOY // , NORM, LAV
+    HOY, // , NORM, LAV
 }
 
 enum class OppgaveIdentType {
     AKTOERID,
     ORGNR,
     SAMHANDLERNR,
-    BNR
+    BNR,
 }
 
 enum class OppgaveStatus {
@@ -485,11 +508,12 @@ enum class OppgaveStatus {
     AAPNET,
     OPPRETTET,
     FEILREGISTRERT,
-    UNDER_BEHANDLING
+    UNDER_BEHANDLING,
 }
 
 enum class Oppgavestatuskategori {
-    AAPEN, AVSLUTTET
+    AAPEN,
+    AVSLUTTET,
 }
 
 enum class OppgaveType(val description: String) {
@@ -497,7 +521,8 @@ enum class OppgaveType(val description: String) {
     VUR("Vurder dokument"),
     JFR("Journalføring"),
     RETUR("Retur"),
-    VURD_HENV("Vurder henvendelse");
+    VURD_HENV("Vurder henvendelse"),
+    ;
 
     companion object {
         fun descriptionFrom(value: String?): String {
@@ -506,15 +531,20 @@ enum class OppgaveType(val description: String) {
     }
 }
 
-internal fun lagDokumentOppgaveTittel(oppgaveNavn: String, dokumentbeskrivelse: String, dokumentdato: LocalDate) =
-    "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"
+internal fun lagDokumentOppgaveTittel(
+    oppgaveNavn: String,
+    dokumentbeskrivelse: String,
+    dokumentdato: LocalDate,
+) = "$oppgaveNavn ($dokumentbeskrivelse) mottatt ${dokumentdato.format(NORSK_DATO_FORMAT)}"
 
-internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) =
-    "Dokumenter vedlagt: $journalpostId"
+internal fun lagDokumenterVedlagtBeskrivelse(journalpostId: String) = "Dokumenter vedlagt: $journalpostId"
 
 internal fun lagBeskrivelseHeader(saksbehandlersInfo: String): String {
     val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
     return "--- $dateFormatted $saksbehandlersInfo ---\r\n"
 }
 
-private fun fieldToString(fieldName: String, value: String?) = if (value != null) "$fieldName=$value, " else ""
+private fun fieldToString(
+    fieldName: String,
+    value: String?,
+) = if (value != null) "$fieldName=$value, " else ""

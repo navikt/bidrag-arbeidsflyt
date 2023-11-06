@@ -25,10 +25,14 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    internal fun finnBehandlingsoppgaverForSaker(saker: List<String>, tema: String? = null): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest()
-            .brukBehandlingSomOppgaveType()
-            .leggTilSaksreferanser(saker)
+    internal fun finnBehandlingsoppgaverForSaker(
+        saker: List<String>,
+        tema: String? = null,
+    ): OppgaverForHendelse {
+        val oppgaveSokRequest =
+            OppgaveSokRequest()
+                .brukBehandlingSomOppgaveType()
+                .leggTilSaksreferanser(saker)
 
         if (tema != null) {
             oppgaveSokRequest.leggTilFagomrade(tema)
@@ -38,11 +42,12 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
     }
 
     internal fun finnAapneJournalforingOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
-        val oppgaveSokRequest = OppgaveSokRequest()
-            .leggTilJournalpostId(journalpostId)
+        val oppgaveSokRequest =
+            OppgaveSokRequest()
+                .leggTilJournalpostId(journalpostId)
 
         return OppgaverForHendelse(
-            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver
+            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver,
         )
     }
 
@@ -50,52 +55,91 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         return oppgaveConsumer.hentOppgave(oppgaveId)
     }
 
-    internal fun oppdaterOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
+    internal fun oppdaterOppgaver(
+        oppgaverForHendelse: OppgaverForHendelse,
+        journalpostHendelse: JournalpostHendelse,
+    ) {
         oppgaverForHendelse.dataForHendelse.forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = OppdaterOppgaveRequest(it, journalpostHendelse.aktorId)
+                patchOppgaveRequest = OppdaterOppgaveRequest(it, journalpostHendelse.aktorId),
             )
         }
     }
 
-    internal fun oppdaterOppgave(oppdaterOppgave: OppdaterOppgave, endretAvEnhetsnummer: String? = null) {
+    internal fun oppdaterOppgave(
+        oppdaterOppgave: OppdaterOppgave,
+        endretAvEnhetsnummer: String? = null,
+    ) {
         oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
     }
 
-    internal fun overforOppgaver(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse) {
+    internal fun overforOppgaver(
+        oppgaverForHendelse: OppgaverForHendelse,
+        journalpostHendelse: JournalpostHendelse,
+    ) {
         oppgaverForHendelse.dataForHendelse.forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = OverforOppgaveRequest(it, journalpostHendelse.enhet ?: "na", journalpostHendelse.hentSaksbehandlerInfo())
+                patchOppgaveRequest =
+                    OverforOppgaveRequest(
+                        it,
+                        journalpostHendelse.enhet ?: "na",
+                        journalpostHendelse.hentSaksbehandlerInfo(),
+                    ),
             )
         }
     }
 
-    internal fun endreMellomBidragFagomrade(oppgaverForHendelse: OppgaverForHendelse, journalpostHendelse: JournalpostHendelse, fagomradeGammelt: String? = null, fagomradeNy: String, saksbehandlerHarTilgang: Boolean) {
+    internal fun endreMellomBidragFagomrade(
+        oppgaverForHendelse: OppgaverForHendelse,
+        journalpostHendelse: JournalpostHendelse,
+        fagomradeGammelt: String? = null,
+        fagomradeNy: String,
+        saksbehandlerHarTilgang: Boolean,
+    ) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
-                patchOppgaveRequest = EndreMellomBidragFagomrader(it, journalpostHendelse.hentSaksbehandlerInfo(), fagomradeGammelt, fagomradeNy, overførTilFellesbenk = !saksbehandlerHarTilgang)
+                patchOppgaveRequest =
+                    EndreMellomBidragFagomrader(
+                        it,
+                        journalpostHendelse.hentSaksbehandlerInfo(),
+                        fagomradeGammelt,
+                        fagomradeNy,
+                        overførTilFellesbenk = !saksbehandlerHarTilgang,
+                    ),
             )
         }
     }
 
-    internal fun ferdigstillJournalforingsOppgaver(endretAvEnhetsnummer: String?, oppgaverForHendelse: OppgaverForHendelse) {
+    internal fun ferdigstillJournalforingsOppgaver(
+        endretAvEnhetsnummer: String?,
+        oppgaverForHendelse: OppgaverForHendelse,
+    ) {
         oppgaverForHendelse.hentJournalforingsOppgaver().forEach {
             LOGGER.info("Ferdigstiller oppgave med type ${it.oppgavetype} og journalpostId ${it.journalpostId}")
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = endretAvEnhetsnummer,
-                patchOppgaveRequest = FerdigstillOppgaveRequest(it)
+                patchOppgaveRequest = FerdigstillOppgaveRequest(it),
             )
         }
     }
 
-    internal fun opprettEllerEndreBehandleDokumentOppgaver(journalpostHendelse: JournalpostHendelse, behandlingsOppgaver: OppgaverForHendelse) {
-        val oppgaverSomSkalEndres = behandlingsOppgaver.hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(journalpostHendelse.journalpostIdUtenPrefix)
+    internal fun opprettEllerEndreBehandleDokumentOppgaver(
+        journalpostHendelse: JournalpostHendelse,
+        behandlingsOppgaver: OppgaverForHendelse,
+    ) {
+        val oppgaverSomSkalEndres =
+            behandlingsOppgaver.hentBehandleDokumentOppgaverSomSkalOppdateresForNyttDokument(
+                journalpostHendelse.journalpostIdUtenPrefix,
+            )
         endreForNyttDokument(journalpostHendelse, oppgaverSomSkalEndres)
 
-        val sakerSomKreverNyBehandleDokumentOppgave = behandlingsOppgaver.hentSakerSomKreverNyBehandleDokumentOppgave(journalpostHendelse.sakstilknytninger ?: emptyList())
+        val sakerSomKreverNyBehandleDokumentOppgave =
+            behandlingsOppgaver.hentSakerSomKreverNyBehandleDokumentOppgave(
+                journalpostHendelse.sakstilknytninger ?: emptyList(),
+            )
         opprettBehandleDokumentOppgaveForSaker(journalpostHendelse, sakerSomKreverNyBehandleDokumentOppgave)
     }
 
@@ -103,7 +147,10 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         oppgaveConsumer.opprettOppgave(opprettBehandleDokumentOppgaveRequest)
     }
 
-    internal fun opprettBehandleDokumentOppgaveForSaker(journalpostHendelse: JournalpostHendelse, saker: List<String>) {
+    internal fun opprettBehandleDokumentOppgaveForSaker(
+        journalpostHendelse: JournalpostHendelse,
+        saker: List<String>,
+    ) {
         LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: ${saker.size} for saker $saker")
         saker.forEach {
             LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
@@ -115,12 +162,16 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
                     tittel = journalpostHendelse.tittel!!,
                     dokumentDato = journalpostHendelse.dokumentDato,
                     sporingsdata = journalpostHendelse.sporing!!,
-                    saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo()
-                )
+                    saksbehandlersInfo = journalpostHendelse.hentSaksbehandlerInfo(),
+                ),
             )
         }
     }
-    internal fun endreForNyttDokument(journalpostHendelse: JournalpostHendelse, oppgaver: List<OppgaveData>) {
+
+    internal fun endreForNyttDokument(
+        journalpostHendelse: JournalpostHendelse,
+        oppgaver: List<OppgaveData>,
+    ) {
         LOGGER.info("Antall behandle dokument oppgaver som skal oppdateres: {}", oppgaver.size)
 
         for (oppgaveData in oppgaver) {
@@ -130,7 +181,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
             SECURE_LOGGER.info(
                 "Endret beskrivelse for oppgave {} med beskrivelse: {}",
                 oppgaveData.id,
-                request.beskrivelse
+                request.beskrivelse,
             )
         }
     }

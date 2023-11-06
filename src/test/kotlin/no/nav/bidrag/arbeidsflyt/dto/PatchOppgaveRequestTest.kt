@@ -6,10 +6,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 internal class PatchOppgaveRequestTest {
-
     @Test
     fun `skal serialisere UpdateOppgaveAfterOpprettRequest`() {
-        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+        val opprinneligOppgave =
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
 
         val updateOppgaveAfterOpprettRequest = UpdateOppgaveAfterOpprettRequest(opprinneligOppgave, "JOARK-test")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(updateOppgaveAfterOpprettRequest)
@@ -20,31 +20,35 @@ internal class PatchOppgaveRequestTest {
 
     @Test
     fun `skal serialisere FerdigstillOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+        val opprinneligOppgave =
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
 
         val ferdigstillOppgaveRequest = FerdigstillOppgaveRequest(opprinneligOppgave)
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(ferdigstillOppgaveRequest)
 
-        val expectedValue = "{" +
-            "\"status\":\"FERDIGSTILT\"," +
-            "\"id\":1," +
-            "\"versjon\":2" +
-            "}"
+        val expectedValue =
+            "{" +
+                "\"status\":\"FERDIGSTILT\"," +
+                "\"id\":1," +
+                "\"versjon\":2" +
+                "}"
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
     }
 
     @Test
     fun `skal serialisere OverforOppgaveRequest`() {
-        val opprinneligOppgave = OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
+        val opprinneligOppgave =
+            OppgaveData(status = OppgaveStatus.AAPNET, tema = Fagomrade.BIDRAG, tildeltEnhetsnr = "007", versjon = 2, id = 1)
 
         val overforOppgaveRequest = OverforOppgaveRequest(opprinneligOppgave, "4812", "Z999999")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(overforOppgaveRequest)
-        val expectedValue = "" +
-            "{\"tildeltEnhetsnr\":\"4812\"," +
-            "\"id\":1," +
-            "\"versjon\":2," +
-            "\"tilordnetRessurs\":\"\""
+        val expectedValue =
+            "" +
+                "{\"tildeltEnhetsnr\":\"4812\"," +
+                "\"id\":1," +
+                "\"versjon\":2," +
+                "\"tilordnetRessurs\":\"\""
 
         assertThat(stringValue).`as`("Expected json string value").contains(expectedValue)
         assertThat(stringValue).`as`("Expected json string value").contains("Oppgave overført fra enhet 007 til 4812")

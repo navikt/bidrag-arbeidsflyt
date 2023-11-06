@@ -7,7 +7,13 @@ object Fagomrade {
 }
 
 fun tilFagområdeBeskrivelse(fagomrade: String): String {
-    return if (fagomrade == Fagomrade.FARSKAP) "Farskap" else if (fagomrade == Fagomrade.BIDRAG) "Bidrag" else fagomrade
+    return if (fagomrade == Fagomrade.FARSKAP) {
+        "Farskap"
+    } else if (fagomrade == Fagomrade.BIDRAG) {
+        "Bidrag"
+    } else {
+        fagomrade
+    }
 }
 
 // misc const
