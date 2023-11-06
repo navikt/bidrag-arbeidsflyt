@@ -5,5 +5,6 @@ import org.springframework.data.repository.CrudRepository
 
 interface OppgaveRepository : CrudRepository<Oppgave, Long> {
     fun deleteByOppgaveId(oppgaveId: Long)
+
     fun findByOppgaveId(oppgaveId: Long): Oppgave?
 }

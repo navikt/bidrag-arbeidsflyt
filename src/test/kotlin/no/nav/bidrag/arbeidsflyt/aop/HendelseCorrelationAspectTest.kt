@@ -24,34 +24,37 @@ import org.springframework.test.context.ActiveProfiles
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles(PROFILE_TEST)
 internal class HendelseCorrelationAspectTest {
-
     @Autowired
     private lateinit var journalpostHendelseListener: JournalpostHendelseListener
 
     @Test
     fun `skal spore CorrelationId fra JournalpostHendelse`() {
-        val oppgaveSokResponse = """{
-            "antallTreffTotalt": 0,
-            "oppgaver": []
-        }
-        """.trimIndent()
+        val oppgaveSokResponse =
+            """
+            {
+                "antallTreffTotalt": 0,
+                "oppgaver": []
+            }
+            """.trimIndent()
 
         stubFor(
             get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
                 aResponse()
                     .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                     .withStatus(HttpStatus.OK.value())
-                    .withBody(oppgaveSokResponse)
-            )
+                    .withBody(oppgaveSokResponse),
+            ),
         )
 
-        val hendelse = """{
-          "journalpostId":"BID-101",
-          "sporing": {
-            "correlationId":"test.av.correlation.id"
-          }
-        }
-        """.trimIndent()
+        val hendelse =
+            """
+            {
+              "journalpostId":"BID-101",
+              "sporing": {
+                "correlationId":"test.av.correlation.id"
+              }
+            }
+            """.trimIndent()
 
         journalpostHendelseListener.prosesserHendelse(hendelse)
 

@@ -16,7 +16,6 @@ import java.time.LocalDateTime
 
 @DisplayName("OppdaterOppgaver")
 internal class OppdaterOppgaveTest {
-
     val localDateTimeMock = mockStatic(LocalDateTime::class.java, Mockito.CALLS_REAL_METHODS)
 
     @BeforeEach
@@ -44,7 +43,7 @@ internal class OppdaterOppgaveTest {
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
                 "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n" +
                 "· Saksbehandler endret fra $tilordnetRessurs til ikke valgt\r\n" +
-                "\r\n\r\n$existingBeskrivelse"
+                "\r\n\r\n$existingBeskrivelse",
         )
     }
 
@@ -60,7 +59,7 @@ internal class OppdaterOppgaveTest {
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
                 "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n" +
-                "\r\n\r\n$existingBeskrivelse"
+                "\r\n\r\n$existingBeskrivelse",
         )
     }
 
@@ -74,7 +73,7 @@ internal class OppdaterOppgaveTest {
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
-                "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n\r\n\r\n"
+                "· Oppgavetype endret fra Journalføring til Vurder dokument\r\n\r\n\r\n",
         )
     }
 
@@ -82,7 +81,8 @@ internal class OppdaterOppgaveTest {
     fun `skal legge til beskrivelse for endret enhet`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val hendelse =
+            createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.overforTilEnhet("4806")
@@ -92,7 +92,7 @@ internal class OppdaterOppgaveTest {
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
                 "· Oppgave overført fra enhet 4888 til 4806\r\n" +
                 "· Saksbehandler endret fra $tilordnetRessurs til ikke valgt\r\n" +
-                "\r\n\r\n$existingBeskrivelse"
+                "\r\n\r\n$existingBeskrivelse",
         )
     }
 
@@ -100,7 +100,8 @@ internal class OppdaterOppgaveTest {
     fun `skal ikke legge til beskrivelse hvis ikke endret`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val hendelse =
+            createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         oppdaterOppgave.somHttpEntity()
@@ -112,7 +113,8 @@ internal class OppdaterOppgaveTest {
     fun `skal mappe til json`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
+        val hendelse =
+            createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
         assertThat(ObjectMapper().writeValueAsString(oppdaterOppgave)).isEqualTo("{\"id\":1,\"versjon\":1,\"endretAvEnhetsnr\":\"9999\"}")
@@ -122,7 +124,14 @@ internal class OppdaterOppgaveTest {
     fun `skal mappe til json med endring`() {
         val existingBeskrivelse = "En beskrivelse fra før"
         val tilordnetRessurs = "Z99999"
-        val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888", oppgavetype = OppgaveType.VUR.name)
+        val hendelse =
+            createOppgaveData(
+                id = 1,
+                beskrivelse = existingBeskrivelse,
+                tilordnetRessurs = tilordnetRessurs,
+                tildeltEnhetsnr = "4888",
+                oppgavetype = OppgaveType.VUR.name,
+            )
         val oppdaterOppgave = OppdaterOppgave(hendelse)
         oppdaterOppgave.endreOppgavetype(OppgaveType.JFR)
         oppdaterOppgave.somHttpEntity()
@@ -133,7 +142,7 @@ internal class OppdaterOppgaveTest {
                 "\"endretAvEnhetsnr\":\"9999\"," +
                 "\"oppgavetype\":\"JFR\"," +
                 "\"tilordnetRessurs\":\"\"," +
-                "\"beskrivelse\":\"--- 10.09.2022 01:00 Automatisk jobb ---\\r\\n· Oppgavetype endret fra Vurder dokument til Journalføring\\r\\n· Saksbehandler endret fra Z99999 til ikke valgt\\r\\n\\r\\n\\r\\nEn beskrivelse fra før\"}"
+                "\"beskrivelse\":\"--- 10.09.2022 01:00 Automatisk jobb ---\\r\\n· Oppgavetype endret fra Vurder dokument til Journalføring\\r\\n· Saksbehandler endret fra Z99999 til ikke valgt\\r\\n\\r\\n\\r\\nEn beskrivelse fra før\"}",
         )
     }
 }

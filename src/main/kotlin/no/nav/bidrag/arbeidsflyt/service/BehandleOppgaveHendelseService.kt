@@ -10,6 +10,7 @@ import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+
 private val LOGGER = KotlinLogging.logger {}
 
 @Service
@@ -19,7 +20,7 @@ class BehandleOppgaveHendelseService(
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: OrganisasjonService,
-    private val meterRegistry: MeterRegistry
+    private val meterRegistry: MeterRegistry,
 ) {
     @Transactional
     fun behandleOppgaveHendelse(oppgaveHendelse: OppgaveKafkaHendelse) {
@@ -74,9 +75,10 @@ class BehandleOppgaveHendelseService(
 
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgave: OppgaveData) {
         if (!oppgave.tilhorerFagpost && (
-            oppgave.erAvsluttetJournalforingsoppgave() || erOppgavetypeEndretFraJournalforingTilAnnet(
-                    oppgave
-                )
+                oppgave.erAvsluttetJournalforingsoppgave() ||
+                    erOppgavetypeEndretFraJournalforingTilAnnet(
+                        oppgave,
+                    )
             )
         ) {
             opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgave)
@@ -91,7 +93,9 @@ class BehandleOppgaveHendelseService(
                     LOGGER.info("Journalpost ${oppgave.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
                     opprettJournalforingOppgaveFraHendelse(oppgave)
                 }
-                ?: run { LOGGER.info("Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling.") }
+                ?: run {
+                    LOGGER.info("Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling.")
+                }
         }
     }
 
@@ -102,13 +106,14 @@ class BehandleOppgaveHendelseService(
     }
 
     fun opprettJournalforingOppgaveFraHendelse(oppgave: OppgaveData) {
-        val tildeltEnhetsnr = oppgave.tildeltEnhetsnr
-            ?: arbeidsfordelingService.hentArbeidsfordeling(oppgave.hentIdent).verdi
+        val tildeltEnhetsnr =
+            oppgave.tildeltEnhetsnr
+                ?: arbeidsfordelingService.hentArbeidsfordeling(oppgave.hentIdent).verdi
         oppgaveService.opprettJournalforingOppgave(
             OpprettJournalforingsOppgaveRequest(
                 oppgave,
-                tildeltEnhetsnr
-            )
+                tildeltEnhetsnr,
+            ),
         )
     }
 
@@ -133,40 +138,43 @@ class BehandleOppgaveHendelseService(
                 "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
                 "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
                 "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
-                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT"
+                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT",
             ).increment()
         }
     }
 
-    private fun logHendelse(oppgaveHendelse: OppgaveKafkaHendelse, oppgave: OppgaveData){
+    private fun logHendelse(
+        oppgaveHendelse: OppgaveKafkaHendelse,
+        oppgave: OppgaveData,
+    ) {
         try {
             LOGGER.info(
                 "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                        buildList {
-                            add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                            add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                            add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                            add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                            add("journalpostId ${oppgave.journalpostId}")
-                            add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
-                            add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-                        }.joinToString(", ")
+                    buildList {
+                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                        add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                        add("journalpostId ${oppgave.journalpostId}")
+                        add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
+                        add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+                    }.joinToString(", "),
             )
             SECURE_LOGGER.info(
                 "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                        buildList {
-                            add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                            add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                            add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                            add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                            add("journalpostId ${oppgave.journalpostId}")
-                            add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
-                            add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-                            add("hendelse $oppgaveHendelse")
-                        }.joinToString(", ")
+                    buildList {
+                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
+                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
+                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
+                        add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
+                        add("journalpostId ${oppgave.journalpostId}")
+                        add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
+                        add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
+                        add("hendelse $oppgaveHendelse")
+                    }.joinToString(", "),
             )
-        } catch (e: Exception){
-            LOGGER.error(e){ "Det skjedde en feil ved logging av hendelse" }
+        } catch (e: Exception) {
+            LOGGER.error(e) { "Det skjedde en feil ved logging av hendelse" }
         }
     }
 }

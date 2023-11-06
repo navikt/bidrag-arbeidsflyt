@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])
 class OppgaveHendelseListener(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
-    private val jsonMapperService: JsonMapperService
+    private val jsonMapperService: JsonMapperService,
 ) {
     @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_OPPGAVE_HENDELSE}"])
     fun lesOppgaveHendelse(consumerRecord: ConsumerRecord<String, String>) {

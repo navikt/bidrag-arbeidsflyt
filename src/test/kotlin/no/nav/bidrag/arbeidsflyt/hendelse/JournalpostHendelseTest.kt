@@ -38,7 +38,6 @@ import org.springframework.http.HttpStatus
 import java.time.LocalDate
 
 internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
-
     @Autowired
     lateinit var behandleHendelseService: BehandleHendelseService
 
@@ -56,12 +55,13 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-            .copy(
-                aktorId = null,
-                enhet = null,
-                fnr = "123213!!!??+++ 444"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+                .copy(
+                    aktorId = null,
+                    enhet = null,
+                    fnr = "123213!!!??+++ 444",
+                )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -110,16 +110,25 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentOppgaveSok(emptyList())
         stubHentPerson(PERSON_IDENT_3, aktorId = aktorid)
         stubHentGeografiskEnhet(enhet)
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
-            .copy(
-                aktorId = null,
-                enhet = null,
-                fnr = "123213"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(BID_JOURNALPOST_ID_3_NEW)
+                .copy(
+                    aktorId = null,
+                    enhet = null,
+                    fnr = "123213",
+                )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"aktoerId\":\"$aktorid\"", "\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"aktoerId\":\"$aktorid\"",
+            "\"tildeltEnhetsnr\":\"$enhet\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
         verifyHentGeografiskEnhetKalt()
         verifyHentPersonKalt()
@@ -150,7 +159,14 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$enhet\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
     }
 
@@ -165,7 +181,14 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$enhet\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
         verifyHentGeografiskEnhetKalt(0)
     }
@@ -182,7 +205,14 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$enhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$enhet\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
         verifyHentGeografiskEnhetKalt(0)
     }
@@ -200,7 +230,14 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
-        verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$arbeisfordelingEnhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+        verifyOppgaveOpprettetWith(
+            "\"tildeltEnhetsnr\":\"$arbeisfordelingEnhet\"",
+            "\"oppgavetype\":\"JFR\"",
+            "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
+            "\"opprettetAvEnhetsnr\":\"9999\"",
+            "\"prioritet\":\"HOY\"",
+            "\"tema\":\"BID\"",
+        )
         verifyOppgaveNotEndret()
         verifyHentGeografiskEnhetKalt(1)
     }
@@ -224,7 +261,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",
             "\"prioritet\":\"HOY\"",
-            "\"tema\":\"BID\""
+            "\"tema\":\"BID\"",
         )
         verifyOppgaveNotEndret()
     }
@@ -240,9 +277,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -266,9 +303,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
         stubHentPerson(PERSON_IDENT_3)
         stubHentGeografiskEnhet()
@@ -300,7 +337,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "\"journalpostId\":\"${JOURNALPOST_ID_4_NEW}\"",
             "\"opprettetAvEnhetsnr\":\"9999\"",
             "\"prioritet\":\"HOY\"",
-            "\"tema\":\"BID\""
+            "\"tema\":\"BID\"",
         )
         verifyOppgaveNotEndret()
     }
@@ -316,9 +353,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_4_NEW"
@@ -341,10 +378,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
+                    tildeltEnhetsnr = "4833",
+                ),
             ),
-            Pair("tema", "BID")
+            Pair("tema", "BID"),
         )
         stubHentOppgaveContaining(
             listOf(
@@ -355,10 +392,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "EKSTERN",
-                    tildeltEnhetsnr = "4833"
-                )
+                    tildeltEnhetsnr = "4833",
+                ),
             ),
-            Pair("tema", "EKSTERN")
+            Pair("tema", "EKSTERN"),
         )
         stubHentPerson(PERSON_IDENT_3)
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
@@ -378,11 +415,12 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentEnhet()
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = null)
-            .copy(
-                aktorId = null,
-                fnr = "123123123"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(journalpostIdMedJoarkPrefix, enhet = null)
+                .copy(
+                    aktorId = null,
+                    fnr = "123123123",
+                )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -397,11 +435,12 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentPerson(status = HttpStatus.NO_CONTENT)
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-            .copy(
-                aktorId = null,
-                fnr = "123123123"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+                .copy(
+                    aktorId = null,
+                    fnr = "123123123",
+                )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -417,11 +456,12 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentPerson(aktorId = aktorId, status = HttpStatus.INTERNAL_SERVER_ERROR)
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-            .copy(
-                aktorId = null,
-                fnr = "123123123"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+                .copy(
+                    aktorId = null,
+                    fnr = "123123123",
+                )
 
         assertThrows<HentArbeidsfordelingFeiletTekniskException> { behandleHendelseService.behandleHendelse(journalpostHendelse) }
     }
@@ -432,11 +472,12 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentPerson()
         stubHentGeografiskEnhet(enhet = "1234")
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
-        val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
-            .copy(
-                aktorId = "123213213",
-                fnr = "123123123"
-            )
+        val journalpostHendelse =
+            createJournalpostHendelse(journalpostIdMedJoarkPrefix)
+                .copy(
+                    aktorId = "123213213",
+                    fnr = "123123123",
+                )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -458,10 +499,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-12312321",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave
-                )
+                    saksreferanse = sakMedOppgave,
+                ),
             ),
-            Pair("oppgavetype", "BEH_SAK")
+            Pair("oppgavetype", "BEH_SAK"),
         )
 
         stubHentPerson()
@@ -470,18 +511,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
-            fnr = "123123123",
-            hendelseType = HendelseType.JOURNALFORING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+                fnr = "123123123",
+                hendelseType = HendelseType.JOURNALFORING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -496,7 +538,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"$SAKSBEHANDLER_ID\"",
-            "\"journalpostId\":null"
+            "\"journalpostId\":null",
         )
     }
 
@@ -515,10 +557,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave
-                )
+                    saksreferanse = sakMedOppgave,
+                ),
             ),
-            Pair("oppgavetype", "BEH_SAK")
+            Pair("oppgavetype", "BEH_SAK"),
         )
 
         stubHentPerson()
@@ -527,18 +569,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
-            fnr = "123123123",
-            hendelseType = HendelseType.JOURNALFORING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+                fnr = "123123123",
+                hendelseType = HendelseType.JOURNALFORING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -553,7 +596,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":\"$SAKSBEHANDLER_ID\"",
-            "\"journalpostId\":null"
+            "\"journalpostId\":null",
         )
     }
 
@@ -572,10 +615,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_1",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave
-                )
+                    saksreferanse = sakMedOppgave,
+                ),
             ),
-            Pair("oppgavetype", "BEH_SAK")
+            Pair("oppgavetype", "BEH_SAK"),
         )
 
         stubHentPerson()
@@ -584,19 +627,20 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen"),
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
-            fnr = "123123123",
-            hendelseType = HendelseType.JOURNALFORING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                sporing = Sporingsdata("test", enhetsnummer = "4833", brukerident = "Z9949772", saksbehandlersNavn = "Navn Navnesen"),
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakUtenOppgave),
+                fnr = "123123123",
+                hendelseType = HendelseType.JOURNALFORING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -611,7 +655,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             "Dokumenter vedlagt: BID-142312",
             "\"saksreferanse\":\"3344444\"",
             "\"tilordnetRessurs\":null",
-            "\"journalpostId\":null"
+            "\"journalpostId\":null",
         )
     }
 
@@ -628,18 +672,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
-            fnr = "123123123",
-            hendelseType = HendelseType.ENDRING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+                fnr = "123123123",
+                hendelseType = HendelseType.ENDRING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -664,7 +709,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Dokumenter vedlagt: JOARK-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave
+                    saksreferanse = sakMedOppgave,
                 ),
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -674,10 +719,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: JOARK-$JOURNALPOST_ID_2",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave2
-                )
+                    saksreferanse = sakMedOppgave2,
+                ),
             ),
-            Pair("oppgavetype", "BEH_SAK")
+            Pair("oppgavetype", "BEH_SAK"),
         )
 
         stubHentPerson()
@@ -686,18 +731,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
-            fnr = "123123123",
-            hendelseType = HendelseType.JOURNALFORING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+                fnr = "123123123",
+                hendelseType = HendelseType.JOURNALFORING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -722,7 +768,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Dokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n\r\n Behandle dokument (tittel) mottatt 05.05.2020",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave
+                    saksreferanse = sakMedOppgave,
                 ),
                 OppgaveData(
                     id = OPPGAVE_ID_1,
@@ -732,10 +778,10 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     beskrivelse = "Behandle dokument (tittel) mottatt 05.05.2020\r\nDokumenter vedlagt: BID-$JOURNALPOST_ID_2 \r\n",
                     tema = "BID",
                     tildeltEnhetsnr = "4806",
-                    saksreferanse = sakMedOppgave2
-                )
+                    saksreferanse = sakMedOppgave2,
+                ),
             ),
-            Pair("oppgavetype", "BEH_SAK")
+            Pair("oppgavetype", "BEH_SAK"),
         )
 
         stubHentPerson()
@@ -744,18 +790,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
         stubHentGeografiskEnhet(enhet = "1234")
 
         val journalpostIdMedJoarkPrefix = "BID-$JOURNALPOST_ID_2"
-        val journalpostHendelse = createJournalpostHendelse(
-            journalpostId = journalpostIdMedJoarkPrefix
-        ).copy(
-            aktorId = "123213213",
-            status = JournalpostStatus.JOURNALFØRT,
-            tittel = "Ny tittel",
-            journalfortDato = LocalDate.now(),
-            dokumentDato = LocalDate.parse("2020-01-02"),
-            sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
-            fnr = "123123123",
-            hendelseType = HendelseType.JOURNALFORING
-        )
+        val journalpostHendelse =
+            createJournalpostHendelse(
+                journalpostId = journalpostIdMedJoarkPrefix,
+            ).copy(
+                aktorId = "123213213",
+                status = JournalpostStatus.JOURNALFØRT,
+                tittel = "Ny tittel",
+                journalfortDato = LocalDate.now(),
+                dokumentDato = LocalDate.parse("2020-01-02"),
+                sakstilknytninger = listOf(sakMedOppgave, sakMedOppgave2),
+                fnr = "123123123",
+                hendelseType = HendelseType.JOURNALFORING,
+            )
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -794,17 +841,17 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
         testDataGenerator.opprettJournalpost(
             Journalpost(
                 journalpostId = BID_JOURNALPOST_ID_1,
                 enhet = "4444",
                 status = "MOTTATT",
-                tema = "BID"
-            )
+                tema = "BID",
+            ),
         )
         val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, enhet = "1234", sporingEnhet = "1234", fagomrade = "FAR")
 
@@ -835,15 +882,16 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
         testDataGenerator.opprettJournalpost(createJournalpost(BID_JOURNALPOST_ID_1))
         val journalpostOptionalBefore = testDataGenerator.hentJournalpost(BID_JOURNALPOST_ID_1)
         assertThat(journalpostOptionalBefore).isNotNull
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
+        val journalpostHendelse =
+            createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -865,12 +913,13 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     aktoerId = AKTOER_ID,
                     oppgavetype = "JFR",
                     tema = "BID",
-                    tildeltEnhetsnr = "4833"
-                )
-            )
+                    tildeltEnhetsnr = "4833",
+                ),
+            ),
         )
 
-        val journalpostHendelse = createJournalpostHendelse(BID_JOURNALPOST_ID_1,status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
+        val journalpostHendelse =
+            createJournalpostHendelse(BID_JOURNALPOST_ID_1, status = JournalpostStatus.JOURNALFØRT, sporingEnhet = "1234")
 
         behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -895,9 +944,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         aktoerId = AKTOER_ID,
                         oppgavetype = "JFR",
                         tema = "BID",
-                        tildeltEnhetsnr = "4860"
-                    )
-                )
+                        tildeltEnhetsnr = "4860",
+                    ),
+                ),
             )
 
             testDataGenerator.opprettJournalpost(
@@ -905,19 +954,20 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     tema = "FAR",
                     journalpostId = journalpostId,
                     status = "MOTTATT",
-                    enhet = "4860"
-                )
+                    enhet = "4860",
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "BAR",
-                enhet = "4860",
-                status = JournalpostStatus.MOTTATT
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "BAR",
+                    enhet = "4860",
+                    status = JournalpostStatus.MOTTATT,
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -939,9 +989,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         aktoerId = AKTOER_ID,
                         oppgavetype = "BEH_SAK",
                         tema = "BID",
-                        tildeltEnhetsnr = "4860"
-                    )
-                )
+                        tildeltEnhetsnr = "4860",
+                    ),
+                ),
             )
 
             testDataGenerator.opprettJournalpost(
@@ -949,19 +999,20 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     tema = "FAR",
                     journalpostId = journalpostId,
                     status = "MOTTATT",
-                    enhet = "4860"
-                )
+                    enhet = "4860",
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "BID",
-                enhet = "4860",
-                status = JournalpostStatus.JOURNALFØRT
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "BID",
+                    enhet = "4860",
+                    status = JournalpostStatus.JOURNALFØRT,
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -984,9 +1035,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "BID",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             testDataGenerator.opprettJournalpost(
@@ -994,18 +1045,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     tema = "FAR",
                     journalpostId = journalpostId,
                     status = "MOTTATT",
-                    enhet = "4860"
-                )
+                    enhet = "4860",
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "BID",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "BID",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -1013,7 +1065,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
             verifyOppgaveEndretWith(
                 1,
-                "Fagområde endret til Bidrag fra Farskap\\r\\n\\r\\n\""
+                "Fagområde endret til Bidrag fra Farskap\\r\\n\\r\\n\"",
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1031,9 +1083,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "BID",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             testDataGenerator.opprettJournalpost(
@@ -1041,18 +1093,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     tema = "BID",
                     journalpostId = journalpostId,
                     status = "MOTTATT",
-                    enhet = "4860"
-                )
+                    enhet = "4860",
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "FAR",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "FAR",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -1060,7 +1113,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
 
             verifyOppgaveEndretWith(
                 1,
-                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\n\""
+                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\n\"",
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1078,9 +1131,9 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "BID",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             testDataGenerator.opprettJournalpost(
@@ -1088,18 +1141,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                     tema = "BID",
                     journalpostId = journalpostId,
                     status = "MOTTATT",
-                    enhet = "4860"
-                )
+                    enhet = "4860",
+                ),
             )
 
             stubHentTemaTilgang(false)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "FAR",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "FAR",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -1108,7 +1162,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(
                 1,
                 "\"tilordnetRessurs\":\"\"",
-                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
+                "Fagområde endret til Farskap fra Bidrag\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\"",
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1126,19 +1180,20 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "BID",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             stubHentTemaTilgang(false)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                sporingEnhet = "4806",
-                journalpostId = journalpostId,
-                fagomrade = "FAR",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    sporingEnhet = "4806",
+                    journalpostId = journalpostId,
+                    fagomrade = "FAR",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -1147,7 +1202,7 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
             verifyOppgaveEndretWith(
                 1,
                 "\"tilordnetRessurs\":\"\"",
-                "Fagområde endret til Farskap\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\""
+                "Fagområde endret til Farskap\\r\\n\\r\\nSaksbehandler endret fra Navn Navnesen ($SAKSBEHANDLER_ID, 4806) til ikke valgt\\r\\n\\r\\n\"",
             )
             verifyOppgaveNotOpprettet()
         }
@@ -1165,18 +1220,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "BID",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                journalpostId = journalpostId,
-                fagomrade = "BID",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    journalpostId = journalpostId,
+                    fagomrade = "BID",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 
@@ -1198,18 +1254,19 @@ internal class JournalpostHendelseTest : AbstractBehandleHendelseTest() {
                         oppgavetype = "JFR",
                         tema = "FAR",
                         tildeltEnhetsnr = "4860",
-                        tilordnetRessurs = "Z9999"
-                    )
-                )
+                        tilordnetRessurs = "Z9999",
+                    ),
+                ),
             )
 
             stubHentTemaTilgang(true)
 
-            val journalpostHendelse = createJournalpostHendelse(
-                journalpostId = journalpostId,
-                fagomrade = "FAR",
-                enhet = "4860"
-            )
+            val journalpostHendelse =
+                createJournalpostHendelse(
+                    journalpostId = journalpostId,
+                    fagomrade = "FAR",
+                    enhet = "4860",
+                )
 
             behandleHendelseService.behandleHendelse(journalpostHendelse)
 

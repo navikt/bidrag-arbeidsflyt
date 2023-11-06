@@ -17,10 +17,11 @@ class TestConfiguration {
     fun journalpostHendelseListener(
         jsonMapperService: JsonMapperService,
         behandleHendelseService: BehandleHendelseService,
-        persistenceService: PersistenceService
-    ): JournalpostHendelseListener = JournalpostHendelseListener(
-        jsonMapperService,
-        behandleHendelseService,
-        persistenceService
-    )
+        persistenceService: PersistenceService,
+    ): JournalpostHendelseListener =
+        JournalpostHendelseListener(
+            jsonMapperService,
+            behandleHendelseService,
+            persistenceService,
+        )
 }

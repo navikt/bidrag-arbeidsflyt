@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 internal class DateUtilsTest {
-
     companion object {
         private const val SATURDAY = "2021-10-16"
         private const val SUNDAY = "2021-10-17"

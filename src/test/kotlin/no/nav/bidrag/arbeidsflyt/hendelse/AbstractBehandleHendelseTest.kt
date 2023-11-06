@@ -25,12 +25,12 @@ import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
 import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
+import no.nav.bidrag.domene.enums.Enhetsstatus
+import no.nav.bidrag.domene.ident.AktørId
+import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.domene.streng.Enhetsnavn
+import no.nav.bidrag.domene.streng.Enhetsnummer
 import no.nav.bidrag.transport.dokument.JournalpostResponse
-import no.nav.bidrag.domain.enums.Enhetsstatus
-import no.nav.bidrag.domain.ident.AktørId
-import no.nav.bidrag.domain.ident.PersonIdent
-import no.nav.bidrag.domain.string.Enhetsnavn
-import no.nav.bidrag.domain.string.Enhetsnummer
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -79,19 +79,23 @@ abstract class AbstractBehandleHendelseTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
     }
 
-    fun stubOpprettOppgave(oppgaveId: Long = OPPGAVE_ID_1, status: HttpStatus = HttpStatus.OK) {
-        val responseBody = OppgaveData(
-            id = OPPGAVE_ID_1,
-            versjon = 1,
-            aktoerId = AKTOER_ID,
-            oppgavetype = "JFR",
-            tema = "BID",
-            tildeltEnhetsnr = "4833"
-        )
+    fun stubOpprettOppgave(
+        oppgaveId: Long = OPPGAVE_ID_1,
+        status: HttpStatus = HttpStatus.OK,
+    ) {
+        val responseBody =
+            OppgaveData(
+                id = OPPGAVE_ID_1,
+                versjon = 1,
+                aktoerId = AKTOER_ID,
+                oppgavetype = "JFR",
+                tema = "BID",
+                tildeltEnhetsnr = "4833",
+            )
         stubFor(
             post("/oppgave/api/v1/oppgaver/").willReturn(
-                aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(responseBody))
-            )
+                aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(responseBody)),
+            ),
         )
     }
 
@@ -103,39 +107,52 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(
             get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
                 aClosedJsonResponse().withStatus(HttpStatus.OK.value())
-                    .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))
-            )
+                    .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
+            ),
         )
     }
 
-    fun stubHentOppgave(oppgaveId: Long, oppgave: OppgaveData) {
+    fun stubHentOppgave(
+        oppgaveId: Long,
+        oppgave: OppgaveData,
+    ) {
         stubFor(
             get(urlMatching("/oppgave/api/v1/oppgaver/$oppgaveId")).willReturn(
                 aClosedJsonResponse().withStatus(HttpStatus.OK.value())
-                    .withBody(objectMapper.writeValueAsString(oppgave))
-            )
+                    .withBody(objectMapper.writeValueAsString(oppgave)),
+            ),
         )
     }
 
-    fun stubHentJournalpost(journalpostResponse: JournalpostResponse = journalpostResponse(), status: HttpStatus = HttpStatus.OK) {
+    fun stubHentJournalpost(
+        journalpostResponse: JournalpostResponse = journalpostResponse(),
+        status: HttpStatus = HttpStatus.OK,
+    ) {
         stubFor(
             get(urlMatching("/dokument/bidrag-dokument/journal/.*")).willReturn(
-                aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(journalpostResponse))
-            )
+                aClosedJsonResponse().withStatus(status.value()).withBody(objectMapper.writeValueAsString(journalpostResponse)),
+            ),
         )
     }
 
     fun stubHentOppgaveError() {
-        stubFor(get(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())))
+        stubFor(
+            get(
+                urlMatching("/oppgave/api/v1/oppgaver/.*"),
+            ).willReturn(aClosedJsonResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())),
+        )
     }
 
-    fun stubHentOppgaveContaining(oppgaver: List<OppgaveData> = oppgaveDataResponse(), vararg params: Pair<String, String>) {
+    fun stubHentOppgaveContaining(
+        oppgaver: List<OppgaveData> = oppgaveDataResponse(),
+        vararg params: Pair<String, String>,
+    ) {
         var matchUrl = "/oppgave/api/v1/oppgaver/.*"
         params.forEach { matchUrl = "$matchUrl${it.first}=${it.second}.*" }
         val stub = get(urlMatching(matchUrl))
         stub.willReturn(
             aClosedJsonResponse().withStatus(HttpStatus.OK.value())
-                .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10)))
+                .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
         )
         stubFor(stub)
     }
@@ -144,8 +161,8 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(
             post(urlMatching("/tilgangskontroll/api/tilgang/tema(.*)"))
                 .willReturn(
-                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString())
-                )
+                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString()),
+                ),
         )
     }
 
@@ -154,7 +171,7 @@ abstract class AbstractBehandleHendelseTest {
         aktorId: String = AKTOER_ID,
         status: HttpStatus = HttpStatus.OK,
         scenarioState: String? = null,
-        nextScenario: String? = null
+        nextScenario: String? = null,
     ) {
         stubFor(
             post(urlMatching("/person/bidrag-person/informasjon"))
@@ -162,33 +179,44 @@ abstract class AbstractBehandleHendelseTest {
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
                     aClosedJsonResponse().withStatus(status.value())
-                        .withBody(objectMapper.writeValueAsString(PersonDto(ident = PersonIdent(personId), aktørId = AktørId(aktorId))))
+                        .withBody(objectMapper.writeValueAsString(PersonDto(ident = Personident(personId), aktørId = AktørId(aktorId)))),
                 )
-                .willSetStateTo(nextScenario)
+                .willSetStateTo(nextScenario),
         )
     }
 
-    fun stubHentGeografiskEnhet(enhet: String = ENHET_4806, status: HttpStatus = HttpStatus.OK) {
+    fun stubHentGeografiskEnhet(
+        enhet: String = ENHET_4806,
+        status: HttpStatus = HttpStatus.OK,
+    ) {
         stubFor(
             post(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhet/geografisktilknytning")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
-                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn"))
-                    )
-                )
-            )
+                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn")),
+                    ),
+                ),
+            ),
         )
     }
 
-    fun stubHentEnhet(enhet: String = ENHET_4806, erNedlagt: Boolean = false, status: HttpStatus = HttpStatus.OK) {
+    fun stubHentEnhet(
+        enhet: String = ENHET_4806,
+        erNedlagt: Boolean = false,
+        status: HttpStatus = HttpStatus.OK,
+    ) {
         stubFor(
             get(urlMatching("/organisasjon/bidrag-organisasjon/enhet/info/.*")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
-                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn"), status = if (erNedlagt) Enhetsstatus.NEDLAGT else Enhetsstatus.AKTIV)
-                    )
-                )
-            )
+                        EnhetDto(
+                            Enhetsnummer(enhet),
+                            Enhetsnavn("Enhetnavn"),
+                            status = if (erNedlagt) Enhetsstatus.NEDLAGT else Enhetsstatus.AKTIV,
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -197,10 +225,10 @@ abstract class AbstractBehandleHendelseTest {
             get(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")).willReturn(
                 aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(
                     objectMapper.writeValueAsString(
-                        createJournalforendeEnheterResponse()
-                    )
-                )
-            )
+                        createJournalforendeEnheterResponse(),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -216,7 +244,10 @@ abstract class AbstractBehandleHendelseTest {
         verify(antall, postRequestedFor(urlMatching("/person.*")))
     }
 
-    fun verifySjekkTematilgangKalt(antall: Int = 1, saksbehandlerId: String) {
+    fun verifySjekkTematilgangKalt(
+        antall: Int = 1,
+        saksbehandlerId: String,
+    ) {
         verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/api/tilgang/tema?navIdent=$saksbehandlerId")))
     }
 
@@ -236,7 +267,7 @@ abstract class AbstractBehandleHendelseTest {
         val requestPattern = postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
-                ContainsPattern(contain)
+                ContainsPattern(contain),
             )
         }
         verify(1, requestPattern)
@@ -246,11 +277,14 @@ abstract class AbstractBehandleHendelseTest {
         verify(count ?: 1, getRequestedFor(urlMatching("/dokument/bidrag-dokument/journal/.*")))
     }
 
-    fun verifyOppgaveEndretWith(count: Int? = null, vararg contains: String) {
+    fun verifyOppgaveEndretWith(
+        count: Int? = null,
+        vararg contains: String,
+    ) {
         val requestPattern = WireMock.patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
-                ContainsPattern(contain)
+                ContainsPattern(contain),
             )
         }
         if (count != null) verify(count, requestPattern) else verify(requestPattern)

@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus
 import java.util.concurrent.TimeUnit
 
 internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
-
     @Value("\${TOPIC_JOURNALPOST}")
     private val topic: String? = null
 
@@ -28,18 +27,23 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
         val journalpostIdMedJoarkPrefix = "JOARK-$JOURNALPOST_ID_4_NEW"
         val journalpostHendelse = createJournalpostHendelse(journalpostIdMedJoarkPrefix)
 
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
-        testDataGenerator.opprettDLQMelding(createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix))
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix),
+        )
+        testDataGenerator.opprettDLQMelding(
+            createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix),
+        )
 
         val dlqMessagesBefore = testDataGenerator.hentDlKafka()
         assertThat(dlqMessagesBefore.size).isEqualTo(2)
 
-        val hendelseString = objectMapper.writeValueAsString(
-            journalpostHendelse.copy(
-                aktorId = "123213213",
-                fnr = "123123123"
+        val hendelseString =
+            objectMapper.writeValueAsString(
+                journalpostHendelse.copy(
+                    aktorId = "123213213",
+                    fnr = "123123123",
+                ),
             )
-        )
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
@@ -78,7 +82,14 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
-            verifyOppgaveOpprettetWith("\"tildeltEnhetsnr\":\"$geografiskEnhet\"", "\"oppgavetype\":\"JFR\"", "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"", "\"opprettetAvEnhetsnr\":\"9999\"", "\"prioritet\":\"HOY\"", "\"tema\":\"BID\"")
+            verifyOppgaveOpprettetWith(
+                "\"tildeltEnhetsnr\":\"$geografiskEnhet\"",
+                "\"oppgavetype\":\"JFR\"",
+                "\"journalpostId\":\"${BID_JOURNALPOST_ID_3_NEW}\"",
+                "\"opprettetAvEnhetsnr\":\"9999\"",
+                "\"prioritet\":\"HOY\"",
+                "\"tema\":\"BID\"",
+            )
             verifyOppgaveNotEndret()
         }
     }

@@ -8,9 +8,8 @@ import org.springframework.kafka.annotation.KafkaListener
 class JournalpostHendelseListener(
     private val jsonMapperService: JsonMapperService,
     private val behandeHendelseService: BehandleHendelseService,
-    private val persistenceService: PersistenceService
+    private val persistenceService: PersistenceService,
 ) {
-
     @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_JOURNALPOST}"])
     fun hendeseLytter(hendelse: String) {
         prosesserHendelse(hendelse)

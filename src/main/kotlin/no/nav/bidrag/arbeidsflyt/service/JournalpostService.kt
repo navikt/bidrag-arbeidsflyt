@@ -12,7 +12,6 @@ internal val JournalpostResponse.erFarskap get(): Boolean = journalpost?.fagomra
 
 @Service
 class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsumer) {
-
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(JournalpostService::class.java)

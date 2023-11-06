@@ -19,9 +19,8 @@ import org.springframework.stereotype.Component
 class OppdaterOppgaveFraHendelse(
     var arbeidsfordelingService: OrganisasjonService,
     var journalpostService: JournalpostService,
-    var oppgaveService: OppgaveService
+    var oppgaveService: OppgaveService,
 ) {
-
     lateinit var oppdaterOppgave: OppdaterOppgave
     lateinit var oppgave: OppgaveData
 
@@ -72,7 +71,9 @@ class OppdaterOppgaveFraHendelse(
         val erVurderDokumentOppgaveUtenJournalpost =
             oppgave.erAapenVurderDokumentOppgave() && !oppgave.hasJournalpostId
         if (erVurderDokumentOppgaveUtenJournalpost) {
-            LOGGER.info("Oppgave ${oppgave.id} har oppgavetype=${oppgave.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}")
+            LOGGER.info(
+                "Oppgave ${oppgave.id} har oppgavetype=${oppgave.oppgavetype} med tema BID men har ingen tilknyttet journalpost. Endrer oppgavetype til ${OppgaveType.VURD_HENV}",
+            )
             oppdaterOppgave.endreOppgavetype(OppgaveType.VURD_HENV)
         }
 
@@ -87,22 +88,31 @@ class OppdaterOppgaveFraHendelse(
 
     private fun overforOppgaveTilFarskapEnhet() {
         val tildeltEnhetsnr = BidragEnhet.ENHET_FARSKAP
-        LOGGER.info("Oppgave ${oppgave.id} er returoppgave som har journalpost tema FAR. Oppgaven er tildelt ${oppgave.tildeltEnhetsnr} som ikke er farskapenhet. Overfører til ${BidragEnhet.ENHET_FARSKAP}")
+        LOGGER.info(
+            "Oppgave ${oppgave.id} er returoppgave som har journalpost tema FAR. Oppgaven er tildelt ${oppgave.tildeltEnhetsnr} som ikke er farskapenhet. Overfører til ${BidragEnhet.ENHET_FARSKAP}",
+        )
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr)
     }
+
     private fun overforOppgaveTilJournalforendeEnhet(oppgaveHendelse: OppgaveData) {
         val tildeltEnhetsnr = arbeidsfordelingService.hentArbeidsfordeling(oppgaveHendelse.aktoerId)
-        LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.")
+        LOGGER.info(
+            "Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men ligger på en ikke journalførende enhet ${oppgaveHendelse.tildeltEnhetsnr}. Overfører oppgave fra ${oppgaveHendelse.tildeltEnhetsnr} til $tildeltEnhetsnr.",
+        )
         oppdaterOppgave.overforTilEnhet(tildeltEnhetsnr.verdi)
     }
 
     private fun endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgaveHendelse: OppgaveData) {
         val oppgaver = oppgaveService.finnAapneJournalforingOppgaverForJournalpost(oppgaveHendelse.journalpostId!!)
         if (oppgaver.harJournalforingsoppgaver()) {
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Journalposten har allerede en journalføringsoppgave med tema BID. Ferdigstiller oppgave.")
+            LOGGER.info(
+                "Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Journalposten har allerede en journalføringsoppgave med tema BID. Ferdigstiller oppgave.",
+            )
             oppdaterOppgave.ferdigstill()
         } else {
-            LOGGER.info("Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Endrer oppgave til journalføringsoppgave")
+            LOGGER.info(
+                "Oppgave ${oppgaveHendelse.id} har oppgavetype=${oppgaveHendelse.oppgavetype} med tema BID men tilhørende journalpost har status MOTTATT. Endrer oppgave til journalføringsoppgave",
+            )
             oppdaterOppgave.endreOppgavetype(OppgaveType.JFR)
         }
     }
@@ -110,8 +120,9 @@ class OppdaterOppgaveFraHendelse(
     private fun erJournalforendeEnhet(enhetNr: String?): Boolean {
         val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE)
         return if (enhetNr != null) {
-            ignoreEnhet.contains(enhetNr) || arbeidsfordelingService.hentBidragJournalforendeEnheter()
-                .any { it.nummer.verdi == enhetNr }
+            ignoreEnhet.contains(enhetNr) ||
+                arbeidsfordelingService.hentBidragJournalforendeEnheter()
+                    .any { it.nummer.verdi == enhetNr }
         } else {
             false
         }

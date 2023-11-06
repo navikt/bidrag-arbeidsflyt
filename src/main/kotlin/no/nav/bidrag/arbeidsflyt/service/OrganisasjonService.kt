@@ -2,18 +2,17 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragOrganisasjonConsumer
-import no.nav.bidrag.domain.enums.Enhetsstatus
-import no.nav.bidrag.domain.felles.erNullEllerUgyldig
-import no.nav.bidrag.domain.ident.PersonIdent
-import no.nav.bidrag.domain.string.Behandlingstema
-import no.nav.bidrag.domain.string.Enhetsnummer
+import no.nav.bidrag.domene.enums.Enhetsstatus
+import no.nav.bidrag.domene.felles.erNullEllerUgyldig
+import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.domene.streng.Behandlingstema
+import no.nav.bidrag.domene.streng.Enhetsnummer
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonConsumer) {
-
     companion object {
         private val DEFAULT_ENHET = Enhetsnummer("4833")
 
@@ -21,15 +20,20 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
         private val LOGGER = LoggerFactory.getLogger(OrganisasjonService::class.java)
     }
 
-    fun hentArbeidsfordeling(personId: String?, behandlingstema: String? = null): Enhetsnummer {
+    fun hentArbeidsfordeling(
+        personId: String?,
+        behandlingstema: String? = null,
+    ): Enhetsnummer {
         if (personId.isNullOrEmpty()) {
             LOGGER.warn("hentArbeidsfordeling: Personid mangler, bruker enhet $DEFAULT_ENHET")
             return DEFAULT_ENHET
         }
 
-        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(PersonIdent(personId), behandlingstema?.let { Behandlingstema(it) })
+        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(Personident(personId), behandlingstema?.let { Behandlingstema(it) })
         if (geografiskEnhet.erNullEllerUgyldig()) {
-            SECURE_LOGGER.warn("Fant ingen arbeidsfordeling for person $personId og behandlingstema=$behandlingstema, bruker enhet $DEFAULT_ENHET")
+            SECURE_LOGGER.warn(
+                "Fant ingen arbeidsfordeling for person $personId og behandlingstema=$behandlingstema, bruker enhet $DEFAULT_ENHET",
+            )
             return DEFAULT_ENHET
         }
 

@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.utils.numericOnly
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.springframework.stereotype.Service
+
 private val LOGGER = KotlinLogging.logger {}
 
 @Service
@@ -16,9 +17,8 @@ class BehandleHendelseService(
     private val oppgaveService: OppgaveService,
     private val personConsumer: PersonConsumer,
     private val persistenceService: PersistenceService,
-    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer
+    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer,
 ) {
-
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
         SECURE_LOGGER.info("Behandler journalpostHendelse: $journalpostHendelse")
@@ -28,7 +28,13 @@ class BehandleHendelseService(
         }
         val journalpostHendelseMedAktorId = populerMedAktoerIdHvisMangler(journalpostHendelse)
 
-        BehandleJournalpostHendelse(journalpostHendelseMedAktorId, oppgaveService, arbeidsfordelingService, persistenceService, tIlgangskontrollConsumer)
+        BehandleJournalpostHendelse(
+            journalpostHendelseMedAktorId,
+            oppgaveService,
+            arbeidsfordelingService,
+            persistenceService,
+            tIlgangskontrollConsumer,
+        )
             .oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
             .oppdaterOverførMellomBidragFagomrader()

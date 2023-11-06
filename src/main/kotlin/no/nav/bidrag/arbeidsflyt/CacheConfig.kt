@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit
 @EnableCaching
 @Profile(value = [PROFILE_NAIS, "local"])
 class CacheConfig {
-
     companion object {
         const val TILGANG_TEMA_CACHE = "TILGANG_TEMA_CACHE"
         const val PERSON_CACHE = "PERSON_CACHE"
@@ -32,15 +31,18 @@ class CacheConfig {
             PERSON_CACHE,
             Caffeine.newBuilder()
                 .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
         )
         caffeineCacheManager.registerCustomCache(
             GEOGRAFISK_ENHET_CACHE,
             Caffeine.newBuilder()
                 .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
         )
-        caffeineCacheManager.registerCustomCache(JOURNALFORENDE_ENHET_CACHE, Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build())
+        caffeineCacheManager.registerCustomCache(
+            JOURNALFORENDE_ENHET_CACHE,
+            Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build(),
+        )
         caffeineCacheManager.registerCustomCache(ENHET_INFO_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
         caffeineCacheManager.registerCustomCache(TILGANG_TEMA_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
         return caffeineCacheManager

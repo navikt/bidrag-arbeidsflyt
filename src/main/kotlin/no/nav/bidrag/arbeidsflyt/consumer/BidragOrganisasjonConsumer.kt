@@ -6,10 +6,10 @@ import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletFunksjoneltExce
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentJournalforendeEnheterFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
-import no.nav.bidrag.domain.ident.PersonIdent
-import no.nav.bidrag.domain.string.Behandlingstema
-import no.nav.bidrag.domain.string.Enhetsnummer
-import no.nav.bidrag.domain.string.TEMA_BIDRAG
+import no.nav.bidrag.domene.ident.Personident
+import no.nav.bidrag.domene.streng.Behandlingstema
+import no.nav.bidrag.domene.streng.Enhetsnummer
+import no.nav.bidrag.domene.streng.TEMA_BIDRAG
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.organisasjon.HentEnhetRequest
 import org.slf4j.LoggerFactory
@@ -23,7 +23,6 @@ import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.exchange
 
 open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTemplate) {
-
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BidragOrganisasjonConsumer::class.java)
@@ -33,21 +32,25 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
     @Retryable(
         value = [HentArbeidsfordelingFeiletTekniskException::class],
         maxAttempts = 3,
-        backoff = Backoff(delay = 2000, maxDelay = 10000, multiplier = 2.0)
+        backoff = Backoff(delay = 2000, maxDelay = 10000, multiplier = 2.0),
     )
-    open fun hentArbeidsfordeling(personId: PersonIdent, behandlingstema: Behandlingstema? = null): Enhetsnummer? {
+    open fun hentArbeidsfordeling(
+        personId: Personident,
+        behandlingstema: Behandlingstema? = null,
+    ): Enhetsnummer? {
         try {
-            val response = restTemplate.exchange<EnhetDto>(
-                "/arbeidsfordeling/enhet/geografisktilknytning",
-                HttpMethod.POST,
-                HttpEntity(
-                    HentEnhetRequest(
-                        ident = personId,
-                        behandlingstema = behandlingstema,
-                        tema = TEMA_BIDRAG
-                    )
+            val response =
+                restTemplate.exchange<EnhetDto>(
+                    "/arbeidsfordeling/enhet/geografisktilknytning",
+                    HttpMethod.POST,
+                    HttpEntity(
+                        HentEnhetRequest(
+                            ident = personId,
+                            behandlingstema = behandlingstema,
+                            tema = TEMA_BIDRAG,
+                        ),
+                    ),
                 )
-            )
 
             if (response.statusCode == HttpStatus.NO_CONTENT) {
                 return null
@@ -59,7 +62,9 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
                 "Det skjedde en feil ved henting av arbeidsfordeling for person $personId og behandlingstema=$behandlingstema"
             LOGGER.error(errorMessage, e)
             if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null) {
-                LOGGER.warn("Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId")
+                LOGGER.warn(
+                    "Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId",
+                )
                 return hentArbeidsfordeling(personId)
             }
             if (e.statusCode.is4xxClientError) {
@@ -74,14 +79,15 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
     @Retryable(
         value = [Exception::class],
         maxAttempts = 10,
-        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
+        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
     )
     open fun hentJournalforendeEnheter(): List<EnhetDto> {
-        val response = restTemplate.exchange<List<EnhetDto>>(
-            "/arbeidsfordeling/enhetsliste/journalforende",
-            HttpMethod.GET,
-            null
-        )
+        val response =
+            restTemplate.exchange<List<EnhetDto>>(
+                "/arbeidsfordeling/enhetsliste/journalforende",
+                HttpMethod.GET,
+                null,
+            )
 
         if (response.statusCode == HttpStatus.NO_CONTENT) {
             throw HentJournalforendeEnheterFeiletFunksjoneltException("Fant ingen journalforende enheter")
@@ -94,14 +100,15 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
     @Retryable(
         value = [Exception::class],
         maxAttempts = 3,
-        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0)
+        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
     )
     open fun hentEnhetInfo(enhet: Enhetsnummer): EnhetDto? {
-        val response = restTemplate.exchange<EnhetDto>(
-            "/enhet/info/$enhet",
-            HttpMethod.GET,
-            null
-        )
+        val response =
+            restTemplate.exchange<EnhetDto>(
+                "/enhet/info/$enhet",
+                HttpMethod.GET,
+                null,
+            )
 
         return if (response.statusCode == HttpStatus.NO_CONTENT) null else response.body
     }

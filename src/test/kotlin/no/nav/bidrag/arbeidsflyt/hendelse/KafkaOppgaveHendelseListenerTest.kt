@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value
 import java.util.concurrent.TimeUnit
 
 internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
-
     @Value("\${TOPIC_OPPGAVE_HENDELSE}")
     private val topicEndret: String? = null
 
@@ -26,7 +25,14 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
         stubHentOppgaveSok(emptyList())
         stubHentGeografiskEnhet()
         stubHentJournalpost(journalpostResponse(journalStatus = JournalpostStatus.MOTTATT))
-        val oppgaveHendelse = createOppgaveData(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, aktoerId = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse =
+            createOppgaveData(
+                OPPGAVE_ID_1,
+                journalpostId = JOURNALPOST_ID_1,
+                aktoerId = PERSON_IDENT_1,
+                status = OppgaveStatus.FERDIGSTILT,
+                statuskategori = Oppgavestatuskategori.AVSLUTTET,
+            )
         stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse)
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse.toHendelse())
 
@@ -38,7 +44,7 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
                 "\"journalpostId\":\"${JOURNALPOST_ID_1}\"",
                 "\"opprettetAvEnhetsnr\":\"9999\"",
                 "\"prioritet\":\"HOY\"",
-                "\"tema\":\"BID\""
+                "\"tema\":\"BID\"",
             )
             verifyOppgaveNotEndret()
         }
@@ -47,7 +53,14 @@ internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
     @Test
     fun `skal lagre hendelse i dead letter repository ved feil`() {
         stubHentOppgaveError()
-        val oppgaveHendelse = createOppgaveData(OPPGAVE_ID_1, journalpostId = JOURNALPOST_ID_1, aktoerId = PERSON_IDENT_1, status = OppgaveStatus.FERDIGSTILT, statuskategori = Oppgavestatuskategori.AVSLUTTET)
+        val oppgaveHendelse =
+            createOppgaveData(
+                OPPGAVE_ID_1,
+                journalpostId = JOURNALPOST_ID_1,
+                aktoerId = PERSON_IDENT_1,
+                status = OppgaveStatus.FERDIGSTILT,
+                statuskategori = Oppgavestatuskategori.AVSLUTTET,
+            )
         stubHentOppgave(oppgaveHendelse.id, oppgaveHendelse)
         val hendelseString = objectMapper.writeValueAsString(oppgaveHendelse.toHendelse())
 

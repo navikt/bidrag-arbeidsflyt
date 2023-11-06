@@ -21,9 +21,8 @@ class KafkaDLQRetryScheduler(
     private val dlqKafkaRepository: DLQKafkaRepository,
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val behandleHendelseService: BehandleHendelseService,
-    private val oppgaveService: OppgaveService
+    private val oppgaveService: OppgaveService,
 ) {
-
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(KafkaDLQRetryScheduler::class.java)
@@ -54,7 +53,10 @@ class KafkaDLQRetryScheduler(
                 LOGGER.error("Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}", e)
                 it.retryCount += 1
                 if (it.retryCount >= maxRetry.toInt()) {
-                    LOGGER.error("Har prossesert dead_letter_kafka melding med id ${it.id} - ${it.retryCount} ganger hvor MAX_RETRY=$maxRetry. Stopper reprossesering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt", e)
+                    LOGGER.error(
+                        "Har prossesert dead_letter_kafka melding med id ${it.id} - ${it.retryCount} ganger hvor MAX_RETRY=$maxRetry. Stopper reprossesering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt",
+                        e,
+                    )
                     it.retry = false
                 }
                 dlqKafkaRepository.save(it)
@@ -73,7 +75,9 @@ class KafkaDLQRetryScheduler(
                 behandleHendelseService.behandleHendelse(journalpostHendelse)
             }
             else -> {
-                throw KunneIkkeProsessereKafkaMelding("Behandler ikke melding ${message.id} fordi det finnes ingen støtte for å behandle meldinger med topicName ${message.topicName}")
+                throw KunneIkkeProsessereKafkaMelding(
+                    "Behandler ikke melding ${message.id} fordi det finnes ingen støtte for å behandle meldinger med topicName ${message.topicName}",
+                )
             }
         }
     }

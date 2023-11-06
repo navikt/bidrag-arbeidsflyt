@@ -24,6 +24,7 @@ class TestDataGenerator {
     fun hentDlKafka(): List<DLQKafka> {
         return dlqKafkaRepository.findAll()
     }
+
     fun hentOppgave(oppgaveId: Long): Optional<Oppgave> {
         return oppgaveRepository.findById(oppgaveId)
     }
@@ -31,6 +32,7 @@ class TestDataGenerator {
     fun opprettDLQMelding(dlqKafka: DLQKafka) {
         dlqKafkaRepository.save(dlqKafka)
     }
+
     fun opprettOppgave(oppgave: Oppgave) {
         oppgaveRepository.save(oppgave)
     }

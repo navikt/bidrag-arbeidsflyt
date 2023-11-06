@@ -14,3 +14,5 @@ jobs:
       id-token: "write"
     uses: navikt/bidrag-workflow/.github/workflows/rollback_prod.yaml@main
     secrets: inherit
+    with:
+      deploy_tag: ${{inputs.deploy_tag}}

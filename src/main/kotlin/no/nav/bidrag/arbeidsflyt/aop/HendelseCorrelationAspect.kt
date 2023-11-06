@@ -26,7 +26,10 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     }
 
     @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapJournalpostHendelse(..)) && args(hendelse)")
-    fun addCorrelationIdToThread(joinPoint: JoinPoint, hendelse: String) {
+    fun addCorrelationIdToThread(
+        joinPoint: JoinPoint,
+        hendelse: String,
+    ) {
         try {
             val jsonNode = objectMapper.readTree(hendelse)
             val correlationIdJsonNode = jsonNode["sporing"]?.get(CORRELATION_ID)
@@ -45,7 +48,10 @@ class HendelseCorrelationAspect(private val objectMapper: ObjectMapper) {
     }
 
     @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveHendelse(..)) && args(hendelse)")
-    fun addCorrelationIdFromOppgaveHendelseToThread(joinPoint: JoinPoint, hendelse: String) {
+    fun addCorrelationIdFromOppgaveHendelseToThread(
+        joinPoint: JoinPoint,
+        hendelse: String,
+    ) {
         val correlationId = CorrelationId.generateTimestamped("oppgave")
         MDC.put(CORRELATION_ID, correlationId.get())
     }
