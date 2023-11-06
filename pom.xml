@@ -27,7 +27,7 @@
     <token-support.version>3.1.7</token-support.version>
     <springframework-cloud.version>4.0.4</springframework-cloud.version>
     <squareup-okhttp3.version>4.12.0</squareup-okhttp3.version>
-    <shedlock.version>5.7.0</shedlock.version>
+    <shedlock.version>5.9.1</shedlock.version>
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
