@@ -30,13 +30,11 @@ class CacheConfig {
         caffeineCacheManager.registerCustomCache(
             PERSON_CACHE,
             Caffeine.newBuilder()
-                .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
                 .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
         )
         caffeineCacheManager.registerCustomCache(
             GEOGRAFISK_ENHET_CACHE,
             Caffeine.newBuilder()
-                .evictionListener<Any, Any> { k, v, removalCause -> LOGGER.info("Removing cache $k, $v, $removalCause") }
                 .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
         )
         caffeineCacheManager.registerCustomCache(
