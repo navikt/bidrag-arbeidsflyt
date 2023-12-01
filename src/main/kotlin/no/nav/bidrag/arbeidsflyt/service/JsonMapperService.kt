@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
@@ -17,7 +18,7 @@ class JsonMapperService(private val objectMapper: ObjectMapper) {
         return try {
             objectMapper.readValue(hendelse, JournalpostHendelse::class.java)
         } finally {
-            LOGGER.debug("Leser hendelse: {}", hendelse)
+            SECURE_LOGGER.debug("Leser hendelse: {}", hendelse)
         }
     }
 
@@ -25,7 +26,7 @@ class JsonMapperService(private val objectMapper: ObjectMapper) {
         return try {
             objectMapper.readValue(hendelse, OppgaveKafkaHendelse::class.java)
         } finally {
-            LOGGER.debug("Leser hendelse: {}", hendelse)
+            SECURE_LOGGER.debug("Leser hendelse: {}", hendelse)
         }
     }
 }
