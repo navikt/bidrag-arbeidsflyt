@@ -96,7 +96,7 @@ class HendelseConfiguration {
                 LOGGER.error(errorMessage, ex)
                 SECURE_LOGGER.error(errorMessage, ex) // Log message without censoring sensitive data
                 val retryableException = !(ex?.cause is OpprettOppgaveFeiletFunksjoneltException || ex?.cause is EndreOppgaveFeiletFunksjoneltException)
-                persistenceService.lagreDLQKafka(topic, key?.toString(), value?.toString() ?: "{}", retryableException)
+                persistenceService.lagreDLQKafka(topic, key?.toString()?.replace("\u0000", ""), value?.toString() ?: "{}", retryableException)
             }, backoffStrategy)
         errorHandler.setRetryListeners(KafkaRetryListener())
         errorHandler.addNotRetryableExceptions(
