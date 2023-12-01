@@ -48,7 +48,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                 OppgaveSokResponse::class.java,
             )
 
-        LOGGER.info("Response søk oppgave - ${initStringOf(oppgaveSokResponseEntity.body)}")
+        SECURE_LOGGER.info("Response søk oppgave - ${initStringOf(oppgaveSokResponseEntity.body)}")
 
         return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
     }
@@ -85,7 +85,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
-        LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
+        SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
 
         try {
             val responseEntity =
@@ -95,7 +95,7 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
                     patchOppgaveRequest.somHttpEntity(),
                     OppgaveData::class.java,
                 )
-            LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons ${responseEntity.body}")
+            SECURE_LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons ${responseEntity.body}")
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.BAD_REQUEST) {
                 throw EndreOppgaveFeiletFunksjoneltException(
