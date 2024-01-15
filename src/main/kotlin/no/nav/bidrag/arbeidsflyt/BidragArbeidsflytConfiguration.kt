@@ -56,9 +56,6 @@ class HendelseConfiguration {
     }
 
     @Bean
-    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
-
-    @Bean
     fun lockProvider(dataSource: DataSource): LockProvider? {
         return JdbcTemplateLockProvider(
             JdbcTemplateLockProvider.Configuration.builder()
@@ -132,6 +129,9 @@ class HendelseConfiguration {
 @Configuration
 @EnableSecurityConfiguration
 class ArbeidsflytConfiguration {
+    @Bean
+    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
+
     @Bean
     @Scope("prototype")
     fun restTemplate(): HttpHeaderRestTemplate {
