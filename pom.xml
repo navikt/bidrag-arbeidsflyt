@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -20,8 +20,7 @@
     <kotlin.version>1.9.22</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-commons.version>20231103132440_edabbf8</bidrag-commons.version>
-    <bidrag-transport.version>20231106083046_e69b4f4</bidrag-transport.version>
+    <bidrag-felles.version>2024.0115.052337</bidrag-felles.version>
     <logback-encoder.version>7.4</logback-encoder.version>
     <mockito-kotlin.version>5.1.0</mockito-kotlin.version>
     <token-support.version>3.2.0</token-support.version>
@@ -87,13 +86,27 @@
     <!-- nav -->
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-commons</artifactId>
-      <version>${bidrag-commons.version}</version>
+      <artifactId>bidrag-commons-felles</artifactId>
+      <version>${bidrag-felles.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-transport</artifactId>
-      <version>${bidrag-transport.version}</version>
+      <artifactId>bidrag-transport-felles</artifactId>
+      <version>${bidrag-felles.version}</version>
     </dependency>
     <dependency>
       <groupId>no.nav.security</groupId>
@@ -140,6 +153,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.kafka</groupId>
@@ -335,7 +354,7 @@
           <args>
             <arg>-Xjsr305=strict</arg>
           </args>
-          <jvmTarget>17</jvmTarget>
+          <jvmTarget>21</jvmTarget>
           <compilerPlugins>
             <plugin>spring</plugin>
             <plugin>jpa</plugin>
