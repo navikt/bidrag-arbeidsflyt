@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.http.client.observation.DefaultClientRequestObservationConvention
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
@@ -53,6 +54,9 @@ class HendelseConfiguration {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseConfiguration::class.java)
     }
+
+    @Bean
+    fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
 
     @Bean
     fun lockProvider(dataSource: DataSource): LockProvider? {
