@@ -1,6 +1,7 @@
 name: bidrag-arbeidsflyt
 kafka:
   pool: nav-dev
+min_replicas: 1
 cpu:
   limits: 1000m
   requests: 50m
