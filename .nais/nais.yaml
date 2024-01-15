@@ -47,7 +47,7 @@ spec:
       memory: 512Mi
   replicas:
     min: {{min_replicas}}
-    max: 4
+    max: 2
   ingresses:
   {{#each ingresses as |url|}}
     - {{url}}
