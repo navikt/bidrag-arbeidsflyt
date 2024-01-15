@@ -2,8 +2,8 @@ name: bidrag-arbeidsflyt-feature
 kafka:
   pool: nav-dev
 cpu:
-  limits: 50m
-  requests: 1000m
+  limits: 1000m
+  requests: 50m
 env:
   OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon-feature.dev-fss-pub.nais.io
