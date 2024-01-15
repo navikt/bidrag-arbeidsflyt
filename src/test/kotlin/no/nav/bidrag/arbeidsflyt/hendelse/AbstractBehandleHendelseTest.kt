@@ -25,11 +25,9 @@ import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
 import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
-import no.nav.bidrag.domene.enums.Enhetsstatus
-import no.nav.bidrag.domene.ident.AktørId
+import no.nav.bidrag.domene.enums.diverse.Enhetsstatus
 import no.nav.bidrag.domene.ident.Personident
-import no.nav.bidrag.domene.streng.Enhetsnavn
-import no.nav.bidrag.domene.streng.Enhetsnummer
+import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
@@ -179,7 +177,7 @@ abstract class AbstractBehandleHendelseTest {
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
                     aClosedJsonResponse().withStatus(status.value())
-                        .withBody(objectMapper.writeValueAsString(PersonDto(ident = Personident(personId), aktørId = AktørId(aktorId)))),
+                        .withBody(objectMapper.writeValueAsString(PersonDto(ident = Personident(personId), aktørId = aktorId))),
                 )
                 .willSetStateTo(nextScenario),
         )
@@ -193,7 +191,7 @@ abstract class AbstractBehandleHendelseTest {
             post(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhet/geografisktilknytning")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
-                        EnhetDto(Enhetsnummer(enhet), Enhetsnavn("Enhetnavn")),
+                        EnhetDto(Enhetsnummer(enhet), "Enhetnavn"),
                     ),
                 ),
             ),
@@ -211,7 +209,7 @@ abstract class AbstractBehandleHendelseTest {
                     objectMapper.writeValueAsString(
                         EnhetDto(
                             Enhetsnummer(enhet),
-                            Enhetsnavn("Enhetnavn"),
+                            "Enhetnavn",
                             status = if (erNedlagt) Enhetsstatus.NEDLAGT else Enhetsstatus.AKTIV,
                         ),
                     ),

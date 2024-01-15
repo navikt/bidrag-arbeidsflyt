@@ -7,8 +7,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
-import no.nav.bidrag.domene.streng.Enhetsnavn
-import no.nav.bidrag.domene.streng.Enhetsnummer
+import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.dokument.HendelseType
 import no.nav.bidrag.transport.dokument.JournalpostDto
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
@@ -230,11 +229,11 @@ fun oppgaveDataResponse(): List<OppgaveData> {
 
 fun createJournalforendeEnheterResponse(): List<EnhetDto> {
     return arrayListOf<EnhetDto>(
-        EnhetDto(Enhetsnummer("2103"), Enhetsnavn("Nav vikafossen")),
-        EnhetDto(Enhetsnummer("4817"), Enhetsnavn("NAV Familie- og pensjonsytelser Steinkjer")),
-        EnhetDto(Enhetsnummer("4833"), Enhetsnavn("NAV Familie- og pensjonsytelser Oslo 1")),
-        EnhetDto(Enhetsnummer("4806"), Enhetsnavn("NAV Familie- og pensjonsytelser Drammen")),
-        EnhetDto(Enhetsnummer("4812"), Enhetsnavn("NAV Familie- og pensjonsytelser Bergen")),
+        EnhetDto(Enhetsnummer("2103"), "Nav vikafossen"),
+        EnhetDto(Enhetsnummer("4817"), "NAV Familie- og pensjonsytelser Steinkjer"),
+        EnhetDto(Enhetsnummer("4833"), "NAV Familie- og pensjonsytelser Oslo 1"),
+        EnhetDto(Enhetsnummer("4806"), "NAV Familie- og pensjonsytelser Drammen"),
+        EnhetDto(Enhetsnummer("4812"), "NAV Familie- og pensjonsytelser Bergen"),
     )
 }
 

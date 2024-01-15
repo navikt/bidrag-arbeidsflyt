@@ -2,11 +2,10 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.BidragOrganisasjonConsumer
-import no.nav.bidrag.domene.enums.Enhetsstatus
+import no.nav.bidrag.domene.enums.diverse.Enhetsstatus
 import no.nav.bidrag.domene.felles.erNullEllerUgyldig
 import no.nav.bidrag.domene.ident.Personident
-import no.nav.bidrag.domene.streng.Behandlingstema
-import no.nav.bidrag.domene.streng.Enhetsnummer
+import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -29,7 +28,7 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
             return DEFAULT_ENHET
         }
 
-        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(Personident(personId), behandlingstema?.let { Behandlingstema(it) })
+        val geografiskEnhet = organisasjonConsumer.hentArbeidsfordeling(Personident(personId), behandlingstema)
         if (geografiskEnhet.erNullEllerUgyldig()) {
             SECURE_LOGGER.warn(
                 "Fant ingen arbeidsfordeling for person $personId og behandlingstema=$behandlingstema, bruker enhet $DEFAULT_ENHET",

@@ -6,10 +6,9 @@ import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletFunksjoneltExce
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentJournalforendeEnheterFeiletFunksjoneltException
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.domene.enums.diverse.Tema
 import no.nav.bidrag.domene.ident.Personident
-import no.nav.bidrag.domene.streng.Behandlingstema
-import no.nav.bidrag.domene.streng.Enhetsnummer
-import no.nav.bidrag.domene.streng.TEMA_BIDRAG
+import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.organisasjon.HentEnhetRequest
 import org.slf4j.LoggerFactory
@@ -36,7 +35,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
     )
     open fun hentArbeidsfordeling(
         personId: Personident,
-        behandlingstema: Behandlingstema? = null,
+        behandlingstema: String? = null,
     ): Enhetsnummer? {
         try {
             val response =
@@ -47,7 +46,7 @@ open class BidragOrganisasjonConsumer(private val restTemplate: HttpHeaderRestTe
                         HentEnhetRequest(
                             ident = personId,
                             behandlingstema = behandlingstema,
-                            tema = TEMA_BIDRAG,
+                            tema = Tema.TEMA_BIDRAG.verdi,
                         ),
                     ),
                 )
