@@ -51,7 +51,7 @@ class BehandleHendelseService(
             LOGGER.info("Hendelse mangler aktørid. Henter og oppdaterer hendelsedata med aktørid")
             return personConsumer.hentPerson(journalpostHendelse.fnr?.numericOnly())?.let {
                 SECURE_LOGGER.info("Hendelse manglet aktørid. Hentet og oppdatert hendelsedata med aktørid ${it.aktørId} og fnr ${journalpostHendelse.fnr}")
-                journalpostHendelse.copy(aktorId = it.aktørId?.verdi)
+                journalpostHendelse.copy(aktorId = it.aktørId)
             } ?: journalpostHendelse
         }
         return journalpostHendelse

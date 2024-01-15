@@ -1,6 +1,9 @@
 name: bidrag-arbeidsflyt
 kafka:
   pool: nav-prod
+cpu:
+  limits: 1000m
+  requests: 100m
 env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io
