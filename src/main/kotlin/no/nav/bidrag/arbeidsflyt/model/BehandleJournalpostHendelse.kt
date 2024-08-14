@@ -113,6 +113,7 @@ class BehandleJournalpostHendelse(
     }
 
     fun opprettEllerEndreBehandleDokumentOppgaver(): BehandleJournalpostHendelse {
+        if (journalpostHendelse.erEksterntFagomrade) return this
         if (journalpostHendelse.erJournalfort && journalpostHendelse.erHendelseTypeJournalforing() && journalpostHendelse.harSaker) {
             val behandlingsOppgaver: OppgaverForHendelse = oppgaveService.finnBehandlingsoppgaverForSaker(journalpostHendelse.saker)
             if (behandlingsOppgaver.skalOppdatereEllerOppretteBehandleDokumentOppgaver(
