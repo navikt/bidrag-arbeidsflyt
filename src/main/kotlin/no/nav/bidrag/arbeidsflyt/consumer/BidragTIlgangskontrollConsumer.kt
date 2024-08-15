@@ -5,7 +5,9 @@ import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
@@ -25,11 +27,13 @@ class BidragTIlgangskontrollConsumer(
         tema: String,
         saksbehandlerIdent: String,
     ): Boolean {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.TEXT_PLAIN
         val url =
             UriComponentsBuilder.fromUri(url)
                 .path("/api/tilgang/tema").queryParam("navIdent", saksbehandlerIdent).build()
         return try {
-            postForEntity(url.toUri(), tema) ?: false
+            postForEntity(url.toUri(), tema, headers) ?: false
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.FORBIDDEN) return false
             throw e
