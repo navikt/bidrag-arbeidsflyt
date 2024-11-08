@@ -4,7 +4,7 @@ kafka:
 min_replicas: 2
 cpu:
   limits: 1000m
-  requests: 100m
+  requests: 300m
 env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io
