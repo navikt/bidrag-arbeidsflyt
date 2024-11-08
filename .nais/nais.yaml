@@ -68,6 +68,7 @@ spec:
       - name: {{ database.dbname }}
         type: POSTGRES_14
         diskAutoresize: {{ database.autoResize }}
+        tier: {{ database.tier }}
         databases:
           - name: bidrag-arbeidsflyt-db
             envVarPrefix: DB
