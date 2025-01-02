@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
-private val NORSK_DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+private val NORSK_DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.uuuu")
 
 private const val PARAMETER_JOURNALPOST_ID = "journalpostId"
 private const val PARAMETER_OPPGAVE_TYPE = "oppgavetype"
@@ -24,7 +24,7 @@ private const val PARAMETER_TEMA = "tema"
 private const val PARAMETER_JOURNALPOSTID = "journalpostId"
 
 fun formatterDatoForOppgave(date: LocalDate): String {
-    return date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd"))
+    return date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
 }
 
 data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilder()) {
