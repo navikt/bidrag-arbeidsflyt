@@ -37,8 +37,8 @@ class KafkaDLQRetryScheduler(
     @Value("\${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
 
-    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
-    @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
+    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
+    @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "5m")
     @Transactional
     fun processMessages() {
         val messages = dlqKafkaRepository.findByRetryTrueOrderByCreatedTimestampAsc()
