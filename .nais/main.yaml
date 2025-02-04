@@ -8,12 +8,12 @@ cpu:
 env:
   OPPGAVE_URL: https://oppgave.dev-fss-pub.nais.io
   ORGANISASJON_URL: https://bidrag-organisasjon.dev-fss-pub.nais.io
-  PERSON_URL: https://bidrag-person.dev-fss-pub.nais.io
+  PERSON_URL: https://bidrag-person-q2.dev-fss-pub.nais.io
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument.dev-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
 
   ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon
-  PERSON_SCOPE: dev-fss.bidrag.bidrag-person
+  PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q2
   OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave
   DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument
   TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll
