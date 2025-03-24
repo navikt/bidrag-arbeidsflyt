@@ -48,7 +48,8 @@ class OppdaterOppgaveFraHendelse(
         val erVurderDokumentOppgaveMedJournalpost =
             oppgave.erAapenVurderDokumentOppgave() && oppgave.hasJournalpostId
         if (erVurderDokumentOppgaveMedJournalpost) {
-            journalpostService.hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
+            journalpostService
+                .hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
                 ?.apply { endreOppgaveTypeTilJournalforingEllerFerdigstill(oppgave) }
         }
 
@@ -59,7 +60,8 @@ class OppdaterOppgaveFraHendelse(
         val erReturOppgaveMedJournalpost =
             oppgave.erReturoppgave() && oppgave.hasJournalpostId
         if (erReturOppgaveMedJournalpost && oppgave.tildeltEnhetsnr != BidragEnhet.ENHET_FARSKAP) {
-            journalpostService.hentJournalpost(oppgave.journalpostIdMedPrefix!!)
+            journalpostService
+                .hentJournalpost(oppgave.journalpostIdMedPrefix!!)
                 ?.takeIf { it.erFarskap }
                 ?.apply { overforOppgaveTilFarskapEnhet() }
         }
@@ -121,7 +123,8 @@ class OppdaterOppgaveFraHendelse(
         val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE, ENHET_KLAGE_BIDRAG_VAKT)
         return if (enhetNr != null) {
             ignoreEnhet.contains(enhetNr) ||
-                arbeidsfordelingService.hentBidragJournalforendeEnheter()
+                arbeidsfordelingService
+                    .hentBidragJournalforendeEnheter()
                     .any { it.nummer.verdi == enhetNr }
         } else {
             false
