@@ -68,13 +68,14 @@ class BehandleOppgaveHendelseService(
         persistenceService.oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgave)
     }
 
-    fun oppdaterOppgaveFraHendelse(oppgave: OppgaveData): OppdaterOppgaveFraHendelse {
-        return applicationContext.getBean(OppdaterOppgaveFraHendelse::class.java)
+    fun oppdaterOppgaveFraHendelse(oppgave: OppgaveData): OppdaterOppgaveFraHendelse =
+        applicationContext
+            .getBean(OppdaterOppgaveFraHendelse::class.java)
             .behandle(oppgave)
-    }
 
     fun opprettNyJournalforingOppgaveHvisNodvendig(oppgave: OppgaveData) {
-        if (!oppgave.tilhorerFagpost && (
+        if (!oppgave.tilhorerFagpost &&
+            (
                 oppgave.erAvsluttetJournalforingsoppgave() ||
                     erOppgavetypeEndretFraJournalforingTilAnnet(
                         oppgave,
@@ -87,7 +88,8 @@ class BehandleOppgaveHendelseService(
 
     fun opprettNyJournalforingOppgaveHvisJournalpostMottatt(oppgave: OppgaveData) {
         if (harIkkeAapneJournalforingsoppgaver(oppgave.journalpostId!!)) {
-            journalpostService.hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
+            journalpostService
+                .hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
                 .takeIf { it?.erBidragFagomrade == true }
                 ?.run {
                     LOGGER.info("Journalpost ${oppgave.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
@@ -133,13 +135,18 @@ class BehandleOppgaveHendelseService(
 
     fun measureOppgaveOpprettetHendelse(oppgaveOpprettetHendelse: OppgaveData) {
         if (oppgaveOpprettetHendelse.erTemaBIDEllerFAR() && oppgaveOpprettetHendelse.erJournalforingOppgave) {
-            meterRegistry.counter(
-                "jfr_oppgave_opprettet",
-                "tema", oppgaveOpprettetHendelse.tema ?: "UKJENT",
-                "enhet", oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
-                "opprettetAv", oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
-                "opprettetAvEnhetsnr", oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT",
-            ).increment()
+            meterRegistry
+                .counter(
+                    "jfr_oppgave_opprettet",
+                    "tema",
+                    oppgaveOpprettetHendelse.tema ?: "UKJENT",
+                    "enhet",
+                    oppgaveOpprettetHendelse.tildeltEnhetsnr ?: "UKJENT",
+                    "opprettetAv",
+                    oppgaveOpprettetHendelse.opprettetAv ?: "UKJENT",
+                    "opprettetAvEnhetsnr",
+                    oppgaveOpprettetHendelse.opprettetAvEnhetsnr ?: "UKJENT",
+                ).increment()
         }
     }
 

@@ -23,22 +23,16 @@ private const val PARAMETER_SAKSREFERANSE = "saksreferanse"
 private const val PARAMETER_TEMA = "tema"
 private const val PARAMETER_JOURNALPOSTID = "journalpostId"
 
-fun formatterDatoForOppgave(date: LocalDate): String {
-    return date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
-}
+fun formatterDatoForOppgave(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
 
-data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilder()) {
-    fun brukBehandlingSomOppgaveType(): OppgaveSokRequest {
-        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
-    }
+data class OppgaveSokRequest(
+    private val parametre: StringBuilder = StringBuilder(),
+) {
+    fun brukBehandlingSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
 
-    fun brukVurderDokumentSomOppgaveType(): OppgaveSokRequest {
-        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
-    }
+    fun brukVurderDokumentSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
 
-    fun brukJournalforingSomOppgaveType(): OppgaveSokRequest {
-        return leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.JFR)
-    }
+    fun brukJournalforingSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.JFR)
 
     fun leggTilJournalpostId(journalpostId: String): OppgaveSokRequest {
         leggTilParameter(PARAMETER_JOURNALPOSTID, journalpostId)
@@ -55,9 +49,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
         return this
     }
 
-    fun leggTilFagomrade(fagomrade: String): OppgaveSokRequest {
-        return leggTilParameter(PARAMETER_TEMA, fagomrade)
-    }
+    fun leggTilFagomrade(fagomrade: String): OppgaveSokRequest = leggTilParameter(PARAMETER_TEMA, fagomrade)
 
     fun leggTilSaksreferanse(saksnummer: String?): OppgaveSokRequest {
         leggTilParameter(PARAMETER_SAKSREFERANSE, saksnummer)
@@ -71,8 +63,7 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
 
     private fun harJournalpostIdPrefiks(journalpostId: String) = journalpostId.contains("-")
 
-    private fun hentJournalpostIdUtenPrefiks(journalpostId: String) =
-        if (harJournalpostIdPrefiks(journalpostId)) journalpostId.split('-')[1] else journalpostId
+    private fun hentJournalpostIdUtenPrefiks(journalpostId: String) = if (harJournalpostIdPrefiks(journalpostId)) journalpostId.split('-')[1] else journalpostId
 
     private fun hentPrefiks(journalpostId: String) = journalpostId.split('-')[0]
 
@@ -91,12 +82,13 @@ data class OppgaveSokRequest(private val parametre: StringBuilder = StringBuilde
         return this
     }
 
-    fun hentParametre(): String {
-        return "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
-    }
+    fun hentParametre(): String = "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
 }
 
-data class OppgaveSokResponse(var antallTreffTotalt: Int = 0, var oppgaver: List<OppgaveData> = emptyList())
+data class OppgaveSokResponse(
+    var antallTreffTotalt: Int = 0,
+    var oppgaver: List<OppgaveData> = emptyList(),
+)
 
 data class OppgaveData(
     val id: Long,
@@ -131,8 +123,7 @@ data class OppgaveData(
     val status: OppgaveStatus? = null,
     val metadata: Map<String, String>? = null,
 ) {
-    override fun toString() =
-        "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
+    override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
 
@@ -196,8 +187,8 @@ sealed class OpprettOppgaveRequest(
 
     override fun toString() = "${javaClass.simpleName}(${fieldsWithValues()})"
 
-    private fun fieldsWithValues(): String {
-        return StringBuilder("")
+    private fun fieldsWithValues(): String =
+        StringBuilder("")
             .append(fieldToString("beskrivelse", beskrivelse))
             .append(fieldToString("oppgavetype", oppgavetype?.name))
             .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
@@ -210,8 +201,8 @@ sealed class OpprettOppgaveRequest(
             .append(fieldToString("journalpostId", journalpostId))
             .append(fieldToString("aktoerId", aktoerId))
             .append(fieldToString("bnr", bnr))
-            .toString().removeSuffix(", ")
-    }
+            .toString()
+            .removeSuffix(", ")
 }
 
 data class OpprettBehandleDokumentOppgaveRequest(
@@ -232,16 +223,17 @@ data class OpprettBehandleDokumentOppgaveRequest(
         tildeltEnhetsnr = sporingsdata.enhetsnummer,
         tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident,
     ) {
-    override fun toString(): String {
-        return super.toString()
-    }
+    override fun toString(): String = super.toString()
 }
 
 @Suppress("unused") // used by jackson...
-data class OpprettJournalforingsOppgaveRequest(override var journalpostId: String, override var aktoerId: String?) : OpprettOppgaveRequest(
-    beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
-    oppgavetype = OppgaveType.JFR,
-) {
+data class OpprettJournalforingsOppgaveRequest(
+    override var journalpostId: String,
+    override var aktoerId: String?,
+) : OpprettOppgaveRequest(
+        beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
+        oppgavetype = OppgaveType.JFR,
+    ) {
     constructor(oppgaveHendelse: OppgaveData, tildeltEnhetsnr: String) : this(oppgaveHendelse.journalpostId!!, oppgaveHendelse.aktoerId) {
         this.bnr = oppgaveHendelse.bnr
         this.tema = oppgaveHendelse.tema ?: this.tema
@@ -273,9 +265,7 @@ data class OpprettJournalforingsOppgaveRequest(override var journalpostId: Strin
         this.tildeltEnhetsnr = tildeltEnhetsnr
     }
 
-    override fun toString(): String {
-        return super.toString()
-    }
+    override fun toString(): String = super.toString()
 }
 
 /**
@@ -311,8 +301,8 @@ open class PatchOppgaveRequest(
 
     override fun toString() = "${javaClass.simpleName}: id=$id,version=$versjon${fieldsWithValues()}"
 
-    private fun fieldsWithValues(): String {
-        return StringBuilder("")
+    private fun fieldsWithValues(): String =
+        StringBuilder("")
             .append(fieldToString("aktorId", aktoerId))
             .append(fieldToString("endretAvEnhetsnr", endretAvEnhetsnr))
             .append(fieldToString("oppgavetype", oppgavetype))
@@ -323,7 +313,6 @@ open class PatchOppgaveRequest(
             .append(fieldToString("tilordnetRessurs", tilordnetRessurs))
             .append(fieldToString("beskrivelse", beskrivelse))
             .toString()
-    }
 
     private fun fieldToString(
         fieldName: String,
@@ -363,9 +352,7 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
         return this
     }
 
-    fun hasChanged(): Boolean {
-        return _hasChanged
-    }
+    fun hasChanged(): Boolean = _hasChanged
 
     private fun oppdaterBeskrivelse() {
         var nyBeskrivelse = ""
@@ -406,7 +393,9 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
     private val erEnhetEndret get() = tildeltEnhetsnr != null && (eksisterendeTildeltEnhet) != tildeltEnhetsnr
 }
 
-class UpdateOppgaveAfterOpprettRequest(var journalpostId: String) : PatchOppgaveRequest() {
+class UpdateOppgaveAfterOpprettRequest(
+    var journalpostId: String,
+) : PatchOppgaveRequest() {
     constructor(oppgaveDataForHendelse: OppgaveData, journalpostIdMedPrefix: String) : this(journalpostIdMedPrefix) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
@@ -446,7 +435,9 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
     }
 }
 
-class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
+class OverforOppgaveRequest(
+    override var tildeltEnhetsnr: String?,
+) : PatchOppgaveRequest() {
     override var tilordnetRessurs: String? = ""
 
     constructor(oppgaveDataForHendelse: OppgaveData, nyttEnhetsnummer: String, saksbehandlersInfo: String) : this(nyttEnhetsnummer) {
@@ -459,13 +450,18 @@ class OverforOppgaveRequest(override var tildeltEnhetsnr: String?) : PatchOppgav
     }
 }
 
-class OppdaterOppgaveRequest(override var aktoerId: String?) : PatchOppgaveRequest() {
+class OppdaterOppgaveRequest(
+    override var aktoerId: String?,
+) : PatchOppgaveRequest() {
     constructor(oppgaveDataForHendelse: OppgaveData, aktoerId: String?) : this(aktoerId) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
 }
 
-class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEnhetsnr: String?) : PatchOppgaveRequest() {
+class EndreTemaOppgaveRequest(
+    override var tema: String?,
+    override var tildeltEnhetsnr: String?,
+) : PatchOppgaveRequest() {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     override var tilordnetRessurs: String? = null
 
@@ -486,7 +482,9 @@ class EndreTemaOppgaveRequest(override var tema: String?, override var tildeltEn
     }
 }
 
-class FerdigstillOppgaveRequest(override var status: String?) : PatchOppgaveRequest() {
+class FerdigstillOppgaveRequest(
+    override var status: String?,
+) : PatchOppgaveRequest() {
     constructor(oppgaveDataForHendelse: OppgaveData) : this(status = "FERDIGSTILT") {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
     }
@@ -516,7 +514,9 @@ enum class Oppgavestatuskategori {
     AVSLUTTET,
 }
 
-enum class OppgaveType(val description: String) {
+enum class OppgaveType(
+    val description: String,
+) {
     BEH_SAK("Behandle sak"),
     VUR("Vurder dokument"),
     JFR("Journalføring"),
@@ -525,9 +525,12 @@ enum class OppgaveType(val description: String) {
     ;
 
     companion object {
-        fun descriptionFrom(value: String?): String {
-            return OppgaveType.values().asList().find { it.name == value }?.description ?: value ?: "Ukjent"
-        }
+        fun descriptionFrom(value: String?): String =
+            OppgaveType
+                .values()
+                .asList()
+                .find { it.name == value }
+                ?.description ?: value ?: "Ukjent"
     }
 }
 

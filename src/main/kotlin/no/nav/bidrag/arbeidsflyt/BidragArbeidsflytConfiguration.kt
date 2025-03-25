@@ -26,7 +26,6 @@ import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -41,6 +40,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries
 import org.springframework.retry.annotation.EnableRetry
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.web.util.DefaultUriBuilderFactory
 import java.time.Duration
 import javax.sql.DataSource
 
@@ -56,14 +56,14 @@ class HendelseConfiguration {
     }
 
     @Bean
-    fun lockProvider(dataSource: DataSource): LockProvider? {
-        return JdbcTemplateLockProvider(
-            JdbcTemplateLockProvider.Configuration.builder()
+    fun lockProvider(dataSource: DataSource): LockProvider? =
+        JdbcTemplateLockProvider(
+            JdbcTemplateLockProvider.Configuration
+                .builder()
                 .withJdbcTemplate(JdbcTemplate(dataSource))
                 .usingDbTime()
                 .build(),
         )
-    }
 
     @Bean
     fun journalpostHendelseListener(
@@ -148,7 +148,7 @@ class ArbeidsflytConfiguration {
         restTemplate: HttpHeaderRestTemplate,
         securityTokenService: SecurityTokenService,
     ): OppgaveConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler(oppgaveUrl)
+        restTemplate.uriTemplateHandler = DefaultUriBuilderFactory(oppgaveUrl)
         restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("oppgave"))
         return DefaultOppgaveConsumer(restTemplate)
     }
@@ -159,7 +159,7 @@ class ArbeidsflytConfiguration {
         restTemplate: HttpHeaderRestTemplate,
         securityTokenService: SecurityTokenService,
     ): PersonConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$personUrl/bidrag-person")
+        restTemplate.uriTemplateHandler = DefaultUriBuilderFactory("$personUrl/bidrag-person")
         restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("person"))
         return DefaultPersonConsumer(restTemplate)
     }
@@ -170,7 +170,7 @@ class ArbeidsflytConfiguration {
         restTemplate: HttpHeaderRestTemplate,
         securityTokenService: SecurityTokenService,
     ): BidragOrganisasjonConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$organisasjonUrl/bidrag-organisasjon")
+        restTemplate.uriTemplateHandler = DefaultUriBuilderFactory("$organisasjonUrl/bidrag-organisasjon")
         restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("organisasjon"))
         return BidragOrganisasjonConsumer(restTemplate)
     }
@@ -181,7 +181,7 @@ class ArbeidsflytConfiguration {
         restTemplate: HttpHeaderRestTemplate,
         securityTokenService: SecurityTokenService,
     ): BidragDokumentConsumer {
-        restTemplate.uriTemplateHandler = RootUriTemplateHandler("$dokumentUrl/bidrag-dokument")
+        restTemplate.uriTemplateHandler = DefaultUriBuilderFactory("$dokumentUrl/bidrag-dokument")
         restTemplate.interceptors.add(securityTokenService.clientCredentialsTokenInterceptor("dokument"))
         return BidragDokumentConsumer(restTemplate)
     }

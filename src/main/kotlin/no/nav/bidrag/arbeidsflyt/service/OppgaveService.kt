@@ -20,7 +20,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
+class OppgaveService(
+    private val oppgaveConsumer: OppgaveConsumer,
+) {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
@@ -51,9 +53,7 @@ class OppgaveService(private val oppgaveConsumer: OppgaveConsumer) {
         )
     }
 
-    internal fun hentOppgave(oppgaveId: Long): OppgaveData {
-        return oppgaveConsumer.hentOppgave(oppgaveId)
-    }
+    internal fun hentOppgave(oppgaveId: Long): OppgaveData = oppgaveConsumer.hentOppgave(oppgaveId)
 
     internal fun oppdaterOppgaver(
         oppgaverForHendelse: OppgaverForHendelse,

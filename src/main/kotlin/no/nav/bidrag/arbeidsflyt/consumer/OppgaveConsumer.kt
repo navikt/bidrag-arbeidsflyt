@@ -29,7 +29,9 @@ interface OppgaveConsumer {
     fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData
 }
 
-class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) : OppgaveConsumer {
+class DefaultOppgaveConsumer(
+    private val restTemplate: HttpHeaderRestTemplate,
+) : OppgaveConsumer {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
@@ -53,14 +55,15 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
         return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
     }
 
-    override fun hentOppgave(oppgaveId: Long): OppgaveData {
-        return try {
-            restTemplate.exchange(
-                "$OPPGAVE_CONTEXT/$oppgaveId",
-                HttpMethod.GET,
-                null,
-                OppgaveData::class.java,
-            ).body!!
+    override fun hentOppgave(oppgaveId: Long): OppgaveData =
+        try {
+            restTemplate
+                .exchange(
+                    "$OPPGAVE_CONTEXT/$oppgaveId",
+                    HttpMethod.GET,
+                    null,
+                    OppgaveData::class.java,
+                ).body!!
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 throw EndreOppgaveFeiletFunksjoneltException("Fant ikke oppgave med id $oppgaveId. Feilet med feilmelding ${e.message}", e)
@@ -68,7 +71,6 @@ class DefaultOppgaveConsumer(private val restTemplate: HttpHeaderRestTemplate) :
 
             throw e
         }
-    }
 
     private fun initStringOf(oppgaveSokResponse: OppgaveSokResponse?): String {
         if (oppgaveSokResponse != null) {
