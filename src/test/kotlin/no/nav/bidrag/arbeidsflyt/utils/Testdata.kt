@@ -55,14 +55,13 @@ fun createOppgave(
     journalpostId: String = JOURNALPOST_ID_1,
     status: String = OppgaveStatus.OPPRETTET.name,
     oppgaveType: String = OPPGAVETYPE_JFR,
-): Oppgave {
-    return Oppgave(
+): Oppgave =
+    Oppgave(
         oppgaveId = oppgaveId,
         journalpostId = journalpostId,
         status = status,
         oppgavetype = oppgaveType,
     )
-}
 
 fun createDLQKafka(
     payload: String,
@@ -71,8 +70,8 @@ fun createDLQKafka(
     retryCount: Int = 0,
     messageKey: String = "JOARK-$JOURNALPOST_ID_1",
     timestamp: LocalDateTime = LocalDateTime.now(),
-): DLQKafka {
-    return DLQKafka(
+): DLQKafka =
+    DLQKafka(
         topicName = topicName,
         messageKey = messageKey,
         payload = payload,
@@ -80,7 +79,6 @@ fun createDLQKafka(
         retryCount = retryCount,
         createdTimestamp = timestamp,
     )
-}
 
 fun createOppgaveData(
     id: Long,
@@ -150,8 +148,8 @@ fun createJournalpostHendelse(
     fagomrade: String = "BID",
     aktorId: String = AKTOER_ID,
     sporingEnhet: String = "4833",
-): JournalpostHendelse {
-    return JournalpostHendelse(
+): JournalpostHendelse =
+    JournalpostHendelse(
         journalpostId = journalpostId,
         aktorId = aktorId,
         fagomrade = fagomrade,
@@ -167,15 +165,14 @@ fun createJournalpostHendelse(
         hendelseType = HendelseType.ENDRING,
         journalposttype = "I",
     )
-}
 
 fun journalpostResponse(
     journalpostId: String = JOURNALPOST_ID_1,
     journalStatus: JournalpostStatus = JournalpostStatus.JOURNALFØRT,
     journalforendeEnhet: String = "4833",
     tema: String = "BID",
-): JournalpostResponse {
-    return JournalpostResponse(
+): JournalpostResponse =
+    JournalpostResponse(
         journalpost =
             JournalpostDto(
                 journalpostId = journalpostId,
@@ -184,10 +181,9 @@ fun journalpostResponse(
                 fagomrade = tema,
             ),
     )
-}
 
-fun oppgaveDataResponse(): List<OppgaveData> {
-    return listOf(
+fun oppgaveDataResponse(): List<OppgaveData> =
+    listOf(
         OppgaveData(
             id = OPPGAVE_ID_1,
             versjon = 1,
@@ -225,28 +221,25 @@ fun oppgaveDataResponse(): List<OppgaveData> {
             tildeltEnhetsnr = "4833",
         ),
     )
-}
 
-fun createJournalforendeEnheterResponse(): List<EnhetDto> {
-    return arrayListOf<EnhetDto>(
+fun createJournalforendeEnheterResponse(): List<EnhetDto> =
+    arrayListOf<EnhetDto>(
         EnhetDto(Enhetsnummer("2103"), "Nav vikafossen"),
         EnhetDto(Enhetsnummer("4817"), "NAV Familie- og pensjonsytelser Steinkjer"),
         EnhetDto(Enhetsnummer("4833"), "NAV Familie- og pensjonsytelser Oslo 1"),
         EnhetDto(Enhetsnummer("4806"), "NAV Familie- og pensjonsytelser Drammen"),
         EnhetDto(Enhetsnummer("4812"), "NAV Familie- og pensjonsytelser Bergen"),
     )
-}
 
 fun createJournalpost(
     journalpostId: String,
     status: String = "M",
     enhet: String = "4833",
     tema: String = "BID",
-): Journalpost {
-    return Journalpost(
+): Journalpost =
+    Journalpost(
         journalpostId = journalpostId,
         status = status,
         enhet = enhet,
         tema = tema,
     )
-}

@@ -11,7 +11,9 @@ internal val JournalpostResponse.erBidragFagomrade get(): Boolean = journalpost?
 internal val JournalpostResponse.erFarskap get(): Boolean = journalpost?.fagomrade == Fagomrade.FARSKAP
 
 @Service
-class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsumer) {
+class JournalpostService(
+    private val bidragDokumentConsumer: BidragDokumentConsumer,
+) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(JournalpostService::class.java)
@@ -23,7 +25,5 @@ class JournalpostService(private val bidragDokumentConsumer: BidragDokumentConsu
         return journalpost.takeIf { it?.journalpost?.status == JournalpostStatus.MOTTATT }
     }
 
-    fun hentJournalpost(journalpostId: String): JournalpostResponse? {
-        return bidragDokumentConsumer.hentJournalpost(journalpostId)
-    }
+    fun hentJournalpost(journalpostId: String): JournalpostResponse? = bidragDokumentConsumer.hentJournalpost(journalpostId)
 }

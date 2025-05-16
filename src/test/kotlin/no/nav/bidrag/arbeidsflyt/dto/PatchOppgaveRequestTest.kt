@@ -60,7 +60,8 @@ internal class PatchOppgaveRequestTest {
         val opprettOppgaveRequest = OpprettJournalforingsOppgaveRequest("1234", "123213")
         val stringValue = jacksonObjectMapper().writer().writeValueAsString(opprettOppgaveRequest)
 
-        assertThat(stringValue).`as`("Expected json string value")
+        assertThat(stringValue)
+            .`as`("Expected json string value")
             .containsPattern("\"opprettetAvEnhetsnr\":\"9999\"")
             .containsPattern("\"prioritet\":\"HOY\"")
             .containsPattern("\"oppgavetype\":\"JFR\"")

@@ -34,8 +34,7 @@ class BehandleHendelseService(
             arbeidsfordelingService,
             persistenceService,
             tIlgangskontrollConsumer,
-        )
-            .oppdaterEksterntFagomrade()
+        ).oppdaterEksterntFagomrade()
             .oppdaterEndretEnhetsnummer()
             .oppdaterOverførMellomBidragFagomrader()
             .oppdaterOppgaveMedAktoerId()

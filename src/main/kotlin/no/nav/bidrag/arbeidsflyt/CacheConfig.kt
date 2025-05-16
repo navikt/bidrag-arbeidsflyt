@@ -29,13 +29,17 @@ class CacheConfig {
         val caffeineCacheManager = CaffeineCacheManager()
         caffeineCacheManager.registerCustomCache(
             PERSON_CACHE,
-            Caffeine.newBuilder()
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
+            Caffeine
+                .newBuilder()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
+                .build(),
         )
         caffeineCacheManager.registerCustomCache(
             GEOGRAFISK_ENHET_CACHE,
-            Caffeine.newBuilder()
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag()).build(),
+            Caffeine
+                .newBuilder()
+                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
+                .build(),
         )
         caffeineCacheManager.registerCustomCache(
             JOURNALFORENDE_ENHET_CACHE,

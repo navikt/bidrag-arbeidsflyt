@@ -17,17 +17,17 @@
   <description>Mikrotjeneste for administrering av arbeidsflyt i bidrag</description>
 
   <properties>
-    <kotlin.version>2.1.10</kotlin.version>
+    <kotlin.version>2.1.21</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-felles.version>2025.03.24.164435</bidrag-felles.version>
+    <bidrag-felles.version>2025.05.16.133902</bidrag-felles.version>
     <logback-encoder.version>8.0</logback-encoder.version>
     <mockito-kotlin.version>5.1.0</mockito-kotlin.version>
     <token-support.version>5.0.25</token-support.version>
     <springframework-cloud.version>4.2.0</springframework-cloud.version>
     <squareup-okhttp3.version>4.12.0</squareup-okhttp3.version>
-    <shedlock.version>5.10.2</shedlock.version>
-    <flyway.version>10.4.0</flyway.version>
+    <shedlock.version>6.6.1</shedlock.version>
+    <flyway.version>11.8.2</flyway.version>
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
@@ -52,25 +52,6 @@
       <url>https://maven.pkg.github.com/navikt/bidrag-commons</url>
     </repository>
   </repositories>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.yaml</groupId>
-        <artifactId>snakeyaml</artifactId>
-        <version>2.4</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>2.13.15</version>
-      </dependency>
-<!--      <dependency>-->
-<!--        <groupId>org.apache.kafka</groupId>-->
-<!--        <artifactId>kafka-clients</artifactId>-->
-<!--        <version>3.4.0</version>-->
-<!--      </dependency>-->
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -381,7 +362,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
+        <version>3.5.3</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -443,7 +424,7 @@
           <dependency>
             <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-cli</artifactId>
-            <version>1.0.1</version>
+            <version>1.5.0</version>
           </dependency>
           <!-- additional 3rd party ruleset(s) can be specified here -->
         </dependencies>

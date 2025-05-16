@@ -321,6 +321,7 @@ open class PatchOppgaveRequest(
 }
 
 class OppdaterOppgave() : PatchOppgaveRequest() {
+    @Suppress("ktlint:standard:backing-property-naming")
     private var _hasChanged: Boolean = false
     private var saksbehandlerInfo: String = "Automatisk jobb"
     private var oppgaveDataForHendelse: OppgaveData? = null

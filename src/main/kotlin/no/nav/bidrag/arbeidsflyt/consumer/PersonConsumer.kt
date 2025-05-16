@@ -23,7 +23,9 @@ interface PersonConsumer {
     fun hentPerson(ident: String?): PersonDto?
 }
 
-open class DefaultPersonConsumer(private val restTemplate: HttpHeaderRestTemplate) : PersonConsumer {
+open class DefaultPersonConsumer(
+    private val restTemplate: HttpHeaderRestTemplate,
+) : PersonConsumer {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(DefaultPersonConsumer::class.java)

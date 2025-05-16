@@ -19,7 +19,10 @@ data class OppgaveKafkaHendelse(
     val tema get() = oppgave.kategorisering?.tema
     val tildeltEnhetsnr get() = oppgave.tilordning?.enhetsnr
 
-    data class Hendelse(val hendelsestype: Hendelsestype, val tidspunkt: LocalDateTime) {
+    data class Hendelse(
+        val hendelsestype: Hendelsestype,
+        val tidspunkt: LocalDateTime,
+    ) {
         enum class Hendelsestype {
             OPPGAVE_OPPRETTET,
             OPPGAVE_ENDRET,
@@ -28,7 +31,10 @@ data class OppgaveKafkaHendelse(
         }
     }
 
-    data class UtfortAv(val navIdent: String?, val enhetsnr: String?)
+    data class UtfortAv(
+        val navIdent: String?,
+        val enhetsnr: String?,
+    )
 
     data class Oppgave(
         val oppgaveId: Long,
@@ -64,7 +70,10 @@ data class OppgaveKafkaHendelse(
         val frist: LocalDate?,
     )
 
-    data class Bruker(val ident: String?, val identType: IdentType?) {
+    data class Bruker(
+        val ident: String?,
+        val identType: IdentType?,
+    ) {
         enum class IdentType {
             FOLKEREGISTERIDENT,
             NPID,
