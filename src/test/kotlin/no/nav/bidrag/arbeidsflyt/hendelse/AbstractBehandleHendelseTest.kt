@@ -71,11 +71,11 @@ abstract class AbstractBehandleHendelseTest {
         testDataGenerator.deleteAll()
     }
 
-    private fun aClosedJsonResponse(): ResponseDefinitionBuilder {
-        return WireMock.aResponse()
+    private fun aClosedJsonResponse(): ResponseDefinitionBuilder =
+        WireMock
+            .aResponse()
             .withHeader(HttpHeaders.CONNECTION, "close")
             .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-    }
 
     fun stubOpprettOppgave(
         oppgaveId: Long = OPPGAVE_ID_1,
@@ -104,7 +104,8 @@ abstract class AbstractBehandleHendelseTest {
     fun stubHentOppgaveSok(oppgaver: List<OppgaveData> = oppgaveDataResponse()) {
         stubFor(
             get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
-                aClosedJsonResponse().withStatus(HttpStatus.OK.value())
+                aClosedJsonResponse()
+                    .withStatus(HttpStatus.OK.value())
                     .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
             ),
         )
@@ -116,7 +117,8 @@ abstract class AbstractBehandleHendelseTest {
     ) {
         stubFor(
             get(urlMatching("/oppgave/api/v1/oppgaver/$oppgaveId")).willReturn(
-                aClosedJsonResponse().withStatus(HttpStatus.OK.value())
+                aClosedJsonResponse()
+                    .withStatus(HttpStatus.OK.value())
                     .withBody(objectMapper.writeValueAsString(oppgave)),
             ),
         )
@@ -149,7 +151,8 @@ abstract class AbstractBehandleHendelseTest {
         params.forEach { matchUrl = "$matchUrl${it.first}=${it.second}.*" }
         val stub = get(urlMatching(matchUrl))
         stub.willReturn(
-            aClosedJsonResponse().withStatus(HttpStatus.OK.value())
+            aClosedJsonResponse()
+                .withStatus(HttpStatus.OK.value())
                 .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
         )
         stubFor(stub)
@@ -176,10 +179,10 @@ abstract class AbstractBehandleHendelseTest {
                 .inScenario("Hent person response")
                 .whenScenarioStateIs(scenarioState ?: Scenario.STARTED)
                 .willReturn(
-                    aClosedJsonResponse().withStatus(status.value())
+                    aClosedJsonResponse()
+                        .withStatus(status.value())
                         .withBody(objectMapper.writeValueAsString(PersonDto(ident = Personident(personId), aktørId = aktorId))),
-                )
-                .willSetStateTo(nextScenario),
+                ).willSetStateTo(nextScenario),
         )
     }
 

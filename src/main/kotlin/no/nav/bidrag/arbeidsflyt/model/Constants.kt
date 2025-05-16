@@ -6,15 +6,14 @@ object Fagomrade {
     const val FARSKAP = "FAR"
 }
 
-fun tilFagområdeBeskrivelse(fagomrade: String): String {
-    return if (fagomrade == Fagomrade.FARSKAP) {
+fun tilFagområdeBeskrivelse(fagomrade: String): String =
+    if (fagomrade == Fagomrade.FARSKAP) {
         "Farskap"
     } else if (fagomrade == Fagomrade.BIDRAG) {
         "Bidrag"
     } else {
         fagomrade
     }
-}
 
 // misc const
 const val CORRELATION_ID = "correlationId"

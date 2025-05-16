@@ -21,13 +21,9 @@ class TestDataGenerator {
     @Autowired
     lateinit var dlqKafkaRepository: DLQKafkaRepository
 
-    fun hentDlKafka(): List<DLQKafka> {
-        return dlqKafkaRepository.findAll()
-    }
+    fun hentDlKafka(): List<DLQKafka> = dlqKafkaRepository.findAll()
 
-    fun hentOppgave(oppgaveId: Long): Optional<Oppgave> {
-        return oppgaveRepository.findById(oppgaveId)
-    }
+    fun hentOppgave(oppgaveId: Long): Optional<Oppgave> = oppgaveRepository.findById(oppgaveId)
 
     fun opprettDLQMelding(dlqKafka: DLQKafka) {
         dlqKafkaRepository.save(dlqKafka)
@@ -43,9 +39,7 @@ class TestDataGenerator {
         oppgaveRepository.deleteAll()
     }
 
-    fun hentJournalpost(journalpostId: String): Journalpost? {
-        return journalpostRepository.findByJournalpostId(journalpostId)
-    }
+    fun hentJournalpost(journalpostId: String): Journalpost? = journalpostRepository.findByJournalpostId(journalpostId)
 
     fun opprettJournalpost(journalpost: Journalpost) {
         journalpostRepository.save(journalpost)

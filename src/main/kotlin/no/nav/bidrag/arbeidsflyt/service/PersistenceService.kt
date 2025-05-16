@@ -26,13 +26,9 @@ class PersistenceService(
         private val LOGGER = LoggerFactory.getLogger(PersistenceService::class.java)
     }
 
-    fun hentJournalforingOppgave(oppgaveId: Long): Oppgave? {
-        return oppgaveRepository.findByOppgaveId(oppgaveId)?.takeIf { it.erJournalforingOppgave() }
-    }
+    fun hentJournalforingOppgave(oppgaveId: Long): Oppgave? = oppgaveRepository.findByOppgaveId(oppgaveId)?.takeIf { it.erJournalforingOppgave() }
 
-    fun hentJournalpostMedStatusMottatt(journalpostId: String): Journalpost? {
-        return journalpostRepository.findByJournalpostId(journalpostId)?.takeIf { it.erStatusMottatt && it.erBidragFagomrade }
-    }
+    fun hentJournalpostMedStatusMottatt(journalpostId: String): Journalpost? = journalpostRepository.findByJournalpostId(journalpostId)?.takeIf { it.erStatusMottatt && it.erBidragFagomrade }
 
     @Transactional
     fun lagreEllerOppdaterJournalpostFraHendelse(journalpostHendelse: JournalpostHendelse) {
@@ -91,7 +87,8 @@ class PersistenceService(
     @Transactional
     fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveData) {
         if (oppgaveHendelse.erAapenJournalforingsoppgave()) {
-            oppgaveRepository.findById(oppgaveHendelse.id)
+            oppgaveRepository
+                .findById(oppgaveHendelse.id)
                 .ifPresentOrElse({
                     LOGGER.info("Oppdaterer oppgave ${oppgaveHendelse.id} i databasen")
                     it.oppdaterOppgaveFraHendelse(oppgaveHendelse)

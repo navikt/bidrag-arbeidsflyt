@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonConsumer) {
+class OrganisasjonService(
+    private val organisasjonConsumer: BidragOrganisasjonConsumer,
+) {
     companion object {
         private val DEFAULT_ENHET = Enhetsnummer("4833")
 
@@ -40,13 +42,9 @@ class OrganisasjonService(private val organisasjonConsumer: BidragOrganisasjonCo
         return geografiskEnhet
     }
 
-    fun hentBidragJournalforendeEnheter(): List<EnhetDto> {
-        return organisasjonConsumer.hentJournalforendeEnheter()
-    }
+    fun hentBidragJournalforendeEnheter(): List<EnhetDto> = organisasjonConsumer.hentJournalforendeEnheter()
 
-    fun erJournalførendeEnhet(enhet: String?): Boolean {
-        return hentBidragJournalforendeEnheter().any { it.nummer.verdi == enhet }
-    }
+    fun erJournalførendeEnhet(enhet: String?): Boolean = hentBidragJournalforendeEnheter().any { it.nummer.verdi == enhet }
 
     fun enhetEksistererOgErAktiv(enhet: String?): Boolean {
         if (enhet.isNullOrEmpty()) {

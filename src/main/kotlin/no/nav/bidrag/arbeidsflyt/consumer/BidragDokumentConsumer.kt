@@ -11,7 +11,9 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpStatusCodeException
 
-open class BidragDokumentConsumer(private val restTemplate: HttpHeaderRestTemplate) {
+open class BidragDokumentConsumer(
+    private val restTemplate: HttpHeaderRestTemplate,
+) {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BidragDokumentConsumer::class.java)

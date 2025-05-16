@@ -30,8 +30,11 @@ class BidragTIlgangskontrollConsumer(
         val headers = HttpHeaders()
         headers.contentType = MediaType.TEXT_PLAIN
         val url =
-            UriComponentsBuilder.fromUri(url)
-                .path("/api/tilgang/tema").queryParam("navIdent", saksbehandlerIdent).build()
+            UriComponentsBuilder
+                .fromUri(url)
+                .path("/api/tilgang/tema")
+                .queryParam("navIdent", saksbehandlerIdent)
+                .build()
         return try {
             postForEntity(url.toUri(), tema, headers) ?: false
         } catch (e: HttpStatusCodeException) {
