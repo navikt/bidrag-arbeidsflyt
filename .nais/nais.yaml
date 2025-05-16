@@ -10,6 +10,11 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+        - id: secure_logs
   azure:
     application:
       enabled: true
@@ -22,6 +27,8 @@ spec:
       {{#each outbound-access-apps}}
           - application: {{this}}
       {{/each}}
+          - application: logging
+            namespace: nais-system
       external:
       {{#each outbound-access-hosts}}
           - host: {{this}}
