@@ -5,6 +5,7 @@ import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentJournalforendeEnheterFeiletFunksjoneltException
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.domene.enums.diverse.Tema
 import no.nav.bidrag.domene.ident.Personident
@@ -60,8 +61,8 @@ open class BidragOrganisasjonConsumer(
             return response.body?.nummer
         } catch (e: HttpStatusCodeException) {
             val errorMessage =
-                "Det skjedde en feil ved henting av arbeidsfordeling for person $personId og behandlingstema=$behandlingstema"
-            LOGGER.error(errorMessage, e)
+                "Det skjedde en feil ved henting av arbeidsfordeling for person ${personId.verdi} og behandlingstema=$behandlingstema"
+            secureLogger.error(e) { errorMessage }
             if (e.statusCode == HttpStatus.BAD_REQUEST && behandlingstema != null) {
                 LOGGER.warn(
                     "Kunne ikke hente arbeidsfordeling med behandlingstema=$behandlingstema. Forsøker å hente arbeidsfordeling med bare personId",
