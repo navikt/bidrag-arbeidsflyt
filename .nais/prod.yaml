@@ -24,7 +24,7 @@ env:
 database:
   dbname: bidrag-arbeidsflyt
   autoResize: true
-  tier: db-f1-micro
+  tier: db-g1-small
 ingresses:
   - https://bidrag-arbeidsflyt.intern.nav.no
 outbound-access-apps:
