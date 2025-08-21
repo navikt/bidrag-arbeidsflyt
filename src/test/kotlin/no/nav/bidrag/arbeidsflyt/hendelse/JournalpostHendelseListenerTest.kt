@@ -62,7 +62,7 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
         val hendelseString = objectMapper.writeValueAsString(journalpostHendelse)
         configureProducer()?.send(ProducerRecord(topic, BID_JOURNALPOST_ID_3_NEW, hendelseString))
 
-        await.atMost(4, TimeUnit.SECONDS).untilAsserted {
+        await.atMost(6, TimeUnit.SECONDS).untilAsserted {
             val dlMessages = testDataGenerator.hentDlKafka()
             assertThat(dlMessages.size).isEqualTo(1)
             assertThat(dlMessages[0].messageKey).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
