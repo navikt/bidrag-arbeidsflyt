@@ -2,31 +2,35 @@ logging:
   level:
     root: INFO
 
-BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll.intern.dev.nav.no
+BIDRAG_PERSON_URL: https://bidrag-person-q1.dev.intern.nav.no/bidrag-sak
+BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
+BIDRAG_SAK_URL: https://bidrag-sak-q1.dev.intern.nav.no/bidrag-sak
+BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q1
+BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll-feature.intern.dev.nav.no
 TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 KAFKA_MAX_RETRY: 1
 TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
 #### KAFKA
 NAIS_APP_NAME: bidrag-arbeidsflyt-local
 KAFKA_BOOTSTRAP_SERVERS: localhost:9092
-KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
+KAFKA_GROUP_ID: bidrag-arbeidsflyt
 KAFKA_BROKERS: localhost:9092
 TOPIC_JOURNALPOST: bidrag-journalpost
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
+TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-lokal
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
 server.port: 9999
+
 spring:
-  flyway.enabled: false
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:default;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
----
-spring.config.activate.on-profile: local-kafka
-spring:
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration
+  datasource:
+    url: jdbc:postgresql://localhost:${DB_PORT:5454}/${DB_DATABASE:bidrag-arbeidsflyt}?user=${DB_USERNAME:cloudsqliamuser}&password=${DB_PASSWORD:admin}
+    type: com.zaxxer.hikari.HikariDataSource
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:
@@ -35,12 +39,4 @@ spring:
       enableAutoCommit: false
     listener:
       ackMode: RECORD
----
-spring.config.activate.on-profile: kafka
-spring:
-  flyway:
-    enabled: true
-    locations: classpath:/db/migration
-  datasource:
-    url: jdbc:postgresql://localhost:${DB_PORT:5456}/${DB_DATABASE:bidrag-arbeidsflyt}?user=${DB_USERNAME:cloudsqliamuser}&password=${DB_PASSWORD:admin}
-    type: com.zaxxer.hikari.HikariDataSource
+

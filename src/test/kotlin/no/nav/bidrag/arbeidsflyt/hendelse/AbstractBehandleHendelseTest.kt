@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.patch
+import com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
@@ -14,9 +15,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
+import no.nav.bidrag.arbeidsflyt.BidragArbeidsflytTest
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
+import no.nav.bidrag.arbeidsflyt.dto.DefaultOpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
+import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingHendelseBarn
 import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.ENHET_4806
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
@@ -25,12 +30,15 @@ import no.nav.bidrag.arbeidsflyt.utils.TestDataGenerator
 import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
+import no.nav.bidrag.arbeidsflyt.utils.opprettSakForBehandling
 import no.nav.bidrag.domene.enums.diverse.Enhetsstatus
+import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
+import no.nav.bidrag.transport.sak.BidragssakDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -40,9 +48,13 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import java.time.LocalDate
 import java.util.Arrays
 
-@SpringBootTest
+@SpringBootTest(
+    classes = [BidragArbeidsflytTest::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+)
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
@@ -58,6 +70,7 @@ abstract class AbstractBehandleHendelseTest {
         testDataGenerator.deleteAll()
         stubHentPerson()
         stubOpprettOppgave()
+        stubHentSak()
         stubEndreOppgave()
         stubHentOppgaveSok()
         stubHentTemaTilgang()
@@ -76,6 +89,25 @@ abstract class AbstractBehandleHendelseTest {
             .aResponse()
             .withHeader(HttpHeaders.CONNECTION, "close")
             .withHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+
+    fun stubHentSak(
+        response: BidragssakDto =
+            opprettSakForBehandling(
+                BehandlingHendelseBarn(
+                    ident = PERSON_IDENT_1,
+                    saksnummer = "213213",
+                    søktAv = SøktAvType.BIDRAGSMOTTAKER,
+                    søktFraDato = LocalDate.parse("2025-07-01"),
+                    behandlerEnhet = "4806",
+                ),
+            ),
+    ) {
+        stubFor(
+            get("/sak/sak/${response.saksnummer}").willReturn(
+                aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(objectMapper.writeValueAsString(response)),
+            ),
+        )
+    }
 
     fun stubOpprettOppgave(
         oppgaveId: Long = OPPGAVE_ID_1,
@@ -101,14 +133,41 @@ abstract class AbstractBehandleHendelseTest {
         stubFor(patch(urlMatching("/oppgave/api/v1/oppgaver/.*")).willReturn(aClosedJsonResponse().withStatus(HttpStatus.OK.value())))
     }
 
-    fun stubHentOppgaveSok(oppgaver: List<OppgaveData> = oppgaveDataResponse()) {
+    fun stubHentOppgaveSok(
+        oppgaver: List<OppgaveData> = oppgaveDataResponse(),
+        oppgaver2: List<OppgaveData>? = null,
+    ) {
         stubFor(
-            get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*")).willReturn(
-                aClosedJsonResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
-            ),
+            get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*"))
+                .willReturn(
+                    aClosedJsonResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
+                ),
         )
+
+        if (oppgaver2 != null) {
+            stubFor(
+                get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*"))
+                    .inScenario("Opprett oppgave scenario")
+                    .whenScenarioStateIs(Scenario.STARTED)
+                    .willReturn(
+                        aClosedJsonResponse()
+                            .withStatus(HttpStatus.OK.value())
+                            .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver, antallTreffTotalt = 10))),
+                    ).willSetStateTo("SECOND_CALL"),
+            )
+            stubFor(
+                get(urlMatching("/oppgave/api/v1/oppgaver/\\?.*"))
+                    .inScenario("Opprett oppgave scenario")
+                    .whenScenarioStateIs("SECOND_CALL")
+                    .willReturn(
+                        aClosedJsonResponse()
+                            .withStatus(HttpStatus.OK.value())
+                            .withBody(objectMapper.writeValueAsString(OppgaveSokResponse(oppgaver = oppgaver2, antallTreffTotalt = 10))),
+                    ),
+            )
+        }
     }
 
     fun stubHentOppgave(
@@ -272,6 +331,30 @@ abstract class AbstractBehandleHendelseTest {
             )
         }
         verify(1, requestPattern)
+    }
+
+    fun getOppgaveOpprettRequest(saksnummer: String? = null): DefaultOpprettOppgaveRequest? {
+        val requests = WireMock.findAll(postRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/")))
+        return if (requests.isNotEmpty()) {
+            requests
+                .map {
+                    objectMapper.readValue(it.bodyAsString, DefaultOpprettOppgaveRequest::class.java)
+                }.find { saksnummer == null || it.saksreferanse == saksnummer }
+        } else {
+            null
+        }
+    }
+
+    fun getOppgaveEndretRequest(oppgaveId: Long? = null): PatchOppgaveRequest? {
+        val requests = WireMock.findAll(patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
+        return if (requests.isNotEmpty()) {
+            requests
+                .map {
+                    objectMapper.readValue(it.bodyAsString, PatchOppgaveRequest::class.java)
+                }.find { oppgaveId == null || it.id == oppgaveId }
+        } else {
+            null
+        }
     }
 
     fun verifyDokumentHentet(count: Int? = 1) {

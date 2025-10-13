@@ -8,6 +8,7 @@ import no.nav.bidrag.arbeidsflyt.model.hentTema
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class PersistenceService(
+    private val behandlingRepository: BehandlingRepository,
     private val oppgaveRepository: OppgaveRepository,
     private val dlqKafkaRepository: DLQKafkaRepository,
     private val journalpostRepository: JournalpostRepository,
@@ -79,6 +81,7 @@ class PersistenceService(
                 oppgavetype = oppgaveHendelse.oppgavetype!!,
                 status = oppgaveHendelse.status?.name!!,
                 journalpostId = oppgaveHendelse.journalpostId,
+                frist = oppgaveHendelse.fristFerdigstillelse,
             )
         oppgaveRepository.save(oppgave)
         LOGGER.info("Lagret oppgave med id ${oppgaveHendelse.id} i databasen.")
@@ -88,20 +91,21 @@ class PersistenceService(
     fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveData) {
         if (oppgaveHendelse.erAapenJournalforingsoppgave()) {
             oppgaveRepository
-                .findById(oppgaveHendelse.id)
-                .ifPresentOrElse({
+                .findByOppgaveId(oppgaveHendelse.id)
+                ?.apply {
                     LOGGER.info("Oppdaterer oppgave ${oppgaveHendelse.id} i databasen")
-                    it.oppdaterOppgaveFraHendelse(oppgaveHendelse)
-                    oppgaveRepository.save(it)
-                }, {
-                    LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
-                    lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
-                })
-        } else {
-            oppgaveRepository.findById(oppgaveHendelse.id).ifPresent {
-                oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
-                LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
+                    oppdaterOppgaveFraHendelse(oppgaveHendelse)
+                } ?: run {
+                LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
+                lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
             }
+        } else if (oppgaveHendelse.erStatusKategoriAvsluttet) {
+            behandlingRepository.oppdaterStatusPåBehandlingOppgave(oppgaveHendelse.id)
+        }
+
+        if (oppgaveHendelse.erStatusKategoriAvsluttet) {
+            oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
+            LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
         }
     }
 

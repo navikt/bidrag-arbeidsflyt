@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 // Fagområder på en journalpost
 object Fagomrade {
     const val BIDRAG = "BID"
+    const val BIDRAGINNKREVING = "BII"
     const val FARSKAP = "FAR"
 }
 

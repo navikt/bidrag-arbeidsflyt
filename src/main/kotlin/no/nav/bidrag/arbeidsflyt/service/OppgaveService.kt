@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.consumer.OppgaveConsumer
+import no.nav.bidrag.arbeidsflyt.dto.DefaultOpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.EndreForNyttDokumentRequest
 import no.nav.bidrag.arbeidsflyt.dto.EndreMellomBidragFagomrader
 import no.nav.bidrag.arbeidsflyt.dto.FerdigstillOppgaveRequest
@@ -9,9 +10,11 @@ import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
+import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettBehandleDokumentOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
@@ -27,6 +30,51 @@ class OppgaveService(
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
+    internal fun finnOppgaverForSøknad(
+        søknadId: Long? = null,
+        behandlingId: Long? = null,
+        saksnr: String,
+        tema: String = Fagomrade.BIDRAG,
+        oppgaveType: OppgaveType,
+    ): OppgaverForHendelse {
+        val oppgaveSokRequest =
+            OppgaveSokRequest()
+                .leggTilOppgavetype(oppgaveType)
+                .leggTilFagomrade(tema)
+                .leggTilSaksreferanse(saksnr)
+
+        val oppgaverForBehandling =
+            if (behandlingId != null) {
+                oppgaveConsumer
+                    .søkOppgaver(
+                        oppgaveSokRequest
+                            .copy()
+                            .leggTilBehandlingreferanse(behandlingId.toString()),
+                    ).oppgaver
+            } else {
+                emptyList()
+            }
+        val oppgaverForSøknad =
+            if (søknadId != null) {
+                oppgaveConsumer
+                    .søkOppgaver(
+                        oppgaveSokRequest
+                            .copy()
+                            .leggTilSøknadsreferanse(søknadId.toString()),
+                    ).oppgaver
+            } else {
+                emptyList()
+            }
+        val andreOppgaver =
+            if (søknadId == null && behandlingId == null) {
+                oppgaveConsumer.søkOppgaver(oppgaveSokRequest).oppgaver
+            } else {
+                emptyList()
+            }
+        val alleOppgaver = (oppgaverForBehandling + oppgaverForSøknad + andreOppgaver).distinctBy { it.id }
+        return OppgaverForHendelse(alleOppgaver)
+    }
+
     internal fun finnBehandlingsoppgaverForSaker(
         saker: List<String>,
         tema: String? = null,
@@ -40,7 +88,7 @@ class OppgaveService(
             oppgaveSokRequest.leggTilFagomrade(tema)
         }
 
-        return OppgaverForHendelse(oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver)
+        return OppgaverForHendelse(oppgaveConsumer.søkOppgaver(oppgaveSokRequest).oppgaver)
     }
 
     internal fun finnAapneJournalforingOppgaverForJournalpost(journalpostId: String): OppgaverForHendelse {
@@ -49,7 +97,7 @@ class OppgaveService(
                 .leggTilJournalpostId(journalpostId)
 
         return OppgaverForHendelse(
-            oppgaveConsumer.finnOppgaverForJournalpost(oppgaveSokRequest).oppgaver,
+            oppgaveConsumer.søkOppgaver(oppgaveSokRequest).oppgaver,
         )
     }
 
@@ -143,9 +191,7 @@ class OppgaveService(
         opprettBehandleDokumentOppgaveForSaker(journalpostHendelse, sakerSomKreverNyBehandleDokumentOppgave)
     }
 
-    internal fun opprettBehandleDokumentOppgave(opprettBehandleDokumentOppgaveRequest: OpprettBehandleDokumentOppgaveRequest) {
-        oppgaveConsumer.opprettOppgave(opprettBehandleDokumentOppgaveRequest)
-    }
+    fun opprettOppgave(request: DefaultOpprettOppgaveRequest): OppgaveData = oppgaveConsumer.opprettOppgave(request)
 
     internal fun opprettBehandleDokumentOppgaveForSaker(
         journalpostHendelse: JournalpostHendelse,
@@ -154,7 +200,7 @@ class OppgaveService(
         LOGGER.info("Antall behandle dokument oppgaver som skal opprettes: ${saker.size} for saker $saker")
         saker.forEach {
             LOGGER.info("Oppretter behandle dokument oppgave for sak $it og journalpostId ${journalpostHendelse.journalpostId}")
-            opprettBehandleDokumentOppgave(
+            opprettOppgave(
                 OpprettBehandleDokumentOppgaveRequest(
                     saksreferanse = it,
                     _journalpostId = journalpostHendelse.journalpostMedPrefix,

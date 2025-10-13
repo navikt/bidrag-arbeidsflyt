@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt
 
+import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
@@ -15,7 +16,6 @@ val SECURE_LOGGER = LoggerFactory.getLogger("secureLogger")
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableAspectJAutoProxy
-@Import(RestOperationsAzure::class)
 class BidragArbeidsflyt
 
 fun main(args: Array<String>) {

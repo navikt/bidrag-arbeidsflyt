@@ -12,6 +12,7 @@ SERVICE_USER_USERNAME: srvBdArbeidsflyt
 SERVICE_USER_PASSWORD: ${SRV_BD_ARBEIDSFLYT_PASSWORD}
 KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 KAFKA_MAX_RETRY: 10
+REST_MAX_RETRY: 3
 SCHEDULER_MAX_RETRY: 20
 spring:
   main:
@@ -51,19 +52,19 @@ no.nav.security.jwt:
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       person:
-        resource-url: ${PERSON_URL}
+        resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: api://${PERSON_SCOPE}/.default
+        scope: api://${BIDRAG_PERSON_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       organisasjon:
-        resource-url: ${ORGANISASJON_URL}
+        resource-url: ${BIDRAG_ORGANISASJON_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: api://${ORGANISASJON_SCOPE}/.default
+        scope: api://${BIDRAG_ORGANISASJON_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
@@ -72,7 +73,16 @@ no.nav.security.jwt:
         resource-url: ${BIDRAG_DOKUMENT_URL}
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
         grant-type: client_credentials
-        scope: api://${DOKUMENT_SCOPE}/.default
+        scope: api://${BIDRAG_DOKUMENT_SCOPE}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+      sak:
+        resource-url: ${BIDRAG_SAK_URL}
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: client_credentials
+        scope: api://${BIDRAG_SAK_SCOPE}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}

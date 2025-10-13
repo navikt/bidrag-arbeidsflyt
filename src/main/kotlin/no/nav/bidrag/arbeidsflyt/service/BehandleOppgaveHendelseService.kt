@@ -155,18 +155,6 @@ class BehandleOppgaveHendelseService(
         oppgave: OppgaveData,
     ) {
         try {
-            LOGGER.info(
-                "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                    buildList {
-                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                        add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                        add("journalpostId ${oppgave.journalpostId}")
-                        add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
-                        add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-                    }.joinToString(", "),
-            )
             SECURE_LOGGER.info(
                 "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
                     buildList {

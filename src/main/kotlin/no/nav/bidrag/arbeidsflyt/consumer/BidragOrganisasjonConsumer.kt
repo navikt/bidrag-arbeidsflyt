@@ -7,28 +7,42 @@ import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskExceptio
 import no.nav.bidrag.arbeidsflyt.model.HentJournalforendeEnheterFeiletFunksjoneltException
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.enums.diverse.Tema
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.organisasjon.HentEnhetRequest
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
+import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
-open class BidragOrganisasjonConsumer(
-    private val restTemplate: HttpHeaderRestTemplate,
-) {
+@Service
+class BidragOrganisasjonConsumer(
+    @Value("\${BIDRAG_ORGANISASJON_URL}") val url: URI,
+    @Qualifier("azure") restTemplate: RestTemplate,
+) : AbstractRestClient(restTemplate, "bidrag-organisasjon") {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BidragOrganisasjonConsumer::class.java)
     }
+
+    private val baseUri get() =
+        UriComponentsBuilder
+            .fromUri(url)
+            .pathSegment("bidrag-organisasjon")
 
     @Cacheable(CacheConfig.GEOGRAFISK_ENHET_CACHE, unless = "#result==null")
     @Retryable(
@@ -42,23 +56,16 @@ open class BidragOrganisasjonConsumer(
     ): Enhetsnummer? {
         try {
             val response =
-                restTemplate.exchange<EnhetDto>(
-                    "/arbeidsfordeling/enhet/geografisktilknytning",
-                    HttpMethod.POST,
-                    HttpEntity(
-                        HentEnhetRequest(
-                            ident = personId,
-                            behandlingstema = behandlingstema,
-                            tema = Tema.TEMA_BIDRAG.verdi,
-                        ),
+                postForEntity<EnhetDto>(
+                    baseUri.pathSegment("arbeidsfordeling", "enhet", "geografisktilknytning").build().toUri(),
+                    HentEnhetRequest(
+                        ident = personId,
+                        behandlingstema = behandlingstema,
+                        tema = Tema.TEMA_BIDRAG.verdi,
                     ),
                 )
 
-            if (response.statusCode == HttpStatus.NO_CONTENT) {
-                return null
-            }
-
-            return response.body?.nummer
+            return response?.nummer
         } catch (e: HttpStatusCodeException) {
             val errorMessage =
                 "Det skjedde en feil ved henting av arbeidsfordeling for person ${personId.verdi} og behandlingstema=$behandlingstema"
@@ -85,17 +92,15 @@ open class BidragOrganisasjonConsumer(
     )
     open fun hentJournalforendeEnheter(): List<EnhetDto> {
         val response =
-            restTemplate.exchange<List<EnhetDto>>(
-                "/arbeidsfordeling/enhetsliste/journalforende",
-                HttpMethod.GET,
-                null,
+            getForEntity<List<EnhetDto>>(
+                baseUri.pathSegment("arbeidsfordeling", "enhetsliste", "journalforende").build().toUri(),
             )
 
-        if (response.statusCode == HttpStatus.NO_CONTENT) {
+        if (response == null || response.isEmpty()) {
             throw HentJournalforendeEnheterFeiletFunksjoneltException("Fant ingen journalforende enheter")
         }
 
-        return response.body ?: emptyList()
+        return response
     }
 
     @Cacheable(CacheConfig.ENHET_INFO_CACHE, unless = "#result==null")
@@ -106,12 +111,10 @@ open class BidragOrganisasjonConsumer(
     )
     open fun hentEnhetInfo(enhet: Enhetsnummer): EnhetDto? {
         val response =
-            restTemplate.exchange<EnhetDto>(
-                "/enhet/info/$enhet",
-                HttpMethod.GET,
-                null,
+            getForEntity<EnhetDto>(
+                baseUri.pathSegment("enhet", "info", enhet.verdi).build().toUri(),
             )
 
-        return if (response.statusCode == HttpStatus.NO_CONTENT) null else response.body
+        return response
     }
 }

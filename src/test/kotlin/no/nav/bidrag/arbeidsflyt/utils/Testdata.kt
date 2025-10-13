@@ -3,11 +3,17 @@ package no.nav.bidrag.arbeidsflyt.utils
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
+import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingHendelseBarn
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.domene.enums.rolle.Rolletype
+import no.nav.bidrag.domene.enums.sak.Bidragssakstatus
+import no.nav.bidrag.domene.enums.sak.Sakskategori
+import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.organisasjon.Enhetsnummer
+import no.nav.bidrag.domene.sak.Saksnummer
 import no.nav.bidrag.transport.dokument.HendelseType
 import no.nav.bidrag.transport.dokument.JournalpostDto
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
@@ -15,6 +21,8 @@ import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.transport.dokument.JournalpostStatus
 import no.nav.bidrag.transport.dokument.Sporingsdata
 import no.nav.bidrag.transport.organisasjon.EnhetDto
+import no.nav.bidrag.transport.sak.BidragssakDto
+import no.nav.bidrag.transport.sak.RolleDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -61,6 +69,7 @@ fun createOppgave(
         journalpostId = journalpostId,
         status = status,
         oppgavetype = oppgaveType,
+        frist = LocalDate.now(),
     )
 
 fun createDLQKafka(
@@ -242,4 +251,32 @@ fun createJournalpost(
         status = status,
         enhet = enhet,
         tema = tema,
+    )
+
+fun opprettSakForBehandling(
+    barn: BehandlingHendelseBarn,
+): BidragssakDto =
+    BidragssakDto(
+        eierfogd = Enhetsnummer("4806"),
+        saksnummer = Saksnummer(barn.saksnummer),
+        saksstatus = Bidragssakstatus.IN,
+        kategori = Sakskategori.N,
+        opprettetDato = LocalDate.now(),
+        levdeAdskilt = false,
+        ukjentPart = false,
+        roller =
+            listOf(
+                RolleDto(
+                    fødselsnummer = Personident(barn.ident!!),
+                    type = Rolletype.BARN,
+                ),
+                RolleDto(
+                    fødselsnummer = Personident("123123"),
+                    type = Rolletype.BIDRAGSMOTTAKER,
+                ),
+                RolleDto(
+                    fødselsnummer = Personident("123123213"),
+                    type = Rolletype.BIDRAGSPLIKTIG,
+                ),
+            ),
     )
