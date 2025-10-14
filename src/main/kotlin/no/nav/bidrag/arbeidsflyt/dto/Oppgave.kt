@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
+import no.nav.bidrag.commons.service.organisasjon.SaksbehandlernavnProvider
 import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import no.nav.bidrag.transport.dokument.Sporingsdata
@@ -260,7 +261,7 @@ data class OpprettOppgaveRequestV2(
 class OpprettSøknadsoppgaveRequest(
     søknadsid: Long?,
     behandlingsid: Long?,
-    beskrivelse: String,
+    innhold: String,
     frist: LocalDate,
     sporingsdata: Sporingsdata,
     override var saksreferanse: String,
@@ -269,10 +270,19 @@ class OpprettSøknadsoppgaveRequest(
     override var oppgavetype: OppgaveType,
     override var tema: String,
 ) : DefaultOpprettOppgaveRequest(
-        beskrivelse = lagBeskrivelseHeader(sporingsdata.lagSaksbehandlerInfo()) + beskrivelse,
+        beskrivelse = "",
         prioritet = Prioritet.LAV.name,
     ) {
     init {
+        val sporingsdataAdjusted =
+            if (sporingsdata.saksbehandlersNavn.isNullOrEmpty() && !sporingsdata.brukerident.isNullOrEmpty()) {
+                sporingsdata.copy(
+                    saksbehandlersNavn = SaksbehandlernavnProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
+                )
+            } else {
+                sporingsdata
+            }
+        beskrivelse = lagBeskrivelseHeader(sporingsdataAdjusted.lagSaksbehandlerInfo()) + innhold
         behandlingstype = if (tildeltEnhetsnr == "4865") behandlingstypeUtland else behandlingstypeNasjonal
         opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
         fristFerdigstillelse = formatterDatoForOppgave(frist)

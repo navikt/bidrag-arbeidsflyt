@@ -17,7 +17,6 @@ import no.nav.bidrag.commons.service.forsendelse.bidragspliktig
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.behandling.Behandlingstema
 import no.nav.bidrag.domene.enums.behandling.Behandlingstype
-import no.nav.bidrag.domene.enums.behandling.tilBeskrivelseBehandlingstema
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.util.visningsnavn
@@ -44,20 +43,22 @@ class BehandleBehandlingHendelseService(
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
             return
         }
-        hendelse.barn.groupBy { it.saksnummer }.forEach { (saksnummer, barnliste) ->
+        hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
             val kreverOppgave = barnliste.any { it.status.kreverOppgave }
+            val saksnummer = saksnummerSøknadPair.first
+            val søknadsid = saksnummerSøknadPair.second
             slettÅpneOppgaverUtenSøknadsreferanse(saksnummer)
             val åpneOppgaver =
                 oppgaveService
                     .finnOppgaverForSøknad(
-                        søknadId = førsteBarn.søknadsid,
+                        søknadId = søknadsid,
                         behandlingId = hendelse.behandlingsid,
                         saksnr = saksnummer,
                         tema = finnFagområdeForSøknad(førsteBarn.stønadstype),
                         oppgaveType = finnOppgavetypeForStønadstype(førsteBarn.behandlingstema),
                     ).dataForHendelse
-            secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid ${førsteBarn.søknadsid} og behandlingsid = ${hendelse.behandlingsid}" }
+            secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling)
             if (kreverOppgave && åpneOppgaver.isEmpty()) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
@@ -92,13 +93,13 @@ class BehandleBehandlingHendelseService(
         behandling: Behandling,
         barn: BehandlingHendelseBarn,
         hendelse: BehandlingHendelse,
-    ) {
+    ): OppgaveData {
         val oppgave =
             oppgaveService.opprettOppgave(
                 OpprettSøknadsoppgaveRequest(
                     personident = finnOppgaverGjelderPerson(barn),
                     saksreferanse = barn.saksnummer,
-                    beskrivelse = opprettOppgaveBeskrivelse(barn),
+                    innhold = opprettOppgaveBeskrivelse(barn),
                     frist = finnFristForSøknadsgruppe(behandling, barn),
                     tildeltEnhetsnr = barn.behandlerEnhet,
                     tema = finnFagområdeForSøknad(barn.stønadstype),
@@ -123,6 +124,7 @@ class BehandleBehandlingHendelseService(
                     ).toSet(),
             )
         secureLogger.info { "Opprettet oppgave ${oppgave.id} for sak ${barn.saksnummer} og søknadsid ${hendelse.søknadsid} og behandlingsid ${hendelse.behandlingsid}" }
+        return oppgave
     }
 
     private fun ferdigstillOppgaver(åpneOppgaver: List<OppgaveData>) {
@@ -229,9 +231,9 @@ class BehandleBehandlingHendelseService(
     }
 
     fun opprettOppgaveBeskrivelse(barn: BehandlingHendelseBarn): String {
-        var beskrivelseBehandlingstema = tilBeskrivelseBehandlingstema(barn.stønadstype, barn.engangsbeløptype, barn.behandlingstema)
+        var beskrivelseBehandlingstema = barn.behandlingstema.bisysDekode
         if (barn.medInnkreving) {
-            beskrivelseBehandlingstema += ", innkreving"
+            beskrivelseBehandlingstema += ",innkreving"
         }
         val behandlingstemaMedSærbidragKategori =
             if (barn.særbidragskategori != null) {

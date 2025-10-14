@@ -11,6 +11,7 @@ import no.nav.bidrag.arbeidsflyt.service.PersistenceService
 import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.service.AppContext
+import no.nav.bidrag.commons.service.organisasjon.EnableSaksbehandlernavnProvider
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -36,6 +37,7 @@ import javax.sql.DataSource
 @EnableRetry
 @Import(RestOperationsAzure::class, AppContext::class)
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
+@EnableSaksbehandlernavnProvider
 class HendelseConfiguration {
     companion object {
         @JvmStatic

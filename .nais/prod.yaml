@@ -7,7 +7,7 @@ cpu:
   requests: 300m
 env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
-  BIDRAG_ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io
+  BIDRAG_ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io/bidrag-organisasjon
   BIDRAG_PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll

@@ -42,7 +42,6 @@ class BidragOrganisasjonConsumer(
     private val baseUri get() =
         UriComponentsBuilder
             .fromUri(url)
-            .pathSegment("bidrag-organisasjon")
 
     @Cacheable(CacheConfig.GEOGRAFISK_ENHET_CACHE, unless = "#result==null")
     @Retryable(
