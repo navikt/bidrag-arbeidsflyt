@@ -30,6 +30,32 @@ class OppgaveService(
         private val LOGGER = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
+    fun oppdaterAlleOppgaverSomTilhørerSammeBehandling(oppgave: OppgaveData) {
+        val oppgaver = finnOppgaverForBehandling(oppgave.behandlingsid!!.toLong())
+        oppgaver.forEach {
+            if (it.id == oppgave.id) return@forEach
+            oppdaterOppgave(
+                OppdaterOppgave(it)
+                    .overforTilEnhet(oppgave.tildeltEnhetsnr!!),
+            )
+        }
+    }
+
+    internal fun finnOppgaverForBehandling(
+        behandlingId: Long,
+    ): List<OppgaveData> {
+        val oppgaveSokRequest =
+            OppgaveSokRequest()
+                .leggTilBehandlingreferanse(behandlingId.toString())
+
+        return oppgaveConsumer
+            .søkOppgaver(
+                oppgaveSokRequest
+                    .copy()
+                    .leggTilBehandlingreferanse(behandlingId.toString()),
+            ).oppgaver
+    }
+
     internal fun finnOppgaverForSøknad(
         søknadId: Long? = null,
         behandlingId: Long? = null,

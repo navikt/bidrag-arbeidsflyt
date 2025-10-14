@@ -35,6 +35,7 @@ class BehandleBehandlingHendelseService(
     var oppgaveService: OppgaveService,
     var sakConsumer: BidragSakConsumer,
     var behandlingRepository: BehandlingRepository,
+    val persistenceService: PersistenceService,
 ) {
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
@@ -69,6 +70,7 @@ class BehandleBehandlingHendelseService(
             }
         }
         oppdaterOgLagreBehandling(hendelse, behandling)
+        persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
     }
 
     private fun oppdaterOppgaveDetaljer(

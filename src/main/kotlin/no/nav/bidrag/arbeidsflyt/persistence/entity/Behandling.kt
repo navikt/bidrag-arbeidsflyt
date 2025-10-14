@@ -41,7 +41,7 @@ data class Behandling(
     var barn: BehandlingBarn? = null,
     var mottattDato: LocalDate,
     var normDato: LocalDate? = null,
-    val enhet: String,
+    var enhet: String,
     @Column(name = "opprettet_tidspunkt")
     val opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
     @Column(name = "endret_tidspunkt")
@@ -55,7 +55,7 @@ data class BehandlingOppgave(
 data class BehandlingOppgaveDetaljer(
     val saksnummer: String,
     val oppgaveId: Long,
-    val enhet: String,
+    var enhet: String,
     val søknadsid: Long?,
     var ferdigstilt: Boolean = false,
 )

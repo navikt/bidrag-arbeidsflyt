@@ -20,6 +20,7 @@ class BehandleOppgaveHendelseService(
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: OrganisasjonService,
+    var behandlingService: BehandlingService,
     private val meterRegistry: MeterRegistry,
 ) {
     @Transactional
@@ -62,7 +63,8 @@ class BehandleOppgaveHendelseService(
                 .utfor()
             opprettNyJournalforingOppgaveHvisNodvendig(oppgave)
         } else {
-            LOGGER.debug("Oppgave ${oppgave.id} har ingen journalpostid. Stopper videre behandling.")
+            overførSøknadsoppgaverTilSammeEnhet(oppgave)
+            behandlingService.oppdaterStatusPåOppgaverBehandlingTilFerdigstilt(oppgave)
         }
 
         persistenceService.oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgave)
@@ -117,6 +119,27 @@ class BehandleOppgaveHendelseService(
                 tildeltEnhetsnr,
             ),
         )
+    }
+
+    fun overførSøknadsoppgaverTilSammeEnhet(oppgave: OppgaveData) {
+        if (oppgave.endretAvArbeidsflyt() || !erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave)) {
+            return
+        }
+
+        oppgaveService.oppdaterAlleOppgaverSomTilhørerSammeBehandling(oppgave)
+        behandlingService.oppdaterBehandlingEnhet(oppgave)
+    }
+
+    fun erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave: OppgaveData): Boolean {
+        if (!oppgave.erSøknadsoppgave) {
+            return false
+        }
+
+        val prevOppgaveState = persistenceService.hentOppgave(oppgave.id) ?: return false
+
+        return prevOppgaveState.tildeltEnhetsnr != null &&
+            oppgave.tildeltEnhetsnr != null &&
+            prevOppgaveState.tildeltEnhetsnr != oppgave.tildeltEnhetsnr
     }
 
     fun erOppgavetypeEndretFraJournalforingTilAnnet(oppgave: OppgaveData): Boolean {

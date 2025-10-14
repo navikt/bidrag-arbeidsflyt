@@ -158,6 +158,8 @@ data class OppgaveData(
     val søknadsid get() = metadata?.get(METADATA_NØKKEL_SØKNAD_ID)
     val behandlingsid get() = metadata?.get(METADATA_NØKKEL_BEHANDLING_ID)
 
+    fun endretAvArbeidsflyt(): Boolean = endretAv?.startsWith("bidrag-arbeidsflyt") == true
+
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
 
     fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
@@ -173,6 +175,7 @@ data class OppgaveData(
             OppgaveStatus.UNDER_BEHANDLING,
         ).contains(status)
     val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
+    val erSøknadsoppgave get() = søknadsid != null || behandlingsid != null
     private val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
     private val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
     internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
