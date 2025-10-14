@@ -229,7 +229,10 @@ class BehandleBehandlingHendelseService(
     }
 
     fun opprettOppgaveBeskrivelse(barn: BehandlingHendelseBarn): String {
-        val beskrivelseBehandlingstema = tilBeskrivelseBehandlingstema(barn.stønadstype, barn.engangsbeløptype, barn.behandlingstema)
+        var beskrivelseBehandlingstema = tilBeskrivelseBehandlingstema(barn.stønadstype, barn.engangsbeløptype, barn.behandlingstema)
+        if (barn.medInnkreving) {
+            beskrivelseBehandlingstema += ", innkreving"
+        }
         val behandlingstemaMedSærbidragKategori =
             if (barn.særbidragskategori != null) {
                 "$beskrivelseBehandlingstema, ${barn.særbidragskategori!!.visningsnavn.intern}"

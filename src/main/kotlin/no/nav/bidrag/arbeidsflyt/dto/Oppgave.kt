@@ -29,6 +29,8 @@ private const val PARAMETER_OPPGAVE_TYPE = "oppgavetype"
 private const val PARAMETER_SAKSREFERANSE = "saksreferanse"
 private const val PARAMETER_TEMA = "tema"
 private const val PARAMETER_JOURNALPOSTID = "journalpostId"
+val behandlingstypeNasjonal = "ae0118"
+val behandlingstypeUtland = "ae0106"
 
 fun formatterDatoForOppgave(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
 
@@ -195,6 +197,7 @@ data class OppgaveData(
 @Suppress("unused")
 open // used by jackson...
 class DefaultOpprettOppgaveRequest(
+    open var behandlingstype: String? = null,
     open var beskrivelse: String,
     open var oppgavetype: OppgaveType = OppgaveType.JFR,
     var opprettetAvEnhetsnr: String = "9999",
@@ -270,6 +273,7 @@ class OpprettSøknadsoppgaveRequest(
         prioritet = Prioritet.LAV.name,
     ) {
     init {
+        behandlingstype = if (tildeltEnhetsnr == "4865") behandlingstypeUtland else behandlingstypeNasjonal
         opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
         fristFerdigstillelse = formatterDatoForOppgave(frist)
         metadata =
