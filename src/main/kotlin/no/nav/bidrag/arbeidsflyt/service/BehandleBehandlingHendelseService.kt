@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 private val LOGGER = KotlinLogging.logger {}
+val BehandlingStatusType.erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT, BehandlingStatusType.VEDTAK_FATTET).contains(this)
 
 @Service
 class BehandleBehandlingHendelseService(
@@ -39,6 +40,10 @@ class BehandleBehandlingHendelseService(
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
         val behandling = hentHendelse(hendelse)
+        if (behandling.status.erAvsluttet) {
+            secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
+            return
+        }
         hendelse.barn.groupBy { it.saksnummer }.forEach { (saksnummer, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
             val kreverOppgave = barnliste.any { it.status.kreverOppgave }
@@ -52,6 +57,7 @@ class BehandleBehandlingHendelseService(
                         tema = finnFagområdeForSøknad(førsteBarn.stønadstype),
                         oppgaveType = finnOppgavetypeForStønadstype(førsteBarn.behandlingstema),
                     ).dataForHendelse
+            secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid ${førsteBarn.søknadsid} og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling)
             if (kreverOppgave && åpneOppgaver.isEmpty()) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
@@ -116,6 +122,7 @@ class BehandleBehandlingHendelseService(
                             )
                     ).toSet(),
             )
+        secureLogger.info { "Opprettet oppgave ${oppgave.id} for sak ${barn.saksnummer} og søknadsid ${hendelse.søknadsid} og behandlingsid ${hendelse.behandlingsid}" }
     }
 
     private fun ferdigstillOppgaver(åpneOppgaver: List<OppgaveData>) {
@@ -125,6 +132,7 @@ class BehandleBehandlingHendelseService(
                     OppdaterOppgave(ferdigstillOppgave)
                         .ferdigstill(),
                 )
+                secureLogger.info { "Ferdigstilte søknadsoppgave ${ferdigstillOppgave.id} for sak ${ferdigstillOppgave.saksreferanse} og søknadsid ${ferdigstillOppgave.søknadsid} og behandlingsid ${ferdigstillOppgave.behandlingsid}" }
             } catch (e: Exception) {
                 LOGGER.error(e) { "Det skjedde en feil ved ferdigstillelse av søknadsoppgave ${ferdigstillOppgave.id}" }
             }
@@ -136,6 +144,7 @@ class BehandleBehandlingHendelseService(
         behandling: Behandling,
     ) {
         if (behandling.status == BehandlingStatusType.ÅPEN && hendelse.status == BehandlingStatusType.UNDER_BEHANDLING) {
+            secureLogger.info { "Oppdaterer norm dato på hendelse for søknad ${hendelse.søknadsid} og behandling ${hendelse.behandlingsid} fordi status gikk fra å være åpen til under behandling" }
             behandling.normDato = LocalDate.now()
         }
         behandling.mottattDato = hendelse.mottattDato
@@ -195,7 +204,7 @@ class BehandleBehandlingHendelseService(
 
         åpneOppgaver.forEach {
             if (it.søknadsid == null) {
-                LOGGER.info { "Sletter søknadsoppgave ${it.id}" }
+                secureLogger.info { "Sletter søknadsoppgave ${it.id}" }
                 try {
                     oppgaveService.oppdaterOppgave(
                         OppdaterOppgave(it)

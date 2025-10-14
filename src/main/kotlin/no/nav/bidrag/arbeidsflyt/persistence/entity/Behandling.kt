@@ -57,7 +57,7 @@ data class BehandlingOppgaveDetaljer(
     val oppgaveId: Long,
     val enhet: String,
     val søknadsid: Long?,
-    val ferdigstilt: Boolean = false,
+    var ferdigstilt: Boolean = false,
 )
 
 data class BehandlingBarn(

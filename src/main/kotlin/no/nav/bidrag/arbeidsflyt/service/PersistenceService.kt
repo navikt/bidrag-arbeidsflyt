@@ -14,6 +14,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
+import org.springframework.dao.InvalidDataAccessApiUsageException
 import org.springframework.stereotype.Service
 
 @Service
@@ -100,7 +101,11 @@ class PersistenceService(
                 lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
             }
         } else if (oppgaveHendelse.erStatusKategoriAvsluttet) {
-            behandlingRepository.oppdaterStatusPåBehandlingOppgave(oppgaveHendelse.id)
+            try {
+                behandlingRepository.oppdaterStatusPåBehandlingOppgave(oppgaveHendelse.id)
+            } catch (e: InvalidDataAccessApiUsageException) {
+                behandlingRepository.oppdaterStatusPåBehandlingOppgaveH2(oppgaveHendelse.id)
+            }
         }
 
         if (oppgaveHendelse.erStatusKategoriAvsluttet) {
