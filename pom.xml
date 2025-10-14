@@ -20,7 +20,7 @@
     <kotlin.version>2.2.10</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-felles.version>2025.10.13.084407</bidrag-felles.version>
+    <bidrag-felles.version>2025.10.14.103931</bidrag-felles.version>
     <logback-encoder.version>8.0</logback-encoder.version>
     <mockito-kotlin.version>5.1.0</mockito-kotlin.version>
     <token-support.version>5.0.25</token-support.version>
@@ -28,7 +28,7 @@
     <squareup-okhttp3.version>4.12.0</squareup-okhttp3.version>
     <shedlock.version>6.6.1</shedlock.version>
     <flyway.version>11.8.2</flyway.version>
-    <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>7.0.13</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.5.0</build-helper-maven.version>
@@ -100,7 +100,7 @@
       <version>${token-support.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.github.microutils</groupId>
+      <groupId>io.github.oshai</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>
       <version>${kotlin-logging-jvm.version}</version>
     </dependency>
@@ -424,7 +424,7 @@
           <dependency>
             <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-cli</artifactId>
-            <version>1.5.0</version>
+            <version>1.7.1</version>
           </dependency>
           <!-- additional 3rd party ruleset(s) can be specified here -->
         </dependencies>

@@ -12,10 +12,6 @@ import no.nav.bidrag.arbeidsflyt.dto.METADATA_NØKKEL_SØKNAD_ID
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.Prioritet
-import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingHendelse
-import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingHendelseBarn
-import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingHendelseType
-import no.nav.bidrag.arbeidsflyt.hendelse.dto.BehandlingStatusType
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingBarn
@@ -34,6 +30,10 @@ import no.nav.bidrag.domene.enums.særbidrag.Særbidragskategori
 import no.nav.bidrag.domene.enums.vedtak.Engangsbeløptype
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.enums.vedtak.Vedtakstype
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseType
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import no.nav.bidrag.transport.dokument.Sporingsdata
 import no.nav.bidrag.transport.dokumentmaler.Barn
 import org.junit.jupiter.api.Test
