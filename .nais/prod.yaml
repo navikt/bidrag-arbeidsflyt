@@ -11,7 +11,7 @@ env:
   BIDRAG_PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
-  BIDRAG_SAK_URL: https://bidrag-sak.prod-fss-pub.nais.io
+  BIDRAG_SAK_URL: https://bidrag-sak.prod-fss-pub.nais.io/bidrag-sak
 
   BIDRAG_SAK_SCOPE: prod-fss.bidrag.bidrag-sak
   BIDRAG_ORGANISASJON_SCOPE: prod-fss.bidrag.bidrag-organisasjon
