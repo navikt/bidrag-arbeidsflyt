@@ -88,7 +88,7 @@ class BehandleJournalpostHendelse(
         finnOppgaverForHendelse()
 
         if (oppgaverForHendelse.erEndringAvAktoerId(journalpostHendelse)) {
-            LOGGER.info("Oppdaterer aktørid for oppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
+            LOGGER.info { "Oppdaterer aktørid for oppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}." }
             oppgaveService.oppdaterOppgaver(oppgaverForHendelse, journalpostHendelse)
             finnOppdaterteOppgaverForHendelse = true
         }

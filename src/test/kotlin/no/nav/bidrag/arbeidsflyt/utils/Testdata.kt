@@ -1,5 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.utils
 
+import io.mockk.every
+import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
 import no.nav.bidrag.arbeidsflyt.dto.Oppgavestatuskategori
@@ -7,6 +9,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.commons.unleash.UnleashFeaturesProvider
 import no.nav.bidrag.domene.enums.rolle.Rolletype
 import no.nav.bidrag.domene.enums.sak.Bidragssakstatus
 import no.nav.bidrag.domene.enums.sak.Sakskategori
@@ -57,6 +60,18 @@ var ENHET_4833 = "4833"
 var ENHET_4806 = "4806"
 
 val SAKSBEHANDLER_ID = "Z994999"
+
+fun enableUnleashFeature(feature: UnleashFeatures) =
+    every {
+        UnleashFeaturesProvider
+            .isEnabled(feature = eq(feature.featureName), defaultValue = any())
+    } returns true
+
+fun disableUnleashFeature(feature: UnleashFeatures) =
+    every {
+        UnleashFeaturesProvider
+            .isEnabled(feature = eq(feature.featureName), defaultValue = any())
+    } returns false
 
 fun createOppgave(
     oppgaveId: Long,

@@ -15,12 +15,14 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
 import java.util.Collections
 
 @SpringBootTest
 @ActiveProfiles(value = [PROFILE_KAFKA_TEST, PROFILE_TEST])
 @DisplayName("OppgaveEndretHendelseListenerTest")
 @EmbeddedKafka(partitions = 1, topics = ["topic_journalpost", "oppgave-hendelse"], bootstrapServersProperty = "KAFKA_BROKERS")
+@Transactional
 abstract class AbstractKafkaHendelseTest : AbstractBehandleHendelseTest() {
     @Autowired
     lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker

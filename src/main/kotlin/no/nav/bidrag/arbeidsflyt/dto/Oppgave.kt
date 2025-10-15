@@ -359,13 +359,6 @@ open class PatchOppgaveRequest(
 ) {
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/$id".replace("//", "/")
 
-    open fun somHttpEntity(): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-
-        return HttpEntity<PatchOppgaveRequest>(this, headers)
-    }
-
     protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveData) {
         id = oppgaveDataForHendelse.id
         versjon = oppgaveDataForHendelse.versjon
@@ -448,7 +441,7 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
 
     fun hasChanged(): Boolean = _hasChanged
 
-    private fun oppdaterBeskrivelse() {
+    fun oppdaterOppgaveBeskrivelse(): OppdaterOppgave {
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret) {
             nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
@@ -471,11 +464,7 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
                 "${nyBeskrivelse}\r\n\r\n" +
                 eksisterendeBeskrivelse
         }
-    }
-
-    override fun somHttpEntity(): HttpEntity<*> {
-        this.oppdaterBeskrivelse()
-        return super.somHttpEntity()
+        return this
     }
 
     private val eksisterendeBeskrivelse get() = oppgaveDataForHendelse?.beskrivelse ?: ""

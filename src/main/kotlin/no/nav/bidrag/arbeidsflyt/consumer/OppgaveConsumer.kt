@@ -77,7 +77,6 @@ class OppgaveConsumer(
         patchOppgaveRequest: PatchOppgaveRequest,
         endretAvEnhetsnummer: String? = null,
     ) {
-        patchOppgaveRequest.somHttpEntity()
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")

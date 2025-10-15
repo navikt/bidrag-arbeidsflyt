@@ -85,6 +85,11 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>io.getunleash</groupId>
+      <artifactId>unleash-client-java</artifactId>
+      <version>11.0.2</version>
+    </dependency>
+    <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-transport-felles</artifactId>
       <version>${bidrag-felles.version}</version>
@@ -174,6 +179,12 @@
       <artifactId>HikariCP</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk-jvm</artifactId>
+      <version>1.14.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
@@ -235,9 +246,15 @@
 
     <!-- test -->
     <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test-junit5</artifactId>
+      <version>${kotlin.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
-      <version>5.8.0</version>
+      <version>6.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>

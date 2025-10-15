@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.consumer.BidragSakConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -42,6 +43,12 @@ class BehandleBehandlingHendelseService(
         val behandling = hentHendelse(hendelse)
         if (behandling.id != 0L && behandling.status.erAvsluttet) {
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
+            return
+        }
+        if (!UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
+            secureLogger.info { "Behandling av hendelse er skrudd av. Lagrer behandling uten å opprette eller slette oppgaver" }
+            oppdaterOgLagreBehandling(hendelse, behandling)
+            persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
             return
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->

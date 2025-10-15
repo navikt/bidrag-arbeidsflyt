@@ -15,6 +15,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.matching.ContainsPattern
 import com.github.tomakehurst.wiremock.stubbing.Scenario
+import io.mockk.mockkObject
 import no.nav.bidrag.arbeidsflyt.BidragArbeidsflytTest
 import no.nav.bidrag.arbeidsflyt.PROFILE_TEST
 import no.nav.bidrag.arbeidsflyt.dto.DefaultOpprettOppgaveRequest
@@ -30,6 +31,7 @@ import no.nav.bidrag.arbeidsflyt.utils.createJournalforendeEnheterResponse
 import no.nav.bidrag.arbeidsflyt.utils.journalpostResponse
 import no.nav.bidrag.arbeidsflyt.utils.oppgaveDataResponse
 import no.nav.bidrag.arbeidsflyt.utils.opprettSakForBehandling
+import no.nav.bidrag.commons.unleash.UnleashFeaturesProvider
 import no.nav.bidrag.domene.enums.diverse.Enhetsstatus
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.ident.Personident
@@ -69,6 +71,7 @@ abstract class AbstractBehandleHendelseTest {
 
     @BeforeEach
     fun init() {
+        mockkObject(UnleashFeaturesProvider)
         testDataGenerator.deleteAll()
         stubHentPerson()
         stubOpprettOppgave()

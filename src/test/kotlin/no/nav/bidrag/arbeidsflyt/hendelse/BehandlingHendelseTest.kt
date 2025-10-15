@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.dto.METADATA_NØKKEL_BEHANDLING_ID
 import no.nav.bidrag.arbeidsflyt.dto.METADATA_NØKKEL_NORM_DATO
 import no.nav.bidrag.arbeidsflyt.dto.METADATA_NØKKEL_SØKNAD_ID
@@ -21,6 +22,8 @@ import no.nav.bidrag.arbeidsflyt.utils.AKTOER_ID
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.OPPGAVE_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_1
+import no.nav.bidrag.arbeidsflyt.utils.disableUnleashFeature
+import no.nav.bidrag.arbeidsflyt.utils.enableUnleashFeature
 import no.nav.bidrag.arbeidsflyt.utils.opprettSakForBehandling
 import no.nav.bidrag.domene.enums.behandling.Behandlingstatus
 import no.nav.bidrag.domene.enums.behandling.Behandlingstema
@@ -36,6 +39,7 @@ import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseType
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import no.nav.bidrag.transport.dokument.Sporingsdata
 import no.nav.bidrag.transport.dokumentmaler.Barn
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
@@ -48,6 +52,38 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
 
     @Autowired
     lateinit var behandlingRepository: BehandlingRepository
+
+    @BeforeEach
+    fun initUnleash() {
+        enableUnleashFeature(UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE)
+    }
+
+    @Test
+    fun `skal ikke opprette oppgave for behandlinghendelse hvis feature toggle er av`() {
+        val behandlingsid = 123123L
+        disableUnleashFeature(UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE)
+
+        val hendelse = opprettHendelse(behandlingsid)
+        val barnHendelse = hendelse.barn.first()
+        stubHentOppgaveSok(emptyList())
+        stubHentSak(
+            opprettSakForBehandling(barnHendelse),
+        )
+        behandleHendelseService.behandleHendelse(hendelse)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
+        behandling.shouldNotBeNull()
+        assertSoftly(behandling) {
+            this.behandlingsid shouldBe behandlingsid
+            søknadsid shouldBe 123
+            status shouldBe BehandlingStatusType.UNDER_BEHANDLING
+            mottattDato shouldBe LocalDate.parse("2020-06-01")
+            enhet shouldBe "4806"
+            barn.shouldNotBeNull()
+            barn!!.barn shouldHaveSize 1
+        }
+        val oppgaveRequest = getOppgaveOpprettRequest()
+        oppgaveRequest.shouldBeNull()
+    }
 
     @Test
     fun `skal opprette oppgave for behandlinghendelse`() {

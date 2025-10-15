@@ -36,8 +36,9 @@ internal class OppdaterOppgaveTest {
         val hendelse = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs)
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
-        oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
-        oppdaterOppgave.somHttpEntity()
+        oppdaterOppgave
+            .endreOppgavetype(OppgaveType.VUR)
+            .oppdaterOppgaveBeskrivelse()
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
@@ -53,8 +54,9 @@ internal class OppdaterOppgaveTest {
         val oppgaveData = createOppgaveData(id = 1, beskrivelse = existingBeskrivelse)
         val oppdaterOppgave = OppdaterOppgave(oppgaveData)
 
-        oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
-        oppdaterOppgave.somHttpEntity()
+        oppdaterOppgave
+            .endreOppgavetype(OppgaveType.VUR)
+            .oppdaterOppgaveBeskrivelse()
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
@@ -68,8 +70,9 @@ internal class OppdaterOppgaveTest {
         val hendelse = createOppgaveData(id = 1, beskrivelse = null, tildeltEnhetsnr = null)
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
-        oppdaterOppgave.endreOppgavetype(OppgaveType.VUR)
-        oppdaterOppgave.somHttpEntity()
+        oppdaterOppgave
+            .endreOppgavetype(OppgaveType.VUR)
+            .oppdaterOppgaveBeskrivelse()
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
@@ -85,8 +88,9 @@ internal class OppdaterOppgaveTest {
             createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
         val oppdaterOppgave = OppdaterOppgave(hendelse)
 
-        oppdaterOppgave.overforTilEnhet("4806")
-        oppdaterOppgave.somHttpEntity()
+        oppdaterOppgave
+            .overforTilEnhet("4806")
+            .oppdaterOppgaveBeskrivelse()
 
         assertThat(oppdaterOppgave.beskrivelse).isEqualTo(
             "--- 10.09.2022 01:00 Automatisk jobb ---\r\n" +
@@ -102,9 +106,9 @@ internal class OppdaterOppgaveTest {
         val tilordnetRessurs = "Z99999"
         val hendelse =
             createOppgaveData(id = 1, beskrivelse = existingBeskrivelse, tilordnetRessurs = tilordnetRessurs, tildeltEnhetsnr = "4888")
-        val oppdaterOppgave = OppdaterOppgave(hendelse)
-
-        oppdaterOppgave.somHttpEntity()
+        val oppdaterOppgave =
+            OppdaterOppgave(hendelse)
+                .oppdaterOppgaveBeskrivelse()
 
         assertThat(oppdaterOppgave.beskrivelse).isNull()
     }
@@ -133,8 +137,9 @@ internal class OppdaterOppgaveTest {
                 oppgavetype = OppgaveType.VUR.name,
             )
         val oppdaterOppgave = OppdaterOppgave(hendelse)
-        oppdaterOppgave.endreOppgavetype(OppgaveType.JFR)
-        oppdaterOppgave.somHttpEntity()
+        oppdaterOppgave
+            .endreOppgavetype(OppgaveType.JFR)
+            .oppdaterOppgaveBeskrivelse()
         assertThat(ObjectMapper().writeValueAsString(oppdaterOppgave)).isEqualTo(
             "{" +
                 "\"id\":1," +

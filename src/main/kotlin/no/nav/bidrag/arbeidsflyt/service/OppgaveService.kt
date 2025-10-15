@@ -145,6 +145,7 @@ class OppgaveService(
         oppdaterOppgave: OppdaterOppgave,
         endretAvEnhetsnummer: String? = null,
     ) {
+        oppdaterOppgave.oppdaterOppgaveBeskrivelse()
         oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
     }
 

@@ -12,6 +12,7 @@ import no.nav.bidrag.commons.ExceptionLogger
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.service.organisasjon.EnableSaksbehandlernavnProvider
+import no.nav.bidrag.commons.unleash.EnableUnleashFeatures
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Profile
 import org.springframework.http.client.observation.DefaultClientRequestObservationConvention
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
@@ -117,7 +119,9 @@ class HendelseConfiguration {
 class ArbeidsflytConfiguration {
     @Bean
     fun clientRequestObservationConvention() = DefaultClientRequestObservationConvention()
-
-    @Bean
-    fun exceptionLogger() = ExceptionLogger(BidragArbeidsflyt::class.java.simpleName)
 }
+
+@EnableUnleashFeatures
+@Profile("nais")
+@Configuration
+class UnleashConfiguration
