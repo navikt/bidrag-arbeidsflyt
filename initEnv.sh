@@ -1,2 +1,2 @@
 kubectx dev-gcp
-kubectl exec --tty deployment/bidrag-arbeidsflyt-feature -- printenv | grep -E 'AZURE_|_URL|SCOPE|SRV|NAIS_APP_NAME|TOPIC' > src/test/resources/application-lokal-nais-secrets.properties
+kubectl exec --tty deployment/bidrag-arbeidsflyt-feature -- printenv | grep -E 'AZURE_|_URL|SCOPE|SRV|NAIS_APP_NAME|TOPIC|UNLEASH' > src/test/resources/application-lokal-nais-secrets.properties
