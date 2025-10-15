@@ -23,8 +23,6 @@ jobs:
       id-token: "write"
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: deploy
       - name: Deploy unleash to prod-gcp
         uses: nais/deploy/actions/deploy@v2
         if: github.event.inputs.env_name == 'prod' || github.ref == 'refs/heads/main'
