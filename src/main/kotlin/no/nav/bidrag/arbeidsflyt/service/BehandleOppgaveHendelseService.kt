@@ -127,7 +127,7 @@ class BehandleOppgaveHendelseService(
     fun opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave: OppgaveData) {
         if (oppgave.endretAvArbeidsflyt()) return
 
-        if (oppgave.erStatusKategoriAvsluttet) return
+        if (!oppgave.erStatusKategoriAvsluttet) return
 
         val behandling = behandlingService.finnBehandling(oppgave) ?: return
 
