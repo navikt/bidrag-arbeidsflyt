@@ -23,7 +23,7 @@ import java.net.URI
 class BidragDokumentConsumer(
     @Value("\${BIDRAG_DOKUMENT_URL}") val url: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
-    @Value("\${REST_MAX_RETRY:10}") val maxAttempts: Int,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-dokument") {
     companion object {
         @JvmStatic
@@ -33,23 +33,23 @@ class BidragDokumentConsumer(
     private val baseUri get() =
         UriComponentsBuilder
             .fromUri(url)
+            .pathSegment("bidrag-dokument")
 
-    private val retryTemplate =
-        RetryTemplate().apply {
-            setRetryPolicy(SimpleRetryPolicy(maxAttempts, mapOf(HentJournalpostFeiletTekniskException::class.java to true)))
-        }
-
+    @Retryable(
+        exceptionExpression = "@bidragDokumentConsumer.shouldRetry",
+        value = [HentJournalpostFeiletTekniskException::class],
+        maxAttempts = 10,
+        backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
+    )
     fun hentJournalpost(journalpostId: String): JournalpostResponse? {
         return try {
-            retryTemplate.execute<JournalpostResponse?, HentJournalpostFeiletTekniskException> { context ->
-                getForEntity<JournalpostResponse>(
-                    baseUri
-                        .pathSegment("journal")
-                        .pathSegment(journalpostId)
-                        .build()
-                        .toUri(),
-                )
-            }
+            getForEntity<JournalpostResponse>(
+                baseUri
+                    .pathSegment("journal")
+                    .pathSegment(journalpostId)
+                    .build()
+                    .toUri(),
+            )
         } catch (e: HttpStatusCodeException) {
             if (HttpStatus.NOT_FOUND == e.statusCode) {
                 // Should not happen in production. Logging error to be notified

@@ -21,6 +21,7 @@ private val LOGGER = KotlinLogging.logger {}
 class BidragSakConsumer(
     @Value("\${BIDRAG_SAK_URL}") val url: URI,
     @Qualifier("azure") private val restTemplate: RestOperations,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-sak") {
     private fun createUri(path: String?) =
         UriComponentsBuilder
@@ -30,7 +31,7 @@ class BidragSakConsumer(
             .toUri()
 
     @Cacheable(CacheConfig.SAK_CACHE, unless = "#result==null")
-    @Retryable(maxAttempts = 3, backoff = Backoff(delay = 500, maxDelay = 1500, multiplier = 2.0))
+    @Retryable(maxAttempts = 3, backoff = Backoff(delay = 500, maxDelay = 1500, multiplier = 2.0), exceptionExpression = "@bidragSakConsumer.shouldRetry")
     fun hentSak(saksnr: String): BidragssakDto {
         try {
             return getForNonNullEntity(createUri("/sak/$saksnr"))

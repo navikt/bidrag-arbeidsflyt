@@ -5,25 +5,18 @@ import no.nav.bidrag.arbeidsflyt.CacheConfig.Companion.PERSON_CACHE
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.model.HentArbeidsfordelingFeiletTekniskException
 import no.nav.bidrag.arbeidsflyt.model.HentPersonFeiletFunksjoneltException
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.person.PersonRequest
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.exchange
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
@@ -33,6 +26,7 @@ private val LOGGER = KotlinLogging.logger {}
 class PersonConsumer(
     @Value("\${BIDRAG_PERSON_URL}") bidragPersonUrl: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
     private val hentPersonUri =
         UriComponentsBuilder
@@ -44,6 +38,7 @@ class PersonConsumer(
 
     @Cacheable(PERSON_CACHE, unless = "#ident==null||#result==null")
     @Retryable(
+        exceptionExpression = "@personConsumer.shouldRetry",
         value = [HentArbeidsfordelingFeiletTekniskException::class],
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),

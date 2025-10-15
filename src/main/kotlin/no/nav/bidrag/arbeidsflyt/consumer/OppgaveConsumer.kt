@@ -25,6 +25,7 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 class OppgaveConsumer(
     @Value("\${OPPGAVE_URL}") val url: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "oppgave") {
     companion object {
         @JvmStatic
@@ -76,6 +77,7 @@ class OppgaveConsumer(
         patchOppgaveRequest: PatchOppgaveRequest,
         endretAvEnhetsnummer: String? = null,
     ) {
+        patchOppgaveRequest.somHttpEntity()
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
         SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")

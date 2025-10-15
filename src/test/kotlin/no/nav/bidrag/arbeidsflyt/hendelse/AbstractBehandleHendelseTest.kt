@@ -48,6 +48,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.util.Arrays
 
@@ -58,6 +59,7 @@ import java.util.Arrays
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
+@Transactional
 abstract class AbstractBehandleHendelseTest {
     @Autowired
     lateinit var testDataGenerator: TestDataGenerator
@@ -250,7 +252,7 @@ abstract class AbstractBehandleHendelseTest {
         status: HttpStatus = HttpStatus.OK,
     ) {
         stubFor(
-            post(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhet/geografisktilknytning")).willReturn(
+            post(urlMatching("/organisasjon/arbeidsfordeling/enhet/geografisktilknytning")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
                         EnhetDto(Enhetsnummer(enhet), "Enhetnavn"),
@@ -266,7 +268,7 @@ abstract class AbstractBehandleHendelseTest {
         status: HttpStatus = HttpStatus.OK,
     ) {
         stubFor(
-            get(urlMatching("/organisasjon/bidrag-organisasjon/enhet/info/.*")).willReturn(
+            get(urlMatching("/organisasjon/enhet/info/.*")).willReturn(
                 aClosedJsonResponse().withStatus(status.value()).withBody(
                     objectMapper.writeValueAsString(
                         EnhetDto(
@@ -282,7 +284,7 @@ abstract class AbstractBehandleHendelseTest {
 
     fun stubHentJournalforendeEnheter() {
         stubFor(
-            get(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")).willReturn(
+            get(urlEqualTo("/organisasjon/arbeidsfordeling/enhetsliste/journalforende")).willReturn(
                 aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(
                     objectMapper.writeValueAsString(
                         createJournalforendeEnheterResponse(),
@@ -293,11 +295,11 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyHentGeografiskEnhetKalt(antall: Int = 1) {
-        verify(antall, postRequestedFor(urlMatching("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhet/geografisktilknytning")))
+        verify(antall, postRequestedFor(urlMatching("/organisasjon/arbeidsfordeling/enhet/geografisktilknytning")))
     }
 
     fun verifyHentJournalforendeEnheterKalt(antall: Int = 1) {
-        verify(antall, getRequestedFor(urlEqualTo("/organisasjon/bidrag-organisasjon/arbeidsfordeling/enhetsliste/journalforende")))
+        verify(antall, getRequestedFor(urlEqualTo("/organisasjon/arbeidsfordeling/enhetsliste/journalforende")))
     }
 
     fun verifyHentPersonKalt(antall: Int = 1) {

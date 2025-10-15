@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import jakarta.transaction.Transactional
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_1
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_2
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
@@ -74,6 +75,7 @@ internal class KafkaDLQSchedulerTest : AbstractBehandleHendelseTest() {
     }
 
     @Test
+    @org.springframework.transaction.annotation.Transactional
     fun `should increment retry count if processing fails`() {
         stubHentOppgaveError()
         val journalpostHendelse = createJournalpostHendelse("JOARK-$JOURNALPOST_ID_1")

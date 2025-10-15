@@ -128,7 +128,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             saksreferanse shouldBe "123456"
             tildeltEnhetsnr shouldBe "4806"
             tema shouldBe "BID"
-            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Særbidrag, Konfirmasjon"
+            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Særtilskudd,innkreving"
             personident shouldBe "123123"
             oppgavetype shouldBe OppgaveType.BEH_SAK
             prioritet shouldBe Prioritet.LAV.name

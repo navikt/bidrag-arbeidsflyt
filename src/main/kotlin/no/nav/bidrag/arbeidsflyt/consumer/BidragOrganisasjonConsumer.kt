@@ -33,6 +33,7 @@ import java.net.URI
 class BidragOrganisasjonConsumer(
     @Value("\${BIDRAG_ORGANISASJON_URL}") val url: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-organisasjon") {
     companion object {
         @JvmStatic
@@ -45,6 +46,7 @@ class BidragOrganisasjonConsumer(
 
     @Cacheable(CacheConfig.GEOGRAFISK_ENHET_CACHE, unless = "#result==null")
     @Retryable(
+        exceptionExpression = "@bidragOrganisasjonConsumer.shouldRetry",
         value = [HentArbeidsfordelingFeiletTekniskException::class],
         maxAttempts = 3,
         backoff = Backoff(delay = 2000, maxDelay = 10000, multiplier = 2.0),
@@ -85,6 +87,7 @@ class BidragOrganisasjonConsumer(
 
     @Cacheable(CacheConfig.JOURNALFORENDE_ENHET_CACHE, unless = "#result==null")
     @Retryable(
+        exceptionExpression = "@bidragOrganisasjonConsumer.shouldRetry",
         value = [Exception::class],
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
@@ -104,6 +107,7 @@ class BidragOrganisasjonConsumer(
 
     @Cacheable(CacheConfig.ENHET_INFO_CACHE, unless = "#result==null")
     @Retryable(
+        exceptionExpression = "@bidragOrganisasjonConsumer.shouldRetry",
         value = [Exception::class],
         maxAttempts = 3,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),

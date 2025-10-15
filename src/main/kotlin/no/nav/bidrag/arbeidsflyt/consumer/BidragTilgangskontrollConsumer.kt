@@ -17,11 +17,12 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 @Service
-class BidragTIlgangskontrollConsumer(
+class BidragTilgangskontrollConsumer(
     @Value("\${BIDRAG_TILGANGSKONTROLL_URL}") val url: URI,
     @Qualifier("azure") private val restTemplate: RestOperations,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-tilgangskontroll") {
-    @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0))
+    @Retryable(value = [Exception::class], maxAttempts = 3, backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0), exceptionExpression = "@bidragTilgangskontrollConsumer.shouldRetry")
     @Cacheable(TILGANG_TEMA_CACHE)
     fun sjekkTilgangTema(
         tema: String,

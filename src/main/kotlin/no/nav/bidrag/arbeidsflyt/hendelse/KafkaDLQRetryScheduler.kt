@@ -54,7 +54,7 @@ class KafkaDLQRetryScheduler(
             try {
                 val oppgave = oppgaveService.hentOppgave(it.oppgaveId)
                 if (oppgave.erStatusKategoriAvsluttet) {
-                    LOGGER.info("Sletter oppgave med id ${it.oppgaveId} som ikke lenger er åpen")
+                    LOGGER.info { "Sletter oppgave med id ${it.oppgaveId} som ikke lenger er åpen" }
                     oppgaveRepository.delete(it)
                 }
             } catch (e: Exception) {
@@ -66,23 +66,26 @@ class KafkaDLQRetryScheduler(
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
     @SchedulerLock(name = "processKafkaDLQMessages", lockAtLeastFor = "10m")
     @Transactional
+    fun processMessagesScheduler() {
+        processMessages()
+    }
+
     fun processMessages() {
         val messages = dlqKafkaRepository.findByRetryTrueOrderByCreatedTimestampAsc()
-        LOGGER.info("KafkaDLQRetryScheduler fant ${messages.size} meldinger som skal prosesseres. MAX_RETRY=$maxRetry")
+        LOGGER.info { "KafkaDLQRetryScheduler fant ${messages.size} meldinger som skal prosesseres. MAX_RETRY=$maxRetry" }
 
         messages.stream().forEach {
             try {
-                LOGGER.info("Behandler melding ${it.id} med topicName ${it.topicName} og nøkkel ${it.messageKey} ")
+                LOGGER.info { "Behandler melding ${it.id} med topicName ${it.topicName} og nøkkel ${it.messageKey} " }
                 processMessage(it)
                 dlqKafkaRepository.delete(it)
             } catch (e: Exception) {
-                LOGGER.error("Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}", e)
+                LOGGER.error(e) { "Det skjedde feil ved prosessering av melding med id=${it.id} og nøkkel=${it.messageKey}" }
                 it.retryCount += 1
                 if (it.retryCount >= maxRetry.toInt()) {
                     LOGGER.error(
-                        "Har prossesert dead_letter_kafka melding med id ${it.id} - ${it.retryCount} ganger hvor MAX_RETRY=$maxRetry. Stopper reprossesering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt",
                         e,
-                    )
+                    ) { "Har prossesert dead_letter_kafka melding med id ${it.id} - ${it.retryCount} ganger hvor MAX_RETRY=$maxRetry. Stopper reprossesering av melding ved å sette retry=false. En utvikler må sette retry=true og retry_count=0 for at melding skal prosesseres på nytt" }
                     it.retry = false
                 }
                 dlqKafkaRepository.save(it)

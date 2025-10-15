@@ -2,7 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
-import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.BidragTilgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.PersonConsumer
 import no.nav.bidrag.arbeidsflyt.model.BehandleJournalpostHendelse
 import no.nav.bidrag.arbeidsflyt.utils.numericOnly
@@ -17,7 +17,7 @@ class BehandleHendelseService(
     private val oppgaveService: OppgaveService,
     private val personConsumer: PersonConsumer,
     private val persistenceService: PersistenceService,
-    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer,
+    private val tIlgangskontrollConsumer: BidragTilgangskontrollConsumer,
 ) {
     fun behandleHendelse(journalpostHendelse: JournalpostHendelse) {
         LOGGER.info("Behandler journalpostHendelse: ${journalpostHendelse.printSummary()}")
