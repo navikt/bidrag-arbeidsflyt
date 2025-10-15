@@ -17,6 +17,7 @@ import no.nav.bidrag.commons.service.forsendelse.bidragspliktig
 import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.domene.enums.behandling.Behandlingstema
 import no.nav.bidrag.domene.enums.behandling.Behandlingstype
+import no.nav.bidrag.domene.enums.behandling.tilBeskrivelse
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.util.visningsnavn
@@ -234,10 +235,7 @@ class BehandleBehandlingHendelseService(
     }
 
     fun opprettOppgaveBeskrivelse(barn: BehandlingHendelseBarn): String {
-        var beskrivelseBehandlingstema = barn.behandlingstema.bisysDekode
-        if (barn.medInnkreving && barn.behandlingstema != Behandlingstema.SÆRBIDRAG) {
-            beskrivelseBehandlingstema += ",innkreving"
-        }
+        val beskrivelseBehandlingstema = barn.behandlingstema.tilBeskrivelse(barn.medInnkreving)
         val behandlingstemaMedSærbidragKategori =
             if (barn.særbidragskategori != null) {
                 "$beskrivelseBehandlingstema, ${barn.særbidragskategori!!.visningsnavn.intern}"
