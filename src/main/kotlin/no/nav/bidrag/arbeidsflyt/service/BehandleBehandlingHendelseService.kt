@@ -11,7 +11,6 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingBarn
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingOppgave
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingOppgaveDetaljer
-import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.commons.service.forsendelse.bidragsmottaker
 import no.nav.bidrag.commons.service.forsendelse.bidragspliktig
 import no.nav.bidrag.commons.util.secureLogger
