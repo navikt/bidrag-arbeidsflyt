@@ -38,4 +38,4 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/unleash.yaml
-          VARS: .nais/q1.yaml
+          VARS: .nais/feature.yaml
