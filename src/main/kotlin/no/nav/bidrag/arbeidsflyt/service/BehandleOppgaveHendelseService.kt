@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.service
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
+import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
@@ -65,8 +66,11 @@ class BehandleOppgaveHendelseService(
                 .utfor()
             opprettNyJournalforingOppgaveHvisNodvendig(oppgave)
         } else {
-            overførSøknadsoppgaverTilSammeEnhet(oppgave)
-            opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave)
+            if (UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
+                overførSøknadsoppgaverTilSammeEnhet(oppgave)
+                opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave)
+            }
+
             behandlingService.oppdaterStatusPåOppgaverBehandlingTilFerdigstilt(oppgave)
         }
 
