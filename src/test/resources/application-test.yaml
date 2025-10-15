@@ -2,6 +2,8 @@ DEFAULT_PORT: 1232
 logging:
   level:
     root: INFO
+retry:
+  enabled: false
 BIDRAG_TILGANGSKONTROLL_URL: http://localhost:${wiremock.server.port:0}/tilgangskontroll
 OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
 BIDRAG_ORGANISASJON_URL: http://localhost:${wiremock.server.port:0}/organisasjon
@@ -86,17 +88,31 @@ no.nav.security.jwt:
 #### KAFKA
 
 spring:
-  flyway.enabled: false
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:public;MODE=PostgreSQL;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON;
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
-#  kafka:
-#    bootstrap-servers: ${KAFKA_BROKERS}
-#    properties:
-#      security.protocol: PLAINTEXT
-#    consumer:
-#      auto-offset-reset: earliest
-#      enableAutoCommit: false
-#    listener:
-#      ackMode: RECORD
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init.sql
+  flyway:
+    enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      security.protocol: PLAINTEXT
+    consumer:
+      auto-offset-reset: earliest
+      enableAutoCommit: false
+    listener:
+      ackMode: RECORD
