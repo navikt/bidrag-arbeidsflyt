@@ -41,7 +41,7 @@ class BehandleBehandlingHendelseService(
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
         val behandling = hentHendelse(hendelse)
-        if (behandling.status.erAvsluttet) {
+        if (behandling.id != 0L && behandling.status.erAvsluttet) {
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
             return
         }
