@@ -35,7 +35,6 @@ val BehandlingStatusType.erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT
 class BehandleBehandlingHendelseService(
     var oppgaveService: OppgaveService,
     var sakConsumer: BidragSakConsumer,
-    var behandlingRepository: BehandlingRepository,
     val persistenceService: PersistenceService,
     val behandlingService: BehandlingService,
 ) {
@@ -165,6 +164,7 @@ class BehandleBehandlingHendelseService(
                 secureLogger.info { "Behandler hendelse $hendelse. Fant ikke behandling i databsen. Oppretter ny behandling" }
                 Behandling(
                     barn = BehandlingBarn(barn = hendelse.barn),
+                    hendelse = hendelse,
                     opprettetTidspunkt = hendelse.opprettetTidspunkt,
                     søknadsid = hendelse.søknadsid,
                     behandlingsid = hendelse.behandlingsid,
@@ -191,12 +191,13 @@ class BehandleBehandlingHendelseService(
         behandling.status = hendelse.status
         behandling.endretTidspunkt = hendelse.endretTidspunkt
         behandling.behandlesAvFlereSøknader = behandlesAvFlereSøknader
+        behandling.hendelse = hendelse
         behandling.barn =
             behandling.barn?.copy(
                 barn = hendelse.barn,
             ) ?: BehandlingBarn(barn = hendelse.barn)
 
-        return behandlingRepository.save(behandling)
+        return behandlingService.lagre(behandling)
     }
 
     fun slettÅpneOppgaverUtenSøknadsreferanse(saksnr: String) {
@@ -242,7 +243,7 @@ class BehandleBehandlingHendelseService(
             } else {
                 beskrivelseBehandlingstema
             }
-        return "${barn.behandlingstype.visningsnavn.intern} - $behandlingstemaMedSærbidragKategori"
+        return "${barn.behandlingstype.bisysDekode} - $behandlingstemaMedSærbidragKategori"
     }
 
     fun finnFristForSøknadsgruppe(

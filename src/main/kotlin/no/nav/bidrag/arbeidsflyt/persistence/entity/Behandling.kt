@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.hibernate.annotations.JdbcTypeCode
@@ -39,6 +40,9 @@ data class Behandling(
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "barn")
     var barn: BehandlingBarn? = null,
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "hendelse")
+    var hendelse: BehandlingHendelse? = null,
     var mottattDato: LocalDate,
     var normDato: LocalDate? = null,
     var enhet: String,
@@ -46,7 +50,9 @@ data class Behandling(
     val opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
     @Column(name = "endret_tidspunkt")
     var endretTidspunkt: LocalDateTime = LocalDateTime.now(),
-)
+) {
+    val erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT, BehandlingStatusType.VEDTAK_FATTET).contains(status)
+}
 
 data class BehandlingOppgave(
     var oppgaver: Set<BehandlingOppgaveDetaljer> = emptySet(),

@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +22,7 @@ class BehandleOppgaveHendelseService(
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: OrganisasjonService,
     var behandlingService: BehandlingService,
+    var behandlingHendelseService: BehandleBehandlingHendelseService,
     private val meterRegistry: MeterRegistry,
 ) {
     @Transactional
@@ -64,6 +66,7 @@ class BehandleOppgaveHendelseService(
             opprettNyJournalforingOppgaveHvisNodvendig(oppgave)
         } else {
             overførSøknadsoppgaverTilSammeEnhet(oppgave)
+            opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave)
             behandlingService.oppdaterStatusPåOppgaverBehandlingTilFerdigstilt(oppgave)
         }
 
@@ -121,10 +124,22 @@ class BehandleOppgaveHendelseService(
         )
     }
 
-    fun overførSøknadsoppgaverTilSammeEnhet(oppgave: OppgaveData) {
-        if (oppgave.endretAvArbeidsflyt() || !erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave)) {
-            return
+    fun opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave: OppgaveData) {
+        if (oppgave.endretAvArbeidsflyt()) return
+
+        if (oppgave.erStatusKategoriAvsluttet) return
+
+        val behandling = behandlingService.finnBehandling(oppgave) ?: return
+
+        if (!behandling.erAvsluttet && behandling.hendelse != null) {
+            LOGGER.info { "Oppgave ${oppgave.id} ble ferdigstilt men tilhørende behandling med søknadsid ${behandling.søknadsid} er ikke lukket. Opprett søknad på nytt" }
+            behandlingHendelseService.behandleHendelse(behandling.hendelse!!)
         }
+    }
+
+    fun overførSøknadsoppgaverTilSammeEnhet(oppgave: OppgaveData) {
+        if (oppgave.endretAvArbeidsflyt()) return
+        if (!erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave)) return
 
         oppgaveService.oppdaterAlleOppgaverSomTilhørerSammeBehandling(oppgave)
         behandlingService.oppdaterBehandlingEnhet(oppgave)

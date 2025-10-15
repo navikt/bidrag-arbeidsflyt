@@ -12,15 +12,23 @@ class BehandlingService(
     private val behandlingRepository: BehandlingRepository,
 ) {
     @Transactional
+    fun finnBehandling(oppgave: OppgaveData): Behandling? = finnForBehandlingsidEllerSøknadsid(oppgave.behandlingsid?.toLong(), oppgave.søknadsid?.toLong())
+
+    @Transactional
     fun finnForBehandlingsidEllerSøknadsid(
         behandlingId: Long?,
-        søknadsid: Long,
-    ): Behandling? {
-        if (behandlingId == null) {
-            return behandlingRepository.finnForSøknadId(søknadsid)
+        søknadsid: Long?,
+    ): Behandling? =
+        when {
+            behandlingId == null && søknadsid == null -> null
+            behandlingId == null -> behandlingRepository.finnForSøknadId(søknadsid!!)
+            else -> {
+                behandlingRepository.finnForBehandlingId(behandlingId) ?: behandlingRepository.finnForSøknadId(søknadsid!!)
+            }
         }
-        return behandlingRepository.finnForBehandlingId(behandlingId) ?: behandlingRepository.finnForSøknadId(søknadsid)
-    }
+
+    @Transactional
+    fun lagre(behandling: Behandling) = behandlingRepository.save(behandling)
 
     @Transactional
     fun oppdaterBehandlingEnhet(oppgave: OppgaveData) {
