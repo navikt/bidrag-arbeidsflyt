@@ -1,6 +1,7 @@
 package no.nav.bidrag.arbeidsflyt.service
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import org.springframework.dao.InvalidDataAccessApiUsageException
 import org.springframework.stereotype.Service
@@ -11,8 +12,19 @@ class BehandlingService(
     private val behandlingRepository: BehandlingRepository,
 ) {
     @Transactional
+    fun finnForBehandlingsidEllerSøknadsid(
+        behandlingId: Long?,
+        søknadsid: Long,
+    ): Behandling? {
+        if (behandlingId == null) {
+            return behandlingRepository.finnForSøknadId(søknadsid)
+        }
+        return behandlingRepository.finnForBehandlingId(behandlingId) ?: behandlingRepository.finnForSøknadId(søknadsid)
+    }
+
+    @Transactional
     fun oppdaterBehandlingEnhet(oppgave: OppgaveData) {
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(oppgave.behandlingsid!!.toLong(), oppgave.søknadsid?.toLong()) ?: return
+        val behandling = finnForBehandlingsidEllerSøknadsid(oppgave.behandlingsid?.toLong(), oppgave.søknadsid!!.toLong()) ?: return
 
         behandling.enhet = oppgave.tildeltEnhetsnr ?: behandling.enhet
         behandling.oppgave?.oppgaver?.forEach {

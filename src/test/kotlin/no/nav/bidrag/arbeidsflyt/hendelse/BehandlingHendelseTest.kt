@@ -60,7 +60,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -77,7 +77,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             saksreferanse shouldBe "123456"
             tildeltEnhetsnr shouldBe "4806"
             tema shouldBe "BID"
-            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Barnebidrag"
+            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Bidrag,innkreving"
             personident shouldBe "123123"
             oppgavetype shouldBe OppgaveType.BEH_SAK
             prioritet shouldBe Prioritet.LAV.name
@@ -98,6 +98,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
                         listOf(
                             opprettBarn()
                                 .copy(
+                                    behandlingstema = Behandlingstema.SÆRBIDRAG,
                                     engangsbeløptype = Engangsbeløptype.SÆRBIDRAG,
                                     stønadstype = null,
                                     særbidragskategori = Særbidragskategori.KONFIRMASJON,
@@ -110,7 +111,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -127,7 +128,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             saksreferanse shouldBe "123456"
             tildeltEnhetsnr shouldBe "4806"
             tema shouldBe "BID"
-            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Særtilskudd, Konfirmasjon"
+            beskrivelse shouldContain "test (test, 4806) ---\r\nEndring - Særbidrag, Konfirmasjon"
             personident shouldBe "123123"
             oppgavetype shouldBe OppgaveType.BEH_SAK
             prioritet shouldBe Prioritet.LAV.name
@@ -168,7 +169,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse2),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -229,7 +230,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -276,7 +277,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -323,7 +324,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         assertSoftly(behandling) {
             this.behandlingsid shouldBe behandlingsid
@@ -358,7 +359,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         behandling.normDato shouldBe LocalDate.now()
         val oppgaveRequest = getOppgaveOpprettRequest()
@@ -425,7 +426,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         behandling.status shouldBe BehandlingStatusType.VEDTAK_FATTET
         val oppgaveRequest = getOppgaveOpprettRequest()
@@ -462,7 +463,7 @@ internal class BehandlingHendelseTest : AbstractBehandleHendelseTest() {
             opprettSakForBehandling(barnHendelse),
         )
         behandleHendelseService.behandleHendelse(hendelse)
-        val behandling = behandlingRepository.finnForBehandlingEllerSøknadId(behandlingsid)
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
         behandling.shouldNotBeNull()
         behandling.status shouldBe BehandlingStatusType.UNDER_BEHANDLING
         val oppgaveRequest = getOppgaveOpprettRequest()

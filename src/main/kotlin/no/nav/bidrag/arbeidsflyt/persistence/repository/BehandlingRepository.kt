@@ -8,10 +8,14 @@ import org.springframework.data.repository.query.Param
 import org.springframework.transaction.annotation.Transactional
 
 interface BehandlingRepository : CrudRepository<Behandling, Long> {
-    @Query("select b from Behandling b where b.behandlingsid = :behandlingId or b.søknadsid = :søknadId")
-    fun finnForBehandlingEllerSøknadId(
-        behandlingId: Long?,
-        søknadId: Long? = null,
+    @Query("select b from Behandling b where b.søknadsid = :søknadId")
+    fun finnForSøknadId(
+        søknadId: Long,
+    ): Behandling?
+
+    @Query("select b from Behandling b where b.behandlingsid = :behandlingId")
+    fun finnForBehandlingId(
+        behandlingId: Long,
     ): Behandling?
 
     @Query(

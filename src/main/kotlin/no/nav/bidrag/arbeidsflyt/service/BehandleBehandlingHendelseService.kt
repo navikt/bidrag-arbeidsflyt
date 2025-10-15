@@ -36,6 +36,7 @@ class BehandleBehandlingHendelseService(
     var sakConsumer: BidragSakConsumer,
     var behandlingRepository: BehandlingRepository,
     val persistenceService: PersistenceService,
+    val behandlingService: BehandlingService,
 ) {
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
@@ -155,7 +156,7 @@ class BehandleBehandlingHendelseService(
     }
 
     private fun hentHendelse(hendelse: BehandlingHendelse): Behandling =
-        behandlingRepository.finnForBehandlingEllerSøknadId(hendelse.behandlingsid, hendelse.søknadsid)?.let {
+        behandlingService.finnForBehandlingsidEllerSøknadsid(hendelse.behandlingsid, hendelse.søknadsid!!)?.let {
             secureLogger.info { "Behandler hendelse $hendelse. Fant eksisterende behandling i databasen med id $it.id" }
             it
         }
@@ -234,7 +235,7 @@ class BehandleBehandlingHendelseService(
 
     fun opprettOppgaveBeskrivelse(barn: BehandlingHendelseBarn): String {
         var beskrivelseBehandlingstema = barn.behandlingstema.bisysDekode
-        if (barn.medInnkreving) {
+        if (barn.medInnkreving && barn.behandlingstema != Behandlingstema.SÆRBIDRAG) {
             beskrivelseBehandlingstema += ",innkreving"
         }
         val behandlingstemaMedSærbidragKategori =
