@@ -20,7 +20,7 @@
     <kotlin.version>2.2.10</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-felles.version>2025.10.15.130952</bidrag-felles.version>
+    <bidrag-felles.version>2025.10.16.134304</bidrag-felles.version>
     <logback-encoder.version>8.0</logback-encoder.version>
     <mockito-kotlin.version>5.1.0</mockito-kotlin.version>
     <token-support.version>5.0.25</token-support.version>
