@@ -1,0 +1,1 @@
+alter table oppgave add column if not exists frist date;

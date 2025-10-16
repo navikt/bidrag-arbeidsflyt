@@ -2,19 +2,24 @@ DEFAULT_PORT: 1232
 logging:
   level:
     root: INFO
+retry:
+  enabled: false
 BIDRAG_TILGANGSKONTROLL_URL: http://localhost:${wiremock.server.port:0}/tilgangskontroll
 OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
-ORGANISASJON_URL: http://localhost:${wiremock.server.port:0}/organisasjon
+BIDRAG_ORGANISASJON_URL: http://localhost:${wiremock.server.port:0}/organisasjon
 BIDRAG_DOKUMENT_URL: http://localhost:${wiremock.server.port:0}/dokument
-PERSON_URL: http://localhost:${wiremock.server.port:0}/person
+BIDRAG_SAK_URL: http://localhost:${wiremock.server.port:0}/sak
+BIDRAG_PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_HENDELSE: oppgave-hendelse
 TOPIC_JOURNALPOST: topic_journalpost
+TOPIC_BEHANDLING_HENDELSE: topic_behandling_hendelse
 SRV_BD_ARBEIDSFLYT_PASSWORD: test
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 KAFKA_GROUP_ID: test
 KAFKA_MAX_RETRY: 0
+REST_MAX_RETRY: 0
 NAIS_APP_NAME: bidrag-dokument-forsendelse
 AZURE_ISSUER_URL: http://localhost:${mock-oauth2-server.port:1234}/aad
 SERVICE_USER_USERNAME: srvBdArbeidsflyt
@@ -35,7 +40,7 @@ no.nav.security.jwt:
           client-secret: 123
           client-auth-method: client_secret_basic
       person:
-        resource-url: ${PERSON_URL}
+        resource-url: ${BIDRAG_PERSON_URL}
         token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default
@@ -44,7 +49,7 @@ no.nav.security.jwt:
           client-secret: 123
           client-auth-method: client_secret_basic
       organisasjon:
-        resource-url: ${ORGANISASJON_URL}
+        resource-url: ${BIDRAG_ORGANISASJON_URL}
         token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default
@@ -56,6 +61,15 @@ no.nav.security.jwt:
         resource-url: ${BIDRAG_DOKUMENT_URL}
         token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+      sak:
+        resource-url: ${BIDRAG_SAK_URL}
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port:1234}/aad/token
+        grant-type: client_credentials
         scope: api://123/.default
         authentication:
           client-id: 123
@@ -74,11 +88,25 @@ no.nav.security.jwt:
 #### KAFKA
 
 spring:
-  flyway.enabled: false
-  datasource.type: com.zaxxer.hikari.HikariDataSource
-  datasource.url: jdbc:h2:mem:default
-  h2.console.enabled: true
-  jpa.hibernate.hbmddl-auto: create-drop
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init.sql
+  flyway:
+    enabled: false
   kafka:
     bootstrap-servers: ${KAFKA_BROKERS}
     properties:

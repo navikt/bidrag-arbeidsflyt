@@ -7,22 +7,25 @@ cpu:
   requests: 300m
 env:
   OPPGAVE_URL: https://oppgave-q1.dev-fss-pub.nais.io
-  ORGANISASJON_URL: https://bidrag-organisasjon-feature.dev-fss-pub.nais.io
-  PERSON_URL: https://bidrag-person-q1.dev-fss-pub.nais.io
+  BIDRAG_ORGANISASJON_URL: https://bidrag-organisasjon-feature.dev-fss-pub.nais.io/bidrag-organisasjon
+  BIDRAG_PERSON_URL: https://bidrag-person-q1.dev-fss-pub.nais.io
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument-feature.dev-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll-feature
+  BIDRAG_SAK_URL: https://bidrag-sak-q1.dev-fss-pub.nais.io/bidrag-sak
 
-  ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon-feature
-  PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
+  BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q1
+  BIDRAG_ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon-feature
+  BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
   OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
-  DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument-feature
+  BIDRAG_DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument-feature
   TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 
+  TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-q1
   TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-q1-v1
   TOPIC_DOKUMENT: bidrag.dokument-feature
   TOPIC_JOURNALPOST: bidrag.journalpost-feature
   KAFKA_MAX_RETRY: 1
-  JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+  JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 database:
   dbname: bidrag-arbeidsflyt-feature
   autoResize: false
@@ -33,6 +36,11 @@ outbound-access-apps:
   - bidrag-tilgangskontroll-feature
 outbound-access-hosts:
    - bidrag-dokument-feature.dev-fss-pub.nais.io
+   - bidrag-sak-q1.dev-fss-pub.nais.io
    - bidrag-person-feature.dev-fss-pub.nais.io
    - bidrag-organisasjon-feature.dev-fss-pub.nais.io
    - oppgave-q1.dev-fss-pub.nais.io
+   - bidrag-unleash-api.nav.cloud.nais.io
+unleash:
+  env: development
+  secret_name: bidrag-arbeidsflyt-unleash-api-token

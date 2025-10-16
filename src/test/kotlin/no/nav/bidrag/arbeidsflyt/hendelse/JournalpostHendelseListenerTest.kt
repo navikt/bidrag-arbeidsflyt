@@ -11,6 +11,7 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
 
 internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {

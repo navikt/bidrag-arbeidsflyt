@@ -1,32 +1,51 @@
 package no.nav.bidrag.arbeidsflyt.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
+import no.nav.bidrag.commons.service.organisasjon.SaksbehandlernavnProvider
 import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.util.LinkedMultiValueMap
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 private val NORSK_TIDSSTEMPEL_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 private val NORSK_DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.uuuu")
 
+const val METADATA_NØKKEL_BEHANDLING_ID = "BEHANDLING_ID"
+const val METADATA_NØKKEL_SØKNAD_ID = "SOKNAD_ID"
+const val METADATA_NØKKEL_NORM_DATO = "NORM_DATO"
 private const val PARAMETER_JOURNALPOST_ID = "journalpostId"
 private const val PARAMETER_OPPGAVE_TYPE = "oppgavetype"
 private const val PARAMETER_SAKSREFERANSE = "saksreferanse"
 private const val PARAMETER_TEMA = "tema"
 private const val PARAMETER_JOURNALPOSTID = "journalpostId"
+val behandlingstypeNasjonal = "ae0118"
+val behandlingstypeUtland = "ae0106"
 
 fun formatterDatoForOppgave(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
 
+fun formatterDatoForOppgaveMetadata(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("dd.MM.uuuu"))
+
 data class OppgaveSokRequest(
-    private val parametre: StringBuilder = StringBuilder(),
+    private val parametreMap: MutableMap<String, String> =
+        mutableMapOf(
+            PARAMETER_TEMA to "BID",
+            "statuskategori" to "AAPEN",
+            "sorteringsrekkefolge" to "ASC",
+            "sorteringsfelt" to "FRIST",
+            "limit" to "100",
+        ),
 ) {
     fun brukBehandlingSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
 
@@ -49,9 +68,23 @@ data class OppgaveSokRequest(
         return this
     }
 
+    fun leggTilOppgavetype(oppgavetype: OppgaveType): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, oppgavetype)
+
     fun leggTilFagomrade(fagomrade: String): OppgaveSokRequest = leggTilParameter(PARAMETER_TEMA, fagomrade)
 
-    fun leggTilSaksreferanse(saksnummer: String?): OppgaveSokRequest {
+    fun leggTilSøknadsreferanse(søknadId: String): OppgaveSokRequest {
+        leggTilParameter("metadatanokkel", METADATA_NØKKEL_SØKNAD_ID)
+        leggTilParameter("metadataverdi", søknadId)
+        return this
+    }
+
+    fun leggTilBehandlingreferanse(behandlingId: String): OppgaveSokRequest {
+        leggTilParameter("metadatanokkel", METADATA_NØKKEL_BEHANDLING_ID)
+        leggTilParameter("metadataverdi", behandlingId)
+        return this
+    }
+
+    fun leggTilSaksreferanse(saksnummer: String): OppgaveSokRequest {
         leggTilParameter(PARAMETER_SAKSREFERANSE, saksnummer)
         return this
     }
@@ -68,21 +101,18 @@ data class OppgaveSokRequest(
     private fun hentPrefiks(journalpostId: String) = journalpostId.split('-')[0]
 
     private fun leggTilParameter(
-        navn: String?,
-        verdi: Any?,
+        navn: String,
+        verdi: Any,
     ): OppgaveSokRequest {
-        if (parametre.isEmpty()) {
-            parametre.append('?')
-        } else {
-            parametre.append('&')
-        }
-
-        parametre.append(navn).append('=').append(verdi)
-
+        parametreMap[navn] = verdi.toString()
         return this
     }
 
-    fun hentParametre(): String = "$parametre&tema=BID&statuskategori=AAPEN&sorteringsrekkefolge=ASC&sorteringsfelt=FRIST&limit=100"
+    fun tilMultiValueMap(): LinkedMultiValueMap<String, String> {
+        val queryParams = LinkedMultiValueMap<String, String>()
+        parametreMap.forEach { (key, value) -> queryParams.add(key, value) }
+        return queryParams
+    }
 }
 
 data class OppgaveSokResponse(
@@ -125,6 +155,11 @@ data class OppgaveData(
 ) {
     override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 
+    val søknadsid get() = metadata?.get(METADATA_NØKKEL_SØKNAD_ID)
+    val behandlingsid get() = metadata?.get(METADATA_NØKKEL_BEHANDLING_ID)
+
+    fun endretAvArbeidsflyt(): Boolean = endretAv?.startsWith("bidrag-arbeidsflyt") == true
+
     fun erTemaBIDEllerFAR(): Boolean = tema == "BID" || tema == "FAR"
 
     fun erAapenJournalforingsoppgave(): Boolean = erStatusKategoriAapen && erJournalforingOppgave
@@ -140,6 +175,7 @@ data class OppgaveData(
             OppgaveStatus.UNDER_BEHANDLING,
         ).contains(status)
     val erJournalforingOppgave get() = oppgavetype == OppgaveType.JFR.name
+    val erSøknadsoppgave get() = søknadsid != null || behandlingsid != null
     private val erVurderDokumentOppgave get() = oppgavetype == OppgaveType.VUR.name
     private val erReturOppgave get() = oppgavetype == OppgaveType.RETUR.name
     internal val hasJournalpostId get() = !journalpostId.isNullOrEmpty()
@@ -162,13 +198,15 @@ data class OppgaveData(
         }
 }
 
-@Suppress("unused") // used by jackson...
-sealed class OpprettOppgaveRequest(
-    var beskrivelse: String,
-    var oppgavetype: OppgaveType = OppgaveType.JFR,
+@Suppress("unused")
+open // used by jackson...
+class DefaultOpprettOppgaveRequest(
+    open var behandlingstype: String? = null,
+    open var beskrivelse: String,
+    open var oppgavetype: OppgaveType = OppgaveType.JFR,
     var opprettetAvEnhetsnr: String = "9999",
     var prioritet: String = Prioritet.HOY.name,
-    var tema: String = "BID",
+    open var tema: String = "BID",
     var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
     var fristFerdigstillelse: String = formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag()),
     open var tildeltEnhetsnr: String? = null,
@@ -177,60 +215,94 @@ sealed class OpprettOppgaveRequest(
     open val tilordnetRessurs: String? = null,
     open val aktoerId: String? = null,
     var bnr: String? = null,
-) {
-    fun somHttpEntity(): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
+    open val personident: String? = null,
+    var metadata: Map<String, String>? = null,
+)
 
-        return HttpEntity<OpprettOppgaveRequest>(this, headers)
-    }
+data class BrukerDto(
+    val ident: String,
+    val type: OppgaveBrukertype,
+)
 
-    override fun toString() = "${javaClass.simpleName}(${fieldsWithValues()})"
-
-    private fun fieldsWithValues(): String =
-        StringBuilder("")
-            .append(fieldToString("beskrivelse", beskrivelse))
-            .append(fieldToString("oppgavetype", oppgavetype?.name))
-            .append(fieldToString("opprettetAvEnhetsnr", opprettetAvEnhetsnr))
-            .append(fieldToString("prioritet", prioritet))
-            .append(fieldToString("tema", tema))
-            .append(fieldToString("aktivDato", aktivDato))
-            .append(fieldToString("fristFerdigstillelse", fristFerdigstillelse))
-            .append(fieldToString("tildeltEnhetsnr", tildeltEnhetsnr))
-            .append(fieldToString("saksreferanse", saksreferanse))
-            .append(fieldToString("journalpostId", journalpostId))
-            .append(fieldToString("aktoerId", aktoerId))
-            .append(fieldToString("bnr", bnr))
-            .toString()
-            .removeSuffix(", ")
+enum class OppgaveBrukertype {
+    PERSON,
+    ARBEIDSGIVER,
+    SAMHANDLER,
 }
 
-data class OpprettBehandleDokumentOppgaveRequest(
-    override var aktoerId: String?,
-    private var _journalpostId: String,
+data class OpprettOppgaveRequestV2(
+    var aktoerId: String? = null,
+    var personident: String? = null,
+    var npidOrFolkeregisterIdent: String? = null,
+    var orgnr: String? = null,
+    var bnr: String? = null,
+    var samhandlernr: String? = null,
+    var tildeltEnhetsnr: String? = null,
+    var opprettetAvEnhetsnr: String? = null,
+    var journalpostId: String? = null,
+    var journalpostkilde: String? = null,
+    var behandlesAvApplikasjon: String? = null,
+    var saksreferanse: String? = null,
+    var tilordnetRessurs: String? = null,
+    var temagruppe: String? = null,
+    var tema: String? = null,
+    var behandlingstema: String? = null,
+    var oppgavetype: String? = null,
+    var behandlingstype: String? = null,
+    var mappeId: Long? = null,
+    var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
+    var fristFerdigstillelse: String = formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag()),
+    var prioritet: Prioritet? = null,
+    var uuid: UUID? = null,
+    var metadata: Map<String, String>? = null,
+    @JsonIgnore
+    var kommentar: String,
+    val saksbehandlersInfo: String,
+)
+
+@Suppress("unused") // used by jackson...
+class OpprettSøknadsoppgaveRequest(
+    søknadsid: Long?,
+    behandlingsid: Long?,
+    innhold: String,
+    frist: LocalDate,
+    sporingsdata: Sporingsdata,
     override var saksreferanse: String,
-    private var tittel: String,
-    private var dokumentDato: LocalDate?,
-    private var saksbehandlersInfo: String,
-    private var sporingsdata: no.nav.bidrag.transport.dokument.Sporingsdata,
-) : OpprettOppgaveRequest(
-        beskrivelse =
-            lagBeskrivelseHeader(saksbehandlersInfo) +
-                "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
-                "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
-        oppgavetype = OppgaveType.BEH_SAK,
-        opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
-        tildeltEnhetsnr = sporingsdata.enhetsnummer,
-        tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident,
+    override var tildeltEnhetsnr: String?,
+    override var personident: String?,
+    override var oppgavetype: OppgaveType,
+    override var tema: String,
+) : DefaultOpprettOppgaveRequest(
+        beskrivelse = "",
+        prioritet = Prioritet.LAV.name,
     ) {
-    override fun toString(): String = super.toString()
+    init {
+        val sporingsdataAdjusted =
+            if (sporingsdata.saksbehandlersNavn.isNullOrEmpty() && !sporingsdata.brukerident.isNullOrEmpty()) {
+                sporingsdata.copy(
+                    saksbehandlersNavn = SaksbehandlernavnProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
+                )
+            } else {
+                sporingsdata
+            }
+        beskrivelse = lagBeskrivelseHeader(sporingsdataAdjusted.lagSaksbehandlerInfo()) + innhold
+        behandlingstype = if (tildeltEnhetsnr == "4865") behandlingstypeUtland else behandlingstypeNasjonal
+        opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
+        fristFerdigstillelse = formatterDatoForOppgave(frist)
+        metadata =
+            mapOf(
+                METADATA_NØKKEL_SØKNAD_ID to søknadsid?.toString(),
+                METADATA_NØKKEL_BEHANDLING_ID to behandlingsid?.toString(),
+                METADATA_NØKKEL_NORM_DATO to formatterDatoForOppgaveMetadata(frist),
+            ).filter { !it.value.isNullOrEmpty() }.takeIf { it.isNotEmpty() } as Map<String, String>?
+    }
 }
 
 @Suppress("unused") // used by jackson...
 data class OpprettJournalforingsOppgaveRequest(
     override var journalpostId: String,
     override var aktoerId: String?,
-) : OpprettOppgaveRequest(
+) : DefaultOpprettOppgaveRequest(
         beskrivelse = "Innkommet brev som skal journalføres og eventuelt saksbehandles. (Denne oppgaven er opprettet automatisk)",
         oppgavetype = OppgaveType.JFR,
     ) {
@@ -287,13 +359,6 @@ open class PatchOppgaveRequest(
 ) {
     fun leggOppgaveIdPa(contextUrl: String) = "$contextUrl/$id".replace("//", "/")
 
-    open fun somHttpEntity(): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-
-        return HttpEntity<PatchOppgaveRequest>(this, headers)
-    }
-
     protected fun leggTilObligatoriskeVerdier(oppgaveDataForHendelse: OppgaveData) {
         id = oppgaveDataForHendelse.id
         versjon = oppgaveDataForHendelse.versjon
@@ -318,6 +383,27 @@ open class PatchOppgaveRequest(
         fieldName: String,
         value: String?,
     ) = if (value != null) ",$fieldName=$value" else ""
+}
+
+data class OpprettBehandleDokumentOppgaveRequest(
+    override var aktoerId: String?,
+    private var _journalpostId: String,
+    override var saksreferanse: String,
+    private var tittel: String,
+    private var dokumentDato: LocalDate?,
+    private var saksbehandlersInfo: String,
+    private var sporingsdata: no.nav.bidrag.transport.dokument.Sporingsdata,
+) : DefaultOpprettOppgaveRequest(
+        beskrivelse =
+            lagBeskrivelseHeader(saksbehandlersInfo) +
+                "${lagDokumentOppgaveTittel("Behandle dokument", tittel, dokumentDato ?: LocalDate.now())}\r\n" +
+                "\u00B7 ${lagDokumenterVedlagtBeskrivelse(_journalpostId)}\r\n\r\n",
+        oppgavetype = OppgaveType.BEH_SAK,
+        opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999",
+        tildeltEnhetsnr = sporingsdata.enhetsnummer,
+        tilordnetRessurs = if (sporingsdata.brukerident.isNullOrEmpty() || sporingsdata.brukerident!!.length > 7) null else sporingsdata.brukerident,
+    ) {
+    override fun toString(): String = super.toString()
 }
 
 class OppdaterOppgave() : PatchOppgaveRequest() {
@@ -355,7 +441,7 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
 
     fun hasChanged(): Boolean = _hasChanged
 
-    private fun oppdaterBeskrivelse() {
+    fun oppdaterOppgaveBeskrivelse(): OppdaterOppgave {
         var nyBeskrivelse = ""
         if (erOppgavetypeEndret) {
             nyBeskrivelse += "\u00B7 Oppgavetype endret fra ${OppgaveType.descriptionFrom(eksisterendeOppgavetype)} til ${
@@ -378,11 +464,7 @@ class OppdaterOppgave() : PatchOppgaveRequest() {
                 "${nyBeskrivelse}\r\n\r\n" +
                 eksisterendeBeskrivelse
         }
-    }
-
-    override fun somHttpEntity(): HttpEntity<*> {
-        this.oppdaterBeskrivelse()
-        return super.somHttpEntity()
+        return this
     }
 
     private val eksisterendeBeskrivelse get() = oppgaveDataForHendelse?.beskrivelse ?: ""
@@ -492,7 +574,9 @@ class FerdigstillOppgaveRequest(
 }
 
 enum class Prioritet {
-    HOY, // , NORM, LAV
+    HOY,
+    NORM,
+    LAV,
 }
 
 enum class OppgaveIdentType {
@@ -518,7 +602,9 @@ enum class Oppgavestatuskategori {
 enum class OppgaveType(
     val description: String,
 ) {
-    BEH_SAK("Behandle sak"),
+    GEN("Generell"),
+    IN("Innkreving"),
+    BEH_SAK("Søknad"),
     VUR("Vurder dokument"),
     JFR("Journalføring"),
     RETUR("Retur"),

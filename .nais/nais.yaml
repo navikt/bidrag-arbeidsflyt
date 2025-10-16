@@ -64,6 +64,7 @@ spec:
     - {{url}}
   {{/each}}
   envFrom:
+    - secret: {{unleash.secret_name}}
     - secret: bidrag-arbeidsflyt-secrets
   env:
   {{#each env}}

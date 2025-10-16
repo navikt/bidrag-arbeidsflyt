@@ -5,14 +5,17 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.model.erEksterntFagomrade
 import no.nav.bidrag.arbeidsflyt.model.erMottattStatus
 import no.nav.bidrag.arbeidsflyt.model.hentTema
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Journalpost
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Oppgave
+import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
+import org.springframework.dao.InvalidDataAccessApiUsageException
 import org.springframework.stereotype.Service
 
 @Service
@@ -27,6 +30,8 @@ class PersistenceService(
     }
 
     fun hentJournalforingOppgave(oppgaveId: Long): Oppgave? = oppgaveRepository.findByOppgaveId(oppgaveId)?.takeIf { it.erJournalforingOppgave() }
+
+    fun hentOppgave(oppgaveId: Long): Oppgave? = oppgaveRepository.findByOppgaveId(oppgaveId)
 
     fun hentJournalpostMedStatusMottatt(journalpostId: String): Journalpost? = journalpostRepository.findByJournalpostId(journalpostId)?.takeIf { it.erStatusMottatt && it.erBidragFagomrade }
 
@@ -67,7 +72,7 @@ class PersistenceService(
 
     @Transactional
     fun lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse: OppgaveData) {
-        if (!oppgaveHendelse.erJournalforingOppgave) {
+        if (!oppgaveHendelse.erJournalforingOppgave && !oppgaveHendelse.erSøknadsoppgave) {
             LOGGER.debug(
                 "Oppgave ${oppgaveHendelse.id} har oppgavetype ${oppgaveHendelse.oppgavetype}. Skal bare lagre oppgaver med type JFR. Lagrer ikke oppgave",
             )
@@ -79,6 +84,9 @@ class PersistenceService(
                 oppgavetype = oppgaveHendelse.oppgavetype!!,
                 status = oppgaveHendelse.status?.name!!,
                 journalpostId = oppgaveHendelse.journalpostId,
+                frist = oppgaveHendelse.fristFerdigstillelse,
+                søknadsoppgave = oppgaveHendelse.erSøknadsoppgave,
+                tildeltEnhetsnr = oppgaveHendelse.tildeltEnhetsnr,
             )
         oppgaveRepository.save(oppgave)
         LOGGER.info("Lagret oppgave med id ${oppgaveHendelse.id} i databasen.")
@@ -86,22 +94,21 @@ class PersistenceService(
 
     @Transactional
     fun oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgaveHendelse: OppgaveData) {
-        if (oppgaveHendelse.erAapenJournalforingsoppgave()) {
+        if (oppgaveHendelse.erAapenJournalforingsoppgave() || oppgaveHendelse.erSøknadsoppgave) {
             oppgaveRepository
-                .findById(oppgaveHendelse.id)
-                .ifPresentOrElse({
+                .findByOppgaveId(oppgaveHendelse.id)
+                ?.apply {
                     LOGGER.info("Oppdaterer oppgave ${oppgaveHendelse.id} i databasen")
-                    it.oppdaterOppgaveFraHendelse(oppgaveHendelse)
-                    oppgaveRepository.save(it)
-                }, {
-                    LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
-                    lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
-                })
-        } else {
-            oppgaveRepository.findById(oppgaveHendelse.id).ifPresent {
-                oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
-                LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
+                    oppdaterOppgaveFraHendelse(oppgaveHendelse)
+                } ?: run {
+                LOGGER.info("Fant ingen oppgave med id ${oppgaveHendelse.id} i databasen. Lagrer opppgave")
+                lagreJournalforingsOppgaveFraHendelse(oppgaveHendelse)
             }
+        }
+
+        if (oppgaveHendelse.erStatusKategoriAvsluttet) {
+            oppgaveRepository.deleteByOppgaveId(oppgaveHendelse.id)
+            LOGGER.info("Slettet oppgave ${oppgaveHendelse.id} fra databasen fordi oppgave ikke lenger er åpen journalføringsoppgave")
         }
     }
 
@@ -120,6 +127,15 @@ class PersistenceService(
             dlqKafkaRepository.deleteByMessageKey(journalpostId)
         } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med journalpostid $journalpostId", e)
+        }
+    }
+
+    @Transactional
+    fun slettFeiledeMeldingerMedSøknadId(søknadId: Long) {
+        try {
+            dlqKafkaRepository.deleteByMessageKey(søknadId.toString())
+        } catch (e: Exception) {
+            LOGGER.error("Det skjedde en feil ved sletting av feilede meldinger med søknadId $søknadId", e)
         }
     }
 

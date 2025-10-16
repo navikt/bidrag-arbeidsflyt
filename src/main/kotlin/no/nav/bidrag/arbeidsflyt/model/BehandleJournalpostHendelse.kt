@@ -1,8 +1,8 @@
 package no.nav.bidrag.arbeidsflyt.model
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
-import no.nav.bidrag.arbeidsflyt.consumer.BidragTIlgangskontrollConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.BidragTilgangskontrollConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
@@ -16,7 +16,7 @@ class BehandleJournalpostHendelse(
     private val oppgaveService: OppgaveService,
     private val arbeidsfordelingService: OrganisasjonService,
     private val persistenceService: PersistenceService,
-    private val tIlgangskontrollConsumer: BidragTIlgangskontrollConsumer,
+    private val tIlgangskontrollConsumer: BidragTilgangskontrollConsumer,
 ) {
     private var finnOppdaterteOppgaverForHendelse = true
     private lateinit var oppgaverForHendelse: OppgaverForHendelse
@@ -88,7 +88,7 @@ class BehandleJournalpostHendelse(
         finnOppgaverForHendelse()
 
         if (oppgaverForHendelse.erEndringAvAktoerId(journalpostHendelse)) {
-            LOGGER.info("Oppdaterer aktørid for oppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}.")
+            LOGGER.info { "Oppdaterer aktørid for oppgave. Rapportert av ${journalpostHendelse.hentSaksbehandlerInfo()}." }
             oppgaveService.oppdaterOppgaver(oppgaverForHendelse, journalpostHendelse)
             finnOppdaterteOppgaverForHendelse = true
         }

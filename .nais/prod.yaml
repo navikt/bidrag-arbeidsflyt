@@ -7,17 +7,20 @@ cpu:
   requests: 300m
 env:
   OPPGAVE_URL: https://oppgave.prod-fss-pub.nais.io
-  ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io
-  PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
+  BIDRAG_ORGANISASJON_URL: https://bidrag-organisasjon.prod-fss-pub.nais.io/bidrag-organisasjon
+  BIDRAG_PERSON_URL: https://bidrag-person.prod-fss-pub.nais.io
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument.prod-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
+  BIDRAG_SAK_URL: https://bidrag-sak.prod-fss-pub.nais.io/bidrag-sak
 
-  ORGANISASJON_SCOPE: prod-fss.bidrag.bidrag-organisasjon
-  PERSON_SCOPE: prod-fss.bidrag.bidrag-person
+  BIDRAG_SAK_SCOPE: prod-fss.bidrag.bidrag-sak
+  BIDRAG_ORGANISASJON_SCOPE: prod-fss.bidrag.bidrag-organisasjon
+  BIDRAG_PERSON_SCOPE: prod-fss.bidrag.bidrag-person
   OPPGAVE_SCOPE: prod-fss.oppgavehandtering.oppgave
-  DOKUMENT_SCOPE: prod-fss.bidrag.bidrag-dokument
+  BIDRAG_DOKUMENT_SCOPE: prod-fss.bidrag.bidrag-dokument
   TILGANGSKONTROLL_SCOPE: prod-gcp.bidrag.bidrag-tilgangskontroll
 
+  TOPIC_BEHANDLING_HENDELSE: bidrag.behandling
   TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
   TOPIC_DOKUMENT: bidrag.dokument
   TOPIC_JOURNALPOST: bidrag.journalpost
@@ -31,6 +34,11 @@ outbound-access-apps:
   - bidrag-tilgangskontroll
 outbound-access-hosts:
    - bidrag-dokument.prod-fss-pub.nais.io
+   - bidrag-sak.prod-fss-pub.nais.io
    - bidrag-person.prod-fss-pub.nais.io
    - oppgave.prod-fss-pub.nais.io
    - bidrag-organisasjon.prod-fss-pub.nais.io
+   - bidrag-unleash-api.nav.cloud.nais.io
+unleash:
+  env: production
+  secret_name: bidrag-arbeidsflyt-unleash-api-token

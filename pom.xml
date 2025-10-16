@@ -20,7 +20,7 @@
     <kotlin.version>2.2.10</kotlin.version>
 
     <!-- dependencies -->
-    <bidrag-felles.version>2025.08.19.141150</bidrag-felles.version>
+    <bidrag-felles.version>2025.10.15.130952</bidrag-felles.version>
     <logback-encoder.version>8.0</logback-encoder.version>
     <mockito-kotlin.version>5.1.0</mockito-kotlin.version>
     <token-support.version>5.0.25</token-support.version>
@@ -28,7 +28,7 @@
     <squareup-okhttp3.version>4.12.0</squareup-okhttp3.version>
     <shedlock.version>6.6.1</shedlock.version>
     <flyway.version>11.8.2</flyway.version>
-    <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>7.0.13</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.5.0</build-helper-maven.version>
@@ -85,6 +85,11 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>io.getunleash</groupId>
+      <artifactId>unleash-client-java</artifactId>
+      <version>11.0.2</version>
+    </dependency>
+    <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-transport-felles</artifactId>
       <version>${bidrag-felles.version}</version>
@@ -100,7 +105,7 @@
       <version>${token-support.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.github.microutils</groupId>
+      <groupId>io.github.oshai</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>
       <version>${kotlin-logging-jvm.version}</version>
     </dependency>
@@ -174,6 +179,12 @@
       <artifactId>HikariCP</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk-jvm</artifactId>
+      <version>1.14.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
@@ -235,9 +246,15 @@
 
     <!-- test -->
     <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test-junit5</artifactId>
+      <version>${kotlin.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
-      <version>5.8.0</version>
+      <version>6.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -424,7 +441,7 @@
           <dependency>
             <groupId>com.pinterest.ktlint</groupId>
             <artifactId>ktlint-cli</artifactId>
-            <version>1.5.0</version>
+            <version>1.7.1</version>
           </dependency>
           <!-- additional 3rd party ruleset(s) can be specified here -->
         </dependencies>

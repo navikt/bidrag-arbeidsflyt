@@ -45,7 +45,7 @@ internal class DefaultBehandleHendelseServiceTest {
     fun `skal ikke ferdigstille oppgaver når det er endring til internt fagområde`(fagomrade: String) {
         val journalpostId = "$fagomrade-101"
 
-        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+        whenever(oppgaveConsumerMock.søkOppgaver(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
                 oppgaver = listOf(OppgaveData(1, journalpostId = journalpostId)),
@@ -60,7 +60,7 @@ internal class DefaultBehandleHendelseServiceTest {
     @ValueSource(strings = ["AAREG", "ANNET_ENN_BID/FAR"])
     @Disabled
     fun `skal ferdigstille oppgaver når det er endring til eksternt fagområde`(fagomrade: String) {
-        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+        whenever(oppgaveConsumerMock.søkOppgaver(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
                 oppgaver = listOf(OppgaveData(id = 1, tema = fagomrade, versjon = 1, oppgavetype = JOURNALFORINGSOPPGAVE)),
@@ -73,7 +73,7 @@ internal class DefaultBehandleHendelseServiceTest {
 
     @Test
     fun `skal ikke overfore oppgaver når det er samme tildelt enhetsnummer`() {
-        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+        whenever(oppgaveConsumerMock.søkOppgaver(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
                 oppgaver =
@@ -96,7 +96,7 @@ internal class DefaultBehandleHendelseServiceTest {
     fun `skal overfore oppgaver når det er nytt tildelt enhetsnummer`() {
         val journalpostId = "BID-101"
 
-        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+        whenever(oppgaveConsumerMock.søkOppgaver(any())).thenReturn(
             OppgaveSokResponse(
                 antallTreffTotalt = 1,
                 oppgaver =
@@ -128,7 +128,7 @@ internal class DefaultBehandleHendelseServiceTest {
 
     @Test
     fun `skal ikke ferdigstille journalføringsoppgave når journalstatus er null`() {
-        whenever(oppgaveConsumerMock.finnOppgaverForJournalpost(any())).thenReturn(
+        whenever(oppgaveConsumerMock.søkOppgaver(any())).thenReturn(
             OppgaveSokResponse(antallTreffTotalt = 1, oppgaver = listOf(OppgaveData(1, oppgavetype = JOURNALFORINGSOPPGAVE))),
         )
 

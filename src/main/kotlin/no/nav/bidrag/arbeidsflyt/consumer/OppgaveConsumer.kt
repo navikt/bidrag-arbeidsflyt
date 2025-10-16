@@ -1,69 +1,62 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
+import no.nav.bidrag.arbeidsflyt.dto.DefaultOpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveSokResponse
-import no.nav.bidrag.arbeidsflyt.dto.OpprettOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.PatchOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.EndreOppgaveFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.OpprettOppgaveFeiletFunksjoneltException
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.commons.web.client.AbstractRestClient
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpMethod
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 
-interface OppgaveConsumer {
-    fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse
-
-    fun hentOppgave(oppgaveId: Long): OppgaveData
-
-    fun endreOppgave(
-        patchOppgaveRequest: PatchOppgaveRequest,
-        endretAvEnhetsnummer: String? = null,
-    )
-
-    fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData
-}
-
-class DefaultOppgaveConsumer(
-    private val restTemplate: HttpHeaderRestTemplate,
-) : OppgaveConsumer {
+@Service
+class OppgaveConsumer(
+    @Value("\${OPPGAVE_URL}") val url: URI,
+    @Qualifier("azure") restTemplate: RestTemplate,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
+) : AbstractRestClient(restTemplate, "oppgave") {
     companion object {
         @JvmStatic
-        private val LOGGER = LoggerFactory.getLogger(DefaultOppgaveConsumer::class.java)
+        private val LOGGER = LoggerFactory.getLogger(OppgaveConsumer::class.java)
     }
 
-    override fun finnOppgaverForJournalpost(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse {
-        val parameters = oppgaveSokRequest.hentParametre()
+    private val baseUri get() =
+        UriComponentsBuilder
+            .fromUri(url)
+            .path(OPPGAVE_CONTEXT)
+
+    fun søkOppgaver(oppgaveSokRequest: OppgaveSokRequest): OppgaveSokResponse {
+        val parameters = oppgaveSokRequest.tilMultiValueMap()
 
         LOGGER.info("søk opp åpne oppgaver på en journalpost: $parameters")
 
-        val oppgaveSokResponseEntity =
-            restTemplate.exchange(
-                "$OPPGAVE_CONTEXT$parameters",
-                HttpMethod.GET,
-                null,
-                OppgaveSokResponse::class.java,
+        val response =
+            getForEntity<OppgaveSokResponse>(
+                baseUri.queryParams(parameters).build().toUri(),
             )
 
-        SECURE_LOGGER.info("Response søk oppgave - ${initStringOf(oppgaveSokResponseEntity.body)}")
+        SECURE_LOGGER.info("Response søk oppgave - ${initStringOf(response)}")
 
-        return oppgaveSokResponseEntity.body ?: OppgaveSokResponse(0)
+        return response ?: OppgaveSokResponse(0)
     }
 
-    override fun hentOppgave(oppgaveId: Long): OppgaveData =
+    fun hentOppgave(oppgaveId: Long): OppgaveData =
         try {
-            restTemplate
-                .exchange(
-                    "$OPPGAVE_CONTEXT/$oppgaveId",
-                    HttpMethod.GET,
-                    null,
-                    OppgaveData::class.java,
-                ).body!!
+            getForNonNullEntity<OppgaveData>(
+                baseUri.pathSegment(oppgaveId.toString()).build().toUri(),
+            )
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 throw EndreOppgaveFeiletFunksjoneltException("Fant ikke oppgave med id $oppgaveId. Feilet med feilmelding ${e.message}", e)
@@ -80,24 +73,21 @@ class DefaultOppgaveConsumer(
         return "no body, antall treff = 0"
     }
 
-    override fun endreOppgave(
+    fun endreOppgave(
         patchOppgaveRequest: PatchOppgaveRequest,
-        endretAvEnhetsnummer: String?,
+        endretAvEnhetsnummer: String? = null,
     ) {
         patchOppgaveRequest.endretAvEnhetsnr = endretAvEnhetsnummer
 
-        val oppgaverPath = patchOppgaveRequest.leggOppgaveIdPa(OPPGAVE_CONTEXT)
         SECURE_LOGGER.info("Endrer oppgave ${patchOppgaveRequest.id} - $patchOppgaveRequest")
 
         try {
             val responseEntity =
-                restTemplate.exchange(
-                    oppgaverPath,
-                    HttpMethod.PATCH,
-                    patchOppgaveRequest.somHttpEntity(),
-                    OppgaveData::class.java,
+                patchForEntity<OppgaveData>(
+                    baseUri.pathSegment(patchOppgaveRequest.id.toString()).build().toUri(),
+                    patchOppgaveRequest,
                 )
-            SECURE_LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons ${responseEntity.body}")
+            SECURE_LOGGER.info("Endret oppgave ${patchOppgaveRequest.id}, fikk respons $responseEntity")
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.BAD_REQUEST) {
                 throw EndreOppgaveFeiletFunksjoneltException(
@@ -110,21 +100,19 @@ class DefaultOppgaveConsumer(
         }
     }
 
-    override fun opprettOppgave(opprettOppgaveRequest: OpprettOppgaveRequest): OppgaveData {
+    fun opprettOppgave(opprettOppgaveRequest: DefaultOpprettOppgaveRequest): OppgaveData {
         try {
             SECURE_LOGGER.info("Oppretter oppgave med verdi $opprettOppgaveRequest")
             val responseEntity =
-                restTemplate.exchange(
-                    OPPGAVE_CONTEXT,
-                    HttpMethod.POST,
-                    opprettOppgaveRequest.somHttpEntity(),
-                    OppgaveData::class.java,
+                postForNonNullEntity<OppgaveData>(
+                    baseUri.build().toUri(),
+                    opprettOppgaveRequest,
                 )
 
             LOGGER.info(
-                "Opprettet oppgave ${responseEntity.body?.id} med type ${opprettOppgaveRequest.oppgavetype} og journalpostId ${opprettOppgaveRequest.journalpostId}",
+                "Opprettet oppgave ${responseEntity.id} med type ${opprettOppgaveRequest.oppgavetype} og journalpostId ${opprettOppgaveRequest.journalpostId}",
             )
-            return responseEntity.body!!
+            return responseEntity
         } catch (e: HttpStatusCodeException) {
             if (e.statusCode == HttpStatus.BAD_REQUEST) {
                 throw OpprettOppgaveFeiletFunksjoneltException(

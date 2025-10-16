@@ -1,12 +1,14 @@
 package no.nav.bidrag.arbeidsflyt.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
-import mu.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
+import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +22,8 @@ class BehandleOppgaveHendelseService(
     var journalpostService: JournalpostService,
     var applicationContext: ApplicationContext,
     var arbeidsfordelingService: OrganisasjonService,
+    var behandlingService: BehandlingService,
+    var behandlingHendelseService: BehandleBehandlingHendelseService,
     private val meterRegistry: MeterRegistry,
 ) {
     @Transactional
@@ -62,7 +66,12 @@ class BehandleOppgaveHendelseService(
                 .utfor()
             opprettNyJournalforingOppgaveHvisNodvendig(oppgave)
         } else {
-            LOGGER.debug("Oppgave ${oppgave.id} har ingen journalpostid. Stopper videre behandling.")
+            if (UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
+                overførSøknadsoppgaverTilSammeEnhet(oppgave)
+                opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave)
+            }
+
+            behandlingService.oppdaterStatusPåOppgaverBehandlingTilFerdigstilt(oppgave)
         }
 
         persistenceService.oppdaterEllerSlettOppgaveMetadataFraHendelse(oppgave)
@@ -119,6 +128,39 @@ class BehandleOppgaveHendelseService(
         )
     }
 
+    fun opprettSøknadsoppgaveHvisBehandlingIkkeAvsluttet(oppgave: OppgaveData) {
+        if (oppgave.endretAvArbeidsflyt()) return
+
+        if (!oppgave.erStatusKategoriAvsluttet) return
+
+        val behandling = behandlingService.finnBehandling(oppgave) ?: return
+
+        if (!behandling.erAvsluttet && behandling.hendelse != null) {
+            LOGGER.info { "Oppgave ${oppgave.id} ble ferdigstilt men tilhørende behandling med søknadsid ${behandling.søknadsid} er ikke lukket. Opprett søknad på nytt" }
+            behandlingHendelseService.behandleHendelse(behandling.hendelse!!)
+        }
+    }
+
+    fun overførSøknadsoppgaverTilSammeEnhet(oppgave: OppgaveData) {
+        if (oppgave.endretAvArbeidsflyt()) return
+        if (!erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave)) return
+
+        oppgaveService.oppdaterAlleOppgaverSomTilhørerSammeBehandling(oppgave)
+        behandlingService.oppdaterBehandlingEnhet(oppgave)
+    }
+
+    fun erSøknadsoppgaveEnhetEndretTilNoeAnnet(oppgave: OppgaveData): Boolean {
+        if (!oppgave.erSøknadsoppgave) {
+            return false
+        }
+
+        val prevOppgaveState = persistenceService.hentOppgave(oppgave.id) ?: return false
+
+        return prevOppgaveState.tildeltEnhetsnr != null &&
+            oppgave.tildeltEnhetsnr != null &&
+            prevOppgaveState.tildeltEnhetsnr != oppgave.tildeltEnhetsnr
+    }
+
     fun erOppgavetypeEndretFraJournalforingTilAnnet(oppgave: OppgaveData): Boolean {
         if (oppgave.erJournalforingOppgave) {
             return false
@@ -155,18 +197,6 @@ class BehandleOppgaveHendelseService(
         oppgave: OppgaveData,
     ) {
         try {
-            LOGGER.info(
-                "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
-                    buildList {
-                        add("oppgaveId ${oppgaveHendelse.oppgave.oppgaveId}")
-                        add("versjon ${oppgaveHendelse.oppgave.versjon}")
-                        add("opgpavetype ${oppgaveHendelse.oppgave.kategorisering?.oppgavetype}")
-                        add("tema ${oppgaveHendelse.oppgave.kategorisering?.tema}")
-                        add("journalpostId ${oppgave.journalpostId}")
-                        add("tildelt ${oppgaveHendelse.oppgave.tilordning?.navIdent} (enhet ${oppgaveHendelse.oppgave.tilordning?.enhetsnr})")
-                        add("utførtAv ${oppgaveHendelse.utfortAv?.navIdent} (enhet ${oppgaveHendelse.utfortAv?.enhetsnr})")
-                    }.joinToString(", "),
-            )
             SECURE_LOGGER.info(
                 "Mottatt oppgave ${oppgaveHendelse.hendelse.hendelsestype} med " +
                     buildList {

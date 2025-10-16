@@ -2,42 +2,54 @@ package no.nav.bidrag.arbeidsflyt.consumer
 
 import no.nav.bidrag.arbeidsflyt.model.HentJournalpostFeiletFunksjoneltException
 import no.nav.bidrag.arbeidsflyt.model.HentJournalpostFeiletTekniskException
-import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.transport.dokument.JournalpostResponse
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
+import org.springframework.retry.policy.SimpleRetryPolicy
+import org.springframework.retry.support.RetryTemplate
+import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
-open class BidragDokumentConsumer(
-    private val restTemplate: HttpHeaderRestTemplate,
-) {
+@Service
+class BidragDokumentConsumer(
+    @Value("\${BIDRAG_DOKUMENT_URL}") val url: URI,
+    @Qualifier("azure") restTemplate: RestTemplate,
+    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
+) : AbstractRestClient(restTemplate, "bidrag-dokument") {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(BidragDokumentConsumer::class.java)
     }
 
+    private val baseUri get() =
+        UriComponentsBuilder
+            .fromUri(url)
+            .pathSegment("bidrag-dokument")
+
     @Retryable(
+        exceptionExpression = "@bidragDokumentConsumer.shouldRetry",
         value = [HentJournalpostFeiletTekniskException::class],
         maxAttempts = 10,
         backoff = Backoff(delay = 2000, maxDelay = 30000, multiplier = 2.0),
     )
-    open fun hentJournalpost(journalpostId: String): JournalpostResponse? {
-        try {
-            val response =
-                restTemplate.exchange(
-                    "/journal/$journalpostId",
-                    HttpMethod.GET,
-                    null,
-                    JournalpostResponse::class.java,
-                )
-            if (response.statusCode == HttpStatus.NO_CONTENT) {
-                return null
-            }
-
-            return response.body
+    fun hentJournalpost(journalpostId: String): JournalpostResponse? {
+        return try {
+            getForEntity<JournalpostResponse>(
+                baseUri
+                    .pathSegment("journal")
+                    .pathSegment(journalpostId)
+                    .build()
+                    .toUri(),
+            )
         } catch (e: HttpStatusCodeException) {
             if (HttpStatus.NOT_FOUND == e.statusCode) {
                 // Should not happen in production. Logging error to be notified

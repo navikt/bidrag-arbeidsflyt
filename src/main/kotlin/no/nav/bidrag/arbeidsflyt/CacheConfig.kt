@@ -19,6 +19,7 @@ class CacheConfig {
         const val TILGANG_TEMA_CACHE = "TILGANG_TEMA_CACHE"
         const val PERSON_CACHE = "PERSON_CACHE"
         const val GEOGRAFISK_ENHET_CACHE = "GEOGRAFISK_ENHET_CACHE"
+        const val SAK_CACHE = "SAK_CACHE"
         const val JOURNALFORENDE_ENHET_CACHE = "JOURNALFORENDE_ENHET_CACHE"
         const val ENHET_INFO_CACHE = "ENHET_INFO_CACHE"
         private val LOGGER = LoggerFactory.getLogger(CacheConfig::class.java)
@@ -39,6 +40,13 @@ class CacheConfig {
             Caffeine
                 .newBuilder()
                 .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
+                .build(),
+        )
+        caffeineCacheManager.registerCustomCache(
+            SAK_CACHE,
+            Caffeine
+                .newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build(),
         )
         caffeineCacheManager.registerCustomCache(
