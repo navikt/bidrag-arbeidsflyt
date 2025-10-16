@@ -38,14 +38,14 @@ fun formatterDatoForOppgave(date: LocalDate): String = date.format(DateTimeForma
 fun formatterDatoForOppgaveMetadata(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("dd.MM.uuuu"))
 
 data class OppgaveSokRequest(
-    private val parametreMap: MutableMap<String, String> =
-        mutableMapOf(
-            PARAMETER_TEMA to "BID",
-            "statuskategori" to "AAPEN",
-            "sorteringsrekkefolge" to "ASC",
-            "sorteringsfelt" to "FRIST",
-            "limit" to "100",
-        ),
+    private val parametreMap: LinkedMultiValueMap<String, String> =
+        LinkedMultiValueMap<String, String>().apply {
+            add(PARAMETER_TEMA, "BID")
+            add("statuskategori", "AAPEN")
+            add("sorteringsrekkefolge", "ASC")
+            add("sorteringsfelt", "FRIST")
+            add("limit", "100")
+        },
 ) {
     fun brukBehandlingSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
 
@@ -104,15 +104,11 @@ data class OppgaveSokRequest(
         navn: String,
         verdi: Any,
     ): OppgaveSokRequest {
-        parametreMap[navn] = verdi.toString()
+        parametreMap.add(navn, verdi.toString())
         return this
     }
 
-    fun tilMultiValueMap(): LinkedMultiValueMap<String, String> {
-        val queryParams = LinkedMultiValueMap<String, String>()
-        parametreMap.forEach { (key, value) -> queryParams.add(key, value) }
-        return queryParams
-    }
+    fun tilMultiValueMap(): LinkedMultiValueMap<String, String> = parametreMap
 }
 
 data class OppgaveSokResponse(
