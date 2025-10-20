@@ -101,11 +101,11 @@ class BehandleOppgaveHendelseService(
                 .hentJournalpostMedStatusMottatt(oppgave.journalpostIdMedPrefix!!)
                 .takeIf { it?.erBidragFagomrade == true }
                 ?.run {
-                    LOGGER.info("Journalpost ${oppgave.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave")
+                    LOGGER.info { "Journalpost ${oppgave.journalpostId} har status MOTTATT men har ingen journalføringsoppgave. Oppretter ny journalføringsoppgave" }
                     opprettJournalforingOppgaveFraHendelse(oppgave)
                 }
                 ?: run {
-                    LOGGER.info("Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling.")
+                    LOGGER.info { "Journalpost ${oppgave.journalpostId} som tilhører oppgave ${oppgave.id} har ikke status MOTTATT. Stopper videre behandling." }
                 }
         }
     }
@@ -168,7 +168,7 @@ class BehandleOppgaveHendelseService(
 
         val prevOppgaveState = persistenceService.hentJournalforingOppgave(oppgave.id)
         if (prevOppgaveState?.erJournalforingOppgave() == true) {
-            LOGGER.info("Oppgavetype for oppgave ${oppgave.id} er endret fra JFR til ${oppgave.oppgavetype}")
+            LOGGER.info { "Oppgavetype for oppgave ${oppgave.id} er endret fra JFR til ${oppgave.oppgavetype}" }
             return true
         }
 

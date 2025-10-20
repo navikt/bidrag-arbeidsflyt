@@ -47,9 +47,6 @@ class BehandleBehandlingHendelseService(
         }
         if (!UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
             secureLogger.info { "Behandling av hendelse er skrudd av. Lagrer behandling uten å opprette eller slette oppgaver" }
-            oppdaterOgLagreBehandling(hendelse, behandling)
-            persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
-            return
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
@@ -68,9 +65,9 @@ class BehandleBehandlingHendelseService(
                     ).dataForHendelse
             secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling)
-            if (kreverOppgave && åpneOppgaver.isEmpty()) {
+            if (kreverOppgave && åpneOppgaver.isEmpty() && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
-            } else if (!kreverOppgave) {
+            } else if (!kreverOppgave && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
                 ferdigstillOppgaver(åpneOppgaver)
             } else {
                 oppdaterOppgaveDetaljer(behandling, åpneOppgaver)
@@ -84,7 +81,9 @@ class BehandleBehandlingHendelseService(
         behandling: Behandling,
         åpneOppgaver: List<OppgaveData>,
     ) {
+        val åpneOppgaveIder = åpneOppgaver.map { it.id }
         val oppgaveDetaljer = behandling.oppgave ?: BehandlingOppgave(oppgaver = setOf())
+        val eksisterendeOppgaver = oppgaveDetaljer.oppgaver.filter { !åpneOppgaveIder.contains(it.oppgaveId) }
         val oppdaterteOppgaver =
             åpneOppgaver
                 .map { oppgave ->
@@ -95,7 +94,7 @@ class BehandleBehandlingHendelseService(
                         søknadsid = oppgave.søknadsid?.toLong(),
                     )
                 }.toSet()
-        behandling.oppgave = oppgaveDetaljer.copy(oppgaver = (oppgaveDetaljer.oppgaver + oppdaterteOppgaver).toSet())
+        behandling.oppgave = oppgaveDetaljer.copy(oppgaver = (eksisterendeOppgaver + oppdaterteOppgaver).toSet())
     }
 
     private fun opprettOppgave(

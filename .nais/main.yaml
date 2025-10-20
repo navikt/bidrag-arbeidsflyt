@@ -20,6 +20,7 @@ env:
   BIDRAG_DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument
   TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll
 
+  TOPIC_VEDTAK_HENDELSE: bidrag.vedtak-q2
   TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-q2
   TOPIC_OPPGAVE_HENDELSE: oppgavehandtering.oppgavehendelse-v1
   TOPIC_DOKUMENT: bidrag.dokument
