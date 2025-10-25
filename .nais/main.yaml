@@ -12,7 +12,9 @@ env:
   BIDRAG_DOKUMENT_URL: https://bidrag-dokument.dev-fss-pub.nais.io
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
   BIDRAG_SAK_URL: https://bidrag-sak-q2.dev-fss-pub.nais.io/bidrag-sak
+  BIDRAG_BBM_URL: https://bidrag-bbm.dev-fss-pub.nais.io
 
+  BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm
   BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q2
   BIDRAG_ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon
   BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q2
@@ -37,7 +39,8 @@ outbound-access-apps:
   - bidrag-tilgangskontroll
 outbound-access-hosts:
    - bidrag-dokument.dev-fss-pub.nais.io
-   - bidrag-sak.dev-fss-pub.nais.io
+   - bidrag-sak-q2.dev-fss-pub.nais.io
+   - bidrag-bbm.dev-fss-pub.nais.io
    - bidrag-person.dev-fss-pub.nais.io
    - oppgave.dev-fss-pub.nais.io
    - bidrag-organisasjon.dev-fss-pub.nais.io

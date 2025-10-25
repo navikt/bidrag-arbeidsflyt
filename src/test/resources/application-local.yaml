@@ -5,6 +5,8 @@ logging:
 BIDRAG_PERSON_URL: https://bidrag-person-q1.dev.intern.nav.no/bidrag-sak
 BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
 BIDRAG_SAK_URL: https://bidrag-sak-q1.dev.intern.nav.no/bidrag-sak
+BIDRAG_BBM_URL: https://bidrag-bbm-feature.dev.intern.nav.no
+BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm-feature
 BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q1
 BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll-feature.intern.dev.nav.no
 TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
@@ -19,6 +21,7 @@ TOPIC_JOURNALPOST: bidrag-journalpost
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_OPPRETTET: oppgave-opprettet
 TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-lokal
+TOPIC_VEDTAK_HENDELSE: bidrag.vedtak-lokal
 NAV_TRUSTSTORE_PATH: test
 NAV_TRUSTSTORE_PASSWORD: test
 SRV_BD_ARBEIDSFLYT_PASSWORD: test

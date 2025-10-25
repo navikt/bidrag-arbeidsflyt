@@ -33,9 +33,12 @@ private const val PARAMETER_JOURNALPOSTID = "journalpostId"
 val behandlingstypeNasjonal = "ae0118"
 val behandlingstypeUtland = "ae0106"
 
-fun formatterDatoForOppgave(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
+val normDatoFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu")
+val oppgaveDatoFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd")
 
-fun formatterDatoForOppgaveMetadata(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("dd.MM.uuuu"))
+fun formatterDatoForOppgave(date: LocalDate): String = date.format(oppgaveDatoFormatter)
+
+fun formatterDatoForOppgaveMetadata(date: LocalDate): String = date.format(normDatoFormatter)
 
 data class OppgaveSokRequest(
     private val parametreMap: LinkedMultiValueMap<String, String> =
@@ -148,9 +151,24 @@ data class OppgaveData(
     val prioritet: String? = null,
     val status: OppgaveStatus? = null,
     val metadata: Map<String, String>? = null,
+    val bruker: BrukerDto? = null,
 ) {
+    data class BrukerDto(
+        val ident: String,
+        val type: BrukerType,
+    )
+
+    enum class BrukerType {
+        PERSON,
+        ARBEIDSGIVER,
+        SAMHANDLER,
+    }
+
+    val personIdent get() = bruker?.ident
+
     override fun toString() = "{id=$id,journalpostId=$journalpostId,tema=$tema,oppgavetype=$oppgavetype,status=$status,tildeltEnhetsnr=$tildeltEnhetsnr,opprettetTidspunkt=$opprettetTidspunkt...}"
 
+    val normDato get() = metadata?.get(METADATA_NØKKEL_NORM_DATO)
     val søknadsid get() = metadata?.get(METADATA_NØKKEL_SØKNAD_ID)
     val behandlingsid get() = metadata?.get(METADATA_NØKKEL_BEHANDLING_ID)
 
@@ -200,7 +218,7 @@ class DefaultOpprettOppgaveRequest(
     open var behandlingstype: String? = null,
     open var beskrivelse: String,
     open var oppgavetype: OppgaveType = OppgaveType.JFR,
-    var opprettetAvEnhetsnr: String = "9999",
+    open var opprettetAvEnhetsnr: String = "9999",
     var prioritet: String = Prioritet.HOY.name,
     open var tema: String = "BID",
     var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
@@ -255,6 +273,35 @@ data class OpprettOppgaveRequestV2(
     var kommentar: String,
     val saksbehandlersInfo: String,
 )
+
+@Suppress("unused") // used by jackson...
+class GjenopprettSøknadsoppgaveRequest(
+    søknadsid: Long?,
+    behandlingsid: Long?,
+    normDato: LocalDate?,
+    frist: LocalDate,
+    override var behandlingstype: String? = null,
+    override var opprettetAvEnhetsnr: String,
+    override var beskrivelse: String,
+    override var saksreferanse: String,
+    override var tildeltEnhetsnr: String?,
+    override var personident: String?,
+    override var oppgavetype: OppgaveType,
+    override var tema: String,
+) : DefaultOpprettOppgaveRequest(
+        beskrivelse = beskrivelse,
+        prioritet = Prioritet.LAV.name,
+    ) {
+    init {
+        fristFerdigstillelse = formatterDatoForOppgave(frist)
+        metadata =
+            mapOf(
+                METADATA_NØKKEL_SØKNAD_ID to søknadsid?.toString(),
+                METADATA_NØKKEL_BEHANDLING_ID to behandlingsid?.toString(),
+                METADATA_NØKKEL_NORM_DATO to formatterDatoForOppgaveMetadata(normDato ?: frist),
+            ).filter { !it.value.isNullOrEmpty() }.takeIf { it.isNotEmpty() } as Map<String, String>?
+    }
+}
 
 @Suppress("unused") // used by jackson...
 class OpprettSøknadsoppgaveRequest(

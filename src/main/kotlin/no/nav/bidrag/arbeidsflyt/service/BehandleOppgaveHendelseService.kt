@@ -4,11 +4,13 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.bidrag.arbeidsflyt.SECURE_LOGGER
 import no.nav.bidrag.arbeidsflyt.UnleashFeatures
+import no.nav.bidrag.arbeidsflyt.consumer.BidragBBMConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
-import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
+import no.nav.bidrag.arbeidsflyt.model.erAvsluttet
+import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadRequest
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +26,7 @@ class BehandleOppgaveHendelseService(
     var arbeidsfordelingService: OrganisasjonService,
     var behandlingService: BehandlingService,
     var behandlingHendelseService: BehandleBehandlingHendelseService,
+    var bbmConsumer: BidragBBMConsumer,
     private val meterRegistry: MeterRegistry,
 ) {
     @Transactional
@@ -133,9 +136,27 @@ class BehandleOppgaveHendelseService(
 
         if (!oppgave.erStatusKategoriAvsluttet) return
 
-        val behandling = behandlingService.finnBehandling(oppgave) ?: return
+        if (oppgave.søknadsid == null && oppgave.behandlingsid == null) return
 
-        if (!behandling.erAvsluttet && behandling.hendelse != null) {
+        val behandling =
+            behandlingService.finnBehandling(oppgave)
+
+        if (behandling == null) {
+            if (oppgave.søknadsid == null) {
+                // TODO: Er det behov for å hente behandling?
+                LOGGER.info { "Oppgave ${oppgave.id} har ingen søknadsid men har behandlingsid ${oppgave.behandlingsid}. Ignorer videre behandling" }
+                return
+            }
+            try {
+                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!))
+                if (!søknad.søknad.erAvsluttet) {
+                    LOGGER.info { "Fant ikke behandling som tilhører oppgave ${oppgave.id} med søknadsid ${oppgave.søknadsid}. Hentet søknad og gjenoppretter oppgave istedenfor" }
+                    behandlingHendelseService.gjennopprettOppgaveHvisBehandlingIkkeFinnes(oppgave, søknad.søknad)
+                }
+            } catch (e: Exception) {
+                LOGGER.error(e) { "Feil ved henting av søknad med søknadsid ${oppgave.søknadsid} for oppgave ${oppgave.id}" }
+            }
+        } else if (!behandling.erAvsluttet && behandling.hendelse != null) {
             LOGGER.info { "Oppgave ${oppgave.id} ble ferdigstilt men tilhørende behandling med søknadsid ${behandling.søknadsid} er ikke lukket. Opprett søknad på nytt" }
             behandlingHendelseService.behandleHendelse(behandling.hendelse!!)
         }

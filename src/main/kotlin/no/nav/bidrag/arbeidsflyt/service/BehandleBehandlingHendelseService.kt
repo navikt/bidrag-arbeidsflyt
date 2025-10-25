@@ -8,6 +8,8 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettSøknadsoppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
+import no.nav.bidrag.arbeidsflyt.model.erAvsluttet
+import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgave
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingBarn
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingOppgave
@@ -21,6 +23,7 @@ import no.nav.bidrag.domene.enums.behandling.tilBeskrivelse
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.util.visningsnavn
+import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknad
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
@@ -38,6 +41,29 @@ class BehandleBehandlingHendelseService(
     val persistenceService: PersistenceService,
     val behandlingService: BehandlingService,
 ) {
+    @Transactional
+    fun gjennopprettOppgaveHvisBehandlingIkkeFinnes(
+        oppgaveData: OppgaveData,
+        søknad: HentSøknad,
+    ) {
+        if (søknad.erAvsluttet) return
+
+        val åpneOppgaver =
+            oppgaveService
+                .finnOppgaverForSøknad(
+                    søknadId = oppgaveData.søknadsid?.toLong(),
+                    behandlingId = oppgaveData.behandlingsid?.toLong(),
+                    saksnr = oppgaveData.saksreferanse!!,
+                    tema = oppgaveData.tema!!,
+                    oppgaveType = OppgaveType.valueOf(oppgaveData.oppgavetype!!),
+                ).dataForHendelse
+
+        if (åpneOppgaver.isEmpty()) {
+            LOGGER.info { "Gjennoppretter oppgave for sak ${oppgaveData.saksreferanse} og søknadsid ${oppgaveData.søknadsid} og behandlingsid ${oppgaveData.behandlingsid}" }
+            oppgaveService.opprettOppgave(oppgaveData.mapTilOpprettOppgave())
+        }
+    }
+
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
         val behandling = hentHendelse(hendelse)
