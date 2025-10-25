@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service
 @Service
 @Profile(value = [PROFILE_KAFKA_TEST, PROFILE_NAIS])
 class BehandlingHendelseListener(
-    private val behandleOppgaveHendelseService: BehandleBehandlingHendelseService,
+    private val service: BehandleBehandlingHendelseService,
 ) {
     @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_BEHANDLING_HENDELSE}"])
-    fun lesOppgaveHendelse(consumerRecord: ConsumerRecord<String, String>) {
+    fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val hendelse = lesHendelse(consumerRecord.value())
 
-        behandleOppgaveHendelseService.behandleHendelse(hendelse)
+        service.behandleHendelse(hendelse)
     }
 
     fun lesHendelse(hendelse: String): BehandlingHendelse = commonObjectmapper.readValue<BehandlingHendelse>(hendelse)

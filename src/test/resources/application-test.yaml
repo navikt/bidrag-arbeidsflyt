@@ -9,6 +9,7 @@ OPPGAVE_URL: http://localhost:${wiremock.server.port:0}/oppgave
 BIDRAG_ORGANISASJON_URL: http://localhost:${wiremock.server.port:0}/organisasjon
 BIDRAG_DOKUMENT_URL: http://localhost:${wiremock.server.port:0}/dokument
 BIDRAG_SAK_URL: http://localhost:${wiremock.server.port:0}/sak
+BIDRAG_BBM_URL: http://localhost:${wiremock.server.port:0}/bbm
 BIDRAG_PERSON_URL: http://localhost:${wiremock.server.port:0}/person
 TOPIC_OPPGAVE_ENDRET: oppgave-endret
 TOPIC_OPPGAVE_HENDELSE: oppgave-hendelse
