@@ -148,7 +148,7 @@ class BehandleOppgaveHendelseService(
                 return
             }
             try {
-                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!))
+                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong()))
                 if (!søknad.søknad.erAvsluttet) {
                     LOGGER.info { "Fant ikke behandling som tilhører oppgave ${oppgave.id} med søknadsid ${oppgave.søknadsid}. Hentet søknad og gjenoppretter oppgave istedenfor" }
                     behandlingHendelseService.gjennopprettOppgaveHvisBehandlingIkkeFinnes(oppgave, søknad.søknad)

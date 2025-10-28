@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OpprettSøknadsoppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.normDatoFormatter
 import no.nav.bidrag.arbeidsflyt.dto.oppgaveDatoFormatter
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
+import no.nav.bidrag.domene.enums.behandling.tilStønadstype
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Vedtakstype
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknad
@@ -32,25 +33,30 @@ fun HentSøknadResponse.mapTilBehandling(endretAv: String) =
         enhet = søknad.behandlerenhet ?: "9999",
         hendelse =
             BehandlingHendelse(
-                type = BehandlingHendelseType.AVSLUTTET,
-                status = BehandlingStatusType.AVBRUTT,
+                type =
+                    when (søknad.behandlingStatusType) {
+                        BehandlingStatusType.AVBRUTT, BehandlingStatusType.VEDTAK_FATTET -> BehandlingHendelseType.AVSLUTTET
+                        else -> BehandlingHendelseType.ENDRET
+                    },
+                status = søknad.behandlingStatusType,
                 vedtakstype = Vedtakstype.ENDRING,
                 opprettetTidspunkt = LocalDateTime.now(),
                 endretTidspunkt = LocalDateTime.now(),
                 mottattDato = søknad.søknadMottattDato,
                 behandlerEnhet = søknad.behandlerenhet ?: "9999",
-                søknadsid = søknad.søknadsid.toLong(),
-                behandlingsid = søknad.behandlingsid?.toLong(),
+                søknadsid = søknad.søknadsid,
+                behandlingsid = søknad.behandlingsid,
                 barn =
                     søknad.hentSøknadslinjerListe.map { b ->
                         BehandlingHendelseBarn(
                             saksnummer = søknad.saksnummer,
-                            stønadstype = søknad.stønadstype,
+                            stønadstype = søknad.behandlingstema.tilStønadstype(),
                             søktFraDato = søknad.søknadFomDato,
                             ident = b.personidentBarn,
                             søktAv = SøktAvType.BIDRAGSPLIKTIG,
                             behandlerEnhet = søknad.behandlerenhet ?: "9999",
                             status = b.behandlingstatus,
+                            behandlingstema = søknad.behandlingstema,
                         )
                     },
                 sporingsdata =
