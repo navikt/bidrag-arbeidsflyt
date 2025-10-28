@@ -8,6 +8,8 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettSøknadsoppgaveRequest
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
+import no.nav.bidrag.arbeidsflyt.model.erAvsluttet
+import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgave
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingBarn
 import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingOppgave
@@ -21,6 +23,7 @@ import no.nav.bidrag.domene.enums.behandling.tilBeskrivelse
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.util.visningsnavn
+import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknad
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
@@ -39,6 +42,29 @@ class BehandleBehandlingHendelseService(
     val behandlingService: BehandlingService,
 ) {
     @Transactional
+    fun gjennopprettOppgaveHvisBehandlingIkkeFinnes(
+        oppgaveData: OppgaveData,
+        søknad: HentSøknad,
+    ) {
+        if (søknad.erAvsluttet) return
+
+        val åpneOppgaver =
+            oppgaveService
+                .finnOppgaverForSøknad(
+                    søknadId = oppgaveData.søknadsid?.toLong(),
+                    behandlingId = oppgaveData.behandlingsid?.toLong(),
+                    saksnr = oppgaveData.saksreferanse!!,
+                    tema = oppgaveData.tema!!,
+                    oppgaveType = OppgaveType.valueOf(oppgaveData.oppgavetype!!),
+                ).dataForHendelse
+
+        if (åpneOppgaver.isEmpty()) {
+            LOGGER.info { "Gjennoppretter oppgave for sak ${oppgaveData.saksreferanse} og søknadsid ${oppgaveData.søknadsid} og behandlingsid ${oppgaveData.behandlingsid}" }
+            oppgaveService.opprettOppgave(oppgaveData.mapTilOpprettOppgave())
+        }
+    }
+
+    @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
         val behandling = hentHendelse(hendelse)
         if (behandling.id != 0L && behandling.status.erAvsluttet) {
@@ -47,9 +73,6 @@ class BehandleBehandlingHendelseService(
         }
         if (!UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
             secureLogger.info { "Behandling av hendelse er skrudd av. Lagrer behandling uten å opprette eller slette oppgaver" }
-            oppdaterOgLagreBehandling(hendelse, behandling)
-            persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
-            return
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
@@ -68,9 +91,9 @@ class BehandleBehandlingHendelseService(
                     ).dataForHendelse
             secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling)
-            if (kreverOppgave && åpneOppgaver.isEmpty()) {
+            if (kreverOppgave && åpneOppgaver.isEmpty() && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
-            } else if (!kreverOppgave) {
+            } else if (!kreverOppgave && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
                 ferdigstillOppgaver(åpneOppgaver)
             } else {
                 oppdaterOppgaveDetaljer(behandling, åpneOppgaver)
@@ -84,7 +107,9 @@ class BehandleBehandlingHendelseService(
         behandling: Behandling,
         åpneOppgaver: List<OppgaveData>,
     ) {
+        val åpneOppgaveIder = åpneOppgaver.map { it.id }
         val oppgaveDetaljer = behandling.oppgave ?: BehandlingOppgave(oppgaver = setOf())
+        val eksisterendeOppgaver = oppgaveDetaljer.oppgaver.filter { !åpneOppgaveIder.contains(it.oppgaveId) }
         val oppdaterteOppgaver =
             åpneOppgaver
                 .map { oppgave ->
@@ -95,7 +120,7 @@ class BehandleBehandlingHendelseService(
                         søknadsid = oppgave.søknadsid?.toLong(),
                     )
                 }.toSet()
-        behandling.oppgave = oppgaveDetaljer.copy(oppgaver = (oppgaveDetaljer.oppgaver + oppdaterteOppgaver).toSet())
+        behandling.oppgave = oppgaveDetaljer.copy(oppgaver = (eksisterendeOppgaver + oppdaterteOppgaver).toSet())
     }
 
     private fun opprettOppgave(
