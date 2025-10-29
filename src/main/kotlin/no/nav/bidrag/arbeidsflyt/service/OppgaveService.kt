@@ -31,6 +31,7 @@ class OppgaveService(
     }
 
     fun oppdaterAlleOppgaverSomTilhørerSammeBehandling(oppgave: OppgaveData) {
+        if (oppgave.behandlingsid == null) return
         val oppgaver = finnOppgaverForBehandling(oppgave.behandlingsid!!.toLong())
         oppgaver.forEach {
             if (it.id == oppgave.id) return@forEach
