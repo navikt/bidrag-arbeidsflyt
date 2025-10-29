@@ -52,12 +52,13 @@ class BehandleBehandlingHendelseService(
             oppgaveService
                 .finnOppgaverForSøknad(
                     søknadId = oppgaveData.søknadsid?.toLong(),
-//                    behandlingId = oppgaveData.behandlingsid?.toLong(), // TODO: Legg til støtte for behandlingid i Bisys
+                    behandlingId = oppgaveData.behandlingsid?.toLong(),
                     saksnr = oppgaveData.saksreferanse!!,
                     tema = oppgaveData.tema!!,
                     oppgaveType = OppgaveType.valueOf(oppgaveData.oppgavetype!!),
                 ).dataForHendelse
 
+        secureLogger.info { "Fant $åpneOppgaver for opppgave ${oppgaveData.id} og søknad ${oppgaveData.søknadsid}" }
         if (åpneOppgaver.isEmpty()) {
             LOGGER.info { "Gjennoppretter oppgave for sak ${oppgaveData.saksreferanse} og søknadsid ${oppgaveData.søknadsid} og behandlingsid ${oppgaveData.behandlingsid}" }
             oppgaveService.opprettOppgave(oppgaveData.mapTilOpprettOppgave())
