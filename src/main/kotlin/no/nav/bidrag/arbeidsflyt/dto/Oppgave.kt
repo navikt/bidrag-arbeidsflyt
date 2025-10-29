@@ -76,12 +76,18 @@ data class OppgaveSokRequest(
     fun leggTilFagomrade(fagomrade: String): OppgaveSokRequest = leggTilParameter(PARAMETER_TEMA, fagomrade)
 
     fun leggTilSøknadsreferanse(søknadId: String): OppgaveSokRequest {
+        // Oppgave støtter ikke flere metadatanokkel parametere
+        fjernParameter("metadatanokkel")
+        fjernParameter("metadataverdi")
         leggTilParameter("metadatanokkel", METADATA_NØKKEL_SØKNAD_ID)
         leggTilParameter("metadataverdi", søknadId)
         return this
     }
 
     fun leggTilBehandlingreferanse(behandlingId: String): OppgaveSokRequest {
+        // Oppgave støtter ikke flere metadatanokkel parametere
+        fjernParameter("metadatanokkel")
+        fjernParameter("metadataverdi")
         leggTilParameter("metadatanokkel", METADATA_NØKKEL_BEHANDLING_ID)
         leggTilParameter("metadataverdi", behandlingId)
         return this
@@ -102,6 +108,13 @@ data class OppgaveSokRequest(
     private fun hentJournalpostIdUtenPrefiks(journalpostId: String) = if (harJournalpostIdPrefiks(journalpostId)) journalpostId.split('-')[1] else journalpostId
 
     private fun hentPrefiks(journalpostId: String) = journalpostId.split('-')[0]
+
+    private fun fjernParameter(
+        navn: String,
+    ): OppgaveSokRequest {
+        parametreMap.remove(navn)
+        return this
+    }
 
     private fun leggTilParameter(
         navn: String,
