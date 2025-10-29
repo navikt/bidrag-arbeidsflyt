@@ -50,6 +50,8 @@ data class OppgaveSokRequest(
             add("limit", "100")
         },
 ) {
+    fun copy(): OppgaveSokRequest = OppgaveSokRequest(LinkedMultiValueMap(parametreMap.deepCopy()))
+
     fun brukBehandlingSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.BEH_SAK)
 
     fun brukVurderDokumentSomOppgaveType(): OppgaveSokRequest = leggTilParameter(PARAMETER_OPPGAVE_TYPE, OppgaveType.VUR)
@@ -77,8 +79,6 @@ data class OppgaveSokRequest(
 
     fun leggTilSøknadsreferanse(søknadId: String): OppgaveSokRequest {
         // Oppgave støtter ikke flere metadatanokkel parametere
-        fjernParameter("metadatanokkel")
-        fjernParameter("metadataverdi")
         leggTilParameter("metadatanokkel", METADATA_NØKKEL_SØKNAD_ID)
         leggTilParameter("metadataverdi", søknadId)
         return this
@@ -86,8 +86,6 @@ data class OppgaveSokRequest(
 
     fun leggTilBehandlingreferanse(behandlingId: String): OppgaveSokRequest {
         // Oppgave støtter ikke flere metadatanokkel parametere
-        fjernParameter("metadatanokkel")
-        fjernParameter("metadataverdi")
         leggTilParameter("metadatanokkel", METADATA_NØKKEL_BEHANDLING_ID)
         leggTilParameter("metadataverdi", behandlingId)
         return this
