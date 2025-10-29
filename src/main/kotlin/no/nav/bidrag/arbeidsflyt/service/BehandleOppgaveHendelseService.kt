@@ -138,6 +138,16 @@ class BehandleOppgaveHendelseService(
 
         if (oppgave.søknadsid == null && oppgave.behandlingsid == null) return
 
+        // TODO: Dette er nødvendig for overgangsfasen når behandling statuser ikke er helt oppdater. Kan fjernes når feature toggle er fjernet
+        if (oppgave.søknadsid != null) {
+            try {
+                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong()))
+                if (søknad.søknad.erAvsluttet) return
+            } catch (e: Exception) {
+                LOGGER.error(e) { "Feil ved henting av søknad med søknadsid ${oppgave.søknadsid} for oppgave ${oppgave.id}" }
+            }
+        }
+
         val behandling =
             behandlingService.finnBehandling(oppgave)
 
