@@ -52,7 +52,7 @@ class BehandleBehandlingHendelseService(
             oppgaveService
                 .finnOppgaverForSøknad(
                     søknadId = oppgaveData.søknadsid?.toLong(),
-                    behandlingId = oppgaveData.behandlingsid?.toLong(),
+//                    behandlingId = oppgaveData.behandlingsid?.toLong(), // TODO: Legg til støtte for behandlingid i Bisys
                     saksnr = oppgaveData.saksreferanse!!,
                     tema = oppgaveData.tema!!,
                     oppgaveType = OppgaveType.valueOf(oppgaveData.oppgavetype!!),
