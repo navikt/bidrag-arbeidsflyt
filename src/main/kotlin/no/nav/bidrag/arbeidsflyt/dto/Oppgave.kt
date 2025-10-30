@@ -226,6 +226,7 @@ data class OppgaveData(
 @Suppress("unused")
 open // used by jackson...
 class DefaultOpprettOppgaveRequest(
+    open var behandlesAvApplikasjon: String? = null,
     open var behandlingstype: String? = null,
     open var beskrivelse: String,
     open var oppgavetype: OppgaveType = OppgaveType.JFR,
@@ -237,7 +238,7 @@ class DefaultOpprettOppgaveRequest(
     open var tildeltEnhetsnr: String? = null,
     open val saksreferanse: String? = null,
     open val journalpostId: String? = null,
-    open val tilordnetRessurs: String? = null,
+    open var tilordnetRessurs: String? = null,
     open val aktoerId: String? = null,
     var bnr: String? = null,
     open val personident: String? = null,
@@ -297,6 +298,8 @@ class GjenopprettSøknadsoppgaveRequest(
     override var saksreferanse: String,
     override var tildeltEnhetsnr: String?,
     override var personident: String?,
+    override var tilordnetRessurs: String?,
+    override var behandlesAvApplikasjon: String?,
     override var oppgavetype: OppgaveType,
     override var tema: String,
 ) : DefaultOpprettOppgaveRequest(
@@ -343,6 +346,7 @@ class OpprettSøknadsoppgaveRequest(
         behandlingstype = if (tildeltEnhetsnr == "4865") behandlingstypeUtland else behandlingstypeNasjonal
         opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
         fristFerdigstillelse = formatterDatoForOppgave(frist)
+        tilordnetRessurs = sporingsdataAdjusted.brukerident
         metadata =
             mapOf(
                 METADATA_NØKKEL_SØKNAD_ID to søknadsid?.toString(),

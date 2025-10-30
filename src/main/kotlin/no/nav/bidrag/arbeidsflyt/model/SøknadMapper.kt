@@ -3,9 +3,7 @@ package no.nav.bidrag.arbeidsflyt.model
 import no.nav.bidrag.arbeidsflyt.dto.GjenopprettSøknadsoppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
-import no.nav.bidrag.arbeidsflyt.dto.OpprettSøknadsoppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.normDatoFormatter
-import no.nav.bidrag.arbeidsflyt.dto.oppgaveDatoFormatter
 import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.domene.enums.behandling.tilStønadstype
 import no.nav.bidrag.domene.enums.rolle.SøktAvType
@@ -78,4 +76,6 @@ fun OppgaveData.mapTilOpprettOppgave() =
         behandlingsid = behandlingsid?.toLong(),
         opprettetAvEnhetsnr = opprettetAvEnhetsnr!!,
         normDato = normDato?.let { LocalDate.from(normDatoFormatter.parse(it)) },
+        tilordnetRessurs = tilordnetRessurs,
+        behandlesAvApplikasjon = behandlesAvApplikasjon,
     )
