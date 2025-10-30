@@ -11,6 +11,7 @@ import no.nav.bidrag.arbeidsflyt.hendelse.dto.OppgaveKafkaHendelse
 import no.nav.bidrag.arbeidsflyt.model.OppdaterOppgaveFraHendelse
 import no.nav.bidrag.arbeidsflyt.model.erAvsluttet
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadRequest
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -138,18 +139,22 @@ class BehandleOppgaveHendelseService(
 
         if (oppgave.søknadsid == null && oppgave.behandlingsid == null) return
 
+        val behandling =
+            behandlingService.finnBehandling(oppgave)
         // TODO: Dette er nødvendig for overgangsfasen når behandling statuser ikke er helt oppdater. Kan fjernes når feature toggle er fjernet
         if (oppgave.søknadsid != null) {
             try {
                 val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong()))
-                if (søknad.søknad.erAvsluttet) return
+                if (søknad.søknad.erAvsluttet) {
+                    if (behandling != null) {
+                        behandling.status = søknad.søknad.behandlingStatusType
+                    }
+                    return
+                }
             } catch (e: Exception) {
                 LOGGER.error(e) { "Feil ved henting av søknad med søknadsid ${oppgave.søknadsid} for oppgave ${oppgave.id}" }
             }
         }
-
-        val behandling =
-            behandlingService.finnBehandling(oppgave)
 
         if (behandling == null) {
             if (oppgave.søknadsid == null) {

@@ -26,6 +26,7 @@ import no.nav.bidrag.domene.util.visningsnavn
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknad
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
+import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseType
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -77,7 +78,7 @@ class BehandleBehandlingHendelseService(
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
-            val kreverOppgave = barnliste.any { it.status.kreverOppgave }
+            val kreverOppgave = barnliste.any { it.status.kreverOppgave } && hendelse.type != BehandlingHendelseType.AVSLUTTET
             val saksnummer = saksnummerSøknadPair.first
             val søknadsid = saksnummerSøknadPair.second
             slettÅpneOppgaverUtenSøknadsreferanse(saksnummer)
