@@ -78,6 +78,7 @@ class OppgaveService(
                             .copy()
                             .leggTilBehandlingreferanse(behandlingId.toString()),
                     ).oppgaver
+                    .filter { søknadId == null || it.søknadsid != null && it.søknadsid!!.toLong() == søknadId }
             } else {
                 emptyList()
             }

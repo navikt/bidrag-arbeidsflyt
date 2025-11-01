@@ -92,7 +92,7 @@ class BehandleBehandlingHendelseService(
                         oppgaveType = finnOppgavetypeForStønadstype(førsteBarn.behandlingstema),
                     ).dataForHendelse
             secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
-            oppdaterNormDatoOgMottattdato(hendelse, behandling)
+            oppdaterNormDatoOgMottattdato(hendelse, behandling, førsteBarn)
             if (kreverOppgave && åpneOppgaver.isEmpty() && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
             } else if (!kreverOppgave && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
@@ -180,12 +180,14 @@ class BehandleBehandlingHendelseService(
     private fun oppdaterNormDatoOgMottattdato(
         hendelse: BehandlingHendelse,
         behandling: Behandling,
+        barn: BehandlingHendelseBarn,
     ) {
         if (behandling.status == BehandlingStatusType.ÅPEN && hendelse.status == BehandlingStatusType.UNDER_BEHANDLING) {
             secureLogger.info { "Oppdaterer norm dato på hendelse for søknad ${hendelse.søknadsid} og behandling ${hendelse.behandlingsid} fordi status gikk fra å være åpen til under behandling" }
             behandling.normDato = LocalDate.now()
         }
         behandling.mottattDato = hendelse.mottattDato
+//        behandling.mottattDato = barn.mottattDato ?: hendelse.mottattDato
     }
 
     private fun hentHendelse(hendelse: BehandlingHendelse): Behandling =
@@ -285,6 +287,7 @@ class BehandleBehandlingHendelseService(
     ): LocalDate {
         val behandlingstype = barn.behandlingstype
         val fristFraDato = behandling.normDato ?: behandling.mottattDato
+//        val fristFraDato = behandling.normDato ?: barn.mottattDato ?: behandling.mottattDato
         if (behandlingstype.erKlage) {
             return fristFraDato.plusDays(180)
         }
