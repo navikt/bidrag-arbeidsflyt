@@ -73,6 +73,10 @@ class BehandleBehandlingHendelseService(
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
             return
         }
+        if (hendelse.behandlingsid == null && behandling.behandlesAvFlereSøknader) {
+            secureLogger.info { "Søknad ${behandling.søknadsid} inneholder flere søknader Ignorer hendelse da den ikke inneholder informasjon om behandlingsid" }
+            return
+        }
         if (!UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
             secureLogger.info { "Behandling av hendelse er skrudd av. Lagrer behandling uten å opprette eller slette oppgaver" }
         }
@@ -201,7 +205,7 @@ class BehandleBehandlingHendelseService(
                     barn = BehandlingBarn(barn = hendelse.barn),
                     hendelse = hendelse,
                     opprettetTidspunkt = hendelse.opprettetTidspunkt,
-                    søknadsid = hendelse.søknadsid,
+                    søknadsid = if (hendelse.behandlingsid == null) hendelse.søknadsid else null,
                     behandlingsid = hendelse.behandlingsid,
                     status = hendelse.status,
                     mottattDato = hendelse.mottattDato,
