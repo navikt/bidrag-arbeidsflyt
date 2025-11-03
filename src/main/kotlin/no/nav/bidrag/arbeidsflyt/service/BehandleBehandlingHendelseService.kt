@@ -190,8 +190,7 @@ class BehandleBehandlingHendelseService(
             secureLogger.info { "Oppdaterer norm dato på hendelse for søknad ${hendelse.søknadsid} og behandling ${hendelse.behandlingsid} fordi status gikk fra å være åpen til under behandling" }
             behandling.normDato = LocalDate.now()
         }
-        behandling.mottattDato = hendelse.mottattDato
-//        behandling.mottattDato = barn.mottattDato ?: hendelse.mottattDato
+        behandling.mottattDato = barn.mottattDato ?: hendelse.mottattDato
     }
 
     private fun hentHendelse(hendelse: BehandlingHendelse): Behandling =
@@ -290,8 +289,7 @@ class BehandleBehandlingHendelseService(
         barn: BehandlingHendelseBarn,
     ): LocalDate {
         val behandlingstype = barn.behandlingstype
-        val fristFraDato = behandling.normDato ?: behandling.mottattDato
-//        val fristFraDato = behandling.normDato ?: barn.mottattDato ?: behandling.mottattDato
+        val fristFraDato = behandling.normDato ?: barn.mottattDato ?: behandling.mottattDato
         if (behandlingstype.erKlage) {
             return fristFraDato.plusDays(180)
         }
