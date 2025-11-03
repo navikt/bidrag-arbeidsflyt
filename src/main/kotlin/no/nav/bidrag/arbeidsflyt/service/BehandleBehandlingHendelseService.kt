@@ -204,7 +204,7 @@ class BehandleBehandlingHendelseService(
                     barn = BehandlingBarn(barn = hendelse.barn),
                     hendelse = hendelse,
                     opprettetTidspunkt = hendelse.opprettetTidspunkt,
-                    søknadsid = if (hendelse.behandlingsid == null) hendelse.søknadsid else null,
+                    søknadsid = hendelse.søknadsid,
                     behandlingsid = hendelse.behandlingsid,
                     status = hendelse.status,
                     mottattDato = hendelse.mottattDato,
