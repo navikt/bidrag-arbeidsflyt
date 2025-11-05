@@ -18,6 +18,7 @@ import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
+import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -155,13 +156,12 @@ class OppgaveService(
         journalpostHendelse: JournalpostHendelse,
     ) {
         oppgaverForHendelse.dataForHendelse.forEach {
-            val tilEnhet = if (journalpostHendelse.enhet == "2101") journalpostHendelse.sporing?.enhetsnummer else journalpostHendelse.enhet
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest =
                     OverforOppgaveRequest(
                         it,
-                        tilEnhet ?: "na",
+                        journalpostHendelse.enhetKonvertert ?: "na",
                         journalpostHendelse.hentSaksbehandlerInfo(),
                     ),
             )

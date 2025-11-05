@@ -7,6 +7,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import no.nav.bidrag.arbeidsflyt.service.OrganisasjonService
 import no.nav.bidrag.arbeidsflyt.service.PersistenceService
+import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 
 private val LOGGER = KotlinLogging.logger {}
@@ -142,17 +143,17 @@ class BehandleJournalpostHendelse(
             return ENHET_FARSKAP
         }
         if (journalpostHendelse.hasEnhet) {
-            val enhetEksitererOgErAktiv = arbeidsfordelingService.enhetEksistererOgErAktiv(journalpostHendelse.enhet)
-            val erJournalførendeEnhet = arbeidsfordelingService.erJournalførendeEnhet(journalpostHendelse.enhet)
+            val enhetEksitererOgErAktiv = arbeidsfordelingService.enhetEksistererOgErAktiv(journalpostHendelse.enhetKonvertert)
+            val erJournalførendeEnhet = arbeidsfordelingService.erJournalførendeEnhet(journalpostHendelse.enhetKonvertert)
             val erGyldigEnhet = enhetEksitererOgErAktiv && erJournalførendeEnhet
             return if (!erGyldigEnhet) {
                 LOGGER.warn(
-                    "Enhet ${journalpostHendelse.enhet} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.",
+                    "Enhet ${journalpostHendelse.enhetKonvertert} fra hendelse er ikke journalførende enhet, eksisterer ikke eller er nedlagt. Henter enhet fra personens arbeidsfordeling.",
                 )
                 arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema).verdi
             } else {
-                LOGGER.info("Bruker enhet ${journalpostHendelse.enhet} fra hendelsen ved arbeidsfordelingen.")
-                journalpostHendelse.enhet!!
+                LOGGER.info("Bruker enhet ${journalpostHendelse.enhetKonvertert} fra hendelsen ved arbeidsfordelingen.")
+                journalpostHendelse.enhetKonvertert!!
             }
         }
         return arbeidsfordelingService.hentArbeidsfordeling(journalpostHendelse.aktorId, journalpostHendelse.behandlingstema).verdi

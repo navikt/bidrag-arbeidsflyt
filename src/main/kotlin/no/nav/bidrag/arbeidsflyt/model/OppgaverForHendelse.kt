@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.model
 
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
+import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 
 data class OppgaverForHendelse(
@@ -11,7 +12,7 @@ data class OppgaverForHendelse(
         journalpostHendelse.harEnhet() &&
             dataForHendelse
                 .stream()
-                .filter { journalpostHendelse.enhet != it.tildeltEnhetsnr }
+                .filter { journalpostHendelse.enhetKonvertert != it.tildeltEnhetsnr }
                 .findAny()
                 .isPresent
 

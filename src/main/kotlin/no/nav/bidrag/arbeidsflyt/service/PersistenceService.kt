@@ -13,6 +13,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.JournalpostRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
+import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.dao.InvalidDataAccessApiUsageException
@@ -147,7 +148,7 @@ class PersistenceService(
             journalpostRepository.save(
                 copy(
                     status = journalpostHendelse.status?.name ?: this.status,
-                    enhet = journalpostHendelse.enhet ?: this.enhet,
+                    enhet = journalpostHendelse.enhetKonvertert ?: this.enhet,
                     tema = journalpostHendelse.hentTema() ?: this.tema,
                 ),
             )
@@ -157,7 +158,7 @@ class PersistenceService(
                     journalpostId = journalpostId,
                     status = journalpostHendelse.status?.name ?: "UKJENT",
                     tema = journalpostHendelse.hentTema() ?: "BID",
-                    enhet = journalpostHendelse.enhet ?: "UKJENT",
+                    enhet = journalpostHendelse.enhetKonvertert ?: "UKJENT",
                 ),
             )
         }
