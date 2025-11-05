@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.UnleashFeatures
+import no.nav.bidrag.arbeidsflyt.consumer.BidragBBMConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.BidragSakConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -24,6 +25,7 @@ import no.nav.bidrag.domene.enums.rolle.SøktAvType
 import no.nav.bidrag.domene.enums.vedtak.Stønadstype
 import no.nav.bidrag.domene.util.visningsnavn
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknad
+import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadRequest
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelse
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseType
@@ -39,6 +41,7 @@ val BehandlingStatusType.erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT
 class BehandleBehandlingHendelseService(
     var oppgaveService: OppgaveService,
     var sakConsumer: BidragSakConsumer,
+    var bbmConsumer: BidragBBMConsumer,
     val persistenceService: PersistenceService,
     val behandlingService: BehandlingService,
 ) {
@@ -82,7 +85,8 @@ class BehandleBehandlingHendelseService(
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
-            val kreverOppgave = barnliste.any { it.status.kreverOppgave } && hendelse.type != BehandlingHendelseType.AVSLUTTET
+            val erSøknadAvsluttet = hendelse.type == BehandlingHendelseType.AVSLUTTET || erAvsluttet(hendelse.søknadsid)
+            val kreverOppgave = barnliste.any { it.status.kreverOppgave } && !erSøknadAvsluttet
             val saksnummer = saksnummerSøknadPair.first
             val søknadsid = saksnummerSøknadPair.second
             slettÅpneOppgaverUtenSøknadsreferanse(saksnummer)
@@ -108,6 +112,24 @@ class BehandleBehandlingHendelseService(
         oppdaterOgLagreBehandling(hendelse, behandling)
         persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
     }
+
+    private fun erAvsluttet(søknadsid: Long?): Boolean =
+        try {
+            hentSøknadStatus(søknadsid)?.erAvsluttet == true
+        } catch (e: Exception) {
+            false
+        }
+
+    private fun hentSøknadStatus(søknadsid: Long?) =
+        try {
+            if (søknadsid == null) {
+                null
+            } else {
+                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid)).søknad.behandlingStatusType
+            }
+        } catch (e: Exception) {
+            null
+        }
 
     private fun oppdaterOppgaveDetaljer(
         behandling: Behandling,
@@ -226,7 +248,7 @@ class BehandleBehandlingHendelseService(
                 .map { it.søknadsid }
                 .distinct()
                 .size > 1
-        behandling.status = hendelse.status
+        behandling.status = hentSøknadStatus(hendelse.søknadsid) ?: hendelse.status
         behandling.endretTidspunkt = hendelse.endretTidspunkt
         behandling.behandlesAvFlereSøknader = behandlesAvFlereSøknader
         behandling.hendelse = hendelse
