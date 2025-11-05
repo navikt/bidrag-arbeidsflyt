@@ -155,12 +155,13 @@ class OppgaveService(
         journalpostHendelse: JournalpostHendelse,
     ) {
         oppgaverForHendelse.dataForHendelse.forEach {
+            val tilEnhet = if (journalpostHendelse.enhet == "2101") journalpostHendelse.sporing?.enhetsnummer else journalpostHendelse.enhet
             oppgaveConsumer.endreOppgave(
                 endretAvEnhetsnummer = journalpostHendelse.hentEndretAvEnhetsnummer(),
                 patchOppgaveRequest =
                     OverforOppgaveRequest(
                         it,
-                        journalpostHendelse.enhet ?: "na",
+                        tilEnhet ?: "na",
                         journalpostHendelse.hentSaksbehandlerInfo(),
                     ),
             )
