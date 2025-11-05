@@ -18,11 +18,12 @@ import no.nav.bidrag.transport.dokument.Sporingsdata
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-val HentSøknad.erAvsluttet get() =
+val BehandlingStatusType.erAvsluttet get() =
     listOf(
         BehandlingStatusType.AVBRUTT,
         BehandlingStatusType.VEDTAK_FATTET,
-    ).contains(behandlingStatusType)
+    ).contains(this)
+val HentSøknad.erAvsluttet get() = behandlingStatusType.erAvsluttet
 
 fun HentSøknadResponse.mapTilBehandling(endretAv: String) =
     Behandling(
