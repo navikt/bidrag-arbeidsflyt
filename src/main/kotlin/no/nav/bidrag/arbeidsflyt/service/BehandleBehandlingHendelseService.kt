@@ -72,6 +72,9 @@ class BehandleBehandlingHendelseService(
     @Transactional
     fun behandleHendelse(hendelse: BehandlingHendelse) {
         val behandling = hentHendelse(hendelse)
+        if (behandling.endretTidspunkt > hendelse.endretTidspunkt) {
+            secureLogger.warn { "Endret tidspunkt på hendelsen er før endret tidspunkt på lagret behandling. Noe som ikke stemmer her" }
+        }
         if (behandling.id != 0L && behandling.status.erAvsluttet) {
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
             return
@@ -85,7 +88,7 @@ class BehandleBehandlingHendelseService(
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
-            val erSøknadAvsluttet = hendelse.type == BehandlingHendelseType.AVSLUTTET // || erAvsluttet(hendelse.søknadsid)
+            val erSøknadAvsluttet = hendelse.type == BehandlingHendelseType.AVSLUTTET || erAvsluttet(hendelse.søknadsid)
             val kreverOppgave = barnliste.any { it.status.kreverOppgave } && !erSøknadAvsluttet
             val saksnummer = saksnummerSøknadPair.first
             val søknadsid = saksnummerSøknadPair.second
