@@ -46,15 +46,15 @@ fun HentSøknadResponse.mapTilBehandling(endretAv: String) =
                 søknadsid = søknad.søknadsid,
                 behandlingsid = søknad.behandlingsid,
                 barn =
-                    søknad.hentSøknadslinjerListe.map { b ->
+                    søknad.partISøknadListe.map { b ->
                         BehandlingHendelseBarn(
                             saksnummer = søknad.saksnummer,
                             stønadstype = søknad.behandlingstema.tilStønadstype(),
                             søktFraDato = søknad.søknadFomDato,
-                            ident = b.personidentBarn,
+                            ident = b.personident!!,
                             søktAv = SøktAvType.BIDRAGSPLIKTIG,
                             behandlerEnhet = søknad.behandlerenhet ?: "9999",
-                            status = b.behandlingstatus,
+                            status = b.behandlingstatus!!,
                             behandlingstema = søknad.behandlingstema,
                         )
                     },
