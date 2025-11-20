@@ -346,7 +346,12 @@ class OpprettSøknadsoppgaveRequest(
         behandlingstype = if (tildeltEnhetsnr == "4865") behandlingstypeUtland else behandlingstypeNasjonal
         opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
         fristFerdigstillelse = formatterDatoForOppgave(frist)
-        tilordnetRessurs = sporingsdataAdjusted.brukerident
+        tilordnetRessurs =
+            if (sporingsdataAdjusted.enhetsnummer == null || tildeltEnhetsnr == sporingsdataAdjusted.enhetsnummer) {
+                sporingsdataAdjusted.brukerident
+            } else {
+                null
+            }
         metadata =
             mapOf(
                 METADATA_NØKKEL_SØKNAD_ID to søknadsid?.toString(),

@@ -123,6 +123,17 @@ class BehandleBehandlingHendelseService(
             false
         }
 
+    private fun hentSøknadBehandlerEnhet(søknadsid: Long?) =
+        try {
+            if (søknadsid == null) {
+                null
+            } else {
+                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid)).søknad.behandlerenhet
+            }
+        } catch (e: Exception) {
+            null
+        }
+
     private fun hentSøknadStatus(søknadsid: Long?) =
         try {
             if (søknadsid == null) {
@@ -166,7 +177,7 @@ class BehandleBehandlingHendelseService(
                     saksreferanse = barn.saksnummer,
                     innhold = opprettOppgaveBeskrivelse(barn),
                     frist = finnFristForSøknadsgruppe(behandling, barn),
-                    tildeltEnhetsnr = barn.behandlerEnhet,
+                    tildeltEnhetsnr = hentSøknadBehandlerEnhet(barn.søknadsid) ?: barn.behandlerEnhet,
                     tema = finnFagområdeForSøknad(barn.stønadstype),
                     oppgavetype = finnOppgavetypeForStønadstype(barn.behandlingstema),
                     søknadsid = barn.søknadsid,

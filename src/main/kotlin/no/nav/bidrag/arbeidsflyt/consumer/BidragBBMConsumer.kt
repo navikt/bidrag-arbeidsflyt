@@ -1,10 +1,12 @@
 package no.nav.bidrag.arbeidsflyt.consumer
 
+import no.nav.bidrag.arbeidsflyt.CacheConfig
 import no.nav.bidrag.commons.web.client.AbstractRestClient
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadRequest
 import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
@@ -25,6 +27,7 @@ class BidragBBMConsumer(
         maxAttempts = 3,
         backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0),
     )
+    @Cacheable(CacheConfig.BBM_SØKNAD_CACHE)
     fun hentSøknad(request: HentSøknadRequest): HentSøknadResponse =
         postForNonNullEntity(
             bidragBBMUri.pathSegment("hentsoknad").build().toUri(),

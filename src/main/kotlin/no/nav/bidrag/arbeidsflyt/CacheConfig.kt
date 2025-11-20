@@ -19,6 +19,7 @@ class CacheConfig {
         const val TILGANG_TEMA_CACHE = "TILGANG_TEMA_CACHE"
         const val PERSON_CACHE = "PERSON_CACHE"
         const val GEOGRAFISK_ENHET_CACHE = "GEOGRAFISK_ENHET_CACHE"
+        const val BBM_SØKNAD_CACHE = "BBM_SØKNAD_CACHE"
         const val SAK_CACHE = "SAK_CACHE"
         const val JOURNALFORENDE_ENHET_CACHE = "JOURNALFORENDE_ENHET_CACHE"
         const val ENHET_INFO_CACHE = "ENHET_INFO_CACHE"
@@ -40,6 +41,13 @@ class CacheConfig {
             Caffeine
                 .newBuilder()
                 .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
+                .build(),
+        )
+        caffeineCacheManager.registerCustomCache(
+            BBM_SØKNAD_CACHE,
+            Caffeine
+                .newBuilder()
+                .expireAfterWrite(10, TimeUnit.SECONDS)
                 .build(),
         )
         caffeineCacheManager.registerCustomCache(
