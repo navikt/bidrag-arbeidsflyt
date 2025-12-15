@@ -671,6 +671,7 @@ enum class OppgaveType(
     VUR("Vurder dokument"),
     JFR("Journalføring"),
     RETUR("Retur"),
+    RV("Revurdering"),
     VURD_HENV("Vurder henvendelse"),
     ;
 

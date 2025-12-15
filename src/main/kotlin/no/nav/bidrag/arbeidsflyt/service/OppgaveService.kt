@@ -63,14 +63,16 @@ class OppgaveService(
         behandlingId: Long? = null,
         saksnr: String,
         tema: String = Fagomrade.BIDRAG,
-        oppgaveType: OppgaveType,
+        oppgaveType: OppgaveType? = null,
     ): OppgaverForHendelse {
         val oppgaveSokRequest =
             OppgaveSokRequest()
-                .leggTilOppgavetype(oppgaveType)
                 .leggTilFagomrade(tema)
                 .leggTilSaksreferanse(saksnr)
 
+        if (oppgaveType != null) {
+            oppgaveSokRequest.leggTilOppgavetype(oppgaveType)
+        }
         val oppgaverForBehandling =
             if (behandlingId != null) {
                 oppgaveConsumer
@@ -95,7 +97,15 @@ class OppgaveService(
             }
         val andreOppgaver =
             if (søknadId == null && behandlingId == null) {
-                oppgaveConsumer.søkOppgaver(oppgaveSokRequest).oppgaver
+                oppgaveConsumer
+                    .søkOppgaver(
+                        oppgaveSokRequest
+                            .copy()
+                            .leggTilOppgavetype(OppgaveType.BEH_SAK)
+                            .leggTilOppgavetype(OppgaveType.IN)
+                            .leggTilOppgavetype(OppgaveType.RV)
+                            .leggTilOppgavetype(OppgaveType.GEN),
+                    ).oppgaver
             } else {
                 emptyList()
             }

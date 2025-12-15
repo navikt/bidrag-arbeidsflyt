@@ -100,7 +100,7 @@ class BehandleBehandlingHendelseService(
                         behandlingId = hendelse.behandlingsid,
                         saksnr = saksnummer,
                         tema = finnFagområdeForSøknad(førsteBarn.stønadstype),
-                        oppgaveType = finnOppgavetypeForStønadstype(førsteBarn.behandlingstema),
+//                        oppgaveType = finnOppgavetypeForStønadstype(førsteBarn.behandlingstema),
                     ).dataForHendelse
             secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling, førsteBarn)
