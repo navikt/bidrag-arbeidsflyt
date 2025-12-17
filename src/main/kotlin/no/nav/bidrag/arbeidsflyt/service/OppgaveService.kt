@@ -101,8 +101,7 @@ class OppgaveService(
                     .søkOppgaver(
                         oppgaveSokRequest
                             .copy()
-                            .leggTilOppgavetype(OppgaveType.BEH_SAK)
-                            .leggTilOppgavetype(OppgaveType.RV),
+                            .leggTilOppgavetype(OppgaveType.BEH_SAK),
                     ).oppgaver
             } else {
                 emptyList()
