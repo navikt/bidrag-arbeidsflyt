@@ -294,6 +294,7 @@ class GjenopprettSøknadsoppgaveRequest(
     frist: LocalDate,
     prioritet: String? = null,
     aktivDato: String? = null,
+    ignorerNormDatoHvisIkkeFinnes: Boolean = false,
     override var behandlingstype: String? = null,
     override var opprettetAvEnhetsnr: String,
     override var beskrivelse: String,
@@ -315,7 +316,13 @@ class GjenopprettSøknadsoppgaveRequest(
             mapOf(
                 METADATA_NØKKEL_SØKNAD_ID to søknadsid?.toString(),
                 METADATA_NØKKEL_BEHANDLING_ID to behandlingsid?.toString(),
-                METADATA_NØKKEL_NORM_DATO to formatterDatoForOppgaveMetadata(normDato ?: frist),
+                if (normDato == null && !ignorerNormDatoHvisIkkeFinnes) {
+                    METADATA_NØKKEL_NORM_DATO to formatterDatoForOppgaveMetadata(frist)
+                } else if (normDato != null) {
+                    METADATA_NØKKEL_NORM_DATO to formatterDatoForOppgaveMetadata(normDato)
+                } else {
+                    METADATA_NØKKEL_NORM_DATO to null
+                },
             ).filter { !it.value.isNullOrEmpty() }.takeIf { it.isNotEmpty() } as Map<String, String>?
     }
 }
