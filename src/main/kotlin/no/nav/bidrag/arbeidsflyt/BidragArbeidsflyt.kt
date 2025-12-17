@@ -2,6 +2,7 @@ package no.nav.bidrag.arbeidsflyt
 
 import no.nav.bidrag.commons.service.AppContext
 import no.nav.bidrag.commons.web.config.RestOperationsAzure
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
@@ -15,6 +16,7 @@ const val PROFILE_KAFKA_TEST = "kafka_test"
 val SECURE_LOGGER = LoggerFactory.getLogger("secureLogger")
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
+@EnableJwtTokenValidation(ignore = ["org.springframework", "org.springdoc"])
 @EnableAspectJAutoProxy
 class BidragArbeidsflyt
 
