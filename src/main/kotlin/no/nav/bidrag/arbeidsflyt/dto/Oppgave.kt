@@ -233,7 +233,7 @@ class DefaultOpprettOppgaveRequest(
     open var opprettetAvEnhetsnr: String = "9999",
     var prioritet: String = Prioritet.HOY.name,
     open var tema: String = "BID",
-    var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
+    open var aktivDato: String = formatterDatoForOppgave(LocalDate.now()),
     var fristFerdigstillelse: String = formatterDatoForOppgave(VirkedagerProvider.nesteVirkedag()),
     open var tildeltEnhetsnr: String? = null,
     open val saksreferanse: String? = null,
@@ -292,6 +292,8 @@ class GjenopprettSøknadsoppgaveRequest(
     behandlingsid: Long?,
     normDato: LocalDate?,
     frist: LocalDate,
+    prioritet: String? = null,
+    aktivDato: String? = null,
     override var behandlingstype: String? = null,
     override var opprettetAvEnhetsnr: String,
     override var beskrivelse: String,
@@ -303,8 +305,9 @@ class GjenopprettSøknadsoppgaveRequest(
     override var oppgavetype: OppgaveType,
     override var tema: String,
 ) : DefaultOpprettOppgaveRequest(
+        aktivDato = aktivDato ?: formatterDatoForOppgave(LocalDate.now()),
         beskrivelse = beskrivelse,
-        prioritet = Prioritet.LAV.name,
+        prioritet = prioritet ?: Prioritet.LAV.name,
     ) {
     init {
         fristFerdigstillelse = formatterDatoForOppgave(frist)

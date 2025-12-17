@@ -63,6 +63,25 @@ fun HentSøknadResponse.mapTilBehandling(endretAv: String) =
             ),
     )
 
+fun OppgaveData.mapTilOpprettOppgaveDetaljert() =
+    GjenopprettSøknadsoppgaveRequest(
+        personident = personIdent,
+        saksreferanse = saksreferanse!!,
+        beskrivelse = beskrivelse!!,
+        frist = fristFerdigstillelse!!,
+        tildeltEnhetsnr = tildeltEnhetsnr,
+        behandlingstype = behandlingstype,
+        tema = tema!!,
+        oppgavetype = OppgaveType.valueOf(oppgavetype!!),
+        søknadsid = søknadsid?.toLong(),
+        behandlingsid = behandlingsid?.toLong(),
+        opprettetAvEnhetsnr = opprettetAvEnhetsnr!!,
+        normDato = normDato?.let { LocalDate.from(normDatoFormatter.parse(it)) },
+        tilordnetRessurs = tilordnetRessurs,
+        behandlesAvApplikasjon = behandlesAvApplikasjon,
+        aktivDato = aktivDato,
+    )
+
 fun OppgaveData.mapTilOpprettOppgave() =
     GjenopprettSøknadsoppgaveRequest(
         personident = personIdent,
