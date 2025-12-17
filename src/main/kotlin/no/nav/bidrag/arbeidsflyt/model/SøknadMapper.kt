@@ -72,6 +72,7 @@ fun OppgaveData.mapTilOpprettOppgaveDetaljert() =
         tildeltEnhetsnr = tildeltEnhetsnr,
         behandlingstype = behandlingstype,
         tema = tema!!,
+        ignorerNormDatoHvisIkkeFinnes = true,
         oppgavetype = OppgaveType.valueOf(oppgavetype!!),
         søknadsid = søknadsid?.toLong(),
         behandlingsid = behandlingsid?.toLong(),
