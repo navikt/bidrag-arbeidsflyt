@@ -18,10 +18,8 @@ import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
-import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgave
 import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgaveDetaljert
 import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
-import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -235,8 +233,10 @@ class OppgaveService(
 
         if (!oppgave.erStatusKategoriAvsluttet) return oppgaveId
 
-        LOGGER.info("Gjennoppretter oppgave for sak ${oppgave.saksreferanse} og søknadsid ${oppgave.søknadsid} og behandlingsid ${oppgave.behandlingsid} med type ${oppgave.oppgavetype}")
-        return opprettOppgave(oppgave.mapTilOpprettOppgaveDetaljert()).id
+        SECURE_LOGGER.info("Gjennoppretter oppgave for sak ${oppgave.saksreferanse} og søknadsid ${oppgave.søknadsid} og behandlingsid ${oppgave.behandlingsid} med type ${oppgave.oppgavetype}")
+        val nyOppgaveId = opprettOppgave(oppgave.mapTilOpprettOppgaveDetaljert()).id
+        SECURE_LOGGER.info("Gjennopprettet oppgave $oppgaveId med ny oppgaveId $nyOppgaveId for sak ${oppgave.saksreferanse} og søknadsid ${oppgave.søknadsid} og behandlingsid ${oppgave.behandlingsid} med type ${oppgave.oppgavetype}")
+        return nyOppgaveId
     }
 
     fun opprettOppgave(request: DefaultOpprettOppgaveRequest): OppgaveData = oppgaveConsumer.opprettOppgave(request)
