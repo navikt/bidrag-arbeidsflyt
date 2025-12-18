@@ -285,7 +285,7 @@ class BehandleBehandlingHendelseService(
 
         åpneOppgaver.forEach {
             if (it.søknadsid == null) {
-                secureLogger.info { "Sletter søknadsoppgave ${it.id}" }
+                secureLogger.info { "Sletter søknadsoppgave med oppgavetype: ${it.oppgavetype}, saksnummer: ${it.saksreferanse}, søknadsid: ${it.søknadsid}, behandlingsid: ${it.behandlingsid}, tildeltEnhetsnr: ${it.tildeltEnhetsnr} og oppgaveid: ${it.id}" }
                 try {
                     oppgaveService.oppdaterOppgave(
                         OppdaterOppgave(it)
