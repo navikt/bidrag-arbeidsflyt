@@ -120,7 +120,7 @@ class OppdaterOppgaveFraHendelse(
     }
 
     private fun erJournalforendeEnhet(enhetNr: String?): Boolean {
-        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE, ENHET_KLAGE_BIDRAG_VAKT)
+        val ignoreEnhet = listOf(ENHET_FAGPOST, ENHET_IT_AVDELINGEN, ENHET_YTELSE) + JOURNALFØRENDE_KLAGE_ENHETER
         return if (enhetNr != null) {
             ignoreEnhet.contains(enhetNr) ||
                 arbeidsfordelingService
