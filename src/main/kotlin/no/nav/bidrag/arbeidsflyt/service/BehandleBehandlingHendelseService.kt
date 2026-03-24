@@ -88,10 +88,10 @@ class BehandleBehandlingHendelseService(
         }
         hendelse.barn.groupBy { Pair(it.saksnummer, it.søknadsid) }.forEach { (saksnummerSøknadPair, barnliste) ->
             val førsteBarn = barnliste.find { !it.status.lukketStatus } ?: barnliste.first()
-            val erSøknadAvsluttet = hendelse.type == BehandlingHendelseType.AVSLUTTET || erAvsluttet(hendelse.søknadsid)
-            val kreverOppgave = barnliste.any { it.status.kreverOppgave } && !erSøknadAvsluttet
             val saksnummer = saksnummerSøknadPair.first
             val søknadsid = saksnummerSøknadPair.second
+            val erSøknadAvsluttet = hendelse.type == BehandlingHendelseType.AVSLUTTET || erAvsluttet(søknadsid ?: hendelse.søknadsid)
+            val kreverOppgave = barnliste.any { it.status.kreverOppgave } && !erSøknadAvsluttet
             slettÅpneOppgaverUtenSøknadsreferanse(saksnummer)
             val åpneOppgaver =
                 oppgaveService
