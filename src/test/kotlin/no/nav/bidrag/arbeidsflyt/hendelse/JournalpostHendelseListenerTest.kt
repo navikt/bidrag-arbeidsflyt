@@ -1,25 +1,36 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
+import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
 import no.nav.bidrag.arbeidsflyt.utils.createDLQKafka
 import no.nav.bidrag.arbeidsflyt.utils.createJournalpostHendelse
+import no.nav.bidrag.commons.util.secureLogger
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.kotlin.await
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
-import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
 
 private val LOGGER = KotlinLogging.logger {}
 
-internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
+internal class JournalpostHendelseListenerTest(
+    @Autowired private val dLQKafkaRepository: DLQKafkaRepository,
+) : AbstractKafkaHendelseTest() {
     @Value("\${TOPIC_JOURNALPOST}")
     private val topic: String? = null
+
+    @BeforeEach
+    fun setup() {
+        dLQKafkaRepository.deleteAll()
+    }
 
     @Test
     fun `skal slette feilede meldinger fra dlqkafka nar behandling av melding gar ok`() {
@@ -52,7 +63,7 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
             val dlqMessagesAfter = testDataGenerator.hentDlKafka()
-            LOGGER.info { "MELDINGER: $dlqMessagesAfter" }
+            secureLogger.info { "MELDINGER: $dlqMessagesAfter" }
             assertThat(dlqMessagesAfter.size).isEqualTo(0)
         }
     }
@@ -70,7 +81,7 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
         await.atMost(6, TimeUnit.SECONDS).untilAsserted {
             val dlMessages = testDataGenerator.hentDlKafka()
             assertThat(dlMessages.size).isEqualTo(1)
-            LOGGER.info { "MELDINGER: $dlMessages" }
+            secureLogger.info { "MELDINGER: $dlMessages" }
             assertThat(dlMessages[0].messageKey).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
         }
     }
