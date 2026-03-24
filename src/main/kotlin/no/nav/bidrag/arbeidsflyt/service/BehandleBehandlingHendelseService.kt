@@ -70,12 +70,15 @@ class BehandleBehandlingHendelseService(
     }
 
     @Transactional
-    fun behandleHendelse(hendelse: BehandlingHendelse) {
+    fun behandleHendelse(
+        hendelse: BehandlingHendelse,
+        sjekkOglukkÅpneOppgaver: Boolean = false,
+    ) {
         val behandling = hentHendelse(hendelse)
         if (behandling.endretTidspunkt > hendelse.endretTidspunkt) {
             secureLogger.warn { "Endret tidspunkt på hendelsen er før endret tidspunkt på lagret behandling. Noe som ikke stemmer her" }
         }
-        if (behandling.id != 0L && behandling.status.erAvsluttet) {
+        if (behandling.id != 0L && behandling.status.erAvsluttet && !sjekkOglukkÅpneOppgaver) {
             secureLogger.info { "Behandling med id ${behandling.id} og behandlingsid ${behandling.behandlingsid} er allerede avsluttet med status ${behandling.status}. Ignorerer hendelse $hendelse" }
             return
         }
@@ -104,10 +107,10 @@ class BehandleBehandlingHendelseService(
                     ).dataForHendelse
             secureLogger.info { "Fant ${åpneOppgaver.size} åpne søknadsoppgaver for sak $saksnummer og søknadsid $søknadsid og behandlingsid = ${hendelse.behandlingsid}" }
             oppdaterNormDatoOgMottattdato(hendelse, behandling, førsteBarn)
-            if (kreverOppgave && åpneOppgaver.isEmpty() && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
+            if (kreverOppgave && åpneOppgaver.isEmpty() && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled && !sjekkOglukkÅpneOppgaver) {
                 opprettOppgave(behandling, førsteBarn, hendelse)
             } else if (!kreverOppgave && UnleashFeatures.BEHANDLE_BEHANDLING_HENDELSE.isEnabled) {
-                ferdigstillOppgaver(åpneOppgaver)
+                ferdigstillOppgaver(åpneOppgaver, hendelse)
             } else {
                 oppdaterOppgaveDetaljer(behandling, åpneOppgaver)
             }
@@ -203,7 +206,10 @@ class BehandleBehandlingHendelseService(
         return oppgave
     }
 
-    private fun ferdigstillOppgaver(åpneOppgaver: List<OppgaveData>) {
+    private fun ferdigstillOppgaver(
+        åpneOppgaver: List<OppgaveData>,
+        hendelse: BehandlingHendelse,
+    ) {
         åpneOppgaver.forEach { ferdigstillOppgave ->
             try {
                 oppgaveService.oppdaterOppgave(
@@ -271,7 +277,31 @@ class BehandleBehandlingHendelseService(
                 barn = hendelse.barn,
             ) ?: BehandlingBarn(barn = hendelse.barn)
 
+        oppdaterBehandlingStatus(behandling)
         return behandlingService.lagre(behandling)
+    }
+
+    private fun oppdaterBehandlingStatus(behandling: Behandling) {
+        try {
+            if (behandling.barn == null && behandling.hendelse == null) return
+            val barn =
+                behandling.hendelse!!.barn.map { b ->
+                    if (b.søknadsid == null) return@map b
+                    val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(b.søknadsid!!))
+                    val søknadBarn = søknad.søknad.partISøknadListe.find { it.personident == b.ident } ?: return@map b
+                    b.copy(
+                        status = søknadBarn.behandlingstatus ?: b.status,
+                    )
+                }
+
+            behandling.barn!!.barn = barn
+            behandling.hendelse =
+                behandling.hendelse!!.copy(
+                    barn = barn,
+                )
+        } catch (e: Exception) {
+            LOGGER.error(e) { "Feil ved oppdatering av behandling ${behandling.hendelse}" }
+        }
     }
 
     fun slettÅpneOppgaverUtenSøknadsreferanse(saksnr: String) {
