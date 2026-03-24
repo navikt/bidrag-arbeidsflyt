@@ -1,5 +1,6 @@
 package no.nav.bidrag.arbeidsflyt.hendelse
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.utils.BID_JOURNALPOST_ID_3_NEW
 import no.nav.bidrag.arbeidsflyt.utils.JOURNALPOST_ID_4_NEW
 import no.nav.bidrag.arbeidsflyt.utils.PERSON_IDENT_3
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.TimeUnit
+
+private val LOGGER = KotlinLogging.logger {}
 
 internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
     @Value("\${TOPIC_JOURNALPOST}")
@@ -49,6 +52,7 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
             val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+            LOGGER.info { "MELDINGER: $dlqMessagesAfter" }
             assertThat(dlqMessagesAfter.size).isEqualTo(0)
         }
     }
@@ -66,6 +70,7 @@ internal class JournalpostHendelseListenerTest : AbstractKafkaHendelseTest() {
         await.atMost(6, TimeUnit.SECONDS).untilAsserted {
             val dlMessages = testDataGenerator.hentDlKafka()
             assertThat(dlMessages.size).isEqualTo(1)
+            LOGGER.info { "MELDINGER: $dlMessages" }
             assertThat(dlMessages[0].messageKey).isEqualTo(BID_JOURNALPOST_ID_3_NEW)
         }
     }
