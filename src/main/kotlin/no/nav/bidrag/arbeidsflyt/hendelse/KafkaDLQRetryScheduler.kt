@@ -64,8 +64,11 @@ class KafkaDLQRetryScheduler(
         }
     }
 
-    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
-    @SchedulerLock(name = "ferdigstillOppgaverSomIkkeLengerErÅpenBehandling", lockAtLeastFor = "10m")
+    @Scheduled(
+        fixedDelayString = "\${SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY:PT2M}",
+        initialDelayString = "PT5M",
+    )
+    @SchedulerLock(name = "ferdigstillOppgaverSomIkkeLengerErÅpenBehandling", lockAtLeastFor = "5m")
     @Transactional
     fun ferdigstillOppgaverSomIkkeLengerErÅpenBehandling() {
         val behandlinger = behandlingRepository.finnBehandlingerMedSøknadUnderBehandlingStatusSjekketEldreEnn(LocalDateTime.now().minusHours(6))
