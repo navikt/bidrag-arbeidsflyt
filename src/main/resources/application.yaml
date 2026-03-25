@@ -14,6 +14,7 @@ KAFKA_GROUP_ID: bidrag-arbeidsflyt-oppgave-consumer
 KAFKA_MAX_RETRY: 10
 REST_MAX_RETRY: 3
 SCHEDULER_MAX_RETRY: 20
+SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY: PT2M
 spring:
   main:
     banner-mode: off

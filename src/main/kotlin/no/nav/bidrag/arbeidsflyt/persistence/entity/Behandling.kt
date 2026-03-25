@@ -50,6 +50,8 @@ data class Behandling(
     val opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
     @Column(name = "endret_tidspunkt")
     var endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "status_sjekket_tidspunkt")
+    var statusSjekketTidspunkt: LocalDateTime? = null,
 ) {
     val erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT, BehandlingStatusType.VEDTAK_FATTET).contains(status)
 }

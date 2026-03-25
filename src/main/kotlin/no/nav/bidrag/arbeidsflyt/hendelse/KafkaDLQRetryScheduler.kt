@@ -4,14 +4,15 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import no.nav.bidrag.arbeidsflyt.model.KunneIkkeProsessereKafkaMelding
 import no.nav.bidrag.arbeidsflyt.persistence.entity.DLQKafka
+import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.DLQKafkaRepository
 import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleBehandlingHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
+import no.nav.bidrag.arbeidsflyt.service.BehandlingSchedulerService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -25,10 +26,12 @@ private val LOGGER = KotlinLogging.logger {}
 class KafkaDLQRetryScheduler(
     private val jsonMapperService: JsonMapperService,
     private val dlqKafkaRepository: DLQKafkaRepository,
+    private val behandlingRepository: BehandlingRepository,
     private val oppgaveRepository: OppgaveRepository,
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val behandleHendelseService: BehandleHendelseService,
     private val behandleBehandlingHendelseService: BehandleBehandlingHendelseService,
+    private val behandlingSchedulerService: BehandlingSchedulerService,
     private val oppgaveService: OppgaveService,
 ) {
     @Value("\${SCHEDULER_MAX_RETRY:10}")
@@ -59,6 +62,27 @@ class KafkaDLQRetryScheduler(
                 }
             } catch (e: Exception) {
                 LOGGER.error(e) { "Det skjedde feil ved prosessering av oppgave med id=${it.oppgaveId}" }
+            }
+        }
+    }
+
+    @Scheduled(
+        fixedDelayString = "\${SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY:PT2M}",
+        initialDelayString = "PT5M",
+    )
+    @SchedulerLock(name = "ferdigstillOppgaverSomIkkeLengerErÅpenBehandling", lockAtLeastFor = "5m")
+    fun ferdigstillOppgaverSomIkkeLengerErÅpenBehandling() {
+        val behandlinger =
+            behandlingRepository.finnBehandlingerMedSøknadUnderBehandlingStatusSjekketEldreEnn(
+                LocalDateTime.now().minusHours(12),
+            )
+        LOGGER.info { "Fant ${behandlinger.size} behandlinger som fortsatt er åpen. Sjekker og oppdaterer status" }
+
+        behandlinger.forEach {
+            try {
+                behandlingSchedulerService.behandleOgOppdaterStatusSjekket(it.id)
+            } catch (e: Exception) {
+                LOGGER.error(e) { "Det skjedde feil ved prosessering av behandling med id=${it.id}" }
             }
         }
     }
@@ -99,14 +123,17 @@ class KafkaDLQRetryScheduler(
                 val oppgaveEndretHendelse = jsonMapperService.mapOppgaveHendelseV2(message.payload)
                 behandleOppgaveHendelseService.behandleOppgaveHendelse(oppgaveEndretHendelse)
             }
+
             topicJournalpost -> {
                 val journalpostHendelse = jsonMapperService.mapJournalpostHendelse(message.payload)
                 behandleHendelseService.behandleHendelse(journalpostHendelse)
             }
+
             topicBehandling -> {
                 val journalpostHendelse = jsonMapperService.mapBehandlingHendelse(message.payload)
                 behandleBehandlingHendelseService.behandleHendelse(journalpostHendelse)
             }
+
             else -> {
                 throw KunneIkkeProsessereKafkaMelding(
                     "Behandler ikke melding ${message.id} fordi det finnes ingen støtte for å behandle meldinger med topicName ${message.topicName}",

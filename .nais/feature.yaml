@@ -28,6 +28,7 @@ env:
   TOPIC_DOKUMENT: bidrag.dokument-feature
   TOPIC_JOURNALPOST: bidrag.journalpost-feature
   KAFKA_MAX_RETRY: 1
+  SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY: PT2M
   JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 database:
   dbname: bidrag-arbeidsflyt-feature
