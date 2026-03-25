@@ -10,6 +10,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.repository.OppgaveRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleBehandlingHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleHendelseService
 import no.nav.bidrag.arbeidsflyt.service.BehandleOppgaveHendelseService
+import no.nav.bidrag.arbeidsflyt.service.BehandlingSchedulerService
 import no.nav.bidrag.arbeidsflyt.service.JsonMapperService
 import no.nav.bidrag.arbeidsflyt.service.OppgaveService
 import org.springframework.beans.factory.annotation.Value
@@ -30,6 +31,7 @@ class KafkaDLQRetryScheduler(
     private val behandleOppgaveHendelseService: BehandleOppgaveHendelseService,
     private val behandleHendelseService: BehandleHendelseService,
     private val behandleBehandlingHendelseService: BehandleBehandlingHendelseService,
+    private val behandlingSchedulerService: BehandlingSchedulerService,
     private val oppgaveService: OppgaveService,
 ) {
     @Value("\${SCHEDULER_MAX_RETRY:10}")
@@ -69,19 +71,18 @@ class KafkaDLQRetryScheduler(
         initialDelayString = "PT5M",
     )
     @SchedulerLock(name = "ferdigstillOppgaverSomIkkeLengerErÅpenBehandling", lockAtLeastFor = "5m")
-    @Transactional
     fun ferdigstillOppgaverSomIkkeLengerErÅpenBehandling() {
-        val behandlinger = behandlingRepository.finnBehandlingerMedSøknadUnderBehandlingStatusSjekketEldreEnn(LocalDateTime.now().minusHours(6))
+        val behandlinger =
+            behandlingRepository.finnBehandlingerMedSøknadUnderBehandlingStatusSjekketEldreEnn(
+                LocalDateTime.now().minusHours(6),
+            )
         LOGGER.info { "Fant ${behandlinger.size} behandlinger som fortsatt er åpen. Sjekker og oppdaterer status" }
 
         behandlinger.forEach {
             try {
-                behandleBehandlingHendelseService.behandleHendelse(it.hendelse!!, true)
-                val oppdatertBehandling = behandlingRepository.findById(it.id).get()
-                oppdatertBehandling.statusSjekketTidspunkt = LocalDateTime.now()
-                behandlingRepository.save(oppdatertBehandling)
+                behandlingSchedulerService.behandleOgOppdaterStatusSjekket(it.id)
             } catch (e: Exception) {
-                LOGGER.error(e) { "Det skjedde feil ved prosessering av behandling med id=${it.hendelse}" }
+                LOGGER.error(e) { "Det skjedde feil ved prosessering av behandling med id=${it.id}" }
             }
         }
     }
