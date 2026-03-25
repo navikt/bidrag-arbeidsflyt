@@ -32,6 +32,7 @@ class BehandlingSchedulerService(
             }
 
         try {
+            LOGGER.info { "Sjekker og behandler behandling med id med id=$behandlingId" }
             behandleBehandlingHendelseService.behandleHendelse(behandling.hendelse!!, true)
         } catch (e: Exception) {
             LOGGER.error(e) { "Feil ved behandling av hendelse for behandling med id=$behandlingId" }
