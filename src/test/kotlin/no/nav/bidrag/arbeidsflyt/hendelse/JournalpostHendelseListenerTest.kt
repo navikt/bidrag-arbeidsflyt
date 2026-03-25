@@ -12,6 +12,7 @@ import no.nav.bidrag.commons.util.secureLogger
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.kotlin.await
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +30,13 @@ internal class JournalpostHendelseListenerTest(
 
     @BeforeEach
     fun setup() {
+        testDataGenerator.deleteAll()
+        dLQKafkaRepository.deleteAll()
+    }
+
+    @AfterEach
+    fun cleanup() {
+        testDataGenerator.deleteAll()
         dLQKafkaRepository.deleteAll()
     }
 
