@@ -64,12 +64,7 @@
       <artifactId>shedlock-provider-jdbc-template</artifactId>
       <version>${shedlock.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.7.11</version>
-      <scope>compile</scope>
-    </dependency>
+
     <!-- nav -->
     <dependency>
       <groupId>no.nav.bidrag</groupId>
@@ -191,6 +186,7 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
+      <version>42.7.11</version>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
