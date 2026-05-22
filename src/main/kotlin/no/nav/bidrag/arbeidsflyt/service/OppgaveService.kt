@@ -84,7 +84,7 @@ class OppgaveService(
                     ).oppgaver
             } else {
                 emptyList()
-            }.filter { søknadId == null || it.søknadsid != null && it.søknadsid!!.toLong() == søknadId }
+            }.filter { søknadId == null || (it.søknadsid != null && it.søknadsid!!.toLong() == søknadId) }
         val oppgaverForSøknad =
             if (søknadId != null) {
                 oppgaveConsumer
