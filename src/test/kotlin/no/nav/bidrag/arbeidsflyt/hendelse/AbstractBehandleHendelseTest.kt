@@ -315,7 +315,7 @@ abstract class AbstractBehandleHendelseTest {
         antall: Int = 1,
         saksbehandlerId: String,
     ) {
-        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/v2/api/tilgang/tema?navIdent=$saksbehandlerId")))
+        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/v2/api/tilgang/tema")).withRequestBody(ContainsPattern(saksbehandlerId)))
     }
 
     fun verifyHentPersonKaltMedFnr(fnr: String) {
