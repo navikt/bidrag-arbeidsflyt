@@ -21,9 +21,9 @@ import java.net.URI
 
 @Service
 class BidragDokumentConsumer(
-    @Value("\${BIDRAG_DOKUMENT_URL}") val url: URI,
+    @Value($$"${BIDRAG_DOKUMENT_URL}") val url: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
-    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
+    @Value($$"${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-dokument") {
     companion object {
         @JvmStatic

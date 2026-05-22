@@ -34,16 +34,16 @@ class KafkaDLQRetryScheduler(
     private val behandlingSchedulerService: BehandlingSchedulerService,
     private val oppgaveService: OppgaveService,
 ) {
-    @Value("\${SCHEDULER_MAX_RETRY:10}")
+    @Value($$"${SCHEDULER_MAX_RETRY:10}")
     lateinit var maxRetry: Number
 
-    @Value("\${TOPIC_OPPGAVE_HENDELSE}")
+    @Value($$"${TOPIC_OPPGAVE_HENDELSE}")
     lateinit var topicOppgaveHendelse: String
 
-    @Value("\${TOPIC_JOURNALPOST}")
+    @Value($$"${TOPIC_JOURNALPOST}")
     lateinit var topicJournalpost: String
 
-    @Value("\${TOPIC_BEHANDLING_HENDELSE}")
+    @Value($$"${TOPIC_BEHANDLING_HENDELSE}")
     lateinit var topicBehandling: String
 
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 10)
@@ -67,7 +67,7 @@ class KafkaDLQRetryScheduler(
     }
 
     @Scheduled(
-        fixedDelayString = "\${SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY:PT2M}",
+        fixedDelayString = $$"${SCHEDULER_FERDIGSTILL_BEHANDLING_DELAY:PT2M}",
         initialDelayString = "PT5M",
     )
     @SchedulerLock(name = "ferdigstillOppgaverSomIkkeLengerErÅpenBehandling", lockAtLeastFor = "5m")

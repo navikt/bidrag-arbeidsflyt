@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.aop
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.bidrag.arbeidsflyt.model.CORRELATION_ID
 import no.nav.bidrag.commons.CorrelationId
+import no.nav.bidrag.transport.felles.commonObjectmapper
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.After
 import org.aspectj.lang.annotation.Aspect
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class HendelseCorrelationAspect(
-    private val objectMapper: ObjectMapper,
-) {
+class HendelseCorrelationAspect {
     companion object {
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger(HendelseCorrelationAspect::class.java)
@@ -33,7 +32,7 @@ class HendelseCorrelationAspect(
         hendelse: String,
     ) {
         try {
-            val jsonNode = objectMapper.readTree(hendelse)
+            val jsonNode = commonObjectmapper.readTree(hendelse)
             val correlationIdJsonNode = jsonNode["sporing"]?.get(CORRELATION_ID)
 
             if (correlationIdJsonNode == null) {
@@ -49,7 +48,7 @@ class HendelseCorrelationAspect(
         }
     }
 
-    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveHendelse(..)) && args(hendelse)")
+    @Before(value = "execution(* no.nav.bidrag.arbeidsflyt.service.JsonMapperService.mapOppgaveHendelseV2(..)) && args(hendelse)")
     fun addCorrelationIdFromOppgaveHendelseToThread(
         joinPoint: JoinPoint,
         hendelse: String,

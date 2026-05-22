@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 class BehandlingHendelseListener(
     private val service: BehandleBehandlingHendelseService,
 ) {
-    @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_BEHANDLING_HENDELSE}"])
+    @KafkaListener(groupId = $$"${NAIS_APP_NAME}", topics = [$$"${TOPIC_BEHANDLING_HENDELSE}"])
     fun lesHendelse(consumerRecord: ConsumerRecord<String, String>) {
         val hendelse = lesHendelse(consumerRecord.value())
 

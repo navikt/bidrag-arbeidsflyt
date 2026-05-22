@@ -55,10 +55,8 @@ class BehandleJournalpostHendelse(
         )
         val erEndringAvFagomrade = journalpost != null && journalpost.tema != fagområdeNy
 
-        if (erEndringAvFagomrade || !harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler()) {
-            LOGGER.info(
-                "Endring fra fagområde ${fagområdeGammelt ?: "UKJENT"} til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema",
-            )
+        if (erEndringAvFagomrade || (!harTilgangTilTema && oppgaverForHendelse.erJournalforingsoppgaverTildeltSaksbehandler())) {
+            LOGGER.info { "Endring fra fagområde ${fagområdeGammelt ?: "UKJENT"} til $fagområdeNy av ${journalpostHendelse.hentSaksbehandlerInfo()}. Saksbehandler har tilgang til ny tema = $harTilgangTilTema" }
             oppgaveService.endreMellomBidragFagomrade(
                 oppgaverForHendelse = oppgaverForHendelse,
                 journalpostHendelse,

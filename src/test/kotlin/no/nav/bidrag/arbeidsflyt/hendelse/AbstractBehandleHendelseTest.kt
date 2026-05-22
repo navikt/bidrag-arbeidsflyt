@@ -38,19 +38,22 @@ import no.nav.bidrag.domene.ident.Personident
 import no.nav.bidrag.domene.organisasjon.Enhetsnummer
 import no.nav.bidrag.transport.behandling.hendelse.BehandlingHendelseBarn
 import no.nav.bidrag.transport.dokument.JournalpostResponse
+import no.nav.bidrag.transport.felles.commonObjectmapper
 import no.nav.bidrag.transport.organisasjon.EnhetDto
 import no.nav.bidrag.transport.person.PersonDto
 import no.nav.bidrag.transport.sak.BidragssakDto
+import no.nav.bidrag.transport.tilgang.TilgangskontrollResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import org.wiremock.spring.ConfigureWireMock
+import org.wiremock.spring.EnableWireMock
 import java.time.LocalDate
 import java.util.Arrays
 
@@ -60,14 +63,13 @@ import java.util.Arrays
 )
 @ActiveProfiles(PROFILE_TEST)
 @EnableMockOAuth2Server
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock(ConfigureWireMock(port = 0))
 @Transactional
 abstract class AbstractBehandleHendelseTest {
     @Autowired
     lateinit var testDataGenerator: TestDataGenerator
 
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper = commonObjectmapper
 
     @BeforeEach
     fun init() {
@@ -224,9 +226,9 @@ abstract class AbstractBehandleHendelseTest {
 
     fun stubHentTemaTilgang(result: Boolean = true) {
         stubFor(
-            post(urlMatching("/tilgangskontroll/api/tilgang/tema(.*)"))
+            post(urlMatching("/tilgangskontroll/v2/api/tilgang/tema(.*)"))
                 .willReturn(
-                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(result.toString()),
+                    aClosedJsonResponse().withStatus(HttpStatus.OK.value()).withBody(commonObjectmapper.writeValueAsString(TilgangskontrollResponse(result))),
                 ),
         )
     }
@@ -313,7 +315,7 @@ abstract class AbstractBehandleHendelseTest {
         antall: Int = 1,
         saksbehandlerId: String,
     ) {
-        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/api/tilgang/tema?navIdent=$saksbehandlerId")))
+        verify(antall, postRequestedFor(urlEqualTo("/tilgangskontroll/v2/api/tilgang/tema")).withRequestBody(ContainsPattern(saksbehandlerId)))
     }
 
     fun verifyHentPersonKaltMedFnr(fnr: String) {
@@ -325,7 +327,7 @@ abstract class AbstractBehandleHendelseTest {
     }
 
     fun verifyOppgaveNotEndret() {
-        verify(0, WireMock.patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
+        verify(0, patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
     }
 
     fun verifyOppgaveOpprettetWith(vararg contains: String) {
@@ -370,7 +372,7 @@ abstract class AbstractBehandleHendelseTest {
         count: Int? = null,
         vararg contains: String,
     ) {
-        val requestPattern = WireMock.patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*"))
+        val requestPattern = patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*"))
         Arrays.stream(contains).forEach { contain: String? ->
             requestPattern.withRequestBody(
                 ContainsPattern(contain),

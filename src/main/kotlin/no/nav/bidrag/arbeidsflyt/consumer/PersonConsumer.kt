@@ -24,9 +24,9 @@ private val LOGGER = KotlinLogging.logger {}
 
 @Service
 class PersonConsumer(
-    @Value("\${BIDRAG_PERSON_URL}") bidragPersonUrl: URI,
+    @Value($$"${BIDRAG_PERSON_URL}") bidragPersonUrl: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
-    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
+    @Value($$"${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "bidrag-person") {
     private val hentPersonUri =
         UriComponentsBuilder

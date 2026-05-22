@@ -356,7 +356,7 @@ class BehandleBehandlingHendelseService(
     ): LocalDate {
         val behandlingstype = barn.behandlingstype
         val fristFraDato = behandling.normDato ?: barn.mottattDato ?: behandling.mottattDato
-        if (behandlingstype.erKlage) {
+        if (behandlingstype.erKlageEllerOmgjøring) {
             return fristFraDato.plusDays(180)
         }
 

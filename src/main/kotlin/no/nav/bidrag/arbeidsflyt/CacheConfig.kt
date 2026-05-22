@@ -1,8 +1,8 @@
 package no.nav.bidrag.arbeidsflyt
 
+import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.bidrag.commons.cache.InvaliderCacheFørStartenAvArbeidsdag
-import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCacheManager
@@ -23,46 +23,51 @@ class CacheConfig {
         const val SAK_CACHE = "SAK_CACHE"
         const val JOURNALFORENDE_ENHET_CACHE = "JOURNALFORENDE_ENHET_CACHE"
         const val ENHET_INFO_CACHE = "ENHET_INFO_CACHE"
-        private val LOGGER = LoggerFactory.getLogger(CacheConfig::class.java)
+
+        private const val BBM_SØKNAD_CACHE_TTL_SECONDS = 10L
+        private const val SAK_CACHE_TTL_MINUTES = 10L
+        private const val JOURNALFORENDE_ENHET_CACHE_TTL_DAYS = 30L
+        private const val ENHET_INFO_CACHE_TTL_DAYS = 7L
+        private const val TILGANG_TEMA_CACHE_TTL_DAYS = 7L
     }
 
     @Bean
     fun cacheManager(): CacheManager {
-        val caffeineCacheManager = CaffeineCacheManager()
-        caffeineCacheManager.registerCustomCache(
-            PERSON_CACHE,
-            Caffeine
-                .newBuilder()
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
-                .build(),
-        )
-        caffeineCacheManager.registerCustomCache(
-            GEOGRAFISK_ENHET_CACHE,
-            Caffeine
-                .newBuilder()
-                .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
-                .build(),
-        )
-        caffeineCacheManager.registerCustomCache(
-            BBM_SØKNAD_CACHE,
-            Caffeine
-                .newBuilder()
-                .expireAfterWrite(10, TimeUnit.SECONDS)
-                .build(),
-        )
-        caffeineCacheManager.registerCustomCache(
-            SAK_CACHE,
-            Caffeine
-                .newBuilder()
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                .build(),
-        )
-        caffeineCacheManager.registerCustomCache(
-            JOURNALFORENDE_ENHET_CACHE,
-            Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.DAYS).build(),
-        )
-        caffeineCacheManager.registerCustomCache(ENHET_INFO_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
-        caffeineCacheManager.registerCustomCache(TILGANG_TEMA_CACHE, Caffeine.newBuilder().expireAfterWrite(7, TimeUnit.DAYS).build())
-        return caffeineCacheManager
+        val cacheDefinitions =
+            listOf(
+                CacheDefinition(PERSON_CACHE, dailyInvalidatedCache()),
+                CacheDefinition(GEOGRAFISK_ENHET_CACHE, dailyInvalidatedCache()),
+                CacheDefinition(BBM_SØKNAD_CACHE, expireAfterWriteCache(BBM_SØKNAD_CACHE_TTL_SECONDS, TimeUnit.SECONDS)),
+                CacheDefinition(SAK_CACHE, expireAfterWriteCache(SAK_CACHE_TTL_MINUTES, TimeUnit.MINUTES)),
+                CacheDefinition(JOURNALFORENDE_ENHET_CACHE, expireAfterWriteCache(JOURNALFORENDE_ENHET_CACHE_TTL_DAYS, TimeUnit.DAYS)),
+                CacheDefinition(ENHET_INFO_CACHE, expireAfterWriteCache(ENHET_INFO_CACHE_TTL_DAYS, TimeUnit.DAYS)),
+                CacheDefinition(TILGANG_TEMA_CACHE, expireAfterWriteCache(TILGANG_TEMA_CACHE_TTL_DAYS, TimeUnit.DAYS)),
+            )
+
+        return CaffeineCacheManager().also { cacheManager ->
+            cacheDefinitions.forEach { cacheDefinition ->
+                cacheManager.registerCustomCache(cacheDefinition.name, cacheDefinition.cache)
+            }
+        }
     }
+
+    private fun dailyInvalidatedCache(): Cache<Any, Any> =
+        Caffeine
+            .newBuilder()
+            .expireAfter(InvaliderCacheFørStartenAvArbeidsdag())
+            .build()
+
+    private fun expireAfterWriteCache(
+        duration: Long,
+        timeUnit: TimeUnit,
+    ): Cache<Any, Any> =
+        Caffeine
+            .newBuilder()
+            .expireAfterWrite(duration, timeUnit)
+            .build()
+
+    private data class CacheDefinition(
+        val name: String,
+        val cache: Cache<Any, Any>,
+    )
 }

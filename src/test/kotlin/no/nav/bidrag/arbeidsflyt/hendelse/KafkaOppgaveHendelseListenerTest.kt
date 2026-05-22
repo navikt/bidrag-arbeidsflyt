@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value
 import java.util.concurrent.TimeUnit
 
 internal class KafkaOppgaveHendelseListenerTest : AbstractKafkaHendelseTest() {
-    @Value("\${TOPIC_OPPGAVE_HENDELSE}")
+    @Value($$"${TOPIC_OPPGAVE_HENDELSE}")
     private val topicEndret: String? = null
 
     @Test

@@ -275,7 +275,7 @@ fun opprettSakForBehandling(
         eierfogd = Enhetsnummer("4806"),
         saksnummer = Saksnummer(barn.saksnummer),
         saksstatus = Bidragssakstatus.IN,
-        kategori = Sakskategori.N,
+        kategori = Sakskategori.NASJONAL,
         opprettetDato = LocalDate.now(),
         levdeAdskilt = false,
         ukjentPart = false,

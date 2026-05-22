@@ -25,7 +25,7 @@ private val LOGGER = KotlinLogging.logger {}
 internal class JournalpostHendelseListenerTest(
     @Autowired private val dLQKafkaRepository: DLQKafkaRepository,
 ) : AbstractKafkaHendelseTest() {
-    @Value("\${TOPIC_JOURNALPOST}")
+    @Value($$"${TOPIC_JOURNALPOST}")
     private val topic: String? = null
 
     @BeforeEach

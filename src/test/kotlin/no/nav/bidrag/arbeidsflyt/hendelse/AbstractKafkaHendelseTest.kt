@@ -20,13 +20,23 @@ import java.util.Collections
 @SpringBootTest
 @ActiveProfiles(value = [PROFILE_KAFKA_TEST, PROFILE_TEST])
 @DisplayName("OppgaveEndretHendelseListenerTest")
-@EmbeddedKafka(partitions = 1, topics = ["topic_journalpost", "oppgave-hendelse"], bootstrapServersProperty = "KAFKA_BROKERS")
+@EmbeddedKafka(
+    partitions = 1,
+    topics = ["topic_journalpost", "oppgave-hendelse"],
+    brokerProperties = [
+        "listeners=EXTERNAL://localhost:0,CONTROLLER://localhost:0",
+        "listener.security.protocol.map=EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT",
+        "controller.listener.names=CONTROLLER",
+        "inter.broker.listener.name=EXTERNAL",
+        "offsets.topic.num.partitions=1",
+    ],
+)
 abstract class AbstractKafkaHendelseTest : AbstractBehandleHendelseTest() {
     @Autowired
     lateinit var embeddedKafkaBroker: EmbeddedKafkaBroker
 
     fun configureConsumer(topic: String): Consumer<Int, String>? {
-        val consumerProps = KafkaTestUtils.consumerProps("testGroup", "true", embeddedKafkaBroker)
+        val consumerProps = KafkaTestUtils.consumerProps(embeddedKafkaBroker, "testGroup", true)
         consumerProps[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
         val consumer: Consumer<Int, String> =
             DefaultKafkaConsumerFactory<Int, String>(consumerProps)

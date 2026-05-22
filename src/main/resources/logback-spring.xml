@@ -47,4 +47,7 @@
   <logger name="secureLogger" level="INFO" additivity="false" >
     <appender-ref ref="team-logs" />
   </logger>
+
+  <logger name="org.hibernate.orm.connections.pooling" level="warn"/>
+
 </configuration>
