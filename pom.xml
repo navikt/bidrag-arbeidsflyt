@@ -27,7 +27,7 @@
     <springframework-cloud.version>5.0.2</springframework-cloud.version>
     <squareup-okhttp3.version>5.2.1</squareup-okhttp3.version>
     <shedlock.version>7.7.0</shedlock.version>
-    <flyway.version>11.8.2</flyway.version>
+    <flyway.version>12.6.1</flyway.version>
     <kotlin-logging-jvm.version>7.0.13</kotlin-logging-jvm.version>
 
     <!-- build -->
@@ -194,9 +194,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-      <version>${flyway.version}</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
