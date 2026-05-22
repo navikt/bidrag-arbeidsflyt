@@ -58,7 +58,7 @@ class HendelseConfiguration {
 
     @Bean
     fun defaultErrorHandler(
-        @Value("\${KAFKA_MAX_RETRY:10}") maxRetries: Int,
+        @Value($$"${KAFKA_MAX_RETRY:10}") maxRetries: Int,
         persistenceService: PersistenceService,
     ): DefaultErrorHandler? {
         LOGGER.info("Init kafka errorhandler with exponential backoff and maxRetries=$maxRetries")
@@ -102,7 +102,7 @@ class HendelseConfiguration {
         defaultErrorHandler: DefaultErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<Long, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<Long, String>()
-        factory.consumerFactory = oppgaveConsumerFactory
+        factory.setConsumerFactory(oppgaveConsumerFactory)
         factory.containerProperties.ackMode = ContainerProperties.AckMode.RECORD
         // Retry consumer/listener even if authorization fails
         factory.setContainerCustomizer { container ->

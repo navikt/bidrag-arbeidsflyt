@@ -23,9 +23,9 @@ private const val OPPGAVE_CONTEXT = "/api/v1/oppgaver/"
 
 @Service
 class OppgaveConsumer(
-    @Value("\${OPPGAVE_URL}") val url: URI,
+    @Value($$"${OPPGAVE_URL}") val url: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
-    @Value("\${retry.enabled:true}") val shouldRetry: Boolean,
+    @Value($$"${retry.enabled:true}") val shouldRetry: Boolean,
 ) : AbstractRestClient(restTemplate, "oppgave") {
     companion object {
         @JvmStatic

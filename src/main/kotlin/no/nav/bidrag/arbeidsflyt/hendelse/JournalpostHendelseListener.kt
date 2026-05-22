@@ -12,7 +12,7 @@ class JournalpostHendelseListener(
     private val behandeHendelseService: BehandleHendelseService,
     private val persistenceService: PersistenceService,
 ) {
-    @KafkaListener(groupId = "\${NAIS_APP_NAME}", topics = ["\${TOPIC_JOURNALPOST}"])
+    @KafkaListener(groupId = $$"${NAIS_APP_NAME}", topics = [$$"${TOPIC_JOURNALPOST}"])
     fun hendeseLytter(hendelse: String) {
         prosesserHendelse(hendelse)
     }

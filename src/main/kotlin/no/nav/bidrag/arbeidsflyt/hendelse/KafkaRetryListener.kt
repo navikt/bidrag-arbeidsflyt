@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.hendelse
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.RetryListener
+import java.lang.Exception
 
 class KafkaRetryListener : RetryListener {
     companion object {
@@ -12,22 +13,22 @@ class KafkaRetryListener : RetryListener {
 
     override fun failedDelivery(
         record: ConsumerRecord<*, *>,
-        exception: Exception,
+        ex: Exception?,
         deliveryAttempt: Int,
     ) {
-        LOGGER.warn("Håndtering av kafka melding ${record.value()} feilet. Dette er $deliveryAttempt. forsøk", exception)
+        LOGGER.warn("Håndtering av kafka melding ${record.value()} feilet. Dette er $deliveryAttempt. forsøk", ex)
     }
 
     override fun recovered(
         record: ConsumerRecord<*, *>,
-        exception: java.lang.Exception,
+        ex: Exception?,
     ) {
-        LOGGER.warn("Håndtering av kafka melding ${record.value()} er enten suksess eller ignorert pågrunn av ugyldig data", exception)
+        LOGGER.warn("Håndtering av kafka melding ${record.value()} er enten suksess eller ignorert pågrunn av ugyldig data", ex)
     }
 
     override fun recoveryFailed(
         record: ConsumerRecord<*, *>,
-        original: java.lang.Exception,
-        failure: java.lang.Exception,
+        original: Exception?,
+        failure: Exception,
     ) {}
 }

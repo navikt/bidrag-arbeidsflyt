@@ -20,8 +20,14 @@ class BehandlingService(
         søknadsid: Long?,
     ): Behandling? =
         when {
-            behandlingId == null && søknadsid == null -> null
-            behandlingId == null -> behandlingRepository.finnForSøknadId(søknadsid!!)
+            behandlingId == null && søknadsid == null -> {
+                null
+            }
+
+            behandlingId == null -> {
+                behandlingRepository.finnForSøknadId(søknadsid!!)
+            }
+
             else -> {
                 behandlingRepository.finnForBehandlingId(behandlingId) ?: behandlingRepository.finnForSøknadId(søknadsid!!)
             }

@@ -16,7 +16,7 @@ import java.net.URI
 
 @Component
 class BidragBBMConsumer(
-    @Value("\${BIDRAG_BBM_URL}") private val bidragBBMurl: URI,
+    @Value($$"${BIDRAG_BBM_URL}") private val bidragBBMurl: URI,
     @Qualifier("azure") restTemplate: RestTemplate,
 ) : AbstractRestClient(restTemplate, "bidrag-bbm") {
     private val bidragBBMUri
