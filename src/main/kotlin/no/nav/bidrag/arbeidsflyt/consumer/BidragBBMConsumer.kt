@@ -7,9 +7,12 @@ import no.nav.bidrag.transport.behandling.beregning.felles.HentSøknadResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
@@ -28,9 +31,18 @@ class BidragBBMConsumer(
         backoff = Backoff(delay = 200, maxDelay = 1000, multiplier = 2.0),
     )
     @Cacheable(CacheConfig.BBM_SØKNAD_CACHE)
-    fun hentSøknad(request: HentSøknadRequest): HentSøknadResponse =
-        postForNonNullEntity(
-            bidragBBMUri.pathSegment("hentsoknad").build().toUri(),
-            request,
-        )
+    fun hentSøknad(request: HentSøknadRequest): HentSøknadResponse? =
+        try {
+            postForNonNullEntity(
+                bidragBBMUri.pathSegment("hentsoknad").build().toUri(),
+                request,
+            )
+        } catch (e: HttpStatusCodeException) {
+            // Bad request betyr at søknad ikke finnes
+            if (e.statusCode == HttpStatus.BAD_REQUEST) {
+                null
+            } else {
+                throw e
+            }
+        }
 }
