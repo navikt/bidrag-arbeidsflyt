@@ -33,7 +33,7 @@ class BidragBBMConsumer(
     @Cacheable(CacheConfig.BBM_SØKNAD_CACHE)
     fun hentSøknad(request: HentSøknadRequest): HentSøknadResponse? =
         try {
-            postForNonNullEntity(
+            postForEntity(
                 bidragBBMUri.pathSegment("hentsoknad").build().toUri(),
                 request,
             )
