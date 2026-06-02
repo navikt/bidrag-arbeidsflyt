@@ -144,7 +144,7 @@ class BehandleOppgaveHendelseService(
         // TODO: Dette er nødvendig for overgangsfasen når behandling statuser ikke er helt oppdater. Kan fjernes når feature toggle er fjernet
         if (oppgave.søknadsid != null) {
             try {
-                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong()))
+                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong())) ?: return
                 if (søknad.søknad.erAvsluttet) {
                     if (behandling != null) {
                         behandling.status = søknad.søknad.behandlingStatusType
@@ -163,7 +163,7 @@ class BehandleOppgaveHendelseService(
                 return
             }
             try {
-                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong()))
+                val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(oppgave.søknadsid!!.toLong())) ?: return
                 if (!søknad.søknad.erAvsluttet) {
                     LOGGER.info { "Fant ikke behandling som tilhører oppgave ${oppgave.id} med søknadsid ${oppgave.søknadsid}. Hentet søknad og gjenoppretter oppgave istedenfor" }
                     behandlingHendelseService.gjennopprettOppgaveHvisBehandlingIkkeFinnes(oppgave, søknad.søknad)

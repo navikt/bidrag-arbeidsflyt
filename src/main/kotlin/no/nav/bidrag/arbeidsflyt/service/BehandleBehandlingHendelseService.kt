@@ -18,6 +18,7 @@ import no.nav.bidrag.arbeidsflyt.persistence.entity.BehandlingOppgaveDetaljer
 import no.nav.bidrag.commons.service.forsendelse.bidragsmottaker
 import no.nav.bidrag.commons.service.forsendelse.bidragspliktig
 import no.nav.bidrag.commons.util.secureLogger
+import no.nav.bidrag.domene.enums.behandling.Behandlingstatus
 import no.nav.bidrag.domene.enums.behandling.Behandlingstema
 import no.nav.bidrag.domene.enums.behandling.Behandlingstype
 import no.nav.bidrag.domene.enums.behandling.tilBeskrivelse
@@ -131,7 +132,7 @@ class BehandleBehandlingHendelseService(
             if (søknadsid == null) {
                 null
             } else {
-                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid)).søknad.behandlerenhet
+                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid))?.søknad?.behandlerenhet
             }
         } catch (e: Exception) {
             null
@@ -142,7 +143,7 @@ class BehandleBehandlingHendelseService(
             if (søknadsid == null) {
                 null
             } else {
-                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid)).søknad.behandlingStatusType
+                bbmConsumer.hentSøknad(HentSøknadRequest(søknadsid))?.søknad?.behandlingStatusType
             }
         } catch (e: Exception) {
             null
@@ -288,10 +289,16 @@ class BehandleBehandlingHendelseService(
                 behandling.hendelse!!.barn.map { b ->
                     if (b.søknadsid == null) return@map b
                     val søknad = bbmConsumer.hentSøknad(HentSøknadRequest(b.søknadsid!!))
-                    val søknadBarn = søknad.søknad.partISøknadListe.find { it.personident == b.ident } ?: return@map b
-                    b.copy(
-                        status = søknadBarn.behandlingstatus ?: b.status,
-                    )
+                    if (søknad == null) {
+                        b.copy(
+                            status = Behandlingstatus.TRUKKET,
+                        )
+                    } else {
+                        val søknadBarn = søknad.søknad.partISøknadListe.find { it.personident == b.ident } ?: return@map b
+                        b.copy(
+                            status = søknadBarn.behandlingstatus ?: b.status,
+                        )
+                    }
                 }
 
             behandling.barn!!.barn = barn
