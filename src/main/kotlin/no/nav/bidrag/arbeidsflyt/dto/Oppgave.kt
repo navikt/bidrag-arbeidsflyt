@@ -357,7 +357,7 @@ class OpprettSøknadsoppgaveRequest(
         opprettetAvEnhetsnr = sporingsdata.enhetsnummer ?: "9999"
         fristFerdigstillelse = formatterDatoForOppgave(frist)
         tilordnetRessurs =
-            if (sporingsdataAdjusted.enhetsnummer == null || tildeltEnhetsnr == sporingsdataAdjusted.enhetsnummer) {
+            if (sporingsdataAdjusted.brukerident != "bisys" && (sporingsdataAdjusted.enhetsnummer == null || tildeltEnhetsnr == sporingsdataAdjusted.enhetsnummer)) {
                 sporingsdataAdjusted.brukerident
             } else {
                 null
