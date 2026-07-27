@@ -173,11 +173,21 @@ class OppgaveService(
                 OverforOppgaveTilSaksbehandlerRequest(
                     oppgave,
                     opprettetAvEnhet,
-                    Sporingsdata(
-                        brukerident = overførtTilSaksbehandler,
-                        enhetsnummer = opprettetAvEnhet,
-                        saksbehandlersNavn = overførtTilSaksbehandler?.let { EnhetProvider.hentSaksbehandlernavn(it) },
-                    ).lagSaksbehandlerInfo(),
+                    oppgave.tilordnetRessurs?.let {
+                        Sporingsdata(
+                            brukerident = it,
+                            enhetsnummer = oppgave.tildeltEnhetsnr,
+                            saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(it),
+                        ).lagSaksbehandlerInfo()
+                    },
+                    overførtTilSaksbehandler?.let {
+                        Sporingsdata(
+                            brukerident = it,
+                            enhetsnummer = opprettetAvEnhet,
+                            saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(it),
+                        ).lagSaksbehandlerInfo()
+                    },
+                    overførtTilSaksbehandler!!,
                 ),
         )
     }
