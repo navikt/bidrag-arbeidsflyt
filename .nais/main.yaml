@@ -15,6 +15,7 @@ env:
   BIDRAG_BBM_URL: https://bidrag-bbm.dev-fss-pub.nais.io
   BIDRAG_BEHANDLING_URL: http://bidrag-behandling-q2
 
+  BIDRAG_BEHANDLING_SCOPE: dev-gcp.bidrag.bidrag-behandling-q2
   BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm
   BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q2
   BIDRAG_ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon
@@ -22,7 +23,6 @@ env:
   OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave
   BIDRAG_DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument
   TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll
-  BIDRAG_BEHANDLING_SCOPE: dev-gcp.bidrag.bidrag-behandling-q2
 
   TOPIC_VEDTAK_HENDELSE: bidrag.vedtak-q2
   TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-q2
