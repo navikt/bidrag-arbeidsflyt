@@ -130,7 +130,7 @@ class BehandleBehandlingHendelseService(
     ) {
         try {
             val behandlingDetaljer = hendelse.behandlingsid?.let { behandlingConsumer.hentBehandling(it) } ?: return
-            if (behandlingDetaljer.forholdsmessigFordeling != null) {
+            if (behandlingDetaljer.forholdsmessigFordeling != null && behandling.oppgaverOverførtEtterFFOpprettet == null) {
                 val ff = behandlingDetaljer.forholdsmessigFordeling
                 val søknader =
                     hendelse.barn

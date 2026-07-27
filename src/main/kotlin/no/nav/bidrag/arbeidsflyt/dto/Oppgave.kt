@@ -594,13 +594,17 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
 class OverforOppgaveTilSaksbehandlerRequest(
     override var tildeltEnhetsnr: String?,
 ) : PatchOppgaveRequest() {
-    override var tilordnetRessurs: String? = ""
-
     constructor(oppgaveDataForHendelse: OppgaveData, nyttEnhetsnummer: String?, saksbehandlersInfo: String?) : this(nyttEnhetsnummer) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.tilordnetRessurs = saksbehandlersInfo ?: ""
+        if (!nyttEnhetsnummer.isNullOrEmpty()) {
+            this.endretAvEnhetsnr = nyttEnhetsnummer
+            this.tildeltEnhetsnr = nyttEnhetsnummer
+        }
+
         this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
-            (if (nyttEnhetsnummer != oppgaveDataForHendelse.tildeltEnhetsnr) "· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer\r\n\r\n" else "") +
+            (if (!nyttEnhetsnummer.isNullOrEmpty() && nyttEnhetsnummer != oppgaveDataForHendelse.tildeltEnhetsnr) "· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer\r\n\r\n" else "") +
             "${"· Saksbehandler endret fra ${oppgaveDataForHendelse.tilordnetRessurs ?: "ikke valgt"} til ${saksbehandlersInfo ?: "ikke valgt"}"}\r\n\r\n" +
             (oppgaveDataForHendelse.beskrivelse ?: "")
     }
