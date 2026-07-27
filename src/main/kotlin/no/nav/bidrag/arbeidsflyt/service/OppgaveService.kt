@@ -14,6 +14,7 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettBehandleDokumentOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveTilSaksbehandlerRequest
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
@@ -157,6 +158,22 @@ class OppgaveService(
     ) {
         oppdaterOppgave.oppdaterOppgaveBeskrivelse()
         oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
+    }
+
+    internal fun overforOppgave(
+        oppgave: OppgaveData,
+        overførtTilSaksbehandler: String? = null,
+        opprettetAvEnhet: String? = null,
+    ) {
+        oppgaveConsumer.endreOppgave(
+            endretAvEnhetsnummer = opprettetAvEnhet,
+            patchOppgaveRequest =
+                OverforOppgaveTilSaksbehandlerRequest(
+                    oppgave,
+                    opprettetAvEnhet,
+                    overførtTilSaksbehandler,
+                ),
+        )
     }
 
     internal fun overforOppgaver(

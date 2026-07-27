@@ -3,6 +3,7 @@ package no.nav.bidrag.arbeidsflyt.service
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.bidrag.arbeidsflyt.UnleashFeatures
 import no.nav.bidrag.arbeidsflyt.consumer.BidragBBMConsumer
+import no.nav.bidrag.arbeidsflyt.consumer.BidragBehandlingConsumer
 import no.nav.bidrag.arbeidsflyt.consumer.BidragSakConsumer
 import no.nav.bidrag.arbeidsflyt.dto.OppdaterOppgave
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
@@ -43,6 +44,7 @@ class BehandleBehandlingHendelseService(
     var oppgaveService: OppgaveService,
     var sakConsumer: BidragSakConsumer,
     var bbmConsumer: BidragBBMConsumer,
+    var behandlingConsumer: BidragBehandlingConsumer,
     val persistenceService: PersistenceService,
     val behandlingService: BehandlingService,
 ) {
@@ -116,8 +118,30 @@ class BehandleBehandlingHendelseService(
                 oppdaterOppgaveDetaljer(behandling, åpneOppgaver)
             }
         }
+        overføreOppgaverTilSaksbehandlerSomOpprettetFF(hendelse)
         oppdaterOgLagreBehandling(hendelse, behandling)
         persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
+    }
+
+    private fun overføreOppgaverTilSaksbehandlerSomOpprettetFF(hendelse: BehandlingHendelse) {
+        val behandlingDetaljer = hendelse.behandlingsid?.let { behandlingConsumer.hentBehandling(it) } ?: return
+        if (behandlingDetaljer.forholdsmessigFordeling != null) {
+            val ff = behandlingDetaljer.forholdsmessigFordeling
+            val søknader =
+                hendelse.barn
+                    .filter { it.søknadsid != null }
+                    .filter { !erAvsluttet(it.søknadsid) }
+            søknader.forEach { søknad ->
+                val oppgave = oppgaveService.finnOppgaverForSøknad(søknad.søknadsid, saksnr = søknad.saksnummer)
+                oppgave.dataForHendelse
+                    .filter { !it.erStatusKategoriAvsluttet }
+                    .filter { it.tilordnetRessurs != ff.opprettetAvSaksbehandler }
+                    .forEach {
+                        oppgaveService
+                            .overforOppgave(it, ff.opprettetAvSaksbehandler, ff.opprettetAvEnhet)
+                    }
+            }
+        }
     }
 
     private fun erAvsluttet(søknadsid: Long?): Boolean =
