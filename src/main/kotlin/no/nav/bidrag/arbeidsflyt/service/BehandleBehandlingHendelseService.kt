@@ -35,6 +35,7 @@ import no.nav.bidrag.transport.behandling.hendelse.BehandlingStatusType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 private val LOGGER = KotlinLogging.logger {}
 val BehandlingStatusType.erAvsluttet get() = listOf(BehandlingStatusType.AVBRUTT, BehandlingStatusType.VEDTAK_FATTET).contains(this)
@@ -118,29 +119,38 @@ class BehandleBehandlingHendelseService(
                 oppdaterOppgaveDetaljer(behandling, åpneOppgaver)
             }
         }
-        overføreOppgaverTilSaksbehandlerSomOpprettetFF(hendelse)
+        overføreOppgaverTilSaksbehandlerSomOpprettetFF(hendelse, behandling)
         oppdaterOgLagreBehandling(hendelse, behandling)
         persistenceService.slettFeiledeMeldingerMedSøknadId(hendelse.søknadsid ?: hendelse.behandlingsid!!)
     }
 
-    private fun overføreOppgaverTilSaksbehandlerSomOpprettetFF(hendelse: BehandlingHendelse) {
-        val behandlingDetaljer = hendelse.behandlingsid?.let { behandlingConsumer.hentBehandling(it) } ?: return
-        if (behandlingDetaljer.forholdsmessigFordeling != null) {
-            val ff = behandlingDetaljer.forholdsmessigFordeling
-            val søknader =
-                hendelse.barn
-                    .filter { it.søknadsid != null }
-                    .filter { !erAvsluttet(it.søknadsid) }
-            søknader.forEach { søknad ->
-                val oppgave = oppgaveService.finnOppgaverForSøknad(søknad.søknadsid, saksnr = søknad.saksnummer)
-                oppgave.dataForHendelse
-                    .filter { !it.erStatusKategoriAvsluttet }
-                    .filter { it.tilordnetRessurs != ff.opprettetAvSaksbehandler }
-                    .forEach {
-                        oppgaveService
-                            .overforOppgave(it, ff.opprettetAvSaksbehandler, ff.opprettetAvEnhet)
-                    }
+    private fun overføreOppgaverTilSaksbehandlerSomOpprettetFF(
+        hendelse: BehandlingHendelse,
+        behandling: Behandling,
+    ) {
+        try {
+            val behandlingDetaljer = hendelse.behandlingsid?.let { behandlingConsumer.hentBehandling(it) } ?: return
+            if (behandlingDetaljer.forholdsmessigFordeling != null) {
+                val ff = behandlingDetaljer.forholdsmessigFordeling
+                val søknader =
+                    hendelse.barn
+                        .filter { it.søknadsid != null }
+                        .filter { !erAvsluttet(it.søknadsid) }
+                søknader.forEach { søknad ->
+                    val oppgave = oppgaveService.finnOppgaverForSøknad(søknad.søknadsid, saksnr = søknad.saksnummer)
+                    oppgave.dataForHendelse
+                        .filter { !it.erStatusKategoriAvsluttet }
+                        .filter { it.tilordnetRessurs != ff.opprettetAvSaksbehandler }
+                        .forEach {
+                            oppgaveService
+                                .overforOppgave(it, ff.opprettetAvSaksbehandler, ff.opprettetAvEnhet)
+                        }
+                }
+                // Forsikre at oppgaver ikke overføres flere ganger hvis feks SB manuelt overfører til en annen
+                behandling.oppgaverOverførtEtterFFOpprettet = LocalDateTime.now()
             }
+        } catch (e: Exception) {
+            secureLogger.error(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet" }
         }
     }
 
