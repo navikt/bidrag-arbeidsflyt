@@ -21,7 +21,9 @@ import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
 import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgaveDetaljert
 import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
+import no.nav.bidrag.commons.service.organisasjon.EnhetProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -171,7 +173,11 @@ class OppgaveService(
                 OverforOppgaveTilSaksbehandlerRequest(
                     oppgave,
                     opprettetAvEnhet,
-                    overførtTilSaksbehandler,
+                    Sporingsdata(
+                        brukerident = overførtTilSaksbehandler,
+                        enhetsnummer = opprettetAvEnhet,
+                        saksbehandlersNavn = overførtTilSaksbehandler?.let { EnhetProvider.hentSaksbehandlernavn(it) },
+                    ).lagSaksbehandlerInfo(),
                 ),
         )
     }

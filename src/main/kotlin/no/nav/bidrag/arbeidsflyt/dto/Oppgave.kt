@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
+import no.nav.bidrag.commons.service.organisasjon.EnhetProvider
 import no.nav.bidrag.commons.service.organisasjon.SaksbehandlernavnProvider
 import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
@@ -347,7 +348,7 @@ class OpprettSøknadsoppgaveRequest(
         val sporingsdataAdjusted =
             if (sporingsdata.saksbehandlersNavn.isNullOrEmpty() && !sporingsdata.brukerident.isNullOrEmpty()) {
                 sporingsdata.copy(
-                    saksbehandlersNavn = SaksbehandlernavnProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
+                    saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
                 )
             } else {
                 sporingsdata
