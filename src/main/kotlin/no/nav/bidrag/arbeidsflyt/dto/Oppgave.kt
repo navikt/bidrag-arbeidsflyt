@@ -600,11 +600,11 @@ class OverforOppgaveTilSaksbehandlerRequest(
         nyttEnhetsnummer: String?,
         eksisterendeSaksbehandlerInfo: String?,
         saksbehandlersInfo: String?,
-        saksbehandlerIdent: String,
+        saksbehandlerIdent: String?,
     ) : this(nyttEnhetsnummer) {
         leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
         val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
-        this.tilordnetRessurs = saksbehandlerIdent
+        this.tilordnetRessurs = saksbehandlerIdent ?: ""
         if (!nyttEnhetsnummer.isNullOrEmpty()) {
             this.endretAvEnhetsnr = nyttEnhetsnummer
             this.tildeltEnhetsnr = nyttEnhetsnummer

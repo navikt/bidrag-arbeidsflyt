@@ -187,7 +187,7 @@ class OppgaveService(
                             saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(it),
                         ).lagSaksbehandlerInfo()
                     },
-                    overførtTilSaksbehandler!!,
+                    overførtTilSaksbehandler,
                 ),
         )
     }
