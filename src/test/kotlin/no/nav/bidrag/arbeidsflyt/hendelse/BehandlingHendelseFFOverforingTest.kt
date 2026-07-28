@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -16,6 +16,7 @@ import no.nav.bidrag.arbeidsflyt.consumer.ForholdmessigFordelingDetaljerDto
 import no.nav.bidrag.arbeidsflyt.dto.METADATA_NØKKEL_SØKNAD_ID
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveData
 import no.nav.bidrag.arbeidsflyt.dto.OppgaveStatus
+import no.nav.bidrag.arbeidsflyt.persistence.entity.Behandling
 import no.nav.bidrag.arbeidsflyt.persistence.repository.BehandlingRepository
 import no.nav.bidrag.arbeidsflyt.service.BehandleBehandlingHendelseService
 import no.nav.bidrag.arbeidsflyt.utils.enableUnleashFeature
@@ -51,8 +52,14 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
     @Autowired
     lateinit var behandlingRepository: BehandlingRepository
 
-    private val saksbehandlerSomOpprettetFF = "Z000001"
-    private val enhetSomOpprettetFF = "4812"
+    companion object {
+        private const val OPPGAVE_ID = 555L
+        private const val SAKSNUMMER = "123456"
+        private const val SAKSBEHANDLER_SOM_OPPRETTET_FF = "Z000001"
+        private const val ENHET_SOM_OPPRETTET_FF = "4812"
+        private const val ANNEN_SAKSBEHANDLER = "Z111111"
+        private const val ANNEN_ENHET = "4806"
+    }
 
     @BeforeEach
     fun initUnleash() {
@@ -63,19 +70,19 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
         behandlingsid: Long,
         forholdsmessigFordeling: ForholdmessigFordelingDetaljerDto? =
             ForholdmessigFordelingDetaljerDto(
-                opprettetAvSaksbehandler = saksbehandlerSomOpprettetFF,
-                opprettetAvEnhet = enhetSomOpprettetFF,
+                opprettetAvSaksbehandler = SAKSBEHANDLER_SOM_OPPRETTET_FF,
+                opprettetAvEnhet = ENHET_SOM_OPPRETTET_FF,
             ),
     ) {
         val respons =
             BehandlingDetaljerDtoV2(
                 id = behandlingsid,
-                saksnummer = "123456",
+                saksnummer = SAKSNUMMER,
                 opprettetAv = SaksbehandlerDto("Z999999", "Testbruker"),
                 forholdsmessigFordeling = forholdsmessigFordeling,
             )
         stubFor(
-            get(urlMatching("/behandling/api/v2/behandling/detaljer/$behandlingsid"))
+            get(urlEqualTo("/behandling/api/v2/behandling/detaljer/$behandlingsid"))
                 .willReturn(
                     aResponse()
                         .withHeader(HttpHeaders.CONNECTION, "close")
@@ -94,16 +101,16 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
             behandlingsid = behandlingsid,
             opprettetTidspunkt = LocalDateTime.now(),
             endretTidspunkt = LocalDateTime.now(),
-            behandlerEnhet = "4806",
+            behandlerEnhet = ANNEN_ENHET,
             søknadsid = 123,
             mottattDato = LocalDate.parse("2020-06-01"),
-            sporingsdata = Sporingsdata("test", "test", "test", enhetsnummer = "4806"),
+            sporingsdata = Sporingsdata("test", "test", "test", enhetsnummer = ANNEN_ENHET),
             barn = listOf(opprettBarn()),
         )
 
     private fun opprettBarn() =
         BehandlingHendelseBarn(
-            saksnummer = "123456",
+            saksnummer = SAKSNUMMER,
             behandlingstype = Behandlingstype.ENDRING,
             behandlingstema = Behandlingstema.BIDRAG,
             status = Behandlingstatus.UNDER_BEHANDLING,
@@ -113,21 +120,27 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
             søktFraDato = LocalDate.parse("2020-06-01"),
             ident = "123213",
             søknadsid = 123,
-            behandlerEnhet = "4806",
+            behandlerEnhet = ANNEN_ENHET,
         )
 
+    /**
+     * Stubber oppgavesøket som både brukes for å avgjøre om det finnes åpne søknadsoppgaver
+     * og for å finne oppgaver som eventuelt skal overføres etter at FF er opprettet.
+     * Scoper stubben til [SAKSNUMMER] slik at et søk med feil saksnummer ikke ved en
+     * feiltakelse matcher og skjuler en logikkfeil.
+     */
     private fun stubOppgaveForSaken(
-        tilordnetRessurs: String? = "Z111111",
-        tildeltEnhetsnr: String? = "4806",
+        tilordnetRessurs: String?,
+        tildeltEnhetsnr: String?,
         status: OppgaveStatus? = OppgaveStatus.OPPRETTET,
     ) {
-        stubHentOppgaveSok(
+        stubHentOppgaveContaining(
             oppgaver =
                 listOf(
                     OppgaveData(
-                        id = 555L,
+                        id = OPPGAVE_ID,
                         versjon = 1,
-                        saksreferanse = "123456",
+                        saksreferanse = SAKSNUMMER,
                         tema = "BID",
                         tildeltEnhetsnr = tildeltEnhetsnr,
                         tilordnetRessurs = tilordnetRessurs,
@@ -135,7 +148,31 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
                         metadata = mapOf(METADATA_NØKKEL_SØKNAD_ID to "123"),
                     ),
                 ),
+            "saksreferanse" to SAKSNUMMER,
         )
+    }
+
+    private fun verifyHentBehandlingDetaljerKalt(
+        behandlingsid: Long,
+        antall: Int,
+    ) {
+        verify(antall, getRequestedFor(urlEqualTo("/behandling/api/v2/behandling/detaljer/$behandlingsid")))
+    }
+
+    private fun verifyOppgaveOverfortTilSaksbehandler(
+        saksbehandler: String,
+        enhet: String?,
+    ) {
+        val overførtRequest = getOppgaveEndretRequest(oppgaveId = OPPGAVE_ID)
+        overførtRequest.shouldNotBeNull()
+        overførtRequest.tilordnetRessurs shouldBe saksbehandler
+        overførtRequest.tildeltEnhetsnr shouldBe enhet
+    }
+
+    private fun hentBehandling(behandlingsid: Long): Behandling {
+        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
+        behandling.shouldNotBeNull()
+        return behandling
     }
 
     @Test
@@ -143,20 +180,14 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
         val behandlingsid = 555555L
         val hendelse = opprettHendelse(behandlingsid)
         stubHentSak(opprettSakForBehandling(hendelse.barn.first()))
-        stubOppgaveForSaken(tilordnetRessurs = "Z111111", tildeltEnhetsnr = "4806")
+        stubOppgaveForSaken(tilordnetRessurs = ANNEN_SAKSBEHANDLER, tildeltEnhetsnr = ANNEN_ENHET)
         stubHentBehandlingDetaljer(behandlingsid)
 
         behandleHendelseService.behandleHendelse(hendelse)
 
-        verify(1, getRequestedFor(urlMatching("/behandling/api/v2/behandling/detaljer/.*")))
-        val overførtRequest = getOppgaveEndretRequest(oppgaveId = 555L)
-        overførtRequest.shouldNotBeNull()
-        overførtRequest!!.tilordnetRessurs shouldBe saksbehandlerSomOpprettetFF
-        overførtRequest.tildeltEnhetsnr shouldBe enhetSomOpprettetFF
-
-        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
-        behandling.shouldNotBeNull()
-        behandling!!.oppgaverOverførtEtterFFOpprettet.shouldNotBeNull()
+        verifyHentBehandlingDetaljerKalt(behandlingsid, antall = 1)
+        verifyOppgaveOverfortTilSaksbehandler(SAKSBEHANDLER_SOM_OPPRETTET_FF, ENHET_SOM_OPPRETTET_FF)
+        hentBehandling(behandlingsid).oppgaverOverførtEtterFFOpprettet.shouldNotBeNull()
     }
 
     @Test
@@ -164,16 +195,13 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
         val behandlingsid = 555556L
         val hendelse = opprettHendelse(behandlingsid)
         stubHentSak(opprettSakForBehandling(hendelse.barn.first()))
-        stubOppgaveForSaken(tilordnetRessurs = saksbehandlerSomOpprettetFF, tildeltEnhetsnr = enhetSomOpprettetFF)
+        stubOppgaveForSaken(tilordnetRessurs = SAKSBEHANDLER_SOM_OPPRETTET_FF, tildeltEnhetsnr = ENHET_SOM_OPPRETTET_FF)
         stubHentBehandlingDetaljer(behandlingsid)
 
         behandleHendelseService.behandleHendelse(hendelse)
 
         verifyOppgaveNotEndret()
-
-        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
-        behandling.shouldNotBeNull()
-        behandling!!.oppgaverOverførtEtterFFOpprettet.shouldNotBeNull()
+        hentBehandling(behandlingsid).oppgaverOverførtEtterFFOpprettet.shouldNotBeNull()
     }
 
     @Test
@@ -181,16 +209,13 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
         val behandlingsid = 555557L
         val hendelse = opprettHendelse(behandlingsid)
         stubHentSak(opprettSakForBehandling(hendelse.barn.first()))
-        stubOppgaveForSaken(tilordnetRessurs = "Z111111", tildeltEnhetsnr = "4806")
+        stubOppgaveForSaken(tilordnetRessurs = ANNEN_SAKSBEHANDLER, tildeltEnhetsnr = ANNEN_ENHET)
         stubHentBehandlingDetaljer(behandlingsid, forholdsmessigFordeling = null)
 
         behandleHendelseService.behandleHendelse(hendelse)
 
         verifyOppgaveNotEndret()
-
-        val behandling = behandlingRepository.finnForBehandlingId(behandlingsid)
-        behandling.shouldNotBeNull()
-        behandling!!.oppgaverOverførtEtterFFOpprettet.shouldBeNull()
+        hentBehandling(behandlingsid).oppgaverOverførtEtterFFOpprettet.shouldBeNull()
     }
 
     @Test
@@ -198,26 +223,25 @@ internal class BehandlingHendelseFFOverforingTest : AbstractBehandleHendelseTest
         val behandlingsid = 555558L
         val hendelse = opprettHendelse(behandlingsid)
         stubHentSak(opprettSakForBehandling(hendelse.barn.first()))
-        stubOppgaveForSaken(tilordnetRessurs = "Z111111", tildeltEnhetsnr = "4806")
+        stubOppgaveForSaken(tilordnetRessurs = ANNEN_SAKSBEHANDLER, tildeltEnhetsnr = ANNEN_ENHET)
         stubHentBehandlingDetaljer(behandlingsid)
 
         behandleHendelseService.behandleHendelse(hendelse)
-        verify(1, patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
+        verify(1, patchRequestedFor(urlEqualTo("/oppgave/api/v1/oppgaver/$OPPGAVE_ID")))
+        verifyHentBehandlingDetaljerKalt(behandlingsid, antall = 1)
 
-        val behandlingEtterFørsteKall = behandlingRepository.finnForBehandlingId(behandlingsid)
-        behandlingEtterFørsteKall.shouldNotBeNull()
-        val overførtTidspunktEtterFørsteKall = behandlingEtterFørsteKall!!.oppgaverOverførtEtterFFOpprettet
+        val overførtTidspunktEtterFørsteKall = hentBehandling(behandlingsid).oppgaverOverførtEtterFFOpprettet
         overførtTidspunktEtterFørsteKall.shouldNotBeNull()
 
         // Send samme hendelse på nytt (feks pga replay/duplikat) med nytt endret tidspunkt
         val andreHendelse = hendelse.copy(endretTidspunkt = LocalDateTime.now().plusMinutes(1))
         behandleHendelseService.behandleHendelse(andreHendelse)
 
-        // Fremdeles kun én overføring skal ha skjedd totalt
-        verify(1, patchRequestedFor(urlMatching("/oppgave/api/v1/oppgaver/.*")))
+        // FF-detaljer hentes på nytt for hver hendelse ...
+        verifyHentBehandlingDetaljerKalt(behandlingsid, antall = 2)
+        // ... men oppgaven skal fremdeles kun ha blitt overført én gang totalt
+        verify(1, patchRequestedFor(urlEqualTo("/oppgave/api/v1/oppgaver/$OPPGAVE_ID")))
 
-        val behandlingEtterAndreKall = behandlingRepository.finnForBehandlingId(behandlingsid)
-        behandlingEtterAndreKall.shouldNotBeNull()
-        behandlingEtterAndreKall!!.oppgaverOverførtEtterFFOpprettet shouldBe overførtTidspunktEtterFørsteKall
+        hentBehandling(behandlingsid).oppgaverOverførtEtterFFOpprettet shouldBe overførtTidspunktEtterFørsteKall
     }
 }
