@@ -138,10 +138,12 @@ class BehandleBehandlingHendelseService(
                         .filter { !erAvsluttet(it.søknadsid) }
                 søknader.forEach { søknad ->
                     val oppgave = oppgaveService.finnOppgaverForSøknad(søknad.søknadsid, saksnr = søknad.saksnummer)
+                    secureLogger.info { "Forholdsmessig fordeling (FF) opprettet for behandling ${behandling.behandlingsid}. Overfører alle tilhørende oppgaver til SB som opprettet FF." }
                     oppgave.dataForHendelse
                         .filter { !it.erStatusKategoriAvsluttet }
                         .filter { it.tilordnetRessurs != ff.opprettetAvSaksbehandler }
                         .forEach {
+                            secureLogger.info { "Overfør oppgave ${it.id} i sak ${it.saksreferanse} til saksbehandler ${ff.opprettetAvSaksbehandler} etter FF ble opprettet." }
                             oppgaveService
                                 .overforOppgave(it, ff.opprettetAvSaksbehandler, ff.opprettetAvEnhet)
                         }
@@ -150,7 +152,7 @@ class BehandleBehandlingHendelseService(
                 behandling.oppgaverOverførtEtterFFOpprettet = LocalDateTime.now()
             }
         } catch (e: Exception) {
-            secureLogger.error(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet" }
+            secureLogger.error(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet for behandling ${behandling.behandlingsid} og hendelse $hendelse" }
         }
     }
 
