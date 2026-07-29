@@ -7,6 +7,7 @@ import no.nav.bidrag.transport.behandling.behandling.HentÅpneBehandlingerReques
 import no.nav.bidrag.transport.behandling.behandling.HentÅpneBehandlingerRespons
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
@@ -42,15 +43,17 @@ class BidragBehandlingConsumer(
             .toUri()
 
     @Retryable(maxAttempts = 3, backoff = Backoff(delay = 500, maxDelay = 1500, multiplier = 2.0))
-    fun hentBehandling(behandlingId: Long): BehandlingDetaljerDtoV2 =
+    fun hentBehandling(behandlingId: Long): BehandlingDetaljerDtoV2? =
         try {
-            getForNonNullEntity<BehandlingDetaljerDtoV2>(
+            getForEntity<BehandlingDetaljerDtoV2>(
                 createUri("/api/v2/behandling/detaljer/$behandlingId"),
             )
-        } catch (
-            e: HttpStatusCodeException,
-        ) {
-            LOGGER.error(e) { "Det skjedde en feil ved henting av behandling $behandlingId" }
-            throw e
+        } catch (e: HttpStatusCodeException) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                null
+            } else {
+                LOGGER.error(e) { "Det skjedde en feil ved henting av behandling $behandlingId" }
+                throw e
+            }
         }
 }
