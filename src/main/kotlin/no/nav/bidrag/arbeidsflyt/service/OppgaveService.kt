@@ -14,13 +14,16 @@ import no.nav.bidrag.arbeidsflyt.dto.OppgaveType
 import no.nav.bidrag.arbeidsflyt.dto.OpprettBehandleDokumentOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OpprettJournalforingsOppgaveRequest
 import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveRequest
+import no.nav.bidrag.arbeidsflyt.dto.OverforOppgaveTilSaksbehandlerRequest
 import no.nav.bidrag.arbeidsflyt.model.Fagomrade
 import no.nav.bidrag.arbeidsflyt.model.OppgaverForHendelse
 import no.nav.bidrag.arbeidsflyt.model.journalpostIdUtenPrefix
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedPrefix
 import no.nav.bidrag.arbeidsflyt.model.mapTilOpprettOppgaveDetaljert
 import no.nav.bidrag.arbeidsflyt.utils.enhetKonvertert
+import no.nav.bidrag.commons.service.organisasjon.EnhetProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
+import no.nav.bidrag.transport.dokument.Sporingsdata
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -157,6 +160,36 @@ class OppgaveService(
     ) {
         oppdaterOppgave.oppdaterOppgaveBeskrivelse()
         oppgaveConsumer.endreOppgave(oppdaterOppgave, endretAvEnhetsnummer)
+    }
+
+    internal fun overforOppgave(
+        oppgave: OppgaveData,
+        overførtTilSaksbehandler: String? = null,
+        opprettetAvEnhet: String? = null,
+    ) {
+        oppgaveConsumer.endreOppgave(
+            endretAvEnhetsnummer = opprettetAvEnhet,
+            patchOppgaveRequest =
+                OverforOppgaveTilSaksbehandlerRequest(
+                    oppgave,
+                    opprettetAvEnhet,
+                    oppgave.tilordnetRessurs?.let {
+                        Sporingsdata(
+                            brukerident = it,
+                            enhetsnummer = oppgave.tildeltEnhetsnr,
+                            saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(it),
+                        ).lagSaksbehandlerInfo()
+                    },
+                    overførtTilSaksbehandler?.let {
+                        Sporingsdata(
+                            brukerident = it,
+                            enhetsnummer = opprettetAvEnhet,
+                            saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(it),
+                        ).lagSaksbehandlerInfo()
+                    },
+                    overførtTilSaksbehandler,
+                ),
+        )
     }
 
     internal fun overforOppgaver(

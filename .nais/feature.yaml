@@ -13,6 +13,7 @@ env:
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll-feature
   BIDRAG_SAK_URL: https://bidrag-sak-q1.dev-fss-pub.nais.io/bidrag-sak
   BIDRAG_BBM_URL: https://bidrag-bbm-feature.dev-fss-pub.nais.io
+  BIDRAG_BEHANDLING_URL: http://bidrag-behandling-q1
 
   BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm-feature
   BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q1
@@ -21,6 +22,7 @@ env:
   OPPGAVE_SCOPE: dev-fss.oppgavehandtering.oppgave-q1
   BIDRAG_DOKUMENT_SCOPE: dev-fss.bidrag.bidrag-dokument-feature
   TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
+  BIDRAG_BEHANDLING_SCOPE: dev-gcp.bidrag.bidrag-behandling-q1
 
   TOPIC_VEDTAK_HENDELSE: bidrag.vedtak-q1
   TOPIC_BEHANDLING_HENDELSE: bidrag.behandling-q1
@@ -38,6 +40,7 @@ ingresses:
   - https://bidrag-arbeidsflyt-feature.intern.dev.nav.no
 outbound-access-apps:
   - bidrag-tilgangskontroll-feature
+  - bidrag-behandling-q1
 outbound-access-hosts:
    - bidrag-dokument-feature.dev-fss-pub.nais.io
    - bidrag-sak-q1.dev-fss-pub.nais.io

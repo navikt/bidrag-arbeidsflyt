@@ -57,7 +57,7 @@ internal class JournalpostHendelseListenerTest(
             createDLQKafka(objectMapper.writeValueAsString(journalpostHendelse), messageKey = journalpostIdMedJoarkPrefix),
         )
 
-        val dlqMessagesBefore = testDataGenerator.hentDlKafka()
+        val dlqMessagesBefore = testDataGenerator.hentDlKafka().filter { it.topicName == topic }
         assertThat(dlqMessagesBefore.size).isEqualTo(2)
 
         val hendelseString =
@@ -70,7 +70,7 @@ internal class JournalpostHendelseListenerTest(
         configureProducer()?.send(ProducerRecord(topic, hendelseString))
 
         await.atMost(4, TimeUnit.SECONDS).untilAsserted {
-            val dlqMessagesAfter = testDataGenerator.hentDlKafka()
+            val dlqMessagesAfter = testDataGenerator.hentDlKafka().filter { it.topicName == topic }
             secureLogger.info { "MELDINGER: $dlqMessagesAfter" }
             assertThat(dlqMessagesAfter.size).isEqualTo(0)
         }
@@ -87,7 +87,7 @@ internal class JournalpostHendelseListenerTest(
         configureProducer()?.send(ProducerRecord(topic, BID_JOURNALPOST_ID_3_NEW, hendelseString))
 
         await.atMost(6, TimeUnit.SECONDS).untilAsserted {
-            val dlMessages = testDataGenerator.hentDlKafka()
+            val dlMessages = testDataGenerator.hentDlKafka().filter { it.topicName == topic }
             assertThat(dlMessages.size).isEqualTo(1)
             secureLogger.info { "MELDINGER: $dlMessages" }
             assertThat(dlMessages[0].messageKey).isEqualTo(BID_JOURNALPOST_ID_3_NEW)

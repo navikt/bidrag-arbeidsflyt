@@ -6,6 +6,7 @@ import no.nav.bidrag.arbeidsflyt.model.ENHET_FAGPOST
 import no.nav.bidrag.arbeidsflyt.model.isBidJournalpostId
 import no.nav.bidrag.arbeidsflyt.model.journalpostMedBareBIDPrefix
 import no.nav.bidrag.arbeidsflyt.model.tilFagområdeBeskrivelse
+import no.nav.bidrag.commons.service.organisasjon.EnhetProvider
 import no.nav.bidrag.commons.service.organisasjon.SaksbehandlernavnProvider
 import no.nav.bidrag.commons.util.VirkedagerProvider
 import no.nav.bidrag.transport.dokument.JournalpostHendelse
@@ -347,7 +348,7 @@ class OpprettSøknadsoppgaveRequest(
         val sporingsdataAdjusted =
             if (sporingsdata.saksbehandlersNavn.isNullOrEmpty() && !sporingsdata.brukerident.isNullOrEmpty()) {
                 sporingsdata.copy(
-                    saksbehandlersNavn = SaksbehandlernavnProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
+                    saksbehandlersNavn = EnhetProvider.hentSaksbehandlernavn(sporingsdata.brukerident!!),
                 )
             } else {
                 sporingsdata
@@ -588,6 +589,31 @@ class EndreMellomBidragFagomrader() : PatchOppgaveRequest() {
             this.beskrivelse += "${"Saksbehandler endret fra $saksbehandlersInfo til ikke valgt"}\r\n\r\n"
         }
         this.beskrivelse += oppgaveDataForHendelse.beskrivelse ?: ""
+    }
+}
+
+class OverforOppgaveTilSaksbehandlerRequest(
+    override var tildeltEnhetsnr: String?,
+) : PatchOppgaveRequest() {
+    constructor(
+        oppgaveDataForHendelse: OppgaveData,
+        nyttEnhetsnummer: String?,
+        eksisterendeSaksbehandlerInfo: String?,
+        saksbehandlersInfo: String?,
+        saksbehandlerIdent: String?,
+    ) : this(nyttEnhetsnummer) {
+        leggTilObligatoriskeVerdier(oppgaveDataForHendelse)
+        val dateFormatted = LocalDateTime.now().format(NORSK_TIDSSTEMPEL_FORMAT)
+        this.tilordnetRessurs = saksbehandlerIdent ?: ""
+        if (!nyttEnhetsnummer.isNullOrEmpty()) {
+            this.endretAvEnhetsnr = nyttEnhetsnummer
+            this.tildeltEnhetsnr = nyttEnhetsnummer
+        }
+
+        this.beskrivelse = "--- $dateFormatted $saksbehandlersInfo ---\r\n" +
+            (if (!nyttEnhetsnummer.isNullOrEmpty() && nyttEnhetsnummer != oppgaveDataForHendelse.tildeltEnhetsnr) "· Oppgave overført fra enhet ${oppgaveDataForHendelse.tildeltEnhetsnr} til $nyttEnhetsnummer\r\n\r\n" else "") +
+            "${"· Saksbehandler endret fra ${eksisterendeSaksbehandlerInfo ?: "ikke valgt"} til ${saksbehandlersInfo ?: "ikke valgt"}"}\r\n\r\n" +
+            (oppgaveDataForHendelse.beskrivelse ?: "")
     }
 }
 

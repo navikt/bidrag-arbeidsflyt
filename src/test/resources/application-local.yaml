@@ -3,11 +3,13 @@ logging:
     root: INFO
 
 BIDRAG_PERSON_URL: https://bidrag-person-q1.dev.intern.nav.no/bidrag-sak
+BIDRAG_BEHANDLING_URL: https://bidrag-behandling-q1.intern.dev.nav.no
 BIDRAG_PERSON_SCOPE: dev-fss.bidrag.bidrag-person-q1
 BIDRAG_SAK_URL: https://bidrag-sak-q1.dev.intern.nav.no/bidrag-sak
 BIDRAG_BBM_URL: https://bidrag-bbm-feature.dev.intern.nav.no
 BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm-feature
 BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q1
+BIDRAG_BEHANDLING_SCOPE: dev-gcp.bidrag.bidrag-behandling-q1
 BIDRAG_TILGANGSKONTROLL_URL: https://bidrag-tilgangskontroll-feature.intern.dev.nav.no
 TILGANGSKONTROLL_SCOPE: dev-gcp.bidrag.bidrag-tilgangskontroll-feature
 KAFKA_MAX_RETRY: 1

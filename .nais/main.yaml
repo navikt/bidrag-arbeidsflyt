@@ -13,7 +13,9 @@ env:
   BIDRAG_TILGANGSKONTROLL_URL: http://bidrag-tilgangskontroll
   BIDRAG_SAK_URL: https://bidrag-sak-q2.dev-fss-pub.nais.io/bidrag-sak
   BIDRAG_BBM_URL: https://bidrag-bbm.dev-fss-pub.nais.io
+  BIDRAG_BEHANDLING_URL: http://bidrag-behandling-q2
 
+  BIDRAG_BEHANDLING_SCOPE: dev-gcp.bidrag.bidrag-behandling-q2
   BIDRAG_BBM_SCOPE: dev-fss.bidrag.bidrag-bbm
   BIDRAG_SAK_SCOPE: dev-fss.bidrag.bidrag-sak-q2
   BIDRAG_ORGANISASJON_SCOPE: dev-fss.bidrag.bidrag-organisasjon
@@ -38,6 +40,7 @@ ingresses:
   - https://bidrag-arbeidsflyt.intern.dev.nav.no
 outbound-access-apps:
   - bidrag-tilgangskontroll
+  - bidrag-behandling-q2
 outbound-access-hosts:
    - bidrag-dokument.dev-fss-pub.nais.io
    - bidrag-sak-q2.dev-fss-pub.nais.io
