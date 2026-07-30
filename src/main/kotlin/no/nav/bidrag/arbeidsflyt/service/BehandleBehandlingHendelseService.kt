@@ -152,7 +152,7 @@ class BehandleBehandlingHendelseService(
                 behandling.oppgaverOverførtEtterFFOpprettet = LocalDateTime.now()
             }
         } catch (e: Exception) {
-            secureLogger.error(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet for behandling ${behandling.behandlingsid} og hendelse $hendelse" }
+            secureLogger.warn(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet for behandling ${behandling.behandlingsid} og hendelse $hendelse" }
         }
     }
 
