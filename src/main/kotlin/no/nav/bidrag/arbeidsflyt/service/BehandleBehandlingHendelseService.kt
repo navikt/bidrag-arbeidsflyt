@@ -129,6 +129,7 @@ class BehandleBehandlingHendelseService(
         behandling: Behandling,
     ) {
         try {
+            if (erBehandlingAvsluttet(hendelse)) return
             val behandlingDetaljer = hendelse.behandlingsid?.let { behandlingConsumer.hentBehandling(it) } ?: return
             if (behandlingDetaljer.forholdsmessigFordeling != null && behandling.oppgaverOverførtEtterFFOpprettet == null) {
                 val ff = behandlingDetaljer.forholdsmessigFordeling
@@ -154,6 +155,12 @@ class BehandleBehandlingHendelseService(
         } catch (e: Exception) {
             secureLogger.error(e) { "Det skjedde en feil ved overføring av oppgaver etter FF er opprettet for behandling ${behandling.behandlingsid} og hendelse $hendelse" }
         }
+    }
+
+    private fun erBehandlingAvsluttet(hendelse: BehandlingHendelse): Boolean {
+        val erAvsluttet = hendelse.status.erAvsluttet
+        val erFeilregistrert = hendelse.barn.all { it.status.lukketStatus }
+        return erAvsluttet || erFeilregistrert || erAvsluttet(hendelse.søknadsid)
     }
 
     private fun erAvsluttet(søknadsid: Long?): Boolean =

@@ -52,7 +52,7 @@ class BidragBehandlingConsumer(
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 null
             } else {
-                LOGGER.error(e) { "Det skjedde en feil ved henting av behandling $behandlingId" }
+                LOGGER.warn(e) { "Det skjedde en feil ved henting av behandling $behandlingId" }
                 throw e
             }
         }
